@@ -253,8 +253,9 @@ Multiple examples:
 
 ## Who is using kickr ?
 
-- https://github.com/kilianpaquier/compare (Golang library)
+- https://github.com/kickr-dev/engine (Golang library containing the engine for kickr generation)
 - https://github.com/kickr-dev/kickr (Golang CLI with executables as artifacts in releases)
+- https://github.com/kilianpaquier/compare (Golang library)
 - https://github.com/kilianpaquier/dotfiles (Dotfiles repository with various shell scripts)
 - https://github.com/kilianpaquier/gitlab-storage-cleaner (Golang CLI with Docker deployment and executables as artifacts in releases)
 - https://github.com/kilianpaquier/go-builder-generator (Golang CLI with executables as artifacts in releases)
