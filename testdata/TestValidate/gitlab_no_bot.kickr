@@ -1,0 +1,5 @@
+# Kickr configuration file (https://github.com/kickr-dev/kickr)
+---
+maintainers:
+  - name: kilianpaquier
+platform: gitlab

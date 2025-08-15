@@ -1,12 +1,12 @@
-# craft <!-- omit in toc -->
+# kickr <!-- omit in toc -->
 
 <p align="center">
-  <img alt="GitHub Release" src="https://img.shields.io/github/v/release/kilianpaquier/craft?include_prereleases&sort=semver&style=for-the-badge">
-  <img alt="GitHub Issues" src="https://img.shields.io/github/issues-raw/kilianpaquier/craft?style=for-the-badge">
-  <img alt="GitHub License" src="https://img.shields.io/github/license/kilianpaquier/craft?style=for-the-badge">
-  <img alt="Coverage" src="https://img.shields.io/codecov/c/github/kilianpaquier/craft/main?style=for-the-badge">
-  <img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/kilianpaquier/craft/main?style=for-the-badge&label=Go+Version">
-  <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/kilianpaquier/craft?style=for-the-badge">
+  <img alt="GitHub Release" src="https://img.shields.io/github/v/release/kickr-dev/kickr?include_prereleases&sort=semver&style=for-the-badge">
+  <img alt="GitHub Issues" src="https://img.shields.io/github/issues-raw/kickr-dev/kickr?style=for-the-badge">
+  <img alt="GitHub License" src="https://img.shields.io/github/license/kickr-dev/kickr?style=for-the-badge">
+  <img alt="Coverage" src="https://img.shields.io/codecov/c/github/kickr-dev/kickr/main?style=for-the-badge">
+  <img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/kickr-dev/kickr/main?style=for-the-badge&label=Go+Version">
+  <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/kickr-dev/kickr?style=for-the-badge">
 </p>
 
 ---
@@ -17,18 +17,18 @@
 - [Commands](#commands)
   - [Init](#init)
   - [Generate](#generate)
-- [Craft file](#craft-file)
+- [Kickr file](#kickr-file)
   - [VSCode association and schema](#vscode-association-and-schema)
 - [Generations](#generations)
-- [Who is using craft ?](#who-is-using-craft-)
-- [Craft as an SDK](#craft-as-an-sdk)
+- [Who is using kickr ?](#who-is-using-kickr-)
+- [Kickr as an SDK](#kickr-as-an-sdk)
 
 ## How to use ?
 
 ### Go
 
 ```sh
-go install github.com/kilianpaquier/craft/cmd/craft@latest
+go install github.com/kickr-dev/kickr/cmd/kickr@latest
 ```
 
 ### Linux
@@ -38,48 +38,48 @@ OS="linux" # change it depending on your case
 ARCH="amd64" # change it depending on your case
 INSTALL_DIR="$HOME/.local/bin" # change it depending on your case
 
-new_version=$(curl -fsSL "https://api.github.com/repos/kilianpaquier/craft/releases/latest" | jq -r '.tag_name')
-url="https://github.com/kilianpaquier/craft/releases/download/$new_version/craft_${OS}_${ARCH}.tar.gz"
-curl -fsSL "$url" | (mkdir -p "/tmp/craft/$new_version" && cd "/tmp/craft/$new_version" && tar -xz)
-cp "/tmp/craft/$new_version/craft" "$INSTALL_DIR/craft"
+new_version=$(curl -fsSL "https://api.github.com/repos/kickr-dev/kickr/releases/latest" | jq -r '.tag_name')
+url="https://github.com/kickr-dev/kickr/releases/download/$new_version/kickr_${OS}_${ARCH}.tar.gz"
+curl -fsSL "$url" | (mkdir -p "/tmp/kickr/$new_version" && cd "/tmp/kickr/$new_version" && tar -xz)
+cp "/tmp/kickr/$new_version/kickr" "$INSTALL_DIR/kickr"
 ```
 
 ## Commands
 
 ```
-Craft initializes or generates craft projects. Craft projects are only defined by a .craft file
+Kickr initializes or generates kickr projects. Kickr projects are only defined by a .kickr file
 and multiple files automatically generated to avoid multiple hours to setup Continuous Integration, coverage, security analyses, helm chart, etc.
 
-Craft generation can be done with 'craft' command or 'craft generate' command.
-Additional generation command are available to generate only subparts of craft layout (like 'craft chart').
+Kickr generation can be done with 'kickr' command or 'kickr generate' command.
+Additional generation command are available to generate only subparts of kickr layout (like 'kickr chart').
 
 Usage:
-  craft [flags]
-  craft [command]
+  kickr [flags]
+  kickr [command]
 
 Available Commands:
   completion  Generate the autocompletion script for the specified shell
   generate    Generate project layout
   help        Help about any command
-  init        Initialize craft project
-  version     Show current craft version
+  init        Initialize kickr project
+  version     Show current kickr version
 
 Flags:
   -d, --dir string          set directory where generation will be made (default is current directory)
-  -h, --help                help for craft
+  -h, --help                help for kickr
       --log-format string   set logging format (either "text" or "json") (default "text")
       --log-level string    set logging level (default "info")
 
-Use "craft [command] --help" for more information about a command.
+Use "kickr [command] --help" for more information about a command.
 ```
 
 ### Init
 
 ```
-Initialize new craft project
+Initialize new kickr project
 
 Usage:
-  craft init [flags]
+  kickr init [flags]
 
 Flags:
   -h, --help   help for init
@@ -96,7 +96,7 @@ Global Flags:
 Generate project layout
 
 Usage:
-  craft generate [flags]
+  kickr generate [flags]
 
 Flags:
   -h, --help   help for generate
@@ -107,9 +107,9 @@ Global Flags:
       --log-level string    set logging level (default "info")
 ```
 
-## Craft file
+## Kickr file
 
-Craft project generation is based on root's `.craft` file, it can contain the following configurations:
+Kickr project generation is based on root's `.kickr` file, it can contain the following configurations:
 
 ```yaml
 # bot in charge of keeping dependencies up to date
@@ -128,9 +128,9 @@ ci:
     release: github-app | github-token | personal-token
 
   docker:
-    # target path for docker push (i.e. kilianpaquier/craft)
+    # target path for docker push (i.e. kickr-dev/kickr)
     # (optional, by default will be provisionned with <owner>/<repository>)
-    path: kilianpaquier/craft
+    path: kickr-dev/kickr
     # specific exposed port (optional, default is 3000)
     # used in various places like helm values.yml service port
     # Dockerfile exposed port
@@ -148,9 +148,9 @@ ci:
     platform: kubernetes | netlify | pages
 
   helm:
-    # target path for helm cm-push (i.e. kilianpaquier/craft)
+    # target path for helm cm-push (i.e. kickr-dev/kickr)
     # (optional, by default will be provisionned with <owner>/<repository>)
-    path: kilianpaquier/craft
+    path: kickr-dev/kickr
     # whether to push the project helm chart on an helm repository or not
     publish: auto | manual | none
     # specific helm repository to push the generated chart on
@@ -220,24 +220,24 @@ platform: bitbucket | gitea | github | gitlab
 
 ### VSCode association and schema
 
-When working on **vscode**, feel free to use craft's schemas to help setup your project:
+When working on **vscode**, feel free to use kickr's schemas to help setup your project:
 
 ```json
 {
     "files.associations": {
-        ".craft": "yaml"
+        ".kickr": "yaml"
     }
 }
 ```
 
-It's only creating the association between yaml files and `.craft`, however combined with **vscode** extension **redhat.vscode-yaml**,
-it will load the schema fine since a header is added in all `.craft` when written.
+It's only creating the association between yaml files and `.kickr`, however combined with **vscode** extension **redhat.vscode-yaml**,
+it will load the schema fine since a header is added in all `.kickr` when written.
 
 ## Generations
 
-Craft generation is based on separated parsers and separated generators.
+Kickr generation is based on separated parsers and separated generators.
 
-- Each `parser` checks from `.craft` configuration and project's files to add specific behaviors in a shared structure.
+- Each `parser` checks from `.kickr` configuration and project's files to add specific behaviors in a shared structure.
 - Each `generator` generates a part of a project layout (for instance, a `generator` is in charge of generating the helm chart).
 
 Generation process first runs over all parsers to make sure a project is fully known with its specificities, then it runs over all generators.
@@ -246,15 +246,15 @@ Multiple examples:
 - A `go.mod` is detected with `Golang` parser, combined with `ci` configuration, then the appropriate CI will be generated.
 - A `go.mod` is detected with `Golang` parser and a `hugo.(toml|yaml|...)` or `theme.(toml|yaml|...)` is detected too, combined with the `ci` and `deployment` options,
   then the appropriate **Netlify** or **Pages** (it can be **GitLab** or **GitHub**) deployment will be generated in CI files.
-- If `exclude: [chart]` is not given, a custom craft helm chart will be generated.
+- If `exclude: [chart]` is not given, a custom kickr helm chart will be generated.
   This helm chart can deploy cronjobs, jobs and workers easily from `values.yaml` file.
 - A `package.json` is detected with `Node` parser, combined with `ci` configuration, then the appropriate CI will be generated
   (codecov analysis, sonar analysis, lint, tests, build if needed).
 
-## Who is using craft ?
+## Who is using kickr ?
 
 - https://github.com/kilianpaquier/compare (Golang library)
-- https://github.com/kilianpaquier/craft (Golang CLI with executables as artifacts in releases)
+- https://github.com/kickr-dev/kickr (Golang CLI with executables as artifacts in releases)
 - https://github.com/kilianpaquier/dotfiles (Dotfiles repository with various shell scripts)
 - https://github.com/kilianpaquier/gitlab-storage-cleaner (Golang CLI with Docker deployment and executables as artifacts in releases)
 - https://github.com/kilianpaquier/go-builder-generator (Golang CLI with executables as artifacts in releases)
@@ -265,6 +265,6 @@ Multiple examples:
 - https://github.com/kilianpaquier/zsh-plugins (ZSH plugins repository with various shell scripts)
 - https://gitlab.com/nath7098/personal-website (Node static website deployed with Docker)
 
-## Craft as an SDK
+## Kickr as an SDK
 
-Craft can also be used as an SDK, for that you may check the official documentation on [pkg.go.dev](https://pkg.go.dev/github.com/kilianpaquier/craft).
+Kickr can also be used as an SDK, for that you may check the official documentation on [pkg.go.dev](https://pkg.go.dev/github.com/kickr-dev/engine).

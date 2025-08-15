@@ -1,0 +1,6 @@
+# Kickr configuration file (https://github.com/kickr-dev/kickr)
+---
+bot: renovate
+maintainers:
+  - name: kilianpaquier
+platform: gitlab

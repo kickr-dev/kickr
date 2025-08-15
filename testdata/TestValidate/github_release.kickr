@@ -1,0 +1,12 @@
+# Kickr configuration file (https://github.com/kickr-dev/kickr)
+---
+ci:
+  auth:
+    release: github-token
+  name: github
+  release:
+    auto: true
+    backmerge: true
+maintainers:
+  - name: kilianpaquier
+platform: gitlab

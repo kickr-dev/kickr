@@ -1,8 +1,8 @@
 {
-    "$id": "https://raw.githubusercontent.com/kilianpaquier/craft/main/.schemas/chart.schema.json",
+    "$id": "https://raw.githubusercontent.com/kickr-dev/kickr/main/.schemas/chart.schema.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Helm values for craft",
-    "description": "Helm values overrides for craft chart file",
+    "title": "Helm values for kickr",
+    "description": "Helm values overrides for kickr chart file",
     "type": "object",
     "additionalProperties": false,
     "$defs": {

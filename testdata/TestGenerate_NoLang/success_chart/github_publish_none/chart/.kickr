@@ -1,0 +1,2 @@
+# Helm values overrides configuration (override is made during 'kickr generate')
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kickr-dev/kickr/beta/.schemas/chart.schema.json

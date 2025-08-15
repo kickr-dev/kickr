@@ -21,13 +21,12 @@ var (
 	})
 
 	rootCmd = &cobra.Command{
-		Use:   "craft",
+		Use:   "kickr",
 		Short: generateCmd.Short,
-		Long: `Craft initializes or generates craft projects. Craft projects are only defined by a .craft file
+		Long: `Kickr initializes or generates kickr projects. Kickr projects are only defined by a .kickr file
 and multiple files automatically generated to avoid multiple hours to setup Continuous Integration, coverage, security analyzes, helm chart, etc.
 
-Craft generation can be done with 'craft' command or 'craft generate' command.
-Additional generation command are available to generate only subparts of craft layout (like 'craft chart').`,
+Kickr generation can be done with 'kickr' command or 'kickr generate' command.`,
 		SilenceErrors:     true, // don't print errors with cobra, let logger.Fatal handle them
 		PersistentPreRunE: globalFlags,
 		Run:               generateCmd.Run,

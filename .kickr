@@ -1,0 +1,20 @@
+# Kickr configuration file (https://github.com/kickr-dev/kickr)
+# yaml-language-server: $schema=https://raw.githubusercontent.com/kickr-dev/kickr/beta/.schemas/kickr.schema.json
+bot: renovate
+ci:
+  auth:
+    maintenance: personal-token
+    release: github-token
+  name: github
+  options:
+    - codecov
+    - labeler
+  release: {}
+exclude:
+  - shell
+include:
+  - renovate:post-upgrade
+license: apache-2.0
+maintainers:
+  - name: kilianpaquier
+platform: github

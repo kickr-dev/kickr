@@ -1,0 +1,10 @@
+# Kickr configuration file (https://github.com/kickr-dev/kickr)
+---
+bot: dependabot
+ci:
+  auth:
+    maintenance: personal-token
+  name: github
+maintainers:
+  - name: kilianpaquier
+platform: github

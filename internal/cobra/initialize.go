@@ -3,20 +3,20 @@ package cobra
 import (
 	"path/filepath"
 
+	engine "github.com/kickr-dev/engine/pkg"
+	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/spf13/cobra"
 
-	craft "github.com/kilianpaquier/craft/pkg/craft/configuration"
-	"github.com/kilianpaquier/craft/pkg/craft/initialize"
-	"github.com/kilianpaquier/craft/pkg/engine"
-	"github.com/kilianpaquier/craft/pkg/engine/files"
+	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/initialize"
 )
 
 var initializeCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initialize new craft project",
+	Short: "Initialize new kickr project",
 	Run: func(cmd *cobra.Command, _ []string) {
 		ctx := cmd.Context()
-		dest := filepath.Join(wd, craft.File)
+		dest := filepath.Join(wd, kickr.File)
 
 		if files.Exists(dest) {
 			logger.Info("project already initialized")
@@ -28,7 +28,7 @@ var initializeCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
-		if err := files.WriteYAML(dest, config, craft.EncodeOpts()...); err != nil {
+		if err := files.WriteYAML(dest, config, kickr.EncodeOpts()...); err != nil {
 			logger.Fatal(err)
 		}
 	},

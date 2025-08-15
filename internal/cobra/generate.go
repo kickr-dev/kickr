@@ -6,20 +6,20 @@ import (
 	"path/filepath"
 	"slices"
 
+	engine "github.com/kickr-dev/engine/pkg"
+	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/spf13/cobra"
 
-	schemas "github.com/kilianpaquier/craft/.schemas"
-	craft "github.com/kilianpaquier/craft/pkg/craft/configuration"
-	"github.com/kilianpaquier/craft/pkg/craft/generate"
-	"github.com/kilianpaquier/craft/pkg/craft/generate/templates"
-	"github.com/kilianpaquier/craft/pkg/engine"
-	"github.com/kilianpaquier/craft/pkg/engine/files"
+	schemas "github.com/kickr-dev/kickr/.schemas"
+	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate"
+	"github.com/kickr-dev/kickr/pkg/generate/templates"
 )
 
-func gen(generators ...engine.Generator[craft.Config]) func(cmd *cobra.Command, args []string) {
+func gen(generators ...engine.Generator[kickr.Config]) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		dest := filepath.Join(wd, craft.File)
+		dest := filepath.Join(wd, kickr.File)
 		logger.Infof("generating layout in %s", wd)
 
 		// initialize configuration if it does not exist
@@ -29,14 +29,14 @@ func gen(generators ...engine.Generator[craft.Config]) func(cmd *cobra.Command, 
 
 		// validate configuration
 		if err := files.Validate(
-			func(out any) error { return files.ReadJSON(schemas.Craft, out, schemas.ReadFile) }, // read schema
+			func(out any) error { return files.ReadJSON(schemas.Kickr, out, schemas.ReadFile) }, // read schema
 			func(out any) error { return files.ReadYAML(dest, out, os.ReadFile) },               // read configuration
 		); err != nil {
 			logger.Fatal(err)
 		}
 
 		// read configuration
-		var config craft.Config
+		var config kickr.Config
 		if err := files.ReadYAML(dest, &config, os.ReadFile); err != nil {
 			logger.Fatal(err)
 		}
@@ -44,7 +44,7 @@ func gen(generators ...engine.Generator[craft.Config]) func(cmd *cobra.Command, 
 
 		// run generation
 		engine.SetLogger(logger)
-		parsers := []engine.Parser[craft.Config]{
+		parsers := []engine.Parser[kickr.Config]{
 			generate.ParserGit,
 			generate.ParserGolang,
 			generate.ParserNode,
@@ -57,7 +57,7 @@ func gen(generators ...engine.Generator[craft.Config]) func(cmd *cobra.Command, 
 		}
 
 		// save configuration again in case it was modified during generation
-		if err := files.WriteYAML(dest, config, craft.EncodeOpts()...); err != nil {
+		if err := files.WriteYAML(dest, config, kickr.EncodeOpts()...); err != nil {
 			logger.Fatal(err)
 		}
 	}

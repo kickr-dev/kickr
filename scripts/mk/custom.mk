@@ -1,6 +1,6 @@
 .PHONY: dev
 dev: build
-	@mv ./craft ~/.local/bin/craft.dev
+	@mv ./kickr ~/.local/bin/kickr.dev
 
 .PHONY: ua
 ua:

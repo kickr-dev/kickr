@@ -1,13 +1,13 @@
 ---
-# Source: craft/templates/service.yaml
+# Source: kickr/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: craft-worker-name
+  name: kickr-worker-name
   labels:
-    helm.sh/chart: craft-0.1.0
-    app.kubernetes.io/name: craft
-    app.kubernetes.io/instance: craft
+    helm.sh/chart: kickr-0.1.0
+    app.kubernetes.io/name: kickr
+    app.kubernetes.io/instance: kickr
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -18,18 +18,18 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app.kubernetes.io/name: craft
-    app.kubernetes.io/instance: craft
+    app.kubernetes.io/name: kickr
+    app.kubernetes.io/instance: kickr
 ---
-# Source: craft/templates/deployment.yaml
+# Source: kickr/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: craft-worker-name
+  name: kickr-worker-name
   labels:
-    helm.sh/chart: craft-0.1.0
-    app.kubernetes.io/name: craft
-    app.kubernetes.io/instance: craft
+    helm.sh/chart: kickr-0.1.0
+    app.kubernetes.io/name: kickr
+    app.kubernetes.io/instance: kickr
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -37,13 +37,13 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: craft
-      app.kubernetes.io/instance: craft
+      app.kubernetes.io/name: kickr
+      app.kubernetes.io/instance: kickr
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: craft
-        app.kubernetes.io/instance: craft
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
     spec:
       serviceAccountName: default
       securityContext:
@@ -64,7 +64,7 @@ spec:
             runAsGroup: 1001
             runAsNonRoot: true
             runAsUser: 1001
-          image: "kilianpaquier/craft:0.1.0"
+          image: "kickr-dev/kickr:0.1.0"
           ports:
             - name: http
               containerPort: 3000
@@ -83,16 +83,16 @@ spec:
               memory: 128Mi
       restartPolicy: Always
 ---
-# Source: craft/templates/job.yaml
+# Source: kickr/templates/job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: craft-job-name
+  name: kickr-job-name
   namespace: default
   labels:
-    helm.sh/chart: craft-0.1.0
-    app.kubernetes.io/name: craft
-    app.kubernetes.io/instance: craft
+    helm.sh/chart: kickr-0.1.0
+    app.kubernetes.io/name: kickr
+    app.kubernetes.io/instance: kickr
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -102,13 +102,13 @@ spec:
   parallelism: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: craft
-      app.kubernetes.io/instance: craft
+      app.kubernetes.io/name: kickr
+      app.kubernetes.io/instance: kickr
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: craft
-        app.kubernetes.io/instance: craft
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
     spec:
       serviceAccountName: default
       securityContext:
@@ -129,7 +129,7 @@ spec:
             runAsGroup: 1001
             runAsNonRoot: true
             runAsUser: 1001
-          image: "kilianpaquier/craft:0.1.0"
+          image: "kickr-dev/kickr:0.1.0"
           env:
             - name: BINARY_NAME
               value: "job-name"
@@ -144,15 +144,15 @@ spec:
               memory: 128Mi
       restartPolicy: OnFailure
 ---
-# Source: craft/templates/cronjob.yaml
+# Source: kickr/templates/cronjob.yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: craft-cron-name
+  name: kickr-cron-name
   labels:
-    helm.sh/chart: craft-0.1.0
-    app.kubernetes.io/name: craft
-    app.kubernetes.io/instance: craft
+    helm.sh/chart: kickr-0.1.0
+    app.kubernetes.io/name: kickr
+    app.kubernetes.io/instance: kickr
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -168,13 +168,13 @@ spec:
       parallelism: 1
       selector:
         matchLabels:
-          app.kubernetes.io/name: craft
-          app.kubernetes.io/instance: craft
+          app.kubernetes.io/name: kickr
+          app.kubernetes.io/instance: kickr
       template:
         metadata:
           labels:
-            app.kubernetes.io/name: craft
-            app.kubernetes.io/instance: craft
+            app.kubernetes.io/name: kickr
+            app.kubernetes.io/instance: kickr
         spec:
           serviceAccountName: default
           securityContext:
@@ -195,7 +195,7 @@ spec:
                 runAsGroup: 1001
                 runAsNonRoot: true
                 runAsUser: 1001
-              image: "kilianpaquier/craft:0.1.0"
+              image: "kickr-dev/kickr:0.1.0"
               env:
                 - name: BINARY_NAME
                   value: "cron-name"
@@ -210,23 +210,23 @@ spec:
                   memory: 128Mi
           restartPolicy: OnFailure
 ---
-# Source: craft/templates/configmap.yaml
-# Code generated by craft; DO NOT EDIT.
+# Source: kickr/templates/configmap.yaml
+# Code generated by kickr; DO NOT EDIT.
 ---
-# Source: craft/templates/cronjob.yaml
-# Code generated by craft; DO NOT EDIT.
+# Source: kickr/templates/cronjob.yaml
+# Code generated by kickr; DO NOT EDIT.
 ---
-# Source: craft/templates/deployment.yaml
-# Code generated by craft; DO NOT EDIT.
+# Source: kickr/templates/deployment.yaml
+# Code generated by kickr; DO NOT EDIT.
 ---
-# Source: craft/templates/hpa.yaml
-# Code generated by craft; DO NOT EDIT.
+# Source: kickr/templates/hpa.yaml
+# Code generated by kickr; DO NOT EDIT.
 ---
-# Source: craft/templates/job.yaml
-# Code generated by craft; DO NOT EDIT.
+# Source: kickr/templates/job.yaml
+# Code generated by kickr; DO NOT EDIT.
 ---
-# Source: craft/templates/service.yaml
-# Code generated by craft; DO NOT EDIT.
+# Source: kickr/templates/service.yaml
+# Code generated by kickr; DO NOT EDIT.
 ---
-# Source: craft/templates/serviceaccount.yaml
-# Code generated by craft; DO NOT EDIT.
+# Source: kickr/templates/serviceaccount.yaml
+# Code generated by kickr; DO NOT EDIT.

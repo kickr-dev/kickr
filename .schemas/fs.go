@@ -4,7 +4,7 @@ import "embed"
 
 const (
 	Chart = "chart.schema.json"
-	Craft = "craft.schema.json"
+	Kickr = "kickr.schema.json"
 )
 
 //go:embed *.json
