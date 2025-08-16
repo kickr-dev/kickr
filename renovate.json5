@@ -145,10 +145,10 @@
             ],
             "matchStrings": [
                 // uses: <packageName>@<currentValue>
-                "uses:\\s*(?<packageName>[^@\\s'\"]+)@(?<currentValue>[\\w.+-]+)",
+                "uses:\\s*(?<packageName>[^@\\s'\"]+)@(?<currentValue>[\\w.+-]+)$/",
 
                 // uses: <packageName>@<currentDigest> # <currentValue>
-                "uses:\\s*(?<packageName>[^@\\s'\"]+)@(?<currentDigest>[\\w.+-]+)\\s#\\s(?<currentValue>[\\w.+-]+)"
+                "uses:\\s*(?<packageName>[^@\\s'\"]+)@(?<currentDigest>[\\w.+-]+)\\s#\\s(?<currentValue>[\\w.+-]+)$/"
             ],
             "versioningTemplate": "semver-coerced"
         },
@@ -162,11 +162,11 @@
             "matchStrings": [
                 // project: <packageName>
                 // ref: <currentValue> (quotes may or may not be there)
-                "project:\\s*(?<packageName>\\S+)\\s*ref:\\s*['\"]?(?<currentValue>[\\w.+-]+)['\"]?",
+                "project:\\s*(?<packageName>\\S+)\\s*ref:\\s*['\"]?(?<currentValue>[\\w.+-]+)['\"]?$/",
 
                 // project: <packageName>
                 // ref: <currentDigest> # <currentValue>
-                "project:\\s*(?<packageName>\\S+)\\s*ref:\\s*(?<currentDigest>[\\w.+-]+)\\s#\\s(?<currentValue>[\\w.+-]+)"
+                "project:\\s*(?<packageName>\\S+)\\s*ref:\\s*(?<currentDigest>[\\w.+-]+)\\s#\\s(?<currentValue>[\\w.+-]+)$/"
             ],
             "versioningTemplate": "semver-coerced"
         },
@@ -179,7 +179,7 @@
             "matchStrings": [
                 // renovate: datasource=<datasource> packageName=<packageName> (depName=<depName>, i.e. optional)
                 // rev: <the version>
-                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?\\s*rev:\\s{0,1}(?<currentValue>[\\w.+-]+)"
+                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?\\s*rev:\\s{0,1}(?<currentValue>[\\w.+-]+)$/"
             ],
             "versioningTemplate": "semver-coerced"
         },
@@ -192,7 +192,7 @@
             "matchStrings": [
                 // renovate: datasource=<datasource> (packageName=<packageName>, i.e. optional)
                 // install-tool <depName> <currentValue>
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?\\ninstall-tool\\s(?<depName>\\S+)\\s(?<currentValue>[\\w.+-]+)"
+                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?\\ninstall-tool\\s(?<depName>\\S+)\\s(?<currentValue>[\\w.+-]+)$/"
             ],
             "versioningTemplate": "semver"
         },
@@ -206,7 +206,7 @@
             "matchStrings": [
                 // renovate: datasource=<datasource> packageName=<packageName> (depName=<depName>, i.e. optional) (versioning=<versioning>, i.e. optional)
                 // ENV <text>_VERSION=<currentValue>
-                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\\nENV\\s\\S+_VERSION=(?<currentValue>[\\w.+-]+)"
+                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\\nENV\\s\\S+_VERSION=(?<currentValue>[\\w.+-]+)$/"
             ]
         },
         {
@@ -218,7 +218,7 @@
             "matchStrings": [
                 // renovate: datasource=<datasource> packageName=<packageName> (depName=<depName>, i.e. optional) (versioning=<versioning>, i.e. optional)
                 // <text>: <currentValue>
-                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\\s*\\S+:\\s{0,1}(?<currentValue>[\\w.+-]+)"
+                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\\s*\\S+:\\s{0,1}(?<currentValue>[\\w.+-]+)$/"
             ]
         }
     ]
