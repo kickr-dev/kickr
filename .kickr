@@ -3,7 +3,7 @@
 bot: renovate
 ci:
   auth:
-    maintenance: personal-token
+    maintenance: github-app
     release: github-token
   name: github
   options:
