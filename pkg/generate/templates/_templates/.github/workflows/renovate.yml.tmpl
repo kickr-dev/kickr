@@ -40,7 +40,7 @@ jobs:
           app-id: ${{ vars.RENOVATE_APP_ID }}
           private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
 <<- end >>
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 <<- if eq .CI.Auth.Maintenance "github-app" >>
         with:
           token: ${{ steps.app_token.outputs.token }}

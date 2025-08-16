@@ -65,7 +65,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.head_ref }}
       - uses: actions/setup-python@v5

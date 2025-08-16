@@ -119,7 +119,7 @@ jobs:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
 <<- end >>
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 <<- if ne .CI.Auth.Release "github-token" >>
@@ -175,7 +175,7 @@ jobs:
         env:
           SEMREL_INFO_NEXT_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
 <<- else >>
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: version
         run: |-
           DESCRIBE=$(git describe --tags || echo "v0.0.0")
@@ -232,7 +232,7 @@ jobs:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
 <<- end >>
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 <<- if ne .CI.Auth.Release "github-token" >>
