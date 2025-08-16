@@ -131,9 +131,9 @@ jobs:
       - run: mkdir -p reports/
       - if: ${{ matrix.os != 'windows-latest' }}
         shell: bash
-        run: go test ./... -v -coverpkg="./..." -covermode="count" -coverprofile="reports/go-coverage.native.out" -timeout=15s | tee "reports/tests.log"
+        run: go test ./... -v -coverpkg="./..." -covermode="count" -coverprofile="reports/go-coverage.native.out" -timeout=30s | tee "reports/tests.log"
       - if: ${{ matrix.os == 'windows-latest' }}
-        run: go test ./... -v -coverpkg="./..." -covermode="count" -coverprofile="reports/go-coverage.native.out" -timeout=15s | tee "reports/tests.log"
+        run: go test ./... -v -coverpkg="./..." -covermode="count" -coverprofile="reports/go-coverage.native.out" -timeout=30s | tee "reports/tests.log"
       - if: ${{ !cancelled() }}
         shell: bash
         run: |-
