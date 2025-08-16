@@ -23,6 +23,14 @@ on:
           - none
           - full
         default: dry-run
+      release:
+        description: Release job run mode.
+        type: choice
+        options:
+          - dry-run
+          - none
+          - release
+        default: dry-run
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -69,12 +77,41 @@ jobs:
     needs: run-workflow
     outputs:
       version: ${{ steps.version.outputs.version }}
+    permissions:
+      id-token: none
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # https://github.com/marketplace/actions/action-for-semantic-release
+      - id: semrel_version
+        # renovate: datasource=git-refs packageName=https://github.com/cycjimmy/semantic-release-action depName=cycjimmy/semantic-release-action versioning=docker
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          dry_run: true
+          # renovate: datasource=github-tags packageName=semantic-release/semantic-release versioning=docker
+          semantic_version: 24
+          extra_plugins: |-
+            @semantic-release/changelog
+            @semantic-release/commit-analyzer
+            @semantic-release/exec
+            @semantic-release/git
+            @semantic-release/github
+            @semantic-release/release-notes-generator
+            conventional-changelog-conventionalcommits
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: version
         run: |-
-          DESCRIBE=$(git describe --tags || echo "v0.0.0")
-          echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
+          if [ -n "$SEMREL_INFO_NEXT_VERSION" ]; then
+            echo "version=v${SEMREL_INFO_NEXT_VERSION#v}" >> $GITHUB_OUTPUT
+          else
+            DESCRIBE=$(git describe --tags || echo "v0.0.0")
+            echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
+          fi
+        env:
+          SEMREL_INFO_NEXT_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
       - run: echo ${VERSION}
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -274,3 +311,49 @@ jobs:
           HELM_CHART_URL: chartmuseum.example.com/path/to/repository
           HELM_DRY_RUN: ${{ inputs.deploy }}
           VERSION: ${{ needs.version.outputs.version }}
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: ${{ inputs.release != 'none' && github.ref_protected }}
+    needs:
+      - docker-build
+      - go-build
+    environment:
+      name: release
+      url: ${{ steps.environment_url.outputs.environment_url }}
+    permissions:
+      id-token: none
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@v5
+        with:
+          name: build
+          path: dist
+      # https://github.com/marketplace/actions/action-for-semantic-release
+      - id: semrel_version
+        # renovate: datasource=git-refs packageName=https://github.com/cycjimmy/semantic-release-action depName=cycjimmy/semantic-release-action versioning=docker
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          dry_run: ${{ inputs.release != 'release' }}
+          # renovate: datasource=github-tags packageName=semantic-release/semantic-release versioning=docker
+          semantic_version: 24
+          extra_plugins: |-
+            @semantic-release/changelog
+            @semantic-release/commit-analyzer
+            @semantic-release/exec
+            @semantic-release/git
+            @semantic-release/github
+            @semantic-release/release-notes-generator
+            conventional-changelog-conventionalcommits
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - id: environment_url
+        if: ${{ steps.semrel_version.outputs.new_release_published == 'true' }}
+        run: |-
+          [ -z "$VERSION" ] || echo "environment_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${VERSION#v}" >> $GITHUB_OUTPUT
+        env:
+          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}

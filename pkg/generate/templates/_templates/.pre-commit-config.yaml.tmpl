@@ -54,3 +54,12 @@ repos:
         entry: bash -c 'go mod tidy'
         language: system
 {{- end }}
+
+{{- if and (not .CI) $golang }}
+
+  - repo: https://github.com/golangci/golangci-lint
+    # renovate: datasource=github-tags packageName=golangci/golangci-lint
+    rev: v2.4.0
+    hooks:
+      - id: golangci-lint
+{{- end }}

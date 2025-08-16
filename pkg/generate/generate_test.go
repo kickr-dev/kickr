@@ -250,23 +250,18 @@ func TestGenerate_Golang(t *testing.T) {
 	})
 
 	t.Run("success_library", func(t *testing.T) {
-		for _, ci := range []string{parser.GitLab, parser.GitHub} {
-			t.Run(ci, func(t *testing.T) {
+		for _, platform := range []string{parser.GitLab, parser.GitHub} {
+			t.Run(platform, func(t *testing.T) {
 				// Arrange
 				config := kickr.Config{
-					CI: &kickr.CI{
-						Name:    ci,
-						Options: []string{kickr.Sonar, kickr.CodeQL, kickr.Labeler},
-						Release: &kickr.Release{},
-					},
 					Exclude: []string{kickr.Makefile},
 					Include: []string{kickr.PreCommitGomodTidy},
-					VCS:     parser.VCS{Platform: ci},
+					VCS:     parser.VCS{Platform: platform},
 				}
 				golang := func(_ context.Context, _ string, config *kickr.Config) error {
 					gomod := parser.Gomod{
 						Go:     "1.23",
-						Module: ci + ".com/kickr-dev/kickr",
+						Module: platform + ".com/kickr-dev/kickr",
 					}
 					config.VCS = gomod.AsVCS()
 					config.SetLanguage("go", gomod)
@@ -289,7 +284,8 @@ func TestGenerate_Golang(t *testing.T) {
 						Deployment: &kickr.Deployment{Platform: kickr.Kubernetes},
 						Docker:     &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
 						Helm:       &kickr.Helm{Path: "path/to/repository", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"},
-						Options:    []string{kickr.CodeCov, kickr.CodeQL, kickr.Labeler},
+						Options:    []string{kickr.CodeCov, kickr.CodeQL, kickr.Sonar, kickr.Labeler},
+						Release:    &kickr.Release{},
 					},
 					Description: "A useful project description",
 					Exclude:     []string{kickr.Shell},
