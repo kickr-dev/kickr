@@ -4,13 +4,15 @@
 include:
 
   # semantic-release template
+  # https://gitlab.com/to-be-continuous/semantic-release
   - project: to-be-continuous/semantic-release
-    ref: "3"
+    ref: 17d4867d8a9007ddcac2e8599548913513168e58 # 4.0.0
     file: "templates/gitlab-ci-semrel.yml"
 
   # pre-commit template
+  # https://gitlab.com/to-be-continuous/pre-commit
   - project: to-be-continuous/pre-commit
-    ref: "1"
+    ref: d56e5eb8bc1cf6f038a863678442c50104a3244e # 1.4.0
     file: "templates/gitlab-ci-pre-commit.yml"
 
 variables:

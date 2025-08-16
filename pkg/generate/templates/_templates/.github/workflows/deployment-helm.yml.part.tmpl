@@ -22,11 +22,11 @@ jobs:
     permissions:
       packages: << $ghcr | ternary "write" "none" >>
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       # https://github.com/marketplace/actions/helm-tool-installer
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
         with:
-          # renovate: datasource=github-tags packageName=helm/helm versioning=semver
+          # renovate: datasource=github-tags packageName=helm/helm depName=helm
           version: v3.18.4
       - run: helm package --version "$VERSION" --app-version "$VERSION" --dependency-update "$HELM_CHART_DIR"
         env:
@@ -99,11 +99,11 @@ jobs:
           - environment: production # disable on non-production branches
             production: false
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       # https://github.com/marketplace/actions/helm-tool-installer
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
         with:
-          # renovate: datasource=github-tags packageName=helm/helm versioning=semver
+          # renovate: datasource=github-tags packageName=helm/helm depName=helm
           version: v3.18.4
       - shell: bash
         run: |-

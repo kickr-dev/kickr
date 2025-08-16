@@ -10,16 +10,16 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: package.json
 <<- else >>
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           cache: << $manager >>
           node-version: lts/*
@@ -33,16 +33,16 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: package.json
 <<- else >>
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           cache: << $manager >>
           node-version: lts/*
@@ -55,7 +55,7 @@ jobs:
 <<- end >>
       - run: << $manager >> run lint -o reports/node-lint.xslint.json -f json
 <<- if has "sonar" .CI.Options >>
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: lint
           path: reports
@@ -74,16 +74,16 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: package.json
 <<- else >>
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           cache: << $manager >>
           node-version: lts/*
@@ -103,7 +103,7 @@ jobs:
 <<- end >>
 <<- if has "codecov" .CI.Options >>
       - if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
@@ -116,7 +116,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
       - if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
@@ -129,7 +129,7 @@ jobs:
           OS: ${{ matrix.os }}
 <<- end >>
 <<- if has "sonar" .CI.Options >>
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage
           path: reports

@@ -28,8 +28,8 @@ jobs:
       deployments: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
           name: build
           path: dist
@@ -41,7 +41,7 @@ jobs:
         run: |-
           [ ! -f netlify.toml ] || echo "path=netlify.toml" >> $GITHUB_OUTPUT
       - id: netlify
-        uses: nwtgck/actions-netlify@v3
+        uses: nwtgck/actions-netlify@4cbaf4c08f1a7bfa537d6113472ef4424e4eb654 # v3.0.0
         with:
           alias: ${{ steps.branch_sha.outputs.branch_sha }}
           deploy-message: ${{ github.ref_name }}
@@ -79,7 +79,7 @@ jobs:
       pull-requests: write
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
         with:
           artifact_name: github-pages
           preview: ${{ github.ref_name != github.event.repository.default_branch }}

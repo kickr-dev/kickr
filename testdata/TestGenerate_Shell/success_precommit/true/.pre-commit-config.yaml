@@ -9,20 +9,20 @@ default_stages:
 
 repos:
   - repo: https://github.com/compilerla/conventional-pre-commit
-    # renovate: datasource=github-tags packageName=compilerla/conventional-pre-commit
+    # renovate: datasource=github-tags packageName=compilerla/conventional-pre-commit depName=conventional-pre-commit
     rev: v4.2.0
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
 
   - repo: https://github.com/gitleaks/gitleaks
-    # renovate: datasource=github-tags packageName=gitleaks/gitleaks
+    # renovate: datasource=github-tags packageName=gitleaks/gitleaks depName=gitleaks
     rev: v8.28.0
     hooks:
       - id: gitleaks
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    # renovate: datasource=github-tags packageName=pre-commit/pre-commit-hooks
+    # renovate: datasource=github-tags packageName=pre-commit/pre-commit-hooks depName=pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: check-merge-conflict
@@ -32,7 +32,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/koalaman/shellcheck-precommit
-    # renovate: datasource=github-tags packageName=koalaman/shellcheck-precommit
+    # renovate: datasource=github-tags packageName=koalaman/shellcheck-precommit depName=shellcheck-precommit
     rev: v0.11.0
     hooks:
       # see https://www.shellcheck.net/wiki/SC1071

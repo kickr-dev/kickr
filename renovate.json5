@@ -11,8 +11,14 @@
         ":disableRateLimiting",
         ":enableVulnerabilityAlertsWithLabel(vulnerability)",
         ":gitSignOff",
+        ":ignoreModulesAndTests",
         ":labels(dependencies, renovate)",
-        ":separateMultipleMajorReleases"
+        ":separateMultipleMajorReleases",
+        "group:recommended",
+        "helpers:pinGitHubActionDigests",
+        "mergeConfidence:age-confidence-badges",
+        "replacements:all",
+        "workarounds:all"
     ],
     "branchPrefix": "renovate/",
 
@@ -70,12 +76,9 @@
     "updateLockFiles": true,
     "useBaseBranchConfig": "none",
 
-    "gitlabci-include": {
-        "versioning": "docker"
-    },
-
-    "gitlabci": {
-        "versioning": "docker"
+    "pre-commit": {
+        "enabled": true,
+        "semanticCommitType": "ci"
     },
 
     "packageRules": [
@@ -92,11 +95,12 @@
         },
         {
             "matchFileNames": [
-                "/(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml\\.tmpl$/",
-                "/(^|/)action\\.ya?ml\\.tmpl$/",
+                "/(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml.*?$/",
+                "/(^|/)action\\.ya?ml.*?$/",
 
-                "/\\.gitlab-ci\\.ya?ml\\.tmpl$/"
+                "/\\.gitlab-ci\\.ya?ml.*?$/"
             ],
+            "pinDigests": true,
             "semanticCommitType": "ci"
         },
         {
@@ -140,11 +144,13 @@
                 "/(^|/)action\\.ya?ml(?:\\.part)?\\.tmpl$/"
             ],
             "matchStrings": [
-                // see https://regex101.com/r/SXViyG/2
-                // uses: <packageName>@<the version>
-                "uses:\\s*(?<packageName>[^@\\s'\"]+)@(?<currentValue>[\\w.+-]+)"
+                // uses: <packageName>@<currentValue>
+                "uses:\\s*(?<packageName>[^@\\s'\"]+)@(?<currentValue>[\\w.+-]+)",
+
+                // uses: <packageName>@<currentDigest> # <currentValue>
+                "uses:\\s*(?<packageName>[^@\\s'\"]+)@(?<currentDigest>[\\w.+-]+)\\s#\\s(?<currentValue>[\\w.+-]+)"
             ],
-            "versioningTemplate": "docker"
+            "versioningTemplate": "semver-coerced"
         },
         {
             "customType": "regex",
@@ -154,38 +160,65 @@
                 "/\\.gitlab-ci\\.ya?ml(?:\\.part)?\\.tmpl$/"
             ],
             "matchStrings": [
-                // see https://regex101.com/r/9JD1ox/1
-                // project: <packageName> ... <newline, tab, spaces, etc.> ref: <the version> (quotes may or may not be there)
-                "project:\\s*(?<packageName>\\S+)\\s*ref:\\s*['\"]?(?<currentValue>[\\w.+-]+)['\"]?"
+                // project: <packageName>
+                // ref: <currentValue> (quotes may or may not be there)
+                "project:\\s*(?<packageName>\\S+)\\s*ref:\\s*['\"]?(?<currentValue>[\\w.+-]+)['\"]?",
+
+                // project: <packageName>
+                // ref: <currentDigest> # <currentValue>
+                "project:\\s*(?<packageName>\\S+)\\s*ref:\\s*(?<currentDigest>[\\w.+-]+)\\s#\\s(?<currentValue>[\\w.+-]+)"
             ],
-            "versioningTemplate": "docker"
+            "versioningTemplate": "semver-coerced"
         },
         {
             "customType": "regex",
-            "description": "Update versions in any files with generic regex",
+            "description": "Update 'rev' versions in pre-commit template files",
+            "managerFilePatterns": [
+                "/(^|/)\\.pre-commit-config\\.ya?ml(?:\\.part)?\\.tmpl$/"
+            ],
+            "matchStrings": [
+                // renovate: datasource=<datasource> packageName=<packageName> (depName=<depName>, i.e. optional)
+                // rev: <the version>
+                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?\\s*rev:\\s{0,1}(?<currentValue>[\\w.+-]+)"
+            ],
+            "versioningTemplate": "semver-coerced"
+        },
+        {
+            "customType": "regex",
+            "description": "Update 'install-tool' versions in renovate.sh custom postUpgradeTasks",
+            "managerFilePatterns": [
+                "\\./scripts/sh/renovate\\.sh"
+            ],
+            "matchStrings": [
+                // renovate: datasource=<datasource> (packageName=<packageName>, i.e. optional)
+                // install-tool <depName> <currentValue>
+                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?\\ninstall-tool\\s(?<depName>\\S+)\\s(?<currentValue>[\\w.+-]+)"
+            ],
+            "versioningTemplate": "semver"
+        },
+        {
+            "customType": "regex",
+            "description": "Update 'ENV' versions in Dockerfile, Containerfile, etc.",
             "managerFilePatterns": [
                 "/(^|/|\\.)([Dd]ocker|[Cc]ontainer)file$/",
-                "/(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$/",
-
-                "/^.*\\.[\\w]*sh.*?$/",
-                "/^.*\\.json.*?$/",
+                "/(^|/)([Dd]ocker|[Cc]ontainer)file[^/]*$/"
+            ],
+            "matchStrings": [
+                // renovate: datasource=<datasource> packageName=<packageName> (depName=<depName>, i.e. optional) (versioning=<versioning>, i.e. optional)
+                // ENV <text>_VERSION=<currentValue>
+                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\\nENV\\s\\S+_VERSION=(?<currentValue>[\\w.+-]+)"
+            ]
+        },
+        {
+            "customType": "regex",
+            "description": "Update any version in ya?ml files",
+            "managerFilePatterns": [
                 "/^.*\\.ya?ml.*?$/"
             ],
             "matchStrings": [
-                // https://regex101.com/r/DMKexv/4
-                // matches <packageName> <the version>
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\n(?:(?<key>\\S+)\\s)?(?<packageName>\\S+)\\s['\"]?(?<currentValue>[\\w.+-]+)['\"]?",
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\n(?:(?<key>\\S+)\\s)?(?<name>\\S+)\\s['\"]?(?<currentValue>[\\w.+-]+)['\"]?",
-
-                // https://regex101.com/r/BzJNUM/2
-                // matches *_VERSION=<the version>
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\n(?:(?<key>\\S+)\\s)?(?<packageName>[^\\s_]+)_VERSION=['\"]?(?<currentValue>[\\w.+-]+)['\"]?",
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\n(?:(?<key>\\S+)\\s)?(?<name>[^\\s_]+)_VERSION=['\"]?(?<currentValue>[\\w.+-]+)['\"]?",
-
-                // see https://regex101.com/r/qXn2n5/9
-                // matches <yaml key>: <the version> or <yaml key>=<the version> or <yaml key>: <packageName>@<the version>, things like that
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\n\\s*(?<key>\\S+)[:=]\\s{0,1}['\"]?(?:(?<packageName>\\S+)?@)?(?<currentValue>[\\w.+-]+)['\"]?",
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\n\\s*(?<key>\\S+)[:=]\\s{0,1}['\"]?(?:(?<name>\\S+)?@)?(?<currentValue>[\\w.+-]+)['\"]?"
+                // renovate: datasource=<datasource> packageName=<packageName> (depName=<depName>, i.e. optional) (versioning=<versioning>, i.e. optional)
+                // <text>: <currentValue>
+                "renovate:\\sdatasource=(?<datasource>\\S+)\\spackageName=(?<packageName>\\S+)(?:\\sdepName=(?<depName>\\S+))?(?:\\sversioning=(?<versioning>\\S+))?\\s*\\S+:\\s{0,1}(?<currentValue>[\\w.+-]+)"
             ]
         }
     ]

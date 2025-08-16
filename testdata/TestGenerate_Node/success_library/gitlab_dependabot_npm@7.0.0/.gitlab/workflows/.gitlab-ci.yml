@@ -4,23 +4,27 @@
 include:
 
   # semantic-release template
+  # https://gitlab.com/to-be-continuous/semantic-release
   - project: to-be-continuous/semantic-release
-    ref: "3"
+    ref: 17d4867d8a9007ddcac2e8599548913513168e58 # 4.0.0
     file: "templates/gitlab-ci-semrel.yml"
 
   # pre-commit template
+  # https://gitlab.com/to-be-continuous/pre-commit
   - project: to-be-continuous/pre-commit
-    ref: "1"
+    ref: d56e5eb8bc1cf6f038a863678442c50104a3244e # 1.4.0
     file: "templates/gitlab-ci-pre-commit.yml"
 
   # Dependabot template
+  # https://gitlab.com/dependabot-gitlab/dependabot-standalone
   - project: dependabot-gitlab/dependabot-standalone
-    ref: 3.61.1
+    ref: 981dfc1a123d03584353c6afdc5c59a697029ff5 # 3.61.2
     file: .gitlab-ci.yml
 
   # Node.js template
+  # https://gitlab.com/to-be-continuous/node
   - project: to-be-continuous/node
-    ref: "4"
+    ref: 70ffd3babc6dfd16899119bc9291f5b9e8a09883 # 5.0.0
     file: "templates/gitlab-ci-node.yml"
 
 variables:
