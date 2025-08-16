@@ -79,7 +79,7 @@ jobs:
     permissions:
       packages: none
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # https://github.com/marketplace/actions/helm-tool-installer
       - uses: azure/setup-helm@v4
         with:

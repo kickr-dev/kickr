@@ -142,8 +142,8 @@
             "datasourceTemplate": "github-tags",
             "description": "Update 'uses' versions in GitHub Actions template files",
             "managerFilePatterns": [
-                "/(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml\\.tmpl$/",
-                "/(^|/)action\\.ya?ml\\.tmpl$/"
+                "/(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml(?:\\.part)?\\.tmpl$/",
+                "/(^|/)action\\.ya?ml(?:\\.part)?\\.tmpl$/"
             ],
             "matchStrings": [
                 // see https://regex101.com/r/SXViyG/2
@@ -157,7 +157,7 @@
             "datasourceTemplate": "gitlab-tags",
             "description": "Update 'ref' versions in GitLab CI/CD template files",
             "managerFilePatterns": [
-                "/\\.gitlab-ci\\.ya?ml\\.tmpl$/"
+                "/\\.gitlab-ci\\.ya?ml(?:\\.part)?\\.tmpl$/"
             ],
             "matchStrings": [
                 // see https://regex101.com/r/9JD1ox/1

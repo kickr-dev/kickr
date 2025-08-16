@@ -22,7 +22,7 @@ jobs:
     permissions:
       packages: << $ghcr | ternary "write" "none" >>
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # https://github.com/marketplace/actions/helm-tool-installer
       - uses: azure/setup-helm@v4
         with:
@@ -99,7 +99,7 @@ jobs:
           - environment: production # disable on non-production branches
             production: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # https://github.com/marketplace/actions/helm-tool-installer
       - uses: azure/setup-helm@v4
         with:

@@ -10,7 +10,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 <<- if eq $manager "pnpm" >>
       - uses: pnpm/action-setup@v4
 <<- end >>
@@ -33,7 +33,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 <<- if eq $manager "pnpm" >>
       - uses: pnpm/action-setup@v4
 <<- end >>
@@ -74,7 +74,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 <<- if eq $manager "pnpm" >>
       - uses: pnpm/action-setup@v4
 <<- end >>
