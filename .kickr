@@ -8,7 +8,9 @@ ci:
   name: github
   options:
     - codecov
+    - codeql
     - labeler
+    - step-security
   release: {}
 exclude:
   - shell

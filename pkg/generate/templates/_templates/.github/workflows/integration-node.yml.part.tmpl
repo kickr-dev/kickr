@@ -10,12 +10,25 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
+<<- if has "step-security" .CI.Options >>
+      # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
+      - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
+<<- else >>
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
+<<- end >>
         with:
           bun-version-file: package.json
 <<- else >>
@@ -33,12 +46,25 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
+<<- if has "step-security" .CI.Options >>
+      # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
+      - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
+<<- else >>
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
+<<- end >>
         with:
           bun-version-file: package.json
 <<- else >>
@@ -74,12 +100,25 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
+<<- if has "step-security" .CI.Options >>
+      # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
+      - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
+<<- else >>
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
+<<- end >>
         with:
           bun-version-file: package.json
 <<- else >>

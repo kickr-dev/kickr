@@ -9,6 +9,9 @@
 {{- if .License }}
   <img alt="GitHub License" src="https://img.shields.io/github/license/{{ .ProjectPath }}?style={{ $style }}">
 {{- end }}
+{{- if .IsCI "github" }}
+  <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/{{ .ProjectPath }}/integration.yml?style={{ $style }}">
+{{- end }}
 {{- end }}
 
 {{- if eq .Platform "gitlab" }}
@@ -17,6 +20,9 @@
   <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/{{ toQuery .ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
 {{- if .License }}
   <img alt="GitLab License" src="https://img.shields.io/gitlab/license/{{ toQuery .ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
+{{- end }}
+{{- if .IsCI "gitlab" }}
+  <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/{{ toQuery .ProjectPath }}?gitlab_url={{ $url }}&branch=main&style={{ $style }}">
 {{- end }}
 {{- end }}
 
@@ -30,11 +36,22 @@
 {{- end }}
 
 {{- if or (hasKey .Languages "go") (hasKey .Languages "hugo") }}
-  <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .ProjectPath }}?style={{ $style }}&label={{ toQuery "Go Version" }}">
+  <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .ProjectPath }}?style={{ $style }}">
 {{- end }}
 
 {{- if hasKey .Languages "go" }}
   <img alt="Go Report Card" src="https://goreportcard.com/badge/{{ print .ProjectHost "/" .ProjectPath }}?style={{ $style }}">
+{{- end }}
+
+{{- if hasKey .Languages "node" }}
+{{- $specifics := get .Languages "node" }}
+{{- if and (not $specifics.Private) (eq $specifics.PublishConfig.Registry "") }}
+  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/{{ toQuery $specifics.Name }}?style={{ $style }}">
+{{- end }}
+{{- end }}
+
+{{- if and (.IsCI "github") (has "step-security" .CI.Options) }}
+  <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .ProjectHost "/" .ProjectPath }}?style={{ $style }}">
 {{- end }}
 </p>
 

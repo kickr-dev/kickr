@@ -18,12 +18,14 @@ func GitHub() []engine.Template[kickr.Config] {
 func githubWorkflow() []engine.Template[kickr.Config] {
 	var templates []engine.Template[kickr.Config]
 
-	integration := path.Join(".github", "workflows", "integration.yml")
+	codeql := path.Join(".github", "workflows", "codeql.yml")
 	templates = append(templates, engine.Template[kickr.Config]{
 		Delimiters: engine.DelimitersChevron(),
-		Globs:      engine.GlobsWithPart(integration),
-		Out:        integration,
-		Remove:     func(config kickr.Config) bool { return !config.IsCI(parser.GitHub) },
+		Globs:      []string{codeql + engine.TmplExtension},
+		Out:        codeql,
+		Remove: func(config kickr.Config) bool {
+			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.CodeQL)
+		},
 	})
 
 	deployment := path.Join(".github", "workflows", "deployment.yml")
@@ -36,25 +38,12 @@ func githubWorkflow() []engine.Template[kickr.Config] {
 		},
 	})
 
-	codeql := path.Join(".github", "workflows", "codeql.yml")
+	integration := path.Join(".github", "workflows", "integration.yml")
 	templates = append(templates, engine.Template[kickr.Config]{
 		Delimiters: engine.DelimitersChevron(),
-		Globs:      []string{codeql + engine.TmplExtension},
-		Out:        codeql,
-		Remove: func(config kickr.Config) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.CodeQL)
-		},
-	})
-
-	dependencies := path.Join(".github", "workflows", "dependencies.yml")
-	templates = append(templates, engine.Template[kickr.Config]{
-		Delimiters: engine.DelimitersChevron(),
-		Globs:      []string{dependencies + engine.TmplExtension},
-		Out:        dependencies,
-		Remove: func(config kickr.Config) bool {
-			_, ok := config.Languages["go"]
-			return !ok || !config.IsCI(parser.GitHub)
-		},
+		Globs:      engine.GlobsWithPart(integration),
+		Out:        integration,
+		Remove:     func(config kickr.Config) bool { return !config.IsCI(parser.GitHub) },
 	})
 
 	labeler := path.Join(".github", "workflows", "labeler.yml")
@@ -64,6 +53,35 @@ func githubWorkflow() []engine.Template[kickr.Config] {
 		Out:        labeler,
 		Remove: func(config kickr.Config) bool {
 			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.Labeler)
+		},
+	})
+
+	review := path.Join(".github", "workflows", "dependency-review.yml")
+	templates = append(templates, engine.Template[kickr.Config]{
+		Delimiters: engine.DelimitersChevron(),
+		Globs:      []string{review + engine.TmplExtension},
+		Out:        review,
+		Remove:     func(config kickr.Config) bool { return !config.IsCI(parser.GitHub) },
+	})
+
+	scorecard := path.Join(".github", "workflows", "scorecard.yml")
+	templates = append(templates, engine.Template[kickr.Config]{
+		Delimiters: engine.DelimitersChevron(),
+		Globs:      []string{scorecard + engine.TmplExtension},
+		Out:        scorecard,
+		Remove: func(config kickr.Config) bool {
+			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.StepSecurity)
+		},
+	})
+
+	submission := path.Join(".github", "workflows", "dependency-submission.yml")
+	templates = append(templates, engine.Template[kickr.Config]{
+		Delimiters: engine.DelimitersChevron(),
+		Globs:      []string{submission + engine.TmplExtension},
+		Out:        submission,
+		Remove: func(config kickr.Config) bool {
+			_, ok := config.Languages["go"]
+			return !ok || !config.IsCI(parser.GitHub)
 		},
 	})
 

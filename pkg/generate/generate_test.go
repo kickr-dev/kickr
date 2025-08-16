@@ -284,7 +284,7 @@ func TestGenerate_Golang(t *testing.T) {
 						Deployment: &kickr.Deployment{Platform: kickr.Kubernetes},
 						Docker:     &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
 						Helm:       &kickr.Helm{Path: "path/to/repository", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"},
-						Options:    []string{kickr.CodeCov, kickr.CodeQL, kickr.Sonar, kickr.Labeler},
+						Options:    []string{kickr.CodeCov, kickr.CodeQL, kickr.Labeler, kickr.Sonar, kickr.StepSecurity},
 						Release:    &kickr.Release{},
 					},
 					Description: "A useful project description",

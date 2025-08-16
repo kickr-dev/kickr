@@ -39,6 +39,13 @@ const (
 	PreCommitAutoCommit = "pre-commit:auto-commit"
 	// Sonar is the sonar option for CI tuning.
 	Sonar string = "sonar"
+	// StepSecurity is the CI option to add various securities in GitHub Actions workflows.
+	//
+	// All security measures added come from recommendations made by https://docs.stepsecurity.io/ (which explains the option's name).
+	//
+	// Some security measures are by default included even
+	// when the option is not provided like pinning actions SHA or restreining GITHUB_TOKEN rights.
+	StepSecurity string = "step-security"
 )
 
 const (
