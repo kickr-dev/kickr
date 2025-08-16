@@ -22,6 +22,14 @@ jobs:
     permissions:
       packages: << $ghcr | ternary "write" "none" >>
     steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       # https://github.com/marketplace/actions/helm-tool-installer
       - uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
@@ -99,6 +107,14 @@ jobs:
           - environment: production # disable on non-production branches
             production: false
     steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       # https://github.com/marketplace/actions/helm-tool-installer
       - uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0

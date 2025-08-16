@@ -7,6 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: version
     steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
@@ -17,8 +25,13 @@ jobs:
           key: hugo-${{ hashFiles('go.sum') }}
           restore-keys: |
             hugo-
+<<- if has "step-security" .CI.Options >>
+      # https://app.stepsecurity.io/github-action-advisor/step-security/actions-hugo
+      - uses: step-security/actions-hugo@b99dc9a4cddce1866ff2c3682c01aeb27b4d91f0 # v3.0.1
+<<- else >>
       # https://github.com/marketplace/actions/hugo-setup
       - uses: peaceiris/actions-hugo@75d2e84710de30f6ff7268e08f310b60ef14033f # v3.0.0
+<<- end >>
         with:
           hugo-version: latest
           extended: true

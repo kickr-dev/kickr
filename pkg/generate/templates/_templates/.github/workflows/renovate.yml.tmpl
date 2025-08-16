@@ -22,6 +22,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   renovate:
     name: Renovate
@@ -33,6 +36,14 @@ jobs:
       statuses: write
 <<- end >>
     steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
 <<- if eq .CI.Auth.Maintenance "github-app" >>
       - id: app_token
         uses: actions/create-github-app-token@fb1c7fda2b8e4c84bf45f93f9c0b45525505fa0f # v3.0.0-beta.1

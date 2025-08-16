@@ -114,7 +114,7 @@
             "addLabels": [ "major" ],
             "matchUpdateTypes": [ "major" ]
         },
-{{- if hasKey .Languages "go" }}
+{{- if or (hasKey .Languages "go") (hasKey .Languages "hugo") }}
         {
             // block all updates on "go" directive in go.mod (but not "toolchain" directive)
             "enabled": false,

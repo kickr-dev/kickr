@@ -142,14 +142,16 @@
                                     "codeql",
                                     "labeler",
                                     "pre-commit:auto-commit",
-                                    "sonar"
+                                    "sonar",
+                                    "step-security"
                                 ]
                             },
                             {
                                 "type": "string"
                             }
                         ]
-                    }
+                    },
+                    "uniqueItems": true
                 },
                 "release": {
                     "description": "Release specific configuration.",
@@ -288,7 +290,8 @@
                         "type": "string"
                     }
                 ]
-            }
+            },
+            "uniqueItems": true
         },
         "include": {
             "description": "List of optional parts to generate during kickr generation.",
@@ -306,7 +309,8 @@
                         "type": "string"
                     }
                 ]
-            }
+            },
+            "uniqueItems": true
         },
         "license": {
             "description": "License name.",
@@ -333,7 +337,8 @@
             "items": {
                 "$ref": "#/$defs/maintainer"
             },
-            "minItems": 1
+            "minItems": 1,
+            "uniqueItems": true
         },
         "platform": {
             "description": "Platform for README.md badges (automatically parsed with git origin URL by default).",
