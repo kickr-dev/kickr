@@ -65,7 +65,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.head_ref }}
       - uses: actions/setup-python@v5
@@ -83,7 +83,7 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: hadolint/hadolint-action@v3.1.0
         with:
           format: sarif
@@ -100,7 +100,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # https://github.com/marketplace/actions/helm-tool-installer
       - uses: azure/setup-helm@v4
         with:
