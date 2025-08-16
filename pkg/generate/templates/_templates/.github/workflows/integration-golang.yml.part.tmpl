@@ -12,7 +12,7 @@ jobs:
         with:
           check-latest: true
           go-package: ./...
-          go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
+          go-version-input: '<< $specifics.Toolchain | default $specifics.Go >>'
 
   go-lint:
     name: Go Lint
