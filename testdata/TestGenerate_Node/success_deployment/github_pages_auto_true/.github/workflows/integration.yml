@@ -131,6 +131,11 @@ jobs:
       - pre-commit
     permissions:
       actions: write
+    strategy:
+      fail-fast: false
+      matrix:
+        workflow:
+          - deployment
     steps:
       - uses: actions/github-script@v7
         with:
@@ -143,4 +148,4 @@ jobs:
               workflow_id: process.env.WORKFLOW_ID,
             })
         env:
-          WORKFLOW_ID: deployment.yml
+          WORKFLOW_ID: ${{ matrix.workflow }}.yml

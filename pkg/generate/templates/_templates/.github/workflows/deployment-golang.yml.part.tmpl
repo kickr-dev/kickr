@@ -1,5 +1,6 @@
 jobs:
 <<- define "golang" >>
+<<- $specifics := get .Languages "go" >>
 
   go-build:
     name: Go Build
@@ -10,7 +11,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           check-latest: true
-          go-version-file: go.mod
+          go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
           token: ${{ secrets.GITHUB_TOKEN }}
       # https://github.com/marketplace/actions/goreleaser-action
       - if: ${{ hashFiles('.goreleaser.yml') != '' }}

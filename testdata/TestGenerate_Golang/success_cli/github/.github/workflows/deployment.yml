@@ -108,7 +108,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           check-latest: true
-          go-version-file: go.mod
+          go-version: '1.23'
           token: ${{ secrets.GITHUB_TOKEN }}
       # https://github.com/marketplace/actions/goreleaser-action
       - if: ${{ hashFiles('.goreleaser.yml') != '' }}
