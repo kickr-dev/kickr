@@ -2,7 +2,6 @@
 
 <p align="center">
 {{- $style := "for-the-badge" }}
-{{- $branch := "main" }}
 
 {{- if eq .Platform "github" }}
   <img alt="GitHub Release" src="https://img.shields.io/github/v/release/{{ .ProjectPath }}?include_prereleases&sort=semver&style={{ $style }}">
@@ -22,16 +21,16 @@
 {{- end }}
 
 {{- if and .CI (has "codecov" .CI.Options) }}
-  <img alt="Coverage" src="https://img.shields.io/codecov/c/{{ .Platform }}/{{ .ProjectPath }}/{{ $branch }}?style={{ $style }}">
+  <img alt="Coverage" src="https://img.shields.io/codecov/c/{{ .Platform }}/{{ .ProjectPath }}?style={{ $style }}">
 {{- end }}
 
 {{- if and .CI (has "sonar" .CI.Options) }}
 {{- $url := toQuery "https://sonarcloud.io" }}
-  <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .ProjectPath | replace "/" "_" }}/{{ $branch }}?server={{ $url }}&style={{ $style }}">
+  <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .ProjectPath | replace "/" "_" }}?server={{ $url }}&style={{ $style }}">
 {{- end }}
 
 {{- if or (hasKey .Languages "go") (hasKey .Languages "hugo") }}
-  <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .ProjectPath }}/{{ $branch }}?style={{ $style }}&label={{ toQuery "Go Version" }}">
+  <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .ProjectPath }}?style={{ $style }}&label={{ toQuery "Go Version" }}">
 {{- end }}
 
 {{- if hasKey .Languages "go" }}
