@@ -34,7 +34,7 @@ permissions:
 
 jobs:
   run-workflow:
-    name: Run Workflow
+    name: Run
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.ref_protected || !github.event.pull_request.draft }}
     outputs:
@@ -74,3 +74,14 @@ jobs:
           # renovate: datasource=github-tags packageName=actions/python-versions
           python-version: 3.13.7
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+
+  workflow-status:
+    name: Status
+    runs-on: ubuntu-latest
+    if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+    needs:
+      - pre-commit
+    steps:
+      - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}
+        run: echo "Some jobs didn't end with success status" && exit 1
+      - run: echo "All jobs ended with success"
