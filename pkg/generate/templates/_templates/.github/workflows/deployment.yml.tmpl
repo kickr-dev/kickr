@@ -221,16 +221,15 @@ jobs:
 <<- if $netlify >><<- $needs = append $needs "netlify" >><<- end >>
 <<- if $nodebuild >><<- $needs = append $needs "node-build" >><<- end >>
 <<- if $pages >><<- $needs = append $needs "pages" >><<- end >>
+<<- if eq (len $needs) 0 >><< $needs = append $needs "version" >><<- end >>
 
   release:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ inputs.release != 'none' && github.ref_protected }}
-<<- if gt (len $needs) 0 >>
     needs:
 <<- range $needs >>
       - << . >>
-<<- end >>
 <<- end >>
     environment:
       name: release
