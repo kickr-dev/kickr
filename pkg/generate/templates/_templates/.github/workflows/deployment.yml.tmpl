@@ -166,7 +166,7 @@ jobs:
 <<- if $node >>
             @semantic-release/npm
 <<- end >>
-<<- if .License >>
+<<- if and .License (or (eq .License "bsl-1.0") (eq .License "mit")) >>
             semantic-release-license
 <<- end >>
 <<- if .CI.Release.Backmerge >>
@@ -291,7 +291,7 @@ jobs:
 <<- if $node >>
             @semantic-release/npm
 <<- end >>
-<<- if .License >>
+<<- if and .License (or (eq .License "bsl-1.0") (eq .License "mit")) >>
             semantic-release-license
 <<- end >>
 <<- if .CI.Release.Backmerge >>
