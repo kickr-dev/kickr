@@ -8,6 +8,12 @@ run-name: CodeQL
 <<- if or (hasKey .Languages "go") (hasKey .Languages "hugo") >><<- $languages = append $languages "go" >><<- end >>
 
 on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   push:
     branches:
       - alpha
