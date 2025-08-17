@@ -10,7 +10,7 @@ require (
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/goccy/go-yaml v1.18.0
 	github.com/jarcoal/httpmock v1.4.0
-	github.com/kickr-dev/engine v1.0.0-beta.21.0.20250815204856-a45bd0b42f04
+	github.com/kickr-dev/engine v0.0.0-20250817203228-819f4c26acfe
 	github.com/kilianpaquier/compare v1.1.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
