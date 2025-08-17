@@ -38,7 +38,7 @@ permissions:
 
 jobs:
   run-workflow:
-    name: Run Workflow
+    name: Run
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.ref_protected || !github.event.pull_request.draft }}
     outputs:
@@ -273,12 +273,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 <<- end >>
 
-<<- if or .IsHelmPublishAuto .IsDeploymentAuto .IsReleaseAuto >>
-
-  notify-workflow:
-    name: Notify Workflow
-    runs-on: ubuntu-Latest
-    if: ${{ github.event_name == 'push' }}
+  workflow-status:
+    name: Status
+    runs-on: ubuntu-latest
+    if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     needs:
 <<- if .CI.Docker >>
       - docker-hadolint
@@ -301,6 +299,26 @@ jobs:
 <<- if has "sonar" .CI.Options >>
       - sonar-analysis
 <<- end >>
+    steps:
+<<- if has "step-security" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
+      - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}
+        run: echo "Some jobs didn't end with success status" && exit 1
+      - run: echo "All jobs ended with success"
+
+<<- if or .IsHelmPublishAuto .IsDeploymentAuto .IsReleaseAuto >>
+
+  notify-workflow:
+    name: Notify Workflow
+    runs-on: ubuntu-Latest
+    if: ${{ github.event_name == 'push' }}
+    needs: workflow-status
     permissions:
       actions: write
     strategy:

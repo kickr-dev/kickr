@@ -34,7 +34,7 @@ permissions:
 
 jobs:
   run-workflow:
-    name: Run Workflow
+    name: Run
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.ref_protected || !github.event.pull_request.draft }}
     outputs:
@@ -108,13 +108,23 @@ jobs:
           HELM_CHART_DIR: chart/
           TARGET_BRANCH: ${{ github.event.pull_request.base_ref || github.event.repository.default_branch }}
 
+  workflow-status:
+    name: Status
+    runs-on: ubuntu-latest
+    if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+    needs:
+      - helm-lint-test
+      - pre-commit
+    steps:
+      - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}
+        run: echo "Some jobs didn't end with success status" && exit 1
+      - run: echo "All jobs ended with success"
+
   notify-workflow:
     name: Notify Workflow
     runs-on: ubuntu-Latest
     if: ${{ github.event_name == 'push' }}
-    needs:
-      - helm-lint-test
-      - pre-commit
+    needs: workflow-status
     permissions:
       actions: write
     strategy:

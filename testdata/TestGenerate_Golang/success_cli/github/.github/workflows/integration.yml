@@ -34,7 +34,7 @@ permissions:
 
 jobs:
   run-workflow:
-    name: Run Workflow
+    name: Run
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.ref_protected || !github.event.pull_request.draft }}
     outputs:
@@ -138,3 +138,15 @@ jobs:
         run: |-
           go run github.com/jstemmer/go-junit-report/v2@latest -in "reports/tests.log" -out "reports/go-test.xunit.xml"
           go tool test2json < "reports/tests.log" > "reports/go-test.native.json"
+
+  workflow-status:
+    name: Status
+    runs-on: ubuntu-latest
+    if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+    needs:
+      - go-test
+      - pre-commit
+    steps:
+      - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}
+        run: echo "Some jobs didn't end with success status" && exit 1
+      - run: echo "All jobs ended with success"

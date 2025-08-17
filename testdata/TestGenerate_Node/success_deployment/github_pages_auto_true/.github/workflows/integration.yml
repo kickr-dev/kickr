@@ -34,7 +34,7 @@ permissions:
 
 jobs:
   run-workflow:
-    name: Run Workflow
+    name: Run
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.ref_protected || !github.event.pull_request.draft }}
     outputs:
@@ -123,13 +123,23 @@ jobs:
           bun install --frozen-lockfile
           bun test --rerun-each 10 --coverage --coverage-reporter=lcov --coverage-dir=reports --reporter=junit --reporter-outfile="reports/node-test.xunit.xml"
 
+  workflow-status:
+    name: Status
+    runs-on: ubuntu-latest
+    if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+    needs:
+      - node-test
+      - pre-commit
+    steps:
+      - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}
+        run: echo "Some jobs didn't end with success status" && exit 1
+      - run: echo "All jobs ended with success"
+
   notify-workflow:
     name: Notify Workflow
     runs-on: ubuntu-Latest
     if: ${{ github.event_name == 'push' }}
-    needs:
-      - node-test
-      - pre-commit
+    needs: workflow-status
     permissions:
       actions: write
     strategy:
