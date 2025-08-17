@@ -51,7 +51,7 @@
 {{- end }}
 
 {{- if and (.IsCI "github") (has "step-security" .CI.Options) }}
-  <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .ProjectHost "/" .ProjectPath }}?style={{ $style }}">
+  <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .ProjectHost "/" .ProjectPath }}?label={{ toQuery "OpenSSF Scorecard" }}&style={{ $style }}">
 {{- end }}
 </p>
 
