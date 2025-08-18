@@ -36,6 +36,11 @@ include: .gitlab/workflows/.gitlab-ci.yml
 # HELM_PUBLISH_USER: Helm repository username (default is $CI_REGISTRY_USER)
 # HELM_PUBLISH_PASSWORD: Helm repository password (default is $CI_REGISTRY_PASSWORD)
 
+# https://gitlab.com/to-be-continuous/renovate
+# Don't forget to setup a scheduled pipeline every once in a while to run Renovate updates checks.
+# RENOVATE_TOKEN: A GitLab access token to allow Renovate crawl your projects. [See doc](https://docs.renovatebot.com/modules/platform/gitlab/#authentication)
+# GITHUB_COM_TOKEN: A GitHub access token to allow Renovate fetch changelogs. [See doc](https://docs.renovatebot.com/getting-started/running/#githubcom-token-for-changelogs)
+
 # https://gitlab.com/to-be-continuous/sonar
 # SONAR_HOST_URL: SonarQube URL
 # SONAR_TOKEN: SonarQube authentication token (depends on your authentication method)

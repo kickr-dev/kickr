@@ -34,7 +34,7 @@ jobs:
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
-          disable-sudo-and-containers: true
+          disable-sudo-and-containers: false # renovate needs to have access to docker sock
           egress-policy: audit
       - id: app_token
         uses: actions/create-github-app-token@fb1c7fda2b8e4c84bf45f93f9c0b45525505fa0f # v3.0.0-beta.1

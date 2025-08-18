@@ -279,6 +279,7 @@ func TestGenerate_Golang(t *testing.T) {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
 				config := kickr.Config{
+					Bot: kickr.Renovate,
 					CI: &kickr.CI{
 						Name:       ci,
 						Deployment: &kickr.Deployment{Platform: kickr.Kubernetes},
