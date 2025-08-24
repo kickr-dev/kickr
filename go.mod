@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/log v0.4.2
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/goccy/go-yaml v1.18.0
-	github.com/jarcoal/httpmock v1.4.0
+	github.com/jarcoal/httpmock v1.4.1
 	github.com/kickr-dev/engine v0.0.0-20250817203228-819f4c26acfe
 	github.com/kilianpaquier/compare v1.1.0
 	github.com/spf13/cobra v1.9.1
