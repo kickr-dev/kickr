@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: version
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -25,9 +25,9 @@ jobs:
           key: hugo-${{ hashFiles('go.sum') }}
           restore-keys: |
             hugo-
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/actions-hugo
-      - uses: step-security/actions-hugo@b99dc9a4cddce1866ff2c3682c01aeb27b4d91f0 # v3.0.1
+      - uses: step-security/actions-hugo@0ef63c546504c9fb32b29aa7eedc73d9558f7382 # v3.0.2
 <<- else >>
       # https://github.com/marketplace/actions/hugo-setup
       - uses: peaceiris/actions-hugo@75d2e84710de30f6ff7268e08f310b60ef14033f # v3.0.0
@@ -42,7 +42,7 @@ jobs:
           hugo --gc --enableGitInfo --minify --destination "${GITHUB_WORKSPACE}/dist" --logLevel debug
         env:
           VERSION: ${{ needs.version.outputs.version }}
-<<- if .IsDeployment "pages" >>
+<<- if and .CI .CI.Pages >>
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
           name: github-pages

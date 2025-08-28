@@ -15,8 +15,9 @@ import (
 	"github.com/stretchr/testify/require"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/generate"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 func TestGeneratorLicense_Remove(t *testing.T) {
@@ -33,7 +34,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(dest, "file.txt"), files.RwxRxRxRx))
 
 		// Act
-		err := gen(ctx, destdir, kickr.Config{})
+		err := gen(ctx, destdir, types.KickrGen{})
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("remove '%s'", generator.FileLicense))
@@ -45,7 +46,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		dest := filepath.Join(destdir, generator.FileLicense)
 
 		// Act
-		err := gen(ctx, destdir, kickr.Config{})
+		err := gen(ctx, destdir, types.KickrGen{})
 
 		// Assert
 		require.NoError(t, err)
@@ -61,7 +62,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, destdir, kickr.Config{})
+		err = gen(ctx, destdir, types.KickrGen{})
 
 		// Assert
 		require.NoError(t, err)
@@ -85,7 +86,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "error message"))
 
 		// Act
-		err := gen(ctx, t.TempDir(), kickr.Config{License: "mit"})
+		err := gen(ctx, t.TempDir(), types.KickrGen{Kickr: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		assert.ErrorContains(t, err, "download license")
@@ -100,7 +101,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, destdir, kickr.Config{License: "mit"})
+		err = gen(ctx, destdir, types.KickrGen{Kickr: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		require.NoError(t, err)
@@ -114,10 +115,12 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			map[string]string{"fullname": "name", "project": "kickr"},
 			httpmock.NewJsonResponderOrPanic(http.StatusOK, gitlab.LicenseTemplate{Content: "some content"}))
 
-		config := kickr.Config{
-			License:     "mit",
-			Maintainers: []*kickr.Maintainer{{Name: "name"}},
-			VCS:         parser.VCS{ProjectName: "kickr"},
+		config := types.KickrGen{
+			Kickr: kickr.Kickr{
+				License:     "mit",
+				Maintainers: []*kickr.Maintainer{{Name: "name"}},
+			},
+			VCS: parser.VCS{ProjectName: "kickr"},
 		}
 
 		// Act

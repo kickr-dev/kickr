@@ -10,7 +10,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -23,7 +23,7 @@ jobs:
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
 <<- else >>
@@ -46,7 +46,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -59,7 +59,7 @@ jobs:
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
 <<- else >>
@@ -80,7 +80,7 @@ jobs:
       - run: << $manager >> install --frozen-lockfile
 <<- end >>
       - run: << $manager >> run lint -o reports/node-lint.xslint.json -f json
-<<- if has "sonar" .CI.Options >>
+<<- if has "sonarqube" .CI.Options >>
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: lint
@@ -100,7 +100,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -113,7 +113,7 @@ jobs:
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
 <<- else >>
@@ -155,7 +155,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
       - if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
@@ -167,7 +167,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
 <<- end >>
-<<- if has "sonar" .CI.Options >>
+<<- if has "sonarqube" .CI.Options >>
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage

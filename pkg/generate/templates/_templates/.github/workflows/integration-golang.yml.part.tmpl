@@ -8,7 +8,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -30,7 +30,7 @@ jobs:
     permissions:
       pull-requests: read
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -51,7 +51,7 @@ jobs:
           problem-matchers: true
           # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
           version: v2.4.0
-<<- if has "sonar" .CI.Options >>
+<<- if has "sonarqube" .CI.Options >>
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: lint
@@ -71,7 +71,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -111,7 +111,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
       - if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
@@ -124,7 +124,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
 <<- end >>
-<<- if has "sonar" .CI.Options >>
+<<- if has "sonarqube" .CI.Options >>
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage

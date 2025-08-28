@@ -21,8 +21,9 @@ import (
 	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/release"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 	"github.com/kickr-dev/kickr/testutils"
 )
 
@@ -56,8 +57,8 @@ func TestHelmTemplate(t *testing.T) {
 
 			// generate chart files
 			destdir := t.TempDir()
-			require.NoError(t, generate(ctx, destdir, kickr.Config{
-				CI:        &kickr.CI{Helm: &kickr.Helm{}},
+			require.NoError(t, generate(ctx, destdir, types.KickrGen{
+				Kickr:     kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}},
 				Languages: map[string]any{"helm": map[string]any{"projectName": "kickr"}},
 			}))
 			chartdir := filepath.Join(destdir, "chart")

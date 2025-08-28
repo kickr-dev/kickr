@@ -11,15 +11,14 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/parser"
-
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 // ParserNode detects the presence of a ParserNode.js project by looking for a package.json file.
 //
 // In case of success, the function will set the language to "node"
 // and the worker to "main" if the main property is present in the package.json file.
-func ParserNode(_ context.Context, destdir string, config *kickr.Config) error {
+func ParserNode(_ context.Context, destdir string, config *types.KickrGen) error {
 	var jsonfile parser.PackageJSON
 	jsonpath := filepath.Join(destdir, parser.FilePackageJSON)
 	if err := files.ReadJSON(jsonpath, &jsonfile, os.ReadFile); err != nil {
@@ -36,9 +35,9 @@ func ParserNode(_ context.Context, destdir string, config *kickr.Config) error {
 
 	config.SetLanguage("node", jsonfile)
 	if jsonfile.Main != nil {
-		config.AddWorker("main")
+		config.Executables.AddWorker("main")
 	}
 	return nil
 }
 
-var _ engine.Parser[kickr.Config] = ParserNode // ensure interface is implemented
+var _ engine.Parser[types.KickrGen] = ParserNode // ensure interface is implemented

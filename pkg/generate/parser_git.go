@@ -7,13 +7,12 @@ import (
 	"github.com/go-git/go-git/v5"
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
-
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 // ParserGit adds git configuration (if the current repository is a git repository)
 // to the configuration.
-func ParserGit(_ context.Context, destdir string, config *kickr.Config) error {
+func ParserGit(_ context.Context, destdir string, config *types.KickrGen) error {
 	vcs, err := parser.Git(destdir)
 	if err != nil {
 		for _, is := range []error{git.ErrRepositoryNotExists, git.ErrRemoteNotFound} {
@@ -27,7 +26,12 @@ func ParserGit(_ context.Context, destdir string, config *kickr.Config) error {
 	engine.GetLogger().Infof("git repository detected")
 
 	config.VCS = vcs
+	if config.Platform != "" {
+		config.VCS.Platform = config.Platform
+	} else {
+		config.Platform = config.VCS.Platform
+	}
 	return nil
 }
 
-var _ engine.Parser[kickr.Config] = ParserGit // ensure interface is implemented
+var _ engine.Parser[types.KickrGen] = ParserGit // ensure interface is implemented

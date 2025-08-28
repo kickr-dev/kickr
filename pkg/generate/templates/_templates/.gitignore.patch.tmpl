@@ -14,7 +14,7 @@ index 332d5ce..39af8aa 100644
 +
 \ No newline at end of file
 
-{{- if .IsDeployment "netlify" }}
+{{- if and .CI .CI.Netlify }}
 
 diff --git a/.gitignore b/.gitignore
 index 332d5ce..39af8aa 100644
@@ -29,9 +29,8 @@ index 332d5ce..39af8aa 100644
 {{- $start = add $start 4 }}
 {{- end }}
 
-{{- if hasKey .Languages "go" }}
-
 {{- $lines := list }}
+{{- if hasKey .Languages "go" }}
 
 {{- range $name, $config := .Clis }}
 {{- $lines = append $lines $name }}
@@ -52,6 +51,10 @@ index 332d5ce..39af8aa 100644
 {{- $lines = append $lines "worker-*" }}
 {{- $lines = append $lines "!worker-*/" }}
 {{- end }}
+
+{{- end }}
+
+{{- if gt (len $lines) 0 }}
 
 diff --git a/.gitignore b/.gitignore
 index 332d5ce..39af8aa 100644

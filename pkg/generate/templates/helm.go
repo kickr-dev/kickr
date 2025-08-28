@@ -5,12 +5,12 @@ import (
 
 	engine "github.com/kickr-dev/engine/pkg"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 // Chart returns the slice of templates related to helm chart generation.
-func Chart() []engine.Template[kickr.Config] {
-	var templates []engine.Template[kickr.Config] //nolint:prealloc
+func Chart() []engine.Template[types.KickrGen] {
+	var templates []engine.Template[types.KickrGen] //nolint:prealloc
 
 	tmplfiles := []string{
 		path.Join("chart", "templates", "_helpers.tpl"),
@@ -23,11 +23,11 @@ func Chart() []engine.Template[kickr.Config] {
 		path.Join("chart", "templates", "serviceaccount.yaml"),
 	}
 	for _, src := range tmplfiles {
-		templates = append(templates, engine.Template[kickr.Config]{
+		templates = append(templates, engine.Template[types.KickrGen]{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
-			Remove: func(config kickr.Config) bool {
+			Remove: func(config types.KickrGen) bool {
 				return config.CI == nil || config.CI.Helm == nil
 			},
 		})
@@ -40,21 +40,21 @@ func Chart() []engine.Template[kickr.Config] {
 		path.Join("chart", "charts", ".gitkeep"),
 	}
 	for _, src := range chartfiles {
-		templates = append(templates, engine.Template[kickr.Config]{
+		templates = append(templates, engine.Template[types.KickrGen]{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
-			Remove: func(config kickr.Config) bool {
+			Remove: func(config types.KickrGen) bool {
 				return config.CI == nil || config.CI.Helm == nil
 			},
 		})
 	}
 
-	templates = append(templates, engine.Template[kickr.Config]{
+	templates = append(templates, engine.Template[types.KickrGen]{
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      engine.GlobsWithPart(path.Join("chart", "values.yaml")),
 		Out:        path.Join("chart", "values.yaml"),
-		Remove: func(config kickr.Config) bool {
+		Remove: func(config types.KickrGen) bool {
 			return config.CI == nil || config.CI.Helm == nil
 		},
 	})

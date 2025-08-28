@@ -3,17 +3,17 @@ package templates
 import (
 	engine "github.com/kickr-dev/engine/pkg"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 // Docker returns the slice of templates related to Docker generation (Dockerfile, .dockerignore, etc.).
-func Docker() []engine.Template[kickr.Config] {
-	return []engine.Template[kickr.Config]{
+func Docker() []engine.Template[types.KickrGen] {
+	return []engine.Template[types.KickrGen]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart("Dockerfile"),
 			Out:        "Dockerfile",
-			Remove: func(config kickr.Config) bool {
+			Remove: func(config types.KickrGen) bool {
 				return config.CI == nil || config.CI.Docker == nil || config.Binaries() == 0
 			},
 		},
@@ -21,7 +21,7 @@ func Docker() []engine.Template[kickr.Config] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".dockerignore" + engine.TmplExtension},
 			Out:        ".dockerignore",
-			Remove: func(config kickr.Config) bool {
+			Remove: func(config types.KickrGen) bool {
 				return config.CI == nil || config.CI.Docker == nil || config.Binaries() == 0
 			},
 		},
@@ -31,7 +31,7 @@ func Docker() []engine.Template[kickr.Config] {
 			Out:        "launcher.sh",
 			// launcher.sh is a specific thing to golang being able to have multiple binaries inside a simple project (cmd folder)
 			// however, it may change in the future with python (or rust or others ?) depending on flexibility in repositories layout
-			Remove: func(config kickr.Config) bool {
+			Remove: func(config types.KickrGen) bool {
 				_, ok := config.Languages["go"]
 				return !ok || config.CI == nil || config.CI.Docker == nil || config.Binaries() <= 1
 			},

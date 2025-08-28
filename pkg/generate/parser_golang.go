@@ -8,8 +8,7 @@ import (
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
-
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 // ParserGolang detects the presence of a go.mod file
@@ -20,7 +19,7 @@ import (
 //
 // If a hugo config or theme file is present, it will be detected
 // and 'hugo' will be set as the language ('go' will not in that case).
-func ParserGolang(_ context.Context, destdir string, config *kickr.Config) error {
+func ParserGolang(_ context.Context, destdir string, config *types.KickrGen) error {
 	if hugoconfig, ok := parser.Hugo(destdir); ok {
 		engine.GetLogger().Infof("hugo detected, theme or hugo files are present")
 		config.SetLanguage("hugo", hugoconfig)
@@ -50,4 +49,4 @@ func ParserGolang(_ context.Context, destdir string, config *kickr.Config) error
 	return nil
 }
 
-var _ engine.Parser[kickr.Config] = ParserGolang // ensure interface is implemented
+var _ engine.Parser[types.KickrGen] = ParserGolang // ensure interface is implemented

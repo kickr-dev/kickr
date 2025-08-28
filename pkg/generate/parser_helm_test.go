@@ -9,8 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/generate"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 func TestParserChart(t *testing.T) {
@@ -23,7 +24,7 @@ func TestParserChart(t *testing.T) {
 		require.NoError(t, os.MkdirAll(kickrfile, files.RwxRxRxRx))
 
 		// Act
-		err := generate.ParserHelm(ctx, destdir, &kickr.Config{CI: &kickr.CI{Helm: &kickr.Helm{}}})
+		err := generate.ParserHelm(ctx, destdir, &types.KickrGen{Kickr: kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}}})
 
 		// Assert
 		assert.ErrorContains(t, err, "read yaml")
@@ -38,16 +39,25 @@ func TestParserChart(t *testing.T) {
 			filepath.Join(chartdir, kickr.File),
 			[]byte("description: a description"), files.RwRR))
 
-		expected := kickr.Config{
-			CI: &kickr.CI{Helm: &kickr.Helm{}},
+		expected := types.KickrGen{
+			Kickr: kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}},
 			Languages: map[string]any{
 				"helm": map[string]any{
-					"ci":          map[string]any{},
 					"description": "a description",
+					"docker":      map[string]any{},
+
+					"clis":    nil,
+					"crons":   nil,
+					"jobs":    nil,
+					"workers": nil,
+
+					"maintainers": nil,
+					"projectName": "",
+					"projectPath": "",
 				},
 			},
 		}
-		config := kickr.Config{CI: &kickr.CI{Helm: &kickr.Helm{}}}
+		config := types.KickrGen{Kickr: kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}}}
 
 		// Act
 		err := generate.ParserHelm(ctx, destdir, &config)

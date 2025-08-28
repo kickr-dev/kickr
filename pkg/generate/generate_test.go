@@ -16,9 +16,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 	"github.com/kickr-dev/kickr/testutils"
 )
 
@@ -28,15 +29,15 @@ func TestGenerate_NoLang(t *testing.T) {
 	t.Run("success_chart", func(t *testing.T) {
 		// Arrange
 		cases := []kickr.CI{
-			{Name: parser.GitHub, Helm: &kickr.Helm{}},
-			{Name: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
-			{Name: parser.GitHub, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
-			{Name: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmNone}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmNone}},
 
-			{Name: parser.GitLab, Helm: &kickr.Helm{}},
-			{Name: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
-			{Name: parser.GitLab, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
-			{Name: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmNone}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmNone}},
 		}
 
 		for _, ci := range cases {
@@ -44,13 +45,15 @@ func TestGenerate_NoLang(t *testing.T) {
 			if ci.Helm != nil && ci.Helm.Publish != "" {
 				publish = ci.Helm.Publish
 			}
-			name := fmt.Sprint(ci.Name, "_publish_", publish)
+			name := fmt.Sprint(ci.Provider, "_publish_", publish)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					CI:      &ci,
-					Exclude: []string{kickr.Makefile},
-					VCS:     parser.VCS{Platform: ci.Name},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI:       &ci,
+						Exclude:  []string{kickr.ExcludeMakefile},
+						Platform: ci.Provider,
+					},
 				}
 
 				// Act & Assert
@@ -68,9 +71,9 @@ func TestGenerate_NoLang(t *testing.T) {
 		cases := []testcase{
 			{CI: parser.GitHub},
 
-			{CI: parser.GitHub, Auth: kickr.GitHubApp},
-			{CI: parser.GitHub, Auth: kickr.GitHubToken},
-			{CI: parser.GitHub, Auth: kickr.PersonalToken},
+			{CI: parser.GitHub, Auth: kickr.AuthGitHubApp},
+			{CI: parser.GitHub, Auth: kickr.AuthGitHubToken},
+			{CI: parser.GitHub, Auth: kickr.AuthPersonalToken},
 
 			{CI: parser.GitLab},
 		}
@@ -82,12 +85,13 @@ func TestGenerate_NoLang(t *testing.T) {
 
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					Bot:     kickr.Renovate,
-					CI:      &kickr.CI{Auth: kickr.Auth{Maintenance: tc.Auth}, Name: tc.CI},
-					Exclude: []string{kickr.Makefile, kickr.Shell},
-					Include: []string{kickr.RenovatePostUpgrade},
-					VCS:     parser.VCS{Platform: tc.CI},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
+						CI:           &kickr.CI{Provider: tc.CI, Renovate: &kickr.Renovate{Auth: tc.Auth}},
+						Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+						Platform:     tc.CI,
+					},
 				}
 
 				// Act & Assert
@@ -97,7 +101,7 @@ func TestGenerate_NoLang(t *testing.T) {
 
 		t.Run("templates", func(t *testing.T) {
 			// Arrange
-			tmpl := func(_ context.Context, destdir string, _ *kickr.Config) error {
+			tmpl := func(_ context.Context, destdir string, _ *types.KickrGen) error {
 				file, err := os.Create(filepath.Join(destdir, "template.tmpl"))
 				if err != nil {
 					return fmt.Errorf("create: %w", err)
@@ -105,9 +109,11 @@ func TestGenerate_NoLang(t *testing.T) {
 				return file.Close()
 			}
 
-			config := kickr.Config{
-				Bot:     kickr.Renovate,
-				Exclude: []string{kickr.Makefile},
+			config := types.KickrGen{
+				Kickr: kickr.Kickr{
+					Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
+					Exclude:      []string{kickr.ExcludeMakefile},
+				},
 			}
 
 			// Act & Assert
@@ -119,14 +125,16 @@ func TestGenerate_NoLang(t *testing.T) {
 		for _, precommit := range []bool{true, false} {
 			t.Run(strconv.FormatBool(precommit), func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					CI:      &kickr.CI{Name: parser.GitHub},
-					Exclude: []string{kickr.Makefile},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI:      &kickr.CI{Provider: parser.GitHub},
+						Exclude: []string{kickr.ExcludeMakefile},
+					},
 				}
 				if !precommit {
-					config.Exclude = append(config.Exclude, kickr.PreCommit)
+					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
 				} else {
-					config.CI.Options = append(config.CI.Options, kickr.PreCommitAutoCommit)
+					config.CI.Options = append(config.CI.Options, kickr.OptionPreCommitAutoCommit)
 				}
 
 				// Act & Assert
@@ -146,9 +154,9 @@ func TestGenerate_NoLang(t *testing.T) {
 			{CI: parser.GitHub},
 			{CI: parser.GitHub, Auto: true},
 
-			{CI: parser.GitHub, Auth: kickr.GitHubApp},
-			{CI: parser.GitHub, Auth: kickr.GitHubToken},
-			{CI: parser.GitHub, Auth: kickr.PersonalToken},
+			{CI: parser.GitHub, Auth: kickr.AuthGitHubApp},
+			{CI: parser.GitHub, Auth: kickr.AuthGitHubToken},
+			{CI: parser.GitHub, Auth: kickr.AuthPersonalToken},
 
 			{CI: parser.GitLab},
 			{CI: parser.GitLab, Auto: true},
@@ -164,14 +172,15 @@ func TestGenerate_NoLang(t *testing.T) {
 
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					CI: &kickr.CI{
-						Auth:    kickr.Auth{Release: tc.Auth},
-						Name:    tc.CI,
-						Release: &kickr.Release{Auto: tc.Auto},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI: &kickr.CI{
+							Provider: tc.CI,
+							Release:  &kickr.Release{Auto: tc.Auto, Auth: tc.Auth},
+						},
+						Exclude:  []string{kickr.ExcludeMakefile},
+						Platform: tc.CI,
 					},
-					Exclude: []string{kickr.Makefile},
-					VCS:     parser.VCS{Platform: tc.CI},
 				}
 
 				// Act & Assert
@@ -184,7 +193,7 @@ func TestGenerate_NoLang(t *testing.T) {
 func TestGenerate_Shell(t *testing.T) {
 	ctx := t.Context()
 
-	shell := func(_ context.Context, destdir string, _ *kickr.Config) error {
+	shell := func(_ context.Context, destdir string, _ *types.KickrGen) error {
 		return os.WriteFile(filepath.Join(destdir, "script.sh"), []byte("#!/bin/sh\n"), files.RwxRxRxRx)
 	}
 
@@ -192,9 +201,11 @@ func TestGenerate_Shell(t *testing.T) {
 		for _, ci := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					CI:      &kickr.CI{Name: ci},
-					Exclude: []string{kickr.Makefile},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI:      &kickr.CI{Provider: ci},
+						Exclude: []string{kickr.ExcludeMakefile},
+					},
 				}
 
 				// Act & Assert
@@ -207,9 +218,9 @@ func TestGenerate_Shell(t *testing.T) {
 		for _, precommit := range []bool{true, false} {
 			t.Run(strconv.FormatBool(precommit), func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{Exclude: []string{kickr.Makefile}}
+				config := types.KickrGen{Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile}}}
 				if !precommit {
-					config.Exclude = append(config.Exclude, kickr.PreCommit)
+					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
 				}
 
 				// Act & Assert
@@ -226,12 +237,14 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, ci := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					Bot: kickr.Dependabot,
-					CI:  &kickr.CI{Name: ci, Release: &kickr.Release{}},
-					VCS: parser.VCS{Platform: ci},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerDependabot},
+						CI:           &kickr.CI{Provider: ci, Release: &kickr.Release{}},
+						Platform:     ci,
+					},
 				}
-				golang := func(_ context.Context, _ string, config *kickr.Config) error {
+				golang := func(_ context.Context, _ string, config *types.KickrGen) error {
 					config.AddCLI("name")
 
 					gomod := parser.Gomod{
@@ -253,12 +266,14 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, platform := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(platform, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					Exclude: []string{kickr.Makefile},
-					Include: []string{kickr.PreCommitGomodTidy},
-					VCS:     parser.VCS{Platform: platform},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						Exclude:   []string{kickr.ExcludeMakefile},
+						PreCommit: []string{kickr.PreCommitGomodTidy},
+						Platform:  platform,
+					},
 				}
-				golang := func(_ context.Context, _ string, config *kickr.Config) error {
+				golang := func(_ context.Context, _ string, config *types.KickrGen) error {
 					gomod := parser.Gomod{
 						Go:     "1.23",
 						Module: platform + ".com/kickr-dev/kickr",
@@ -278,21 +293,22 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, ci := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					Bot: kickr.Renovate,
-					CI: &kickr.CI{
-						Name:       ci,
-						Deployment: &kickr.Deployment{Platform: kickr.Kubernetes},
-						Docker:     &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
-						Helm:       &kickr.Helm{Path: "path/to/repository", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"},
-						Options:    []string{kickr.CodeCov, kickr.CodeQL, kickr.Labeler, kickr.Sonar, kickr.StepSecurity},
-						Release:    &kickr.Release{},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
+						CI: &kickr.CI{
+							Provider: ci,
+							Docker:   &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
+							Helm:     &kickr.Helm{Deploy: kickr.HelmManual, Path: "path/to/repository", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"},
+							Options:  []string{kickr.OptionCodeCov, kickr.OptionCodeQL, kickr.OptionHardenRunner, kickr.OptionLabeler, kickr.OptionScoreCardOSSF, kickr.OptionSonarQube},
+							Release:  &kickr.Release{},
+						},
+						Description: "A useful project description",
+						Exclude:     []string{kickr.ExcludeShell},
+						Platform:    ci,
 					},
-					Description: "A useful project description",
-					Exclude:     []string{kickr.Shell},
-					VCS:         parser.VCS{Platform: ci},
 				}
-				golang := func(_ context.Context, _ string, config *kickr.Config) error {
+				golang := func(_ context.Context, _ string, config *types.KickrGen) error {
 					config.AddJob("job-name")
 					config.AddCron("cron-name")
 					config.AddWorker("worker-name")
@@ -316,34 +332,57 @@ func TestGenerate_Golang(t *testing.T) {
 func TestGenerate_Hugo(t *testing.T) {
 	ctx := t.Context()
 
-	cases := []kickr.CI{
-		{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Netlify, Auto: true}},
-		{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Netlify}},
-		{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Pages, Auto: true}},
-		{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Pages}},
+	t.Run("success_netlify", func(t *testing.T) {
+		cases := []kickr.CI{
+			{Provider: parser.GitHub, Netlify: &kickr.Netlify{Auto: true}},
+			{Provider: parser.GitHub, Netlify: &kickr.Netlify{}},
 
-		{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Netlify, Auto: true}},
-		{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Netlify}},
-		{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Pages, Auto: true}},
-		{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Pages}},
-	}
-	for _, ci := range cases {
-		name := fmt.Sprint(ci.Name, "_", ci.Deployment.Platform, "_auto_", ci.Deployment.Auto)
-		t.Run(name, func(t *testing.T) {
-			// Arrange
-			config := kickr.Config{
-				CI:  &ci,
-				VCS: parser.VCS{Platform: ci.Name},
-			}
-			hugo := func(_ context.Context, _ string, config *kickr.Config) error {
-				config.SetLanguage("hugo", nil)
-				return nil
-			}
+			{Provider: parser.GitLab, Netlify: &kickr.Netlify{Auto: true}},
+			{Provider: parser.GitLab, Netlify: &kickr.Netlify{}},
+		}
+		for _, ci := range cases {
+			name := fmt.Sprint(ci.Provider, "_auto_", ci.Netlify.Auto)
+			t.Run(name, func(t *testing.T) {
+				// Arrange
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{CI: &ci, Platform: ci.Provider},
+				}
+				hugo := func(_ context.Context, _ string, config *types.KickrGen) error {
+					config.SetLanguage("hugo", nil)
+					return nil
+				}
 
-			// Act & Assert
-			test(ctx, t, config, hugo)
-		})
-	}
+				// Act & Assert
+				test(ctx, t, config, hugo)
+			})
+		}
+	})
+
+	t.Run("success_pages", func(t *testing.T) {
+		cases := []kickr.CI{
+			{Provider: parser.GitHub, Pages: &kickr.Pages{Auto: true}},
+			{Provider: parser.GitHub, Pages: &kickr.Pages{}},
+
+			{Provider: parser.GitLab, Pages: &kickr.Pages{Auto: true}},
+			{Provider: parser.GitLab, Pages: &kickr.Pages{}},
+		}
+		for _, ci := range cases {
+			name := fmt.Sprint(ci.Provider, "_auto_", ci.Pages.Auto)
+			t.Run(name, func(t *testing.T) {
+				// Arrange
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{CI: &ci, Platform: ci.Provider},
+				}
+				hugo := func(_ context.Context, _ string, config *types.KickrGen) error {
+					config.SetLanguage("hugo", nil)
+					return nil
+				}
+
+				// Act & Assert
+				test(ctx, t, config, hugo)
+			})
+		}
+	})
 }
 
 func TestGenerate_Node(t *testing.T) {
@@ -353,11 +392,13 @@ func TestGenerate_Node(t *testing.T) {
 		for _, tc := range []string{"bun@1.1.6", "npm@7.0.0", "pnpm@9.0.0", "yarn@1.22.10"} {
 			t.Run(tc, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					CI:  &kickr.CI{Name: parser.GitHub},
-					VCS: parser.VCS{Platform: parser.GitHub},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI:       &kickr.CI{Provider: parser.GitHub},
+						Platform: parser.GitHub,
+					},
 				}
-				node := func(_ context.Context, _ string, config *kickr.Config) error {
+				node := func(_ context.Context, _ string, config *types.KickrGen) error {
 					config.AddWorker("index.js")
 					config.SetLanguage("node", parser.PackageJSON{Name: "kickr", PackageManager: tc})
 					return nil
@@ -371,36 +412,38 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("success_library", func(t *testing.T) {
 		type testcase struct {
-			Bot            string
+			Manager        string
 			CI             string
 			PackageManager string
 		}
 		cases := []testcase{
-			{Bot: kickr.Renovate, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
-			{Bot: kickr.Dependabot, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
-			{Bot: kickr.Renovate, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
-			{Bot: kickr.Dependabot, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
+			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
+			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
 
-			{Bot: kickr.Renovate, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
-			{Bot: kickr.Dependabot, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
-			{Bot: kickr.Renovate, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
-			{Bot: kickr.Dependabot, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
+			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerDependabot, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
+			{Manager: kickr.ManagerDependabot, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
 		}
 
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.CI, "_", tc.Bot, "_", tc.PackageManager)
+			name := fmt.Sprint(tc.CI, "_", tc.Manager, "_", tc.PackageManager)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					Bot: tc.Bot,
-					CI: &kickr.CI{
-						Name:    tc.CI,
-						Auth:    kickr.Auth{Maintenance: kickr.PersonalToken},
-						Release: &kickr.Release{Backmerge: true},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						Dependencies: &kickr.Dependencies{Manager: tc.Manager},
+						CI: &kickr.CI{
+							Provider: tc.CI,
+							Release:  &kickr.Release{Options: []string{kickr.OptionBackmerge}},
+							Renovate: &kickr.Renovate{Auth: kickr.AuthPersonalToken},
+						},
+						Platform: tc.CI,
 					},
-					VCS: parser.VCS{Platform: tc.CI},
 				}
-				node := func(_ context.Context, _ string, config *kickr.Config) error {
+				node := func(_ context.Context, _ string, config *types.KickrGen) error {
 					config.SetLanguage("node", parser.PackageJSON{Name: "kickr", PackageManager: tc.PackageManager})
 					return nil
 				}
@@ -411,28 +454,26 @@ func TestGenerate_Node(t *testing.T) {
 		}
 	})
 
-	t.Run("success_deployment", func(t *testing.T) {
-		statics := []kickr.CI{
-			{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Netlify, Auto: true}},
-			{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Netlify}},
-			{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Pages, Auto: true}},
-			{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Pages}},
+	t.Run("success_netlify", func(t *testing.T) {
+		cases := []kickr.CI{
+			{Provider: parser.GitHub, Netlify: &kickr.Netlify{Auto: true}},
+			{Provider: parser.GitHub, Netlify: &kickr.Netlify{}},
 
-			{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Netlify, Auto: true}},
-			{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Netlify}},
-			{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Pages, Auto: true}},
-			{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Pages}},
+			{Provider: parser.GitLab, Netlify: &kickr.Netlify{Auto: true}},
+			{Provider: parser.GitLab, Netlify: &kickr.Netlify{}},
 		}
-		for _, ci := range statics {
-			name := fmt.Sprint(ci.Name, "_", ci.Deployment.Platform, "_auto_", ci.Deployment.Auto)
+		for _, ci := range cases {
+			name := fmt.Sprint(ci.Provider, "_auto_", ci.Netlify.Auto)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					CI:      &ci,
-					Exclude: []string{kickr.Makefile},
-					VCS:     parser.VCS{Platform: ci.Name},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI:       &ci,
+						Exclude:  []string{kickr.ExcludeMakefile},
+						Platform: ci.Provider,
+					},
 				}
-				node := func(_ context.Context, _ string, config *kickr.Config) error {
+				node := func(_ context.Context, _ string, config *types.KickrGen) error {
 					config.AddWorker("index.js")
 					config.SetLanguage("node", parser.PackageJSON{Name: "kickr", PackageManager: "bun@1.1.6"})
 					return nil
@@ -442,28 +483,74 @@ func TestGenerate_Node(t *testing.T) {
 				test(ctx, t, config, node)
 			})
 		}
+	})
 
+	t.Run("success_pages", func(t *testing.T) {
 		cases := []kickr.CI{
-			{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Kubernetes}, Helm: &kickr.Helm{}},
-			{Name: parser.GitHub, Deployment: &kickr.Deployment{Platform: kickr.Kubernetes}, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
+			{Provider: parser.GitHub, Pages: &kickr.Pages{Auto: true}},
+			{Provider: parser.GitHub, Pages: &kickr.Pages{}},
 
-			{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Kubernetes}, Helm: &kickr.Helm{}},
-			{Name: parser.GitLab, Deployment: &kickr.Deployment{Platform: kickr.Kubernetes}, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
+			{Provider: parser.GitLab, Pages: &kickr.Pages{Auto: true}},
+			{Provider: parser.GitLab, Pages: &kickr.Pages{}},
+		}
+		for _, ci := range cases {
+			name := fmt.Sprint(ci.Provider, "_auto_", ci.Pages.Auto)
+			t.Run(name, func(t *testing.T) {
+				// Arrange
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI:       &ci,
+						Exclude:  []string{kickr.ExcludeMakefile},
+						Platform: ci.Provider,
+					},
+				}
+				node := func(_ context.Context, _ string, config *types.KickrGen) error {
+					config.AddWorker("index.js")
+					config.SetLanguage("node", parser.PackageJSON{Name: "kickr", PackageManager: "bun@1.1.6"})
+					return nil
+				}
+
+				// Act & Assert
+				test(ctx, t, config, node)
+			})
+		}
+	})
+
+	t.Run("success_helm", func(t *testing.T) {
+		cases := []kickr.CI{
+			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmAuto}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmManual}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
+
+			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmAuto}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmManual}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
 		}
 		for _, ci := range cases {
 			publish := kickr.HelmNone
-			if ci.Helm != nil && ci.Helm.Publish != "" {
+			if ci.Helm.Publish != "" {
 				publish = ci.Helm.Publish
 			}
-			name := fmt.Sprint(ci.Name, "_", ci.Deployment.Platform, "_helm_", ci.Helm != nil, "_publish_", publish)
+			deploy := kickr.HelmNone
+			if ci.Helm.Deploy != "" {
+				deploy = ci.Helm.Deploy
+			}
+
+			name := fmt.Sprint(ci.Provider, "_deploy_", deploy, "_publish_", publish)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := kickr.Config{
-					CI:      &ci,
-					Exclude: []string{kickr.Makefile},
-					VCS:     parser.VCS{Platform: ci.Name},
+				config := types.KickrGen{
+					Kickr: kickr.Kickr{
+						CI:       &ci,
+						Exclude:  []string{kickr.ExcludeMakefile},
+						Platform: ci.Provider,
+					},
 				}
-				node := func(_ context.Context, _ string, config *kickr.Config) error {
+				node := func(_ context.Context, _ string, config *types.KickrGen) error {
 					config.AddWorker("index.js")
 					config.SetLanguage("node", parser.PackageJSON{Name: "kickr", PackageManager: "bun@1.1.6"})
 					return nil
@@ -476,7 +563,7 @@ func TestGenerate_Node(t *testing.T) {
 	})
 }
 
-func ParserInfo(_ context.Context, _ string, config *kickr.Config) error {
+func ParserInfo(_ context.Context, _ string, config *types.KickrGen) error {
 	config.VCS = parser.VCS{
 		Platform:    config.Platform,
 		ProjectHost: config.Platform + ".com",
@@ -487,7 +574,7 @@ func ParserInfo(_ context.Context, _ string, config *kickr.Config) error {
 }
 
 // test verifies every generation with provided config, parser and t.Name folder expected results.
-func test(ctx context.Context, t *testing.T, config kickr.Config, parsers ...engine.Parser[kickr.Config]) {
+func test(ctx context.Context, t *testing.T, config types.KickrGen, parsers ...engine.Parser[types.KickrGen]) {
 	t.Helper()
 
 	// Arrange
@@ -502,8 +589,8 @@ func test(ctx context.Context, t *testing.T, config kickr.Config, parsers ...eng
 
 	// Act
 	_, err := engine.Generate(ctx, destdir, config,
-		slices.Concat(parsers, []engine.Parser[kickr.Config]{ParserInfo, generate.ParserGolang, generate.ParserNode, generate.ParserHelm}),
-		[]engine.Generator[kickr.Config]{
+		slices.Concat(parsers, []engine.Parser[types.KickrGen]{ParserInfo, generate.ParserGolang, generate.ParserNode, generate.ParserHelm}),
+		[]engine.Generator[types.KickrGen]{
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),
 			engine.GeneratorTemplates(templates.FS(), templates.Docker()),

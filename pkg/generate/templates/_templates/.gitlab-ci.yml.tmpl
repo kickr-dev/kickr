@@ -3,8 +3,8 @@
 {{- $hugo := hasKey .Languages "hugo" }}
 {{- $node := hasKey .Languages "node" }}
 
-{{- $pages := and (.IsDeployment "pages") (or $node $hugo) }}
-{{- $netlify := and (.IsDeployment "netlify") (or $node $hugo) }}
+{{- $pages := and (and .CI .CI.Pages) (or $node $hugo) }}
+{{- $netlify := and (and .CI .CI.Netlify) (or $node $hugo) }}
 
 ---
 include: .gitlab/workflows/.gitlab-ci.yml
@@ -35,7 +35,7 @@ include: .gitlab/workflows/.gitlab-ci.yml
 {{- end }}
 {{- end }}
 
-{{- if and .CI.Helm (.IsDeployment "kubernetes") }}
+{{- if .HasHelmDeploy }}
 
 # https://gitlab.com/to-be-continuous/helm
 # For a flawless integration with GitLab environments, those variables may be defined in this file or in project / group variables.
@@ -59,7 +59,7 @@ include: .gitlab/workflows/.gitlab-ci.yml
 {{- end }}
 {{- end }}
 
-{{- if eq .Bot "renovate" }}
+{{- if .DependencyManager "renovate" }}
 
 # https://gitlab.com/to-be-continuous/renovate
 # Don't forget to setup a scheduled pipeline every once in a while to run Renovate updates checks.
@@ -67,7 +67,7 @@ include: .gitlab/workflows/.gitlab-ci.yml
 # GITHUB_COM_TOKEN: A GitHub access token to allow Renovate fetch changelogs. [See doc](https://docs.renovatebot.com/getting-started/running/#githubcom-token-for-changelogs)
 {{- end }}
 
-{{- if eq .Bot "dependabot" }}
+{{- if .DependencyManager "dependabot" }}
 
 # Don't forget to setup a scheduled pipeline every once in a while to run Dependabot updates checks.
 # SETTINGS__GITLAB_ACCESS_TOKEN: A GitLab access token to allow Dependabot creating merge requests. [See doc](https://dependabot-gitlab.gitlab.io/dependabot/config/environment.html#access)
@@ -76,11 +76,11 @@ include: .gitlab/workflows/.gitlab-ci.yml
 
 {{- if $netlify }}
 
-# NETLIFY_SITE_ID: The netlify site ID where builds will be published (should be retrieved if the project name is the same here https://app.netlify.com/sites/{{ .ProjectName }}/configuration/general)
+# NETLIFY_SITE_ID: The netlify site ID where builds will be published (should be retrieved if the project name is the same here https://app.netlify.com/sites/{{ .VCS.ProjectName }}/configuration/general)
 # NETLIFY_AUTH_TOKEN: The netlify authentication token (it's a personal token) to use for deployments (once connected, can be retrieved here https://app.netlify.com/user/applications#content)
 {{- end }}
 
-{{- if has "sonar" .CI.Options }}
+{{- if has "sonarqube" .CI.Options }}
 
 # https://gitlab.com/to-be-continuous/sonar
 # SONAR_HOST_URL: SonarQube URL

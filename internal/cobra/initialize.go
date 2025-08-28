@@ -7,8 +7,8 @@ import (
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/spf13/cobra"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/initialize"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 var initializeCmd = &cobra.Command{

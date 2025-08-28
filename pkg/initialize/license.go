@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/huh"
 	engine "github.com/kickr-dev/engine/pkg"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 var licenses = []string{
@@ -24,7 +24,7 @@ var licenses = []string{
 }
 
 // License prompts the user to specify a license for the project.
-func License(config *kickr.Config) *huh.Group {
+func License(config *kickr.Kickr) *huh.Group {
 	var license bool
 	return huh.NewGroup(
 		huh.NewConfirm().
@@ -43,4 +43,4 @@ func License(config *kickr.Config) *huh.Group {
 	)
 }
 
-var _ engine.FormGroup[kickr.Config] = License // ensure interface is implemented
+var _ engine.FormGroup[kickr.Kickr] = License // ensure interface is implemented

@@ -8,7 +8,8 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 // ParserHelm parses the helm chart
@@ -18,14 +19,31 @@ import (
 // Note, since it does marshal input configuration in JSON
 // and merges it with <destdir>/chart/.kickr, this parser should be the last one called
 // to ensure the configuration is in a final state.
-func ParserHelm(_ context.Context, destdir string, config *kickr.Config) error {
+func ParserHelm(_ context.Context, destdir string, config *types.KickrGen) error {
 	if config.CI == nil || config.CI.Helm == nil {
 		return nil
 	}
 	engine.GetLogger().Infof("deployment with helm detected, configuration has 'helm' key in 'deployment' section")
 
-	chartdir := filepath.Join(destdir, "chart")
-	values, err := parser.MergeValues(config, filepath.Join(chartdir, kickr.File))
+	base := map[string]any{
+		"description": config.Description,
+		"docker": func() kickr.Docker {
+			if config.CI.Docker != nil {
+				return *config.CI.Docker
+			}
+			return kickr.Docker{}
+		}(),
+
+		"clis":    config.Clis,
+		"crons":   config.Crons,
+		"jobs":    config.Jobs,
+		"workers": config.Workers,
+
+		"maintainers": config.Maintainers,
+		"projectName": config.VCS.ProjectName,
+		"projectPath": config.VCS.ProjectPath,
+	}
+	values, err := parser.MergeValues(base, filepath.Join(destdir, "chart", kickr.File))
 	if err != nil {
 		return fmt.Errorf("merge values: %w", err)
 	}
@@ -34,4 +52,4 @@ func ParserHelm(_ context.Context, destdir string, config *kickr.Config) error {
 	return nil
 }
 
-var _ engine.Parser[kickr.Config] = ParserHelm // ensure interface is implemented
+var _ engine.Parser[types.KickrGen] = ParserHelm // ensure interface is implemented

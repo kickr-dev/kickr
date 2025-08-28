@@ -9,8 +9,8 @@
 {{- $node := hasKey .Languages "node" }}
 {{- $nodebuild := and $node (gt .Binaries 0) }}
 
-{{- $pages := and (.IsDeployment "pages") (or $nodebuild $hugo) }}
-{{- $netlify := and (.IsDeployment "netlify") (or $nodebuild $hugo) }}
+{{- $pages := and (and .CI .CI.Pages) (or $nodebuild $hugo) }}
+{{- $netlify := and (and .CI .CI.Netlify) (or $nodebuild $hugo) }}
 
 ---
 include:
@@ -39,7 +39,7 @@ include:
     file: "/templates/gitlab-ci-bash.yml"
 {{- end }}
 
-{{- if eq .Bot "renovate" }}
+{{- if .DependencyManager "renovate" }}
 
   # Renovate template
   # https://gitlab.com/to-be-continuous/renovate
@@ -48,7 +48,7 @@ include:
     file: "templates/gitlab-ci-renovate.yml"
 {{- end }}
 
-{{- if eq .Bot "dependabot" }}
+{{- if .DependencyManager "dependabot" }}
 
   # Dependabot template
   # https://gitlab.com/dependabot-gitlab/dependabot-standalone
@@ -93,7 +93,7 @@ include:
     file: "templates/gitlab-ci-node.yml"
 {{- end }}
 
-{{- if has "sonar" .CI.Options }}
+{{- if has "sonarqube" .CI.Options }}
 
   # SonarQube template
   # https://gitlab.com/to-be-continuous/sonar
@@ -122,15 +122,17 @@ variables:
   BASH_BATS_ENABLED: "false"
 {{- end }}
 
-{{- if eq .Bot "renovate" }}
-{{ if has "renovate:post-upgrade" .Include }}
-  RENOVATE_ALLOWED_COMMANDS: /^\.\/scripts\/sh\/renovate\.sh$/
-{{- end }}
+{{- if and (.DependencyManager "renovate") .CI.Renovate }}
+  RENOVATE_ALLOWED_COMMANDS: /^\.\/scripts\/sh\/\S+\.sh$/
   RENOVATE_AUTODISCOVER: "true"
-  RENOVATE_AUTODISCOVER_FILTER: {{ eq (len .Languages) 0 | ternary "$CI_PROJECT_NAMESPACE" "$CI_PROJECT_PATH" }}
+{{- if eq (len .Languages) 0 }}
+  RENOVATE_AUTODISCOVER_NAMESPACES: $CI_PROJECT_NAMESPACE
+{{- else }}
+  RENOVATE_AUTODISCOVER_FILTER: $CI_PROJECT_PATH
+{{- end }}
 {{- end }}
 
-{{- if eq .Bot "dependabot" }}
+{{- if .DependencyManager "dependabot" }}
 
   SETTINGS__GITLAB_URL: $CI_SERVER_FQDN
 {{- end }}
@@ -174,10 +176,10 @@ variables:
   HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
   HELM_PUBLISH_STRATEGY: {{ .CI.Helm.Publish | default "none" }}
 {{- if .HasHelmPublish }}
-  HELM_PUBLISH_URL: {{ $registry }}/{{ trimSuffix (print "/" .ProjectName) $path }}
+  HELM_PUBLISH_URL: {{ $registry }}/{{ trimSuffix (print "/" .VCS.ProjectName) $path }}
 {{- end }}
 
-{{- if .IsDeployment "kubernetes" }}
+{{- if .HasHelmDeploy }}
 
   HELM_REVIEW_ENABLED: "true"
   HELM_INTEG_ENABLED: "true"
@@ -185,7 +187,7 @@ variables:
   HELM_PROD_ENABLED: "true"
 
   HELM_DEPLOY_ARGS: upgrade --install --version "$SEMREL_INFO_NEXT_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$SEMREL_INFO_NEXT_VERSION"
-  HELM_PROD_DEPLOY_STRATEGY: {{ .CI.Deployment.Auto | ternary "auto" "manual" }}
+  HELM_PROD_DEPLOY_STRATEGY: {{ .CI.Helm.Deploy }}
 
   HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
   HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$SEMREL_INFO_NEXT_VERSION
@@ -220,7 +222,7 @@ variables:
   GO_TEST_IMAGE: registry.hub.docker.com/library/golang:latest
 {{- end }}
 
-{{- if has "sonar" .CI.Options }}
+{{- if has "sonarqube" .CI.Options }}
 
   SONAR_BASE_ARGS: |
     -Dsonar.properties=sonar.properties
@@ -299,7 +301,7 @@ hugo-build:
     expire_in: 1 day
 {{- end }}
 
-{{- if eq .Bot "renovate" }}
+{{- if .DependencyManager "renovate" }}
 
 .renovate-rules: &renovate-rules
   rules:
@@ -333,7 +335,7 @@ netlify:
       variables:
         ARGS: --prod
         ENV: production
-{{- if not .CI.Deployment.Auto }}
+{{- if not .CI.Netlify.Auto }}
       when: manual
 {{- end }}
     - variables:
@@ -359,7 +361,7 @@ pages:
     DIST_FOLDER: dist
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-{{- if not .CI.Deployment.Auto }}
+{{- if not .CI.Pages.Auto }}
       when: manual
 {{- end }}
   script:

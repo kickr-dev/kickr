@@ -95,7 +95,7 @@ plugins:
 {{- end }}
       message: "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
 {{- if .IsCI "github" }}
-  - - "@semantic-release/{{ .CI.Name }}"
+  - - "@semantic-release/{{ .CI.Provider }}"
     - draftRelease: false
       failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
       failCommentCondition: <% return false; %>
@@ -109,7 +109,7 @@ plugins:
 {{- end }}
 {{- end }}
 {{- if .IsCI "gitlab" }}
-  - - "@semantic-release/{{ .CI.Name }}"
+  - - "@semantic-release/{{ .CI.Provider }}"
     - failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
       failCommentCondition: <% return false; %>
       successComment: 🎉 This issue has been resolved in version v${nextRelease.version} 🎉
@@ -121,7 +121,7 @@ plugins:
         - path: dist
 {{- end }}
 {{- end }}
-{{- if .CI.Release.Backmerge }}
+{{- if has "backmerge" .CI.Release.Options }}
   - - "@kilianpaquier/semantic-release-backmerge"
     - targets:
         - from: ^(master|main)$
@@ -130,7 +130,7 @@ plugins:
           to: ^(dev|develop|development)$
         - from: staging
           to: ^(dev|develop|development)$
-{{- if ne .CI.Name .Platform }}
+{{- if ne .CI.Provider .Platform }}
       platform: {{ .Platform }}
 {{- end }}
 {{- end }}

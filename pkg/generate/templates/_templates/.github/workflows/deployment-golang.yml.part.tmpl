@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: version
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
