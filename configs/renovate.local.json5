@@ -1,0 +1,6 @@
+{
+    "postUpgradeTasks": {
+        "commands": [ "./scripts/sh/renovate.sh" ],
+        "executionMode": "branch"
+    }
+}

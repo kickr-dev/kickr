@@ -56,9 +56,6 @@ variables:
 
   PRE_COMMIT_FILE: .pre-commit-config.yaml
 
-  RENOVATE_AUTODISCOVER: "true"
-  RENOVATE_AUTODISCOVER_FILTER: $CI_PROJECT_PATH
-
   DOCKER_RELEASE_IMAGE: "registry.example.com/path/to/registry:$SEMREL_INFO_NEXT_VERSION"
   DOCKER_SNAPSHOT_IMAGE: "registry.example.com/path/to/registry/snapshot:$SEMREL_INFO_NEXT_VERSION"
 

@@ -6,28 +6,29 @@ import (
 
 	engine "github.com/kickr-dev/engine/pkg"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 // Makefile returns the slice of templates related to make configuration (build, test, docker make tasks).
-func Makefile() []engine.Template[kickr.Config] {
-	return []engine.Template[kickr.Config]{
+func Makefile() []engine.Template[types.KickrGen] {
+	return []engine.Template[types.KickrGen]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"Makefile" + engine.TmplExtension},
 			Out:        "Makefile",
-			Remove: func(config kickr.Config) bool {
+			Remove: func(config types.KickrGen) bool {
 				_, ok := config.Languages["node"] // don't generate makefiles with node
-				return ok || slices.Contains(config.Exclude, kickr.Makefile)
+				return ok || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
 			},
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart(path.Join("scripts", "mk", "build.mk")),
 			Out:        path.Join("scripts", "mk", "build.mk"),
-			Remove: func(config kickr.Config) bool {
+			Remove: func(config types.KickrGen) bool {
 				_, ok := config.Languages["node"] // don't generate makefiles with node
-				return ok || slices.Contains(config.Exclude, kickr.Makefile)
+				return ok || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
 			},
 		},
 	}

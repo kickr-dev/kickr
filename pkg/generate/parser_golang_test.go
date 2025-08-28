@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/generate"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 func TestParserGolang(t *testing.T) {
@@ -24,7 +24,7 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, os.Mkdir(filepath.Join(destdir, parser.FileGomod), files.RwxRxRxRx))
 
 		// Act
-		err := generate.ParserGolang(ctx, destdir, &kickr.Config{})
+		err := generate.ParserGolang(ctx, destdir, &types.KickrGen{})
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("read '%s'", parser.FileGomod))
@@ -33,7 +33,7 @@ func TestParserGolang(t *testing.T) {
 	t.Run("success_no_gomod", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		config := kickr.Config{}
+		config := types.KickrGen{}
 
 		// Act
 		err := generate.ParserGolang(ctx, destdir, &config)
@@ -58,12 +58,12 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, hugoconfig.Close())
 
-		expected := kickr.Config{
+		expected := types.KickrGen{
 			Languages: map[string]any{
 				"hugo": parser.HugoConfig{},
 			},
 		}
-		config := kickr.Config{}
+		config := types.KickrGen{}
 
 		// Act
 		err = generate.ParserGolang(ctx, destdir, &config)
@@ -88,7 +88,7 @@ func TestParserGolang(t *testing.T) {
 		), files.RwRR)
 		require.NoError(t, err)
 
-		expected := kickr.Config{
+		expected := types.KickrGen{
 			Languages: map[string]any{
 				"go": parser.Gomod{
 					Module: "github.com/kickr-dev/kickr",
@@ -97,7 +97,7 @@ func TestParserGolang(t *testing.T) {
 				},
 			},
 		}
-		config := kickr.Config{}
+		config := types.KickrGen{}
 
 		// Act
 		err = generate.ParserGolang(ctx, destdir, &config)
@@ -126,7 +126,7 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, main.Close())
 
-		expected := kickr.Config{
+		expected := types.KickrGen{
 			Executables: parser.Executables{
 				Clis: map[string]struct{}{"name": {}},
 			},
@@ -138,7 +138,7 @@ func TestParserGolang(t *testing.T) {
 				},
 			},
 		}
-		config := kickr.Config{}
+		config := types.KickrGen{}
 
 		// Act
 		err = generate.ParserGolang(ctx, destdir, &config)

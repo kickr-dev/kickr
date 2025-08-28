@@ -8,11 +8,11 @@ import (
 	"github.com/charmbracelet/huh"
 	engine "github.com/kickr-dev/engine/pkg"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 // Maintainer creates a maintainer with Q&A method from the end user.
-func Maintainer(config *kickr.Config) *huh.Group {
+func Maintainer(config *kickr.Kickr) *huh.Group {
 	maintainer := &kickr.Maintainer{}
 	config.Maintainers = append(config.Maintainers, maintainer)
 	return huh.NewGroup(
@@ -52,4 +52,4 @@ func Maintainer(config *kickr.Config) *huh.Group {
 	)
 }
 
-var _ engine.FormGroup[kickr.Config] = Maintainer // ensure interface is implemented
+var _ engine.FormGroup[kickr.Kickr] = Maintainer // ensure interface is implemented

@@ -40,16 +40,16 @@ FROM gcr.io/distroless/static-debian12:nonroot
 LABEL org.opencontainers.image.authors="{{ $maintainer.Name }}{{ if $maintainer.Email }} <{{ $maintainer.Email }}>{{ end }}"
 LABEL org.opencontainers.image.vendor="{{ $maintainer.Name }}"
 
-LABEL org.opencontainers.image.title="{{ .ProjectName }}"
+LABEL org.opencontainers.image.title="{{ .VCS.ProjectName }}"
 {{- if .Description }}
 LABEL org.opencontainers.image.description="{{ .Description }}"
 {{- end }}
 {{- if .License }}
 LABEL org.opencontainers.image.licenses="{{ upper .License }}"
 {{- end }}
-LABEL org.opencontainers.image.url="{{ print .ProjectHost "/" .ProjectPath }}"
-LABEL org.opencontainers.image.source="{{ print .ProjectHost "/" .ProjectPath }}"
-LABEL org.opencontainers.image.documentation="{{ print .ProjectHost "/" .ProjectPath }}"
+LABEL org.opencontainers.image.url="{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}"
+LABEL org.opencontainers.image.source="{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}"
+LABEL org.opencontainers.image.documentation="{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}"
 
 WORKDIR /app
 

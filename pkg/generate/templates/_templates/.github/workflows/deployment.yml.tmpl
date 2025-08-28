@@ -12,38 +12,50 @@ run-name: Deployment
 <<- $nodebuild := and $node (gt .Binaries 0) >>
 <<- $nodepublish := and $node (not (get .Languages "node").Private) >>
 
-<<- $pages := and (.IsDeployment "pages") (or $nodebuild $hugo) >>
-<<- $netlify := and (.IsDeployment "netlify") (or $nodebuild $hugo) >>
+<<- $pages := and (and .CI .CI.Pages) (or $nodebuild $hugo) >>
+<<- $netlify := and (and .CI .CI.Netlify) (or $nodebuild $hugo) >>
 
 on:
   workflow_dispatch:
     inputs:
-<<- if .CI.Deployment >>
-      deploy:
-        description: Deployment run mode.
+<<- if .HasHelmDeploy >>
+      helm_deploy:
+        description: Helm deployment mode.
         type: choice
         options:
-<<- if and .CI.Helm (eq .CI.Deployment.Platform "kubernetes") >>
           - --dry-run=client
           - --dry-run=none
           - --dry-run=server
           - none
-        default: << .CI.Deployment.Auto | ternary "--dry-run=none" "--dry-run=server" >>
-<<- else >>
-          - full
-          - none
-        default: << .CI.Deployment.Auto | ternary "full" "none" >>
-<<- end >>
+        default: << eq .CI.Helm.Deploy "auto" | ternary "--dry-run=none" "--dry-run=server" >>
 <<- end >>
 <<- if .HasHelmPublish >>
       helm_push:
-        description: Helm publish run mode.
+        description: Helm publish mode.
         type: choice
         options:
           - dry-run
           - none
           - full
         default: << eq .CI.Helm.Publish "auto" | ternary "full" "dry-run" >>
+<<- end >>
+<<- if .CI.Netlify >>
+      netlify:
+        description: Netlify deployment mode.
+        type: choice
+        options:
+          - full
+          - none
+        default: << .CI.Netlify.Auto | ternary "full" "none" >>
+<<- end >>
+<<- if .CI.Pages >>
+      pages:
+        description: Pages deployment mode.
+        type: choice
+        options:
+          - full
+          - none
+        default: << .CI.Pages.Auto | ternary "full" "none" >>
 <<- end >>
 <<- if .CI.Release >>
       release:
@@ -70,7 +82,7 @@ jobs:
     permissions:
       actions: read
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -115,7 +127,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
 <<- if .CI.Release >>
     permissions:
-<<- if eq .CI.Auth.Release "github-token" >>
+<<- if eq .CI.Release.Auth "github-token" >>
       contents: write
       issues: write
       pull-requests: write
@@ -123,7 +135,7 @@ jobs:
       id-token: << $node | ternary "write" "none" >>
 <<- end >>
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -132,9 +144,9 @@ jobs:
           egress-policy: audit
 <<- end >>
 <<- if .CI.Release >>
-<<- if eq .CI.Auth.Release "github-app" >>
+<<- if eq .CI.Release.Auth "github-app" >>
       - id: app_token
-        uses: actions/create-github-app-token@fb1c7fda2b8e4c84bf45f93f9c0b45525505fa0f # v3.0.0-beta.1
+        uses: actions/create-github-app-token@bf559f85448f9380bcfa2899dbdc01eb5b37be3a # v3.0.0-beta.2
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -142,10 +154,10 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
-<<- if ne .CI.Auth.Release "github-token" >>
+<<- if ne .CI.Release.Auth "github-token" >>
           persist-credentials: false
 <<- end >>
-<<- if eq .CI.Auth.Release "github-app" >>
+<<- if eq .CI.Release.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
       # https://github.com/marketplace/actions/action-for-semantic-release
@@ -169,13 +181,13 @@ jobs:
 <<- if and .License (or (eq .License "bsl-1.0") (eq .License "mit")) >>
             semantic-release-license
 <<- end >>
-<<- if .CI.Release.Backmerge >>
+<<- if has "backmerge" .CI.Release.Options >>
             @kilianpaquier/semantic-release-backmerge
 <<- end >>
         env:
-<<- if eq .CI.Auth.Release "github-app" >>
+<<- if eq .CI.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-<<- else if eq .CI.Auth.Release "personal-token" >>
+<<- else if eq .CI.Release.Auth "personal-token" >>
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -209,7 +221,7 @@ jobs:
 <<- if $nodebuild >><< template "node" . >><<- end >>
 
 <<- if .CI.Docker >><< template "docker" . >><<- end >>
-<<- if and .CI.Helm (or .HasHelmPublish (.IsDeployment "kubernetes")) >><< template "helm" . >><<- end >>
+<<- if .CI.Helm >><< template "helm" . >><<- end >>
 
 <<- if or $netlify $pages >><< template "static" . >><<- end >>
 
@@ -236,14 +248,14 @@ jobs:
       name: release
       url: ${{ steps.environment_url.outputs.environment_url }}
     permissions:
-<<- if eq .CI.Auth.Release "github-token" >>
+<<- if eq .CI.Release.Auth "github-token" >>
       contents: write
       issues: write
       pull-requests: write
   <<- end >>
       id-token: << $node | ternary "write" "none" >>
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -251,9 +263,9 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-<<- if eq .CI.Auth.Release "github-app" >>
+<<- if eq .CI.Release.Auth "github-app" >>
       - id: app_token
-        uses: actions/create-github-app-token@fb1c7fda2b8e4c84bf45f93f9c0b45525505fa0f # v3.0.0-beta.1
+        uses: actions/create-github-app-token@bf559f85448f9380bcfa2899dbdc01eb5b37be3a # v3.0.0-beta.2
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
@@ -261,10 +273,10 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
-<<- if ne .CI.Auth.Release "github-token" >>
+<<- if ne .CI.Release.Auth "github-token" >>
           persist-credentials: false
 <<- end >>
-<<- if eq .CI.Auth.Release "github-app" >>
+<<- if eq .CI.Release.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
 <<- if gt .Binaries 0 >>
@@ -294,13 +306,13 @@ jobs:
 <<- if and .License (or (eq .License "bsl-1.0") (eq .License "mit")) >>
             semantic-release-license
 <<- end >>
-<<- if .CI.Release.Backmerge >>
+<<- if has "backmerge" .CI.Release.Options >>
             @kilianpaquier/semantic-release-backmerge
 <<- end >>
         env:
-<<- if eq .CI.Auth.Release "github-app" >>
+<<- if eq .CI.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-<<- else if eq .CI.Auth.Release "personal-token" >>
+<<- else if eq .CI.Release.Auth "personal-token" >>
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

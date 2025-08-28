@@ -4,13 +4,15 @@ go 1.24.0
 
 toolchain go1.25.0
 
+// replace github.com/kickr-dev/engine => ../engine
+
 require (
 	github.com/charmbracelet/huh v0.7.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/goccy/go-yaml v1.18.0
 	github.com/jarcoal/httpmock v1.4.1
-	github.com/kickr-dev/engine v0.0.0-20250817203228-819f4c26acfe
+	github.com/kickr-dev/engine v0.0.0-20250828203517-5f087e09fa8c
 	github.com/kilianpaquier/compare v1.1.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0

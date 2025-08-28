@@ -5,14 +5,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/initialize"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 func TestMaintainer(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		// Act
-		group := initialize.Maintainer(&kickr.Config{})
+		group := initialize.Maintainer(&kickr.Kickr{})
 
 		// Assert
 		content := group.Content()

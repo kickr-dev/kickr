@@ -10,19 +10,20 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/generator"
 
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 // GeneratorGitignore downloads and writes .gitignore file in its right path.
 //
 // It patches it alongside with custom kickr patches as some exclusion
 // may be missing depending on kickr layout generation.
-func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, config kickr.Config) error {
+func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, config types.KickrGen) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
-	return func(ctx context.Context, destdir string, config kickr.Config) error {
+	return func(ctx context.Context, destdir string, config types.KickrGen) error {
 		mapping := map[string][]string{
 			"go":    {"go"},
 			"helm":  {"helm"},
@@ -41,7 +42,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 		query = append(query, "dotenv")
 
 		if config.CI != nil {
-			if slices.Contains(config.CI.Options, kickr.Sonar) {
+			if slices.Contains(config.CI.Options, kickr.OptionSonarQube) {
 				query = append(query, "sonar", "sonarqube")
 			}
 		}
@@ -50,7 +51,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 			return fmt.Errorf("download gitignore: %w", err)
 		}
 
-		template := engine.Template[kickr.Config]{
+		template := engine.Template[types.KickrGen]{
 			Delimiters: engine.DelimitersBracket(),
 			Patches:    []string{".gitignore" + engine.PatchExtension + engine.TmplExtension},
 			Out:        ".gitignore",
@@ -62,4 +63,4 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 	}
 }
 
-var _ engine.Generator[kickr.Config] = GeneratorGitignore(nil) // ensure interface is implemented
+var _ engine.Generator[types.KickrGen] = GeneratorGitignore(nil) // ensure interface is implemented

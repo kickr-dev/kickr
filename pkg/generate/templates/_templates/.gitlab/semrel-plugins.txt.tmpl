@@ -14,6 +14,6 @@ conventional-changelog-conventionalcommits
 semantic-release-license
 {{- end }}
 
-{{- if .CI.Release.Backmerge }}
+{{- if has "backmerge" .CI.Release.Options }}
 @kilianpaquier/semantic-release-backmerge
 {{- end }}

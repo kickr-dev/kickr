@@ -1,46 +1,46 @@
-# {{ .ProjectName }} <!-- omit in toc -->
+# {{ .VCS.ProjectName }} <!-- omit in toc -->
 
 <p align="center">
 {{- $style := "for-the-badge" }}
 
 {{- if eq .Platform "github" }}
-  <img alt="GitHub Release" src="https://img.shields.io/github/v/release/{{ .ProjectPath }}?include_prereleases&sort=semver&style={{ $style }}">
-  <img alt="GitHub Issues" src="https://img.shields.io/github/issues-raw/{{ .ProjectPath }}?style={{ $style }}">
+  <img alt="GitHub Release" src="https://img.shields.io/github/v/release/{{ .VCS.ProjectPath }}?include_prereleases&sort=semver&style={{ $style }}">
+  <img alt="GitHub Issues" src="https://img.shields.io/github/issues-raw/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- if .License }}
-  <img alt="GitHub License" src="https://img.shields.io/github/license/{{ .ProjectPath }}?style={{ $style }}">
+  <img alt="GitHub License" src="https://img.shields.io/github/license/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 {{- if .IsCI "github" }}
-  <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/{{ .ProjectPath }}/integration.yml?style={{ $style }}">
+  <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/{{ .VCS.ProjectPath }}/integration.yml?style={{ $style }}">
 {{- end }}
 {{- end }}
 
 {{- if eq .Platform "gitlab" }}
-{{- $url := toQuery (print "https://" .ProjectHost) }}
-  <img alt="GitLab Release" src="https://img.shields.io/gitlab/v/release/{{ toQuery .ProjectPath }}?gitlab_url={{ $url }}&include_prereleases&sort=semver&style={{ $style }}">
-  <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/{{ toQuery .ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
+{{- $url := toQuery (print "https://" .VCS.ProjectHost) }}
+  <img alt="GitLab Release" src="https://img.shields.io/gitlab/v/release/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&include_prereleases&sort=semver&style={{ $style }}">
+  <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
 {{- if .License }}
-  <img alt="GitLab License" src="https://img.shields.io/gitlab/license/{{ toQuery .ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
+  <img alt="GitLab License" src="https://img.shields.io/gitlab/license/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
 {{- end }}
 {{- if .IsCI "gitlab" }}
-  <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/{{ toQuery .ProjectPath }}?gitlab_url={{ $url }}&branch=main&style={{ $style }}">
+  <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&branch=main&style={{ $style }}">
 {{- end }}
 {{- end }}
 
 {{- if and .CI (has "codecov" .CI.Options) }}
-  <img alt="Coverage" src="https://img.shields.io/codecov/c/{{ .Platform }}/{{ .ProjectPath }}?style={{ $style }}">
+  <img alt="Coverage" src="https://img.shields.io/codecov/c/{{ .Platform }}/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 
-{{- if and .CI (has "sonar" .CI.Options) }}
+{{- if and .CI (has "sonarqube" .CI.Options) }}
 {{- $url := toQuery "https://sonarcloud.io" }}
-  <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .ProjectPath | replace "/" "_" }}?server={{ $url }}&style={{ $style }}">
+  <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .VCS.ProjectPath | replace "/" "_" }}?server={{ $url }}&style={{ $style }}">
 {{- end }}
 
 {{- if or (hasKey .Languages "go") (hasKey .Languages "hugo") }}
-  <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .ProjectPath }}?style={{ $style }}">
+  <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 
 {{- if hasKey .Languages "go" }}
-  <img alt="Go Report Card" src="https://goreportcard.com/badge/{{ print .ProjectHost "/" .ProjectPath }}?style={{ $style }}">
+  <img alt="Go Report Card" src="https://goreportcard.com/badge/{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 
 {{- if hasKey .Languages "node" }}
@@ -50,8 +50,8 @@
 {{- end }}
 {{- end }}
 
-{{- if and (.IsCI "github") (has "step-security" .CI.Options) }}
-  <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .ProjectHost "/" .ProjectPath }}?label={{ toQuery "OpenSSF Scorecard" }}&style={{ $style }}">
+{{- if and (.IsCI "github") (has "ossf-scorecard" .CI.Options) }}
+  <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}?label={{ toQuery "OpenSSF Scorecard" }}&style={{ $style }}">
 {{- end }}
 </p>
 

@@ -5,8 +5,8 @@ jobs:
 <<- $node := hasKey .Languages "node" >>
 
 <<- $registry := .CI.Docker.Registry | default "ghcr.io" >>
-<<- $path := .CI.Docker.Path | default .ProjectPath >>
-<<- $ghcr := and (eq $registry "ghcr.io") (eq $path .ProjectPath) >>
+<<- $path := .CI.Docker.Path | default .VCS.ProjectPath >>
+<<- $ghcr := and (eq $registry "ghcr.io") (eq $path .VCS.ProjectPath) >>
 
   docker-build:
     name: Docker Build
@@ -16,7 +16,7 @@ jobs:
       packages: << $ghcr | ternary "write" "none" >>
       security-events: write
     steps:
-<<- if has "step-security" .CI.Options >>
+<<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
@@ -71,7 +71,7 @@ jobs:
             GIT_REF_NAME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.ref.name'] }}
             GIT_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-      - uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # 0.32.0
+      - uses: aquasecurity/trivy-action@f9424c10c36e288d5fa79bd3dfd1aeb2d6eae808 # 0.33.0
         with:
           exit-code: 0
           format: sarif
@@ -82,7 +82,7 @@ jobs:
         env:
           TRIVY_USERNAME: ${{ github.repository_owner }}
           TRIVY_PASSWORD: << $ghcr | ternary "${{ secrets.GITHUB_TOKEN }}" "${{ secrets.REGISTRY_TOKEN }}" >>
-      - uses: github/codeql-action/upload-sarif@df559355d593797519d70b90fc8edd5db049e7a2 # v3.29.9
+      - uses: github/codeql-action/upload-sarif@3c3833e0f8c1c83d449a7478aa59c036a9165498 # v3.29.11
         with:
           category: docker-trivy
           sarif_file: trivy-results.sarif

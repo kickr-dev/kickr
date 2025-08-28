@@ -11,12 +11,13 @@ import (
 	"github.com/spf13/cobra"
 
 	schemas "github.com/kickr-dev/kickr/.schemas"
-	kickr "github.com/kickr-dev/kickr/pkg/configuration"
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-func gen(generators ...engine.Generator[kickr.Config]) func(cmd *cobra.Command, args []string) {
+func gen(generators ...engine.Generator[types.KickrGen]) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		dest := filepath.Join(wd, kickr.File)
@@ -29,14 +30,14 @@ func gen(generators ...engine.Generator[kickr.Config]) func(cmd *cobra.Command, 
 
 		// validate configuration
 		if err := files.Validate(
-			func(out any) error { return files.ReadJSON(schemas.Kickr, out, schemas.ReadFile) }, // read schema
-			func(out any) error { return files.ReadYAML(dest, out, os.ReadFile) },               // read configuration
+			func(out any) error { return files.ReadYAML(kickr.Schema, out, schemas.ReadFile) }, // read schema
+			func(out any) error { return files.ReadYAML(dest, out, os.ReadFile) },              // read configuration
 		); err != nil {
 			logger.Fatal(err)
 		}
 
 		// read configuration
-		var config kickr.Config
+		var config kickr.Kickr
 		if err := files.ReadYAML(dest, &config, os.ReadFile); err != nil {
 			logger.Fatal(err)
 		}
@@ -44,20 +45,21 @@ func gen(generators ...engine.Generator[kickr.Config]) func(cmd *cobra.Command, 
 
 		// run generation
 		engine.SetLogger(logger)
-		parsers := []engine.Parser[kickr.Config]{
+		parsers := []engine.Parser[types.KickrGen]{
 			generate.ParserGit,
 			generate.ParserGolang,
 			generate.ParserNode,
 			// must be kept last since it marshals config and merges it with chart overrides
 			generate.ParserHelm,
 		}
-		config, err := engine.Generate(ctx, wd, config, parsers, generators)
+
+		result, err := engine.Generate(ctx, wd, types.KickrGen{Kickr: config}, parsers, generators)
 		if err != nil {
 			logger.Fatal(err)
 		}
 
 		// save configuration again in case it was modified during generation
-		if err := files.WriteYAML(dest, config, kickr.EncodeOpts()...); err != nil {
+		if err := files.WriteYAML(dest, result.Kickr, kickr.EncodeOpts()...); err != nil {
 			logger.Fatal(err)
 		}
 	}

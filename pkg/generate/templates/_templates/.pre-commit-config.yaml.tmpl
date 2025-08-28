@@ -45,7 +45,7 @@ repos:
         types_or: [bash, dash, ksh, sh, shell]
 {{- end }}
 
-{{- if and $golang (has "pre-commit:gomod-tidy" .Include) }}
+{{- if and $golang (has "pre-commit:gomod-tidy" .PreCommit) }}
 
   - repo: local
     hooks:

@@ -7,8 +7,8 @@ sonar.qualitygate.wait=true
 
 sonar.organization={{ $maintainer.Name }}
 sonar.projectBaseDir=.
-sonar.projectKey={{ .ProjectPath | replace "/" "_" }}
-sonar.projectName={{ .ProjectName }}
+sonar.projectKey={{ .VCS.ProjectPath | replace "/" "_" }}
+sonar.projectName={{ .VCS.ProjectName }}
 
 {{- $exclusions := list }}
 {{- $inclusions := list }}
@@ -28,7 +28,7 @@ sonar.test.inclusions={{ join "," $inclusions }}
 
 {{- if hasKey .Languages "go" }}
 sonar.coverage.exclusions=cmd/**,testutils/**,**/cobra/**,**/tests/**,**/testutils/**
-{{- if eq .CI.Name "gitlab" }}
+{{- if eq .CI.Provider "gitlab" }}
 
 sonar.go.tests.reportPaths=reports/go-test.native.json
 {{- end }}
