@@ -2,6 +2,7 @@ package generate
 
 import (
 	"context"
+	"path/filepath"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
@@ -20,11 +21,24 @@ func ParserGlob(_ context.Context, destdir string, config *types.KickrWrapper) e
 		{Glob: ".gitmodules", Name: "gitmodules"},
 		{Glob: "*.*sh", Name: "shell"},
 		{Glob: "*.tmpl", Name: "tmpl"},
+		{Glob: "**/renovate*.json*", Name: "renovate.local"},
 	}
 	for _, check := range checks {
-		if matches := files.Glob(destdir, check.Glob); len(matches) > 0 {
-			config.SetGlob(check.Name)
+		matches := files.Glob(destdir, check.Glob, files.GlobExcludedDirectories("node_modules", "templates", "testdata"))
+		if len(matches) == 0 {
+			continue
 		}
+
+		paths := make([]string, 0, len(matches))
+		for _, match := range matches {
+			path, err := filepath.Rel(destdir, match)
+			if err != nil {
+				engine.GetLogger().Warnf("failed to get relative path file: %v", err)
+				continue
+			}
+			paths = append(paths, filepath.ToSlash(path))
+		}
+		config.SetGlob(check.Name, paths)
 	}
 	return nil
 }

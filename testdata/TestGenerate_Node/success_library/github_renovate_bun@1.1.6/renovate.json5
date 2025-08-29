@@ -8,6 +8,5 @@
     "extends": [
         "github>kickr-dev/renovate//configs/default.json5",
         "github>kickr-dev/renovate//configs/install-tool.json5",
-        "local>kickr-dev/kickr//configs/renovate.local.json5"
     ]
 }

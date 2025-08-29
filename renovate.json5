@@ -11,6 +11,7 @@
         "github>kickr-dev/renovate//configs/gomod.json5",
         "github>kickr-dev/renovate//configs/install-tool.json5",
         "github>kickr-dev/renovate//configs/tmpl.json5",
-        "local>kickr-dev/kickr//configs/renovate.local.json5"
+        "local>kickr-dev/kickr//configs/renovate.local.json5",
+        "local>kickr-dev/kickr//pkg/generate/templates/_templates/renovate.json5.tmpl",
     ]
 }
