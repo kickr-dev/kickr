@@ -70,11 +70,5 @@ jobs:
 <<- end >>
         env:
           LOG_LEVEL: ${{ vars.RENOVATE_LOG_LEVEL || 'info' }}
-          RENOVATE_ALLOWED_COMMANDS: /^\.\/scripts\/sh\/\S+\.sh$/
-<<- if eq (len .Languages) 0 >>
-          RENOVATE_AUTODISCOVER_NAMESPACES: ${{ github.repository_owner }}
-<<- else >>
-          RENOVATE_AUTODISCOVER_FILTER: ${{ github.repository }}
-<<- end >>
-          RENOVATE_AUTODISCOVER: "true"
+          RENOVATE_CONFIG_FILE: .github/renovate.json
           RENOVATE_DRY_RUN: ${{ inputs.dry_run }}

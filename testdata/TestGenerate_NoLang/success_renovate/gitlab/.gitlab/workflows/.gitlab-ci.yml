@@ -31,9 +31,7 @@ variables:
   SEMREL_TAG_FORMAT: v$${version}
 
   PRE_COMMIT_FILE: .pre-commit-config.yaml
-  RENOVATE_ALLOWED_COMMANDS: /^\.\/scripts\/sh\/\S+\.sh$/
-  RENOVATE_AUTODISCOVER: "true"
-  RENOVATE_AUTODISCOVER_NAMESPACES: $CI_PROJECT_NAMESPACE
+  RENOVATE_CONFIG_FILE: .github/renovate.json
 
 semantic-release-info:
   variables:

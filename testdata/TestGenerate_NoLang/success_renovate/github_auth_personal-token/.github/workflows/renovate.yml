@@ -36,7 +36,5 @@ jobs:
           token: ${{ secrets.RENOVATE_TOKEN }}
         env:
           LOG_LEVEL: ${{ vars.RENOVATE_LOG_LEVEL || 'info' }}
-          RENOVATE_ALLOWED_COMMANDS: /^\.\/scripts\/sh\/\S+\.sh$/
-          RENOVATE_AUTODISCOVER_NAMESPACES: ${{ github.repository_owner }}
-          RENOVATE_AUTODISCOVER: "true"
+          RENOVATE_CONFIG_FILE: .github/renovate.json
           RENOVATE_DRY_RUN: ${{ inputs.dry_run }}

@@ -123,13 +123,7 @@ variables:
 {{- end }}
 
 {{- if and (.DependencyManager "renovate") .CI.Renovate }}
-  RENOVATE_ALLOWED_COMMANDS: /^\.\/scripts\/sh\/\S+\.sh$/
-  RENOVATE_AUTODISCOVER: "true"
-{{- if eq (len .Languages) 0 }}
-  RENOVATE_AUTODISCOVER_NAMESPACES: $CI_PROJECT_NAMESPACE
-{{- else }}
-  RENOVATE_AUTODISCOVER_FILTER: $CI_PROJECT_PATH
-{{- end }}
+  RENOVATE_CONFIG_FILE: .github/renovate.json
 {{- end }}
 
 {{- if .DependencyManager "dependabot" }}

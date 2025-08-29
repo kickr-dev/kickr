@@ -47,10 +47,30 @@ func Renovate() []engine.Template[types.KickrWrapper] {
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{"renovate.json5" + engine.TmplExtension},
-			Out:        "renovate.json5",
+			Globs:      []string{"renovate.json" + engine.TmplExtension},
+			Out:        "renovate.json",
 			Remove: func(config types.KickrWrapper) bool {
 				return config.Dependencies == nil || config.Dependencies.Manager != kickr.ManagerRenovate
+			},
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
+			Out:        path.Join(".github", "renovate.json"),
+			Remove: func(config types.KickrWrapper) bool {
+				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
+				ci := config.CI != nil && config.CI.Provider == parser.GitHub && config.CI.Renovate != nil
+				return !manager || !ci
+			},
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
+			Out:        path.Join(".gitlab", "renovate.json"),
+			Remove: func(config types.KickrWrapper) bool {
+				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
+				ci := config.CI != nil && config.CI.Provider == parser.GitLab && config.CI.Renovate != nil
+				return !manager || !ci
 			},
 		},
 	}
