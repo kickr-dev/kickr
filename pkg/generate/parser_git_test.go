@@ -20,7 +20,7 @@ func TestParserGit(t *testing.T) {
 	t.Run("success_no_vcs", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err := generate.ParserGit(ctx, destdir, &config)
@@ -32,7 +32,7 @@ func TestParserGit(t *testing.T) {
 
 	t.Run("success_vcs", func(t *testing.T) {
 		// Arrange
-		expected := types.KickrGen{
+		expected := types.KickrWrapper{
 			Kickr: kickr.Kickr{Platform: parser.GitHub},
 			VCS: parser.VCS{
 				Platform:    parser.GitHub,
@@ -41,7 +41,7 @@ func TestParserGit(t *testing.T) {
 				ProjectPath: "kickr-dev/kickr",
 			},
 		}
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &config)
@@ -53,7 +53,7 @@ func TestParserGit(t *testing.T) {
 
 	t.Run("success_platform_already_present", func(t *testing.T) {
 		// Arrange
-		expected := types.KickrGen{
+		expected := types.KickrWrapper{
 			Kickr: kickr.Kickr{Platform: parser.GitLab},
 			VCS: parser.VCS{
 				Platform:    parser.GitLab,
@@ -62,7 +62,7 @@ func TestParserGit(t *testing.T) {
 				ProjectPath: "kickr-dev/kickr",
 			},
 		}
-		config := types.KickrGen{
+		config := types.KickrWrapper{
 			Kickr: kickr.Kickr{Platform: parser.GitLab},
 		}
 

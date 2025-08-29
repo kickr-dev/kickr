@@ -19,7 +19,7 @@ import (
 //
 // In case of success, the function will set the language to "node"
 // and the worker to "main" if the main property is present in the package.json file.
-func ParserNode(_ context.Context, destdir string, config *types.KickrGen) error {
+func ParserNode(_ context.Context, destdir string, config *types.KickrWrapper) error {
 	var jsonfile parser.PackageJSON
 	jsonpath := filepath.Join(destdir, parser.FilePackageJSON)
 	if err := files.ReadJSON(jsonpath, &jsonfile, os.ReadFile); err != nil {
@@ -41,4 +41,4 @@ func ParserNode(_ context.Context, destdir string, config *types.KickrGen) error
 	return nil
 }
 
-var _ engine.Parser[types.KickrGen] = ParserNode // ensure interface is implemented
+var _ engine.Parser[types.KickrWrapper] = ParserNode // ensure interface is implemented

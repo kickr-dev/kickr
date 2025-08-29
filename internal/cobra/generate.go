@@ -17,7 +17,7 @@ import (
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-func gen(generators ...engine.Generator[types.KickrGen]) func(cmd *cobra.Command, args []string) {
+func gen(generators ...engine.Generator[types.KickrWrapper]) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		dest := filepath.Join(wd, kickr.File)
@@ -45,7 +45,7 @@ func gen(generators ...engine.Generator[types.KickrGen]) func(cmd *cobra.Command
 
 		// run generation
 		engine.SetLogger(logger)
-		parsers := []engine.Parser[types.KickrGen]{
+		parsers := []engine.Parser[types.KickrWrapper]{
 			generate.ParserGit,
 			generate.ParserGlob,
 			generate.ParserGolang,
@@ -54,7 +54,7 @@ func gen(generators ...engine.Generator[types.KickrGen]) func(cmd *cobra.Command
 			generate.ParserHelm,
 		}
 
-		result, err := engine.Generate(ctx, wd, types.KickrGen{Kickr: config}, parsers, generators)
+		result, err := engine.Generate(ctx, wd, types.KickrWrapper{Kickr: config}, parsers, generators)
 		if err != nil {
 			logger.Fatal(err)
 		}

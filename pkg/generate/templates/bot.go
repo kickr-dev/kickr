@@ -11,13 +11,13 @@ import (
 )
 
 // Dependabot returns the slice of templates related to dependabot configuration.
-func Dependabot() []engine.Template[types.KickrGen] {
-	return []engine.Template[types.KickrGen]{
+func Dependabot() []engine.Template[types.KickrWrapper] {
+	return []engine.Template[types.KickrWrapper]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".github", "dependabot.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "dependabot.yml"),
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				return config.Dependencies == nil || config.Dependencies.Manager != kickr.ManagerDependabot || config.Platform != parser.GitHub
 			},
 		},
@@ -25,7 +25,7 @@ func Dependabot() []engine.Template[types.KickrGen] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".gitlab", "dependabot.yml"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "dependabot.yml"),
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				return config.Dependencies == nil || config.Dependencies.Manager != kickr.ManagerDependabot || !config.IsCI(parser.GitLab)
 			},
 		},
@@ -33,13 +33,13 @@ func Dependabot() []engine.Template[types.KickrGen] {
 }
 
 // Renovate returns the slice of templates related to renovate configuration.
-func Renovate() []engine.Template[types.KickrGen] {
-	return []engine.Template[types.KickrGen]{
+func Renovate() []engine.Template[types.KickrWrapper] {
+	return []engine.Template[types.KickrWrapper]{
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join(".github", "workflows", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "workflows", "renovate.yml"),
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
 				ci := config.CI != nil && config.CI.Provider == parser.GitHub && config.CI.Renovate != nil
 				return !manager || !ci
@@ -49,7 +49,7 @@ func Renovate() []engine.Template[types.KickrGen] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"renovate.json5" + engine.TmplExtension},
 			Out:        "renovate.json5",
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				return config.Dependencies == nil || config.Dependencies.Manager != kickr.ManagerRenovate
 			},
 		},

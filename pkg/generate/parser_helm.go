@@ -19,7 +19,7 @@ import (
 // Note, since it does marshal input configuration in JSON
 // and merges it with <destdir>/chart/.kickr, this parser should be the last one called
 // to ensure the configuration is in a final state.
-func ParserHelm(_ context.Context, destdir string, config *types.KickrGen) error {
+func ParserHelm(_ context.Context, destdir string, config *types.KickrWrapper) error {
 	if config.CI == nil || config.CI.Helm == nil {
 		return nil
 	}
@@ -52,4 +52,4 @@ func ParserHelm(_ context.Context, destdir string, config *types.KickrGen) error
 	return nil
 }
 
-var _ engine.Parser[types.KickrGen] = ParserHelm // ensure interface is implemented
+var _ engine.Parser[types.KickrWrapper] = ParserHelm // ensure interface is implemented

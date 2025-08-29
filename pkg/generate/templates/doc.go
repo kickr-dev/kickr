@@ -12,7 +12,7 @@ Examples:
 	func main() {
 		destdir, _ := os.Getwd()
 
-		var c kickr.Config
+		var c types.KickrWrapper
 		for _, template := range templates.Chart() {
 			err := engine.ApplyTemplate(templates.FS(), destdir, template, c)
 			// handle err
@@ -22,7 +22,7 @@ Examples:
 	func main() {
 		destdir, _ := os.Getwd()
 
-		var c kickr.Config
+		var c types.KickrWrapper
 		for _, template := range templates.Chart() {
 			err := engine.ApplyPatches(templates.FS(), destdir, template, c)
 			// handle err
@@ -31,7 +31,7 @@ Examples:
 
 	func main() {
 		destdir, _ := os.Getwd()
-		var c kickr.Config
+		var c types.KickrWrapper
 
 		f := engine.GeneratorTemplates(templates.FS(), templates.Chart())
 		err := f(ctx, destdir, c)

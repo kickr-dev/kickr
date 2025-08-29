@@ -24,7 +24,7 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, os.Mkdir(filepath.Join(destdir, parser.FileGomod), files.RwxRxRxRx))
 
 		// Act
-		err := generate.ParserGolang(ctx, destdir, &types.KickrGen{})
+		err := generate.ParserGolang(ctx, destdir, &types.KickrWrapper{})
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("read '%s'", parser.FileGomod))
@@ -33,7 +33,7 @@ func TestParserGolang(t *testing.T) {
 	t.Run("success_no_gomod", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err := generate.ParserGolang(ctx, destdir, &config)
@@ -58,12 +58,12 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, hugoconfig.Close())
 
-		expected := types.KickrGen{
+		expected := types.KickrWrapper{
 			Languages: map[string]any{
 				"hugo": parser.HugoConfig{},
 			},
 		}
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err = generate.ParserGolang(ctx, destdir, &config)
@@ -88,7 +88,7 @@ func TestParserGolang(t *testing.T) {
 		), files.RwRR)
 		require.NoError(t, err)
 
-		expected := types.KickrGen{
+		expected := types.KickrWrapper{
 			Languages: map[string]any{
 				"go": parser.Gomod{
 					Module: "github.com/kickr-dev/kickr",
@@ -97,7 +97,7 @@ func TestParserGolang(t *testing.T) {
 				},
 			},
 		}
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err = generate.ParserGolang(ctx, destdir, &config)
@@ -126,7 +126,7 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, main.Close())
 
-		expected := types.KickrGen{
+		expected := types.KickrWrapper{
 			Executables: parser.Executables{
 				Clis: map[string]struct{}{"name": {}},
 			},
@@ -138,7 +138,7 @@ func TestParserGolang(t *testing.T) {
 				},
 			},
 		}
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err = generate.ParserGolang(ctx, destdir, &config)

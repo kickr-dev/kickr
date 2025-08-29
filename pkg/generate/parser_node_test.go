@@ -23,7 +23,7 @@ func TestParserNode(t *testing.T) {
 		require.NoError(t, os.Mkdir(filepath.Join(destdir, parser.FilePackageJSON), files.RwxRxRxRx))
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &types.KickrGen{})
+		err := generate.ParserNode(ctx, destdir, &types.KickrWrapper{})
 
 		// Assert
 		assert.ErrorContains(t, err, "read json")
@@ -35,7 +35,7 @@ func TestParserNode(t *testing.T) {
 		require.NoError(t, os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON), []byte("{}"), files.RwRR))
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &types.KickrGen{})
+		err := generate.ParserNode(ctx, destdir, &types.KickrWrapper{})
 
 		// Assert
 		assert.ErrorIs(t, err, parser.ErrMissingPackageName)
@@ -49,7 +49,7 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(destdir, parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6" }`), files.RwRR))
 
-		expected := types.KickrGen{
+		expected := types.KickrWrapper{
 			Languages: map[string]any{
 				"node": parser.PackageJSON{
 					Name:           "kickr",
@@ -57,7 +57,7 @@ func TestParserNode(t *testing.T) {
 				},
 			},
 		}
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err := generate.ParserNode(ctx, destdir, &config)
@@ -74,7 +74,7 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(destdir, parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`), files.RwRR))
 
-		expected := types.KickrGen{
+		expected := types.KickrWrapper{
 			Executables: parser.Executables{
 				Workers: map[string]struct{}{"main": {}},
 			},
@@ -86,7 +86,7 @@ func TestParserNode(t *testing.T) {
 				},
 			},
 		}
-		config := types.KickrGen{}
+		config := types.KickrWrapper{}
 
 		// Act
 		err := generate.ParserNode(ctx, destdir, &config)

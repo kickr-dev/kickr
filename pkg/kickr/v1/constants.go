@@ -1,3 +1,4 @@
+//nolint:revive // should be generated
 package kickr
 
 const (

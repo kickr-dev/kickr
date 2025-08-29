@@ -5,13 +5,14 @@ import (
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
+
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 // ParserGlob is a simple parser checking whether specific globs exist within the destdir project.
 //
 // It adds any matches into config Globs property.
-func ParserGlob(ctx context.Context, destdir string, config *types.KickrGen) error {
+func ParserGlob(_ context.Context, destdir string, config *types.KickrWrapper) error {
 	checks := []struct {
 		Glob string
 		Name string
@@ -28,4 +29,4 @@ func ParserGlob(ctx context.Context, destdir string, config *types.KickrGen) err
 	return nil
 }
 
-var _ engine.Parser[types.KickrGen] = ParserGlob
+var _ engine.Parser[types.KickrWrapper] = ParserGlob

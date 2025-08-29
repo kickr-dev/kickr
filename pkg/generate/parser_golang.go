@@ -20,7 +20,7 @@ import (
 //
 // If a hugo config or theme file is present, it will be detected
 // and 'hugo' will be set as the language ('go' will not in that case).
-func ParserGolang(_ context.Context, destdir string, config *types.KickrGen) error {
+func ParserGolang(_ context.Context, destdir string, config *types.KickrWrapper) error {
 	if hugoconfig, ok := parser.Hugo(destdir); ok {
 		engine.GetLogger().Infof("hugo detected, theme or hugo files are present")
 		config.SetLanguage("hugo", hugoconfig)
@@ -50,4 +50,4 @@ func ParserGolang(_ context.Context, destdir string, config *types.KickrGen) err
 	return nil
 }
 
-var _ engine.Parser[types.KickrGen] = ParserGolang // ensure interface is implemented
+var _ engine.Parser[types.KickrWrapper] = ParserGolang // ensure interface is implemented

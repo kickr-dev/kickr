@@ -18,11 +18,11 @@ import (
 )
 
 // GeneratorLicense generates the license file for the project.
-func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir string, config types.KickrGen) error {
+func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir string, config types.KickrWrapper) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
-	return func(ctx context.Context, destdir string, config types.KickrGen) error {
+	return func(ctx context.Context, destdir string, config types.KickrWrapper) error {
 		client, err := gitlab.NewClient(os.Getenv("GITLAB_TOKEN"),
 			gitlab.WithBaseURL(generator.GitLabURL),
 			gitlab.WithHTTPClient(httpClient),
@@ -74,4 +74,4 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 	}
 }
 
-var _ engine.Generator[types.KickrGen] = GeneratorLicense(nil) // ensure interface is implemented
+var _ engine.Generator[types.KickrWrapper] = GeneratorLicense(nil) // ensure interface is implemented
