@@ -43,8 +43,6 @@ const (
 	OptionHardenRunner string = "harden-runner"
 	// OptionLabeler is the auto labeling option for CI tuning.
 	OptionLabeler string = "labeler"
-	// OptionPreCommitAutoCommit is the CI option to auto-commit issues identified by pre-commit.
-	OptionPreCommitAutoCommit = "pre-commit:auto-commit"
 	// OptionScoreCardOSSF is the CI option to add OSSF Scorecard badge and associated workflow (with GitHub Actions).
 	OptionScoreCardOSSF string = "ossf-scorecard"
 
@@ -78,7 +76,16 @@ const (
 )
 
 const (
-	// PreCommitGomodTidy is an available include for pre-commit configuration file.
+	// PreCommitAutoCommit is an available pre-commit option to auto-commit issues identified by pre-commit.
+	PreCommitAutoCommit = "auto-commit"
+
+	// PreCommitGomodTidy is an available pre-commit option for pre-commit configuration file.
+	//
+	// It will ensure there's no lint issue before committing anything.
+	PreCommitGolangciLint = "golangci-lint"
+
+	// PreCommitGomodTidy is an available pre-commit option for pre-commit configuration file.
+	//
 	// It will ensure go.mod and go.sum are tidied before committing anything.
-	PreCommitGomodTidy = "pre-commit:gomod-tidy"
+	PreCommitGomodTidy = "gomod-tidy"
 )

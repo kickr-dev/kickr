@@ -87,8 +87,8 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				config := types.KickrWrapper{
 					Kickr: kickr.Kickr{
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
 						CI:           &kickr.CI{Provider: tc.CI, Renovate: &kickr.Renovate{Auth: tc.Auth}},
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
 						Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
 						Platform:     tc.CI,
 					},
@@ -134,7 +134,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				if !precommit {
 					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
 				} else {
-					config.CI.Options = append(config.CI.Options, kickr.OptionPreCommitAutoCommit)
+					config.PreCommit = append(config.PreCommit, kickr.PreCommitAutoCommit)
 				}
 
 				// Act & Assert
@@ -239,8 +239,8 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				config := types.KickrWrapper{
 					Kickr: kickr.Kickr{
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerDependabot},
 						CI:           &kickr.CI{Provider: ci, Release: &kickr.Release{}},
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerDependabot},
 						Platform:     ci,
 					},
 				}
@@ -295,7 +295,6 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				config := types.KickrWrapper{
 					Kickr: kickr.Kickr{
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
 						CI: &kickr.CI{
 							Provider: ci,
 							Docker:   &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
@@ -303,9 +302,11 @@ func TestGenerate_Golang(t *testing.T) {
 							Options:  []string{kickr.OptionCodeCov, kickr.OptionCodeQL, kickr.OptionHardenRunner, kickr.OptionLabeler, kickr.OptionScoreCardOSSF, kickr.OptionSonarQube},
 							Release:  &kickr.Release{},
 						},
-						Description: "A useful project description",
-						Exclude:     []string{kickr.ExcludeShell},
-						Platform:    ci,
+						Description:  "A useful project description",
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
+						Exclude:      []string{kickr.ExcludeShell},
+						Platform:     ci,
+						PreCommit:    []string{kickr.PreCommitGolangciLint},
 					},
 				}
 				golang := func(_ context.Context, _ string, config *types.KickrWrapper) error {
@@ -434,13 +435,13 @@ func TestGenerate_Node(t *testing.T) {
 				// Arrange
 				config := types.KickrWrapper{
 					Kickr: kickr.Kickr{
-						Dependencies: &kickr.Dependencies{Manager: tc.Manager},
 						CI: &kickr.CI{
 							Provider: tc.CI,
 							Release:  &kickr.Release{Options: []string{kickr.OptionBackmerge}},
 							Renovate: &kickr.Renovate{Auth: kickr.AuthPersonalToken},
 						},
-						Platform: tc.CI,
+						Dependencies: &kickr.Dependencies{Manager: tc.Manager},
+						Platform:     tc.CI,
 					},
 				}
 				node := func(_ context.Context, _ string, config *types.KickrWrapper) error {

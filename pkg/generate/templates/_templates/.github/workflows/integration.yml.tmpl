@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
-<<- if has "pre-commit:auto-commit" .CI.Options >>
+<<- if has "auto-commit" .PreCommit >>
     permissions:
       contents: write
 <<- end >>
@@ -100,7 +100,7 @@ jobs:
           # renovate: datasource=github-tags packageName=actions/python-versions
           python-version: 3.13.7
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-<<- if has "pre-commit:auto-commit" .CI.Options >>
+<<- if has "auto-commit" .PreCommit >>
       - if: ${{ !cancelled() }}
 <<- if has "harden-runner" .CI.Options >>
         # https://app.stepsecurity.io/github-action-advisor/step-security/git-auto-commit-action

@@ -243,6 +243,7 @@ properties:
       type: string
       enum:
         - auto-commit
+        - golangci-lint
         - gomod-tidy
 
 $defs:
