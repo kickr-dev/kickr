@@ -18,7 +18,7 @@ include:
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
   - project: to-be-continuous/node
-    ref: 7b5510c701a6b615447bc658c7cb9b30841ce924 # 5.0.1
+    ref: f67302a5a04e265da76c373a7e95c9f5e242d12f # 5.0.1
     file: "templates/gitlab-ci-node.yml"
 
 variables:
