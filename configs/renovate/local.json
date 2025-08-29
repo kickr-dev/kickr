@@ -1,4 +1,6 @@
 {
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
     "postUpgradeTasks": {
         "commands": [ "./scripts/sh/renovate.sh" ],
         "executionMode": "branch"
@@ -9,12 +11,12 @@
             "customType": "regex",
             "description": "Update 'install-tool' versions in renovate.sh custom postUpgradeTasks",
             "managerFilePatterns": [
-                "\\./scripts/sh/renovate\\.sh"
+                "/scripts/sh/renovate\\.sh"
             ],
             "matchStrings": [
                 // renovate: datasource=<datasource> (packageName=<packageName>, i.e. optional)
                 // install-tool <depName> <currentValue>
-                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?\\ninstall-tool\\s(?<depName>\\S+)\\s(?<currentValue>[\\w.+-]+)$/"
+                "renovate:\\sdatasource=(?<datasource>\\S+)(?:\\spackageName=(?<packageName>\\S+))?\\ninstall-tool\\s(?<depName>\\S+)\\s(?<currentValue>[\\w.+-]+)"
             ],
             "versioningTemplate": "semver"
         }
