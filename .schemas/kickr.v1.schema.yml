@@ -157,8 +157,8 @@ properties:
         type: string
         description: local (in the repository) renovate configuration path to use in global extends.
         examples:
-          - config/renovate.json5
-          - config/renovate.local.json5
+          - configs/renovate.json5
+          - configs/renovate.local.json5
     allOf:
       - if:
           properties:
