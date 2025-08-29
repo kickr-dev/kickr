@@ -7,13 +7,13 @@ import (
 )
 
 // Docker returns the slice of templates related to Docker generation (Dockerfile, .dockerignore, etc.).
-func Docker() []engine.Template[types.KickrGen] {
-	return []engine.Template[types.KickrGen]{
+func Docker() []engine.Template[types.KickrWrapper] {
+	return []engine.Template[types.KickrWrapper]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart("Dockerfile"),
 			Out:        "Dockerfile",
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				return config.CI == nil || config.CI.Docker == nil || config.Binaries() == 0
 			},
 		},
@@ -21,7 +21,7 @@ func Docker() []engine.Template[types.KickrGen] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".dockerignore" + engine.TmplExtension},
 			Out:        ".dockerignore",
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				return config.CI == nil || config.CI.Docker == nil || config.Binaries() == 0
 			},
 		},
@@ -31,7 +31,7 @@ func Docker() []engine.Template[types.KickrGen] {
 			Out:        "launcher.sh",
 			// launcher.sh is a specific thing to golang being able to have multiple binaries inside a simple project (cmd folder)
 			// however, it may change in the future with python (or rust or others ?) depending on flexibility in repositories layout
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				_, ok := config.Languages["go"]
 				return !ok || config.CI == nil || config.CI.Docker == nil || config.Binaries() <= 1
 			},

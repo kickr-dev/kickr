@@ -6,7 +6,12 @@ import (
 	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-type KickrGen struct {
+// KickrWrapper is the wrapper struct of kickr configuration file for a given project.
+//
+// This wrapper struct adds various properties, affected during kickr parsing to adds metadata around kickr configuration file.
+//
+// This includes automatic parsing of languages involved in the repository, various repository informations, etc.
+type KickrWrapper struct {
 	kickr.Kickr
 	parser.Executables
 
@@ -16,7 +21,7 @@ type KickrGen struct {
 }
 
 // SetLanguage sets a language with its specificities.
-func (k *KickrGen) SetLanguage(name string, value any) {
+func (k *KickrWrapper) SetLanguage(name string, value any) {
 	if k.Languages == nil {
 		k.Languages = map[string]any{}
 	}
@@ -24,7 +29,7 @@ func (k *KickrGen) SetLanguage(name string, value any) {
 }
 
 // SetGlob sets a glob by its name.
-func (k *KickrGen) SetGlob(name string) {
+func (k *KickrWrapper) SetGlob(name string) {
 	if k.Globs == nil {
 		k.Globs = map[string]any{}
 	}

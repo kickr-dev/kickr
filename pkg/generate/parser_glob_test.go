@@ -5,10 +5,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/kickr-dev/kickr/pkg/generate"
-	"github.com/kickr-dev/kickr/pkg/generate/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/kickr-dev/kickr/pkg/generate"
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 func TestParserGlob(t *testing.T) {
@@ -33,7 +34,7 @@ func TestParserGlob(t *testing.T) {
 				file, err := os.Create(filepath.Join(destdir, tc.File))
 				require.NoError(t, err)
 				require.NoError(t, file.Close())
-				config := types.KickrGen{}
+				config := types.KickrWrapper{}
 
 				// Act
 				err = generate.ParserGlob(t.Context(), destdir, &config)

@@ -11,14 +11,14 @@ import (
 )
 
 // Golang returns the slice of templates related to Golang generation (golangci-lint, goreleaser, etc.).
-func Golang() []engine.Template[types.KickrGen] {
+func Golang() []engine.Template[types.KickrWrapper] {
 	// Go wasn't parsed during parsers processing
-	noGo := func(config types.KickrGen) bool {
+	noGo := func(config types.KickrWrapper) bool {
 		_, ok := config.Languages["go"]
 		return !ok
 	}
 
-	return []engine.Template[types.KickrGen]{
+	return []engine.Template[types.KickrWrapper]{
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{".golangci.yml" + engine.TmplExtension},
@@ -29,7 +29,7 @@ func Golang() []engine.Template[types.KickrGen] {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{".goreleaser.yml" + engine.TmplExtension},
 			Out:        ".goreleaser.yml",
-			Remove: func(config types.KickrGen) bool {
+			Remove: func(config types.KickrWrapper) bool {
 				return slices.Contains(config.Exclude, kickr.ExcludeGoreleaser) || noGo(config) || len(config.Clis) == 0 //nolint:revive
 			},
 		},
@@ -37,7 +37,7 @@ func Golang() []engine.Template[types.KickrGen] {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join("internal", "build", "build.go"+engine.TmplExtension)},
 			Out:        path.Join("internal", "build", "build.go"),
-			Remove:     func(config types.KickrGen) bool { return noGo(config) || config.Binaries() == 0 },
+			Remove:     func(config types.KickrWrapper) bool { return noGo(config) || config.Binaries() == 0 },
 		},
 	}
 }

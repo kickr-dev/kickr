@@ -10,8 +10,8 @@ import (
 )
 
 // Misc returns the slice of templates globally related to a code repository (README.md, CODEOWNERS, etc.).
-func Misc() []engine.Template[types.KickrGen] {
-	return []engine.Template[types.KickrGen]{
+func Misc() []engine.Template[types.KickrWrapper] {
+	return []engine.Template[types.KickrWrapper]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"CODEOWNERS" + engine.TmplExtension},
@@ -26,7 +26,7 @@ func Misc() []engine.Template[types.KickrGen] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".pre-commit-config.yaml" + engine.TmplExtension},
 			Out:        ".pre-commit-config.yaml",
-			Remove:     func(config types.KickrGen) bool { return slices.Contains(config.Exclude, kickr.ExcludePreCommit) },
+			Remove:     func(config types.KickrWrapper) bool { return slices.Contains(config.Exclude, kickr.ExcludePreCommit) },
 		},
 	}
 }
