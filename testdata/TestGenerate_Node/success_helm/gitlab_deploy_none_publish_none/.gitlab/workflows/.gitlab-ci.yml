@@ -18,7 +18,7 @@ include:
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
   - project: to-be-continuous/helm
-    ref: 71a9eae2d1c41e5e685d2fd09a24772269e09f24 # 9.0.0
+    ref: c37ff202379e89c236b29bd306e132f410bb0140 # 9.0.0
     file: "templates/gitlab-ci-helm.yml"
 
   # Node.js template
