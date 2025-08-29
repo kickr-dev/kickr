@@ -29,9 +29,9 @@ func (k *KickrWrapper) SetLanguage(name string, value any) {
 }
 
 // SetGlob sets a glob by its name.
-func (k *KickrWrapper) SetGlob(name string) {
+func (k *KickrWrapper) SetGlob(name string, matches []string) {
 	if k.Globs == nil {
 		k.Globs = map[string]any{}
 	}
-	k.Globs[name] = struct{}{}
+	k.Globs[name] = matches
 }

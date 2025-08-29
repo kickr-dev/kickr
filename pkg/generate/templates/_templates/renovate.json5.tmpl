@@ -2,23 +2,27 @@
 
 // https://docs.renovatebot.com/configuration-options/
 
-{{- $globs := (hasKey .Globs "tmpl") }}
+{{- $tmpl := (hasKey .Globs "tmpl") }}
 
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
     "extends": [
         "github>kickr-dev/renovate//configs/default.json5",
-{{- if or $globs (and .CI .CI.Docker) }}
+{{- if or $tmpl (and .CI .CI.Docker) }}
         "github>kickr-dev/renovate//configs/docker.json5",
 {{- end }}
 {{- if or (hasKey .Languages "go") (hasKey .Languages "hugo") }}
         "github>kickr-dev/renovate//configs/gomod.json5",
 {{- end }}
         "github>kickr-dev/renovate//configs/install-tool.json5",
-{{- if $globs }}
+{{- if $tmpl }}
         "github>kickr-dev/renovate//configs/tmpl.json5",
 {{- end }}
-        "local>{{ .VCS.ProjectPath }}//configs/renovate.local.json5"
+{{- if hasKey .Globs "renovate.local" }}
+{{- range get .Globs "renovate.local" }}
+        "local>{{ $.VCS.ProjectPath }}//{{ . }}",
+{{- end }}
+{{- end }}
     ]
 }

@@ -250,6 +250,8 @@ github.com/kevinburke/ssh_config v1.2.0 h1:x584FjTGwHzMwvHx18PXxbBVzfnxogHaAReU4
 github.com/kevinburke/ssh_config v1.2.0/go.mod h1:CT57kijsi8u/K/BOFA39wgDQJ9CxiF4nAY/ojJ6r6mM=
 github.com/kickr-dev/engine v0.0.0-20250828203517-5f087e09fa8c h1:ZXtSuJU+3jVxntpsUam9Qb74htV9F/X0l8SA4nqqWvY=
 github.com/kickr-dev/engine v0.0.0-20250828203517-5f087e09fa8c/go.mod h1:FhE5sH9Mke4cUKlxoK3SGkTAN211GLmhfo/Tmo0ksYM=
+github.com/kickr-dev/engine v0.0.0-20250829141713-3123594be161 h1:P3WW8IPGCztb1Uz7hHC+vb9JkDOKdcerRFD0ExF5hnk=
+github.com/kickr-dev/engine v0.0.0-20250829141713-3123594be161/go.mod h1:FhE5sH9Mke4cUKlxoK3SGkTAN211GLmhfo/Tmo0ksYM=
 github.com/kilianpaquier/compare v1.1.0 h1:gCJvpnsTBEDEFMYQ+6sVsffo8AzOiFVf3U5VFbDZn2A=
 github.com/kilianpaquier/compare v1.1.0/go.mod h1:UssLUC5WsVVCq7BEjnv4890B9G/M047vaciME3wi/PE=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=

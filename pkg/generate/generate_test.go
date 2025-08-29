@@ -63,6 +63,14 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("success_renovate", func(t *testing.T) {
+		local := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+			renovate := filepath.Join(destdir, "configs", "renovate.local.json5")
+			if err := os.MkdirAll(filepath.Dir(renovate), files.RwxRxRxRx); err != nil {
+				return err
+			}
+			return os.WriteFile(renovate, []byte("{}\n"), files.RwRR)
+		}
+
 		type testcase struct {
 			CI   string
 			Auth string
@@ -95,7 +103,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config)
+				test(ctx, t, config, local)
 			})
 		}
 
@@ -417,15 +425,15 @@ func TestGenerate_Node(t *testing.T) {
 			PackageManager string
 		}
 		cases := []testcase{
-			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
-			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
-			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
-			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
-
 			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
 			{Manager: kickr.ManagerDependabot, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
 			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
 			{Manager: kickr.ManagerDependabot, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
+
+			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
+			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
 		}
 
 		for _, tc := range cases {

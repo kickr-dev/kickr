@@ -2,12 +2,15 @@ package generate_test
 
 import (
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
@@ -15,33 +18,44 @@ import (
 func TestParserGlob(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		type testcase struct {
-			File     string
+			Files    []string
 			GlobName string
 		}
-		cases := []testcase{
-			{File: ".gitmodules", GlobName: "gitmodules"},
-			{File: "script.bash", GlobName: "shell"},
-			{File: "script.ksh", GlobName: "shell"},
-			{File: "script.sh", GlobName: "shell"},
-			{File: "script.zsh", GlobName: "shell"},
-			{File: "template.tmpl", GlobName: "tmpl"},
-		}
 
+		cases := []testcase{
+			{Files: []string{".gitmodules", path.Join("subdir", ".gitmodules")}, GlobName: "gitmodules"},
+			{Files: []string{"script.bash", path.Join("subdir", "script.bash")}, GlobName: "shell"},
+			{Files: []string{"script.ksh", path.Join("subdir", "scripts.ksh")}, GlobName: "shell"},
+			{Files: []string{"script.sh", path.Join("subdir", "script.sh")}, GlobName: "shell"},
+			{Files: []string{"script.zsh", path.Join("subdir", "script.zsh")}, GlobName: "shell"},
+			{Files: []string{"template.tmpl", path.Join("subdir", "template.tmpl")}, GlobName: "tmpl"},
+			{Files: []string{path.Join("subdir", "renovate.local.json5")}, GlobName: "renovate.local"},
+		}
 		for _, tc := range cases {
-			t.Run(tc.File, func(t *testing.T) {
+			t.Run(strings.Join(tc.Files, "_"), func(t *testing.T) {
 				// Arrange
 				destdir := t.TempDir()
-				file, err := os.Create(filepath.Join(destdir, tc.File))
-				require.NoError(t, err)
-				require.NoError(t, file.Close())
+				for _, file := range tc.Files {
+					target, err := filepath.Localize(file)
+					require.NoError(t, err)
+
+					dir := filepath.Join(destdir, filepath.Dir(target))
+					require.NoError(t, os.MkdirAll(dir, files.RwxRxRxRx))
+
+					file, err := os.Create(filepath.Join(destdir, target))
+					require.NoError(t, err)
+					require.NoError(t, file.Close())
+				}
+
+				expected := map[string]any{tc.GlobName: tc.Files}
 				config := types.KickrWrapper{}
 
 				// Act
-				err = generate.ParserGlob(t.Context(), destdir, &config)
+				err := generate.ParserGlob(t.Context(), destdir, &config)
 
 				// Assert
 				require.NoError(t, err)
-				assert.Contains(t, config.Globs, tc.GlobName)
+				assert.Equal(t, expected, config.Globs)
 			})
 		}
 	})
