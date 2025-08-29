@@ -11,6 +11,7 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/parser"
+
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
@@ -35,7 +36,7 @@ func ParserNode(_ context.Context, destdir string, config *types.KickrGen) error
 
 	config.SetLanguage("node", jsonfile)
 	if jsonfile.Main != nil {
-		config.Executables.AddWorker("main")
+		config.AddWorker("main")
 	}
 	return nil
 }

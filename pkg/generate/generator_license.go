@@ -12,8 +12,9 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/generator"
-	"github.com/kickr-dev/kickr/pkg/generate/types"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
+
+	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
 // GeneratorLicense generates the license file for the project.

@@ -10,6 +10,7 @@ type KickrGen struct {
 	kickr.Kickr
 	parser.Executables
 
+	Globs     map[string]any
 	Languages map[string]any
 	VCS       parser.VCS
 }
@@ -20,4 +21,12 @@ func (k *KickrGen) SetLanguage(name string, value any) {
 		k.Languages = map[string]any{}
 	}
 	k.Languages[name] = value
+}
+
+// SetGlob sets a glob by its name.
+func (k *KickrGen) SetGlob(name string) {
+	if k.Globs == nil {
+		k.Globs = map[string]any{}
+	}
+	k.Globs[name] = struct{}{}
 }
