@@ -589,7 +589,7 @@ func test(ctx context.Context, t *testing.T, config types.KickrGen, parsers ...e
 
 	// Act
 	_, err := engine.Generate(ctx, destdir, config,
-		slices.Concat(parsers, []engine.Parser[types.KickrGen]{ParserInfo, generate.ParserGolang, generate.ParserNode, generate.ParserHelm}),
+		slices.Concat(parsers, []engine.Parser[types.KickrGen]{ParserInfo, generate.ParserGlob, generate.ParserGolang, generate.ParserNode, generate.ParserHelm}),
 		[]engine.Generator[types.KickrGen]{
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),

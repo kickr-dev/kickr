@@ -4,7 +4,7 @@
 {{- $gobuild := and $golang (gt .Binaries 0) }}
 
 {{- $hugo := hasKey .Languages "hugo" }}
-{{- $shell := and (not (has "shell" .Exclude)) (gt (len (glob "*.*sh")) 0) }}
+{{- $shell := and (not (has "shell" .Exclude)) (hasKey .Globs "shell") }}
 
 {{- $node := hasKey .Languages "node" }}
 {{- $nodebuild := and $node (gt .Binaries 0) }}

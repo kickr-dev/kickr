@@ -8,6 +8,7 @@ import (
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
+
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 

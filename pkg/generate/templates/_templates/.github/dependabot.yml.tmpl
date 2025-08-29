@@ -34,7 +34,7 @@ updates:
       default-days: 5
 {{- end }}
 
-{{- if gt (len (glob ".gitmodules")) 0 }}
+{{- if (hasKey .Globs "gitmodules") }}
 
   - package-ecosystem: gitsubmodule
     directory: /

@@ -5,7 +5,7 @@ run-name: Integration
 
 <<- $golang := hasKey .Languages "go" >>
 <<- $node := hasKey .Languages "node" >>
-<<- $shell := and (not (has "shell" .Exclude)) (gt (len (glob "*.*sh")) 0) >>
+<<- $shell := and (not (has "shell" .Exclude)) (hasKey .Globs "shell") >>
 
 on:
   pull_request:

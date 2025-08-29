@@ -47,6 +47,7 @@ func gen(generators ...engine.Generator[types.KickrGen]) func(cmd *cobra.Command
 		engine.SetLogger(logger)
 		parsers := []engine.Parser[types.KickrGen]{
 			generate.ParserGit,
+			generate.ParserGlob,
 			generate.ParserGolang,
 			generate.ParserNode,
 			// must be kept last since it marshals config and merges it with chart overrides
