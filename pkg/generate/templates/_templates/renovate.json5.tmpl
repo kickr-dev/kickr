@@ -19,10 +19,8 @@
 {{- if $tmpl }}
         "github>kickr-dev/renovate//configs/tmpl.json5",
 {{- end }}
-{{- if hasKey .Globs "renovate.local" }}
-{{- range get .Globs "renovate.local" }}
-        "local>{{ $.VCS.ProjectPath }}//{{ . }}",
-{{- end }}
+{{- with .Dependencies.Local }}
+        "local>{{ $.VCS.ProjectPath }}//{{ . }}"
 {{- end }}
     ]
 }

@@ -112,6 +112,9 @@ type Dependencies struct {
 	// 	- dependabot
 	// 	- renovate
 	Manager string `json:"manager,omitempty" yaml:"manager,omitempty"`
+
+	// Local (in the repository) renovate configuration path to use in global extends.
+	Local string `json:"local,omitempty" yaml:"local,omitempty"`
 }
 
 type Maintainer struct {

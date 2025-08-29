@@ -63,14 +63,6 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("success_renovate", func(t *testing.T) {
-		local := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
-			renovate := filepath.Join(destdir, "configs", "renovate.local.json5")
-			if err := os.MkdirAll(filepath.Dir(renovate), files.RwxRxRxRx); err != nil {
-				return err
-			}
-			return os.WriteFile(renovate, []byte("{}\n"), files.RwRR)
-		}
-
 		type testcase struct {
 			CI   string
 			Auth string
@@ -95,7 +87,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				config := types.KickrWrapper{
 					Kickr: kickr.Kickr{
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
 						CI:           &kickr.CI{Provider: tc.CI, Renovate: &kickr.Renovate{Auth: tc.Auth}},
 						Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
 						Platform:     tc.CI,
@@ -103,7 +95,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, local)
+				test(ctx, t, config)
 			})
 		}
 

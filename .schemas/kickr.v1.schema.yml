@@ -153,6 +153,20 @@ properties:
         enum:
           - dependabot
           - renovate
+      local:
+        type: string
+        description: local (in the repository) renovate configuration path to use in global extends.
+        examples:
+          - config/renovate.json5
+          - config/renovate.local.json5
+    allOf:
+      - if:
+          properties:
+            manager:
+              const: dependabot
+        then:
+          properties:
+            local: false
 
   exclude:
     type: array

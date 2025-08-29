@@ -1,9 +1,0 @@
-# Kickr configuration file (https://github.com/kickr-dev/kickr)
----
-ci:
-  auth:
-    release: github-token
-  name: github
-maintainers:
-  - name: kilianpaquier
-platform: github

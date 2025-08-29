@@ -21,10 +21,9 @@ func ParserGlob(_ context.Context, destdir string, config *types.KickrWrapper) e
 		{Glob: ".gitmodules", Name: "gitmodules"},
 		{Glob: "*.*sh", Name: "shell"},
 		{Glob: "*.tmpl", Name: "tmpl"},
-		{Glob: "**/renovate*.json*", Name: "renovate.local"},
 	}
 	for _, check := range checks {
-		matches := files.Glob(destdir, check.Glob, files.GlobExcludedDirectories("node_modules", "templates", "testdata"))
+		matches := files.Glob(destdir, check.Glob, files.GlobExcludedDirectories("node_modules", "testdata"))
 		if len(matches) == 0 {
 			continue
 		}

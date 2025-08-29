@@ -29,7 +29,6 @@ func TestParserGlob(t *testing.T) {
 			{Files: []string{"script.sh", path.Join("subdir", "script.sh")}, GlobName: "shell"},
 			{Files: []string{"script.zsh", path.Join("subdir", "script.zsh")}, GlobName: "shell"},
 			{Files: []string{"template.tmpl", path.Join("subdir", "template.tmpl")}, GlobName: "tmpl"},
-			{Files: []string{path.Join("subdir", "renovate.local.json5")}, GlobName: "renovate.local"},
 		}
 		for _, tc := range cases {
 			t.Run(strings.Join(tc.Files, "_"), func(t *testing.T) {

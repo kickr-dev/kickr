@@ -1,6 +1,0 @@
-# Kickr configuration file (https://github.com/kickr-dev/kickr)
----
-bot: dependabot
-maintainers:
-  - name: kilianpaquier
-platform: gitlab

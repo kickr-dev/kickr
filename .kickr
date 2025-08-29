@@ -13,6 +13,7 @@ ci:
     - ossf-scorecard
 dependencies:
   manager: renovate
+  local: config/renovate.json5
 exclude:
   - shell
 license: apache-2.0
