@@ -15,9 +15,9 @@ require (
 	github.com/kickr-dev/engine v0.0.0-20250829173046-229551ddba50
 	github.com/kilianpaquier/compare v1.1.0
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	github.com/yannh/kubeconform v0.7.0
-	gitlab.com/gitlab-org/api/client-go v0.142.0
+	gitlab.com/gitlab-org/api/client-go v0.142.1
 	helm.sh/helm/v3 v3.18.5
 )
 
