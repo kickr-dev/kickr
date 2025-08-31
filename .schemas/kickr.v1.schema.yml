@@ -35,21 +35,19 @@ properties:
         enum:
           - github
           - gitlab
-      docker:
-        $ref: "#/$defs/docker"
-      helm:
-        $ref: "#/$defs/helm"
-      netlify:
-        $ref: "#/$defs/netlify"
-      pages:
-        $ref: "#/$defs/pages"
-      release:
-        $ref: "#/$defs/release"
       options:
         description:
           options to add for CI/CD generation.
 
           Those are various and may differ depending on used CI/CD provider.
+      docker:
+        $ref: "#/$defs/docker"
+      helm:
+        $ref: "#/$defs/helm"
+      release:
+        $ref: "#/$defs/release"
+      website:
+        $ref: "#/$defs/website"
       renovate:
         type:
           - "null"
@@ -330,21 +328,26 @@ $defs:
       path:
         - registry
 
-  netlify:
-    title: Netlify
+  website:
+    title: Static Deployment
     type: object
     additionalProperties: false
+    required:
+      - hosting
     properties:
       auto:
         type: boolean
-
-  pages:
-    title: Pages
-    type: object
-    additionalProperties: false
-    properties:
-      auto:
-        type: boolean
+      directory:
+        type: string
+        description: directory where is located the website to deploy (default is '.').
+        examples:
+          - docs
+          - exampleSite
+      hosting:
+        type: string
+        enum:
+          - netlify
+          - pages
 
   release:
     title: Release

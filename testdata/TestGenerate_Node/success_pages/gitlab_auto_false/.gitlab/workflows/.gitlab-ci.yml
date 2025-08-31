@@ -68,6 +68,20 @@ semantic-release:
   variables:
     GIT_DEPTH: "0"
 
+node-build:
+  variables:
+    DIRECTORY: path/to/dir
+  script:
+    - >
+      if [ ! -d "$DIRECTORY" ]; then
+        echo "Provided directory '$DIRECTORY' doesn't exist"
+        exit 2
+      fi
+    - cd $DIRECTORY
+    # see https://gitlab.com/to-be-continuous/node/-/blob/master/templates/gitlab-ci-node.yml?ref_type=heads#L680
+    - $NODE_MANAGER $NODE_TEST_ARGS
+    - if [[ "$NODE_BUILD_DISABLED" != "true" ]]; then $NODE_MANAGER $NODE_BUILD_ARGS; fi
+
 pages:
   stage: deploy
   environment:
@@ -84,7 +98,7 @@ pages:
     - >
       if [ "$DIST_FOLDER" != "public" ]; then
         mkdir -p public
-        $DIST_FOLDER/* public
+        mv "$DIST_FOLDER"/* public
       fi
   artifacts:
     name: $ENV

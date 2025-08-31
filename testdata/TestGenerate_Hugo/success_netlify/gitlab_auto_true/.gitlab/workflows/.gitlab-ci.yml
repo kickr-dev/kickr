@@ -54,10 +54,11 @@ hugo-build:
   stage: build
   variables:
     DIST_FOLDER: dist
+    LOG_LEVEL: info
   before_script:
     - apk add go
   script:
-    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$DIST_FOLDER" --logLevel debug
+    - hugo --gc --minify --destination "$DIST_FOLDER" --logLevel "$LOG_LEVEL"
   artifacts:
     name: $ENV
     paths:

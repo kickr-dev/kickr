@@ -1,6 +1,5 @@
 jobs:
 <<- define "hugo" >>
-<<- $specifics := get .Languages "hugo" >>
 
   hugo-build:
     name: Hugo Build
@@ -18,7 +17,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
-          submodules: true # fetch Hugo themes (true OR recursive)
+          submodules: true # fetch Hugo themes
       - uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: /home/runner/.cache/hugo_cache
@@ -35,14 +34,25 @@ jobs:
         with:
           hugo-version: latest
           extended: true
+<<- if and .CI.Website .CI.Website.Directory >>
       - run: |-
-<<- if $specifics.IsTheme >>
-          [ ! -d exampleSite ] || cd exampleSite
-<<- end >>
-          hugo --gc --enableGitInfo --minify --destination "${GITHUB_WORKSPACE}/dist" --logLevel debug
+          if [ ! -d "$DIRECTORY" ]; then
+            echo "Provided directory '$DIRECTORY' doesn't exist"
+            exit 2
+          fi
+          cd "$DIRECTORY"
+          hugo --gc --enableGitInfo --minify --destination "${GITHUB_WORKSPACE}/dist" --logLevel "$LOG_LEVEL"
         env:
+          DIRECTORY: << .CI.Website.Directory >>
+          LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
           VERSION: ${{ needs.version.outputs.version }}
-<<- if and .CI .CI.Pages >>
+<<- else >>
+      - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
+        env:
+          LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
+          VERSION: ${{ needs.version.outputs.version }}
+<<- end >>
+<<- if .IsHosting "pages" >>
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
           name: github-pages

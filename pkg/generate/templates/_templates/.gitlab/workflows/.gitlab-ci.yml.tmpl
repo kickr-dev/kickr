@@ -9,9 +9,6 @@
 {{- $node := hasKey .Languages "node" }}
 {{- $nodebuild := and $node (gt .Binaries 0) }}
 
-{{- $pages := and (and .CI .CI.Pages) (or $nodebuild $hugo) }}
-{{- $netlify := and (and .CI .CI.Netlify) (or $nodebuild $hugo) }}
-
 ---
 include:
 
@@ -274,25 +271,53 @@ go-build:
 {{- end }}
 
 {{- if $hugo }}
-{{- $specifics := get .Languages "hugo" }}
 
 hugo-build:
   image: hugomods/hugo:exts
   stage: build
   variables:
+{{- if and .CI.Website .CI.Website.Directory }}
+    DIRECTORY: {{ .CI.Website.Directory }}
+{{- end }}
     DIST_FOLDER: dist
+    LOG_LEVEL: info
   before_script:
     - apk add go
+{{- if and .CI.Website .CI.Website.Directory }}
   script:
-{{- if $specifics.IsTheme }}
-    - [ ! -d exampleSite ] || cd exampleSite
+    - >
+      if [ ! -d "$DIRECTORY" ]; then
+        echo "Provided directory '$DIRECTORY' doesn't exist"
+        exit 2
+      fi
+    - cd $DIRECTORY
+    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$DIST_FOLDER" --logLevel "$LOG_LEVEL"
+{{- else }}
+  script:
+    - hugo --gc --minify --destination "$DIST_FOLDER" --logLevel "$LOG_LEVEL"
 {{- end }}
-    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$DIST_FOLDER" --logLevel debug
   artifacts:
     name: $ENV
     paths:
       - $DIST_FOLDER
     expire_in: 1 day
+{{- end }}
+
+{{- if and $nodebuild .CI.Website .CI.Website.Directory }}
+
+node-build:
+  variables:
+    DIRECTORY: {{ .CI.Website.Directory }}
+  script:
+    - >
+      if [ ! -d "$DIRECTORY" ]; then
+        echo "Provided directory '$DIRECTORY' doesn't exist"
+        exit 2
+      fi
+    - cd $DIRECTORY
+    # see https://gitlab.com/to-be-continuous/node/-/blob/master/templates/gitlab-ci-node.yml?ref_type=heads#L680
+    - $NODE_MANAGER $NODE_TEST_ARGS
+    - if [[ "$NODE_BUILD_DISABLED" != "true" ]]; then $NODE_MANAGER $NODE_BUILD_ARGS; fi
 {{- end }}
 
 {{- if .DependencyManager "renovate" }}
@@ -314,7 +339,7 @@ renovate-depcheck:
   <<: *renovate-rules
 {{- end }}
 
-{{- if $netlify }}
+{{- if .IsHosting "netlify" }}
 
 netlify:
   stage: deploy
@@ -329,7 +354,7 @@ netlify:
       variables:
         ARGS: --prod
         ENV: production
-{{- if not .CI.Netlify.Auto }}
+{{- if not .CI.Website.Auto }}
       when: manual
 {{- end }}
     - variables:
@@ -342,7 +367,7 @@ netlify:
     - netlify deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --dir "$DIST_FOLDER" $ARGS
 {{- end }}
 
-{{- if $pages }}
+{{- if .IsHosting "pages" }}
 
 pages:
   stage: deploy
@@ -355,14 +380,14 @@ pages:
     DIST_FOLDER: dist
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-{{- if not .CI.Pages.Auto }}
+{{- if not .CI.Website.Auto }}
       when: manual
 {{- end }}
   script:
     - >
       if [ "$DIST_FOLDER" != "public" ]; then
         mkdir -p public
-        $DIST_FOLDER/* public
+        mv "$DIST_FOLDER"/* public
       fi
   artifacts:
     name: $ENV

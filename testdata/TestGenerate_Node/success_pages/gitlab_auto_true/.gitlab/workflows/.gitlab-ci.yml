@@ -83,7 +83,7 @@ pages:
     - >
       if [ "$DIST_FOLDER" != "public" ]; then
         mkdir -p public
-        $DIST_FOLDER/* public
+        mv "$DIST_FOLDER"/* public
       fi
   artifacts:
     name: $ENV

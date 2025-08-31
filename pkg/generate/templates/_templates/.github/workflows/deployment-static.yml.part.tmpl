@@ -5,10 +5,7 @@ jobs:
 <<- $node := hasKey .Languages "node" >>
 <<- $nodebuild := and $node (gt .Binaries 0) >>
 
-<<- $pages := and (and .CI .CI.Pages) (or $nodebuild $hugo) >>
-<<- $netlify := and (and .CI .CI.Netlify) (or $nodebuild $hugo) >>
-
-<<- if $netlify >>
+<<- if .IsHosting "netlify" >>
 
   netlify:
     name: Netlify
@@ -65,7 +62,7 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 <<- end >>
 
-<<- if $pages >>
+<<- if .IsHosting "pages" >>
 
   pages:
     name: Pages

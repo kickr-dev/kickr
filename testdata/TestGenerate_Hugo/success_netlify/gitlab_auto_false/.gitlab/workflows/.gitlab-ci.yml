@@ -53,11 +53,19 @@ hugo-build:
   image: hugomods/hugo:exts
   stage: build
   variables:
+    DIRECTORY: path/to/dir
     DIST_FOLDER: dist
+    LOG_LEVEL: info
   before_script:
     - apk add go
   script:
-    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$DIST_FOLDER" --logLevel debug
+    - >
+      if [ ! -d "$DIRECTORY" ]; then
+        echo "Provided directory '$DIRECTORY' doesn't exist"
+        exit 2
+      fi
+    - cd $DIRECTORY
+    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$DIST_FOLDER" --logLevel "$LOG_LEVEL"
   artifacts:
     name: $ENV
     paths:

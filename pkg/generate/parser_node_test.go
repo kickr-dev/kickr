@@ -12,6 +12,7 @@ import (
 
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 func TestParserNode(t *testing.T) {
@@ -40,6 +41,29 @@ func TestParserNode(t *testing.T) {
 		// Assert
 		assert.ErrorIs(t, err, parser.ErrMissingPackageName)
 		assert.ErrorIs(t, err, parser.ErrInvalidPackageManager)
+	})
+
+	t.Run("success_no_nodejs", func(t *testing.T) {
+		// Arrange
+		destdir := t.TempDir()
+
+		expected := types.KickrWrapper{
+			Kickr: kickr.Kickr{
+				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+			},
+		}
+		config := types.KickrWrapper{
+			Kickr: kickr.Kickr{
+				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+			},
+		}
+
+		// Act
+		err := generate.ParserNode(ctx, destdir, &config)
+
+		// Assert
+		require.NoError(t, err)
+		assert.Equal(t, expected, config)
 	})
 
 	t.Run("success_no_main", func(t *testing.T) {
@@ -87,6 +111,43 @@ func TestParserNode(t *testing.T) {
 			},
 		}
 		config := types.KickrWrapper{}
+
+		// Act
+		err := generate.ParserNode(ctx, destdir, &config)
+
+		// Assert
+		require.NoError(t, err)
+		assert.Equal(t, expected, config)
+	})
+
+	t.Run("success_sub_directory", func(t *testing.T) {
+		// Arrange
+		destdir := t.TempDir()
+		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
+		require.NoError(t, os.WriteFile(
+			filepath.Join(destdir, "docs", parser.FilePackageJSON),
+			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`), files.RwRR))
+
+		expected := types.KickrWrapper{
+			Kickr: kickr.Kickr{
+				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+			},
+			Executables: parser.Executables{
+				Workers: map[string]struct{}{"main": {}},
+			},
+			Languages: map[string]any{
+				"node": parser.PackageJSON{
+					Main:           func() *string { v := "index.js"; return &v }(),
+					Name:           "kickr",
+					PackageManager: "bun@1.1.6",
+				},
+			},
+		}
+		config := types.KickrWrapper{
+			Kickr: kickr.Kickr{
+				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+			},
+		}
 
 		// Act
 		err := generate.ParserNode(ctx, destdir, &config)

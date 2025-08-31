@@ -46,24 +46,13 @@ type Helm struct {
 	Registry string `json:"registry,omitempty" yaml:"registry,omitempty"`
 }
 
-type Netlify struct {
-	// Type netlify.
-	//
-	// Since netlify can handle preview deployments, the production deployment is mapped to the default branch.
-	// All other branches will be deployed with a subdomain corresponding to the branch sha8 (it will avoid creating many previews per branch).
-	//
-	// Build can be made with Nodejs or GoHugo projects.
+type Website struct {
 	Auto bool `json:"auto,omitempty" yaml:"auto,omitempty"`
-}
 
-type Pages struct {
-	// Type pages makes it so the project will be deployed on the 'ci.provider' Pages (GitHub, GitLab, etc.).
-	//
-	// Note that since pages deployment doesn't handle environments, the only deployment will be done on default branch.
-	// All other branches will be ignored during Continuous Integration for that part.
-	//
-	// Build can be made with Nodejs or GoHugo projects.
-	Auto bool `json:"auto,omitempty" yaml:"auto,omitempty"`
+	Hosting string `json:"hosting,omitempty" yaml:"hosting,omitempty"`
+
+	// Directory where is located the website to deploy (default is '.').
+	Directory string `json:"directory,omitempty" yaml:"directory,omitempty"`
 }
 
 type Release struct {
