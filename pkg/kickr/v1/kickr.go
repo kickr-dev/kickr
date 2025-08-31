@@ -72,16 +72,15 @@ type CI struct {
 	// 	- gitlab
 	Provider string `json:"provider,omitempty" yaml:"provider,omitempty"`
 
-	Docker  *Docker  `json:"docker,omitempty"  yaml:"docker,omitempty"`
-	Helm    *Helm    `json:"helm,omitempty"    yaml:"helm,omitempty"`
-	Netlify *Netlify `json:"netlify,omitempty" yaml:"netlify,omitempty"`
-	Pages   *Pages   `json:"pages,omitempty"   yaml:"pages,omitempty"`
-	Release *Release `json:"release,omitempty" yaml:"release,omitempty"`
-
 	// Options to add for CI/CD generation.
 	//
 	// Those are various and may differ depending on used CI/CD provider.
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
+
+	Docker  *Docker  `json:"docker,omitempty"  yaml:"docker,omitempty"`
+	Helm    *Helm    `json:"helm,omitempty"    yaml:"helm,omitempty"`
+	Release *Release `json:"release,omitempty" yaml:"release,omitempty"`
+	Website *Website `json:"website,omitempty" yaml:"website,omitempty"`
 
 	// Renovate configuration in Continuous Integration.
 	//

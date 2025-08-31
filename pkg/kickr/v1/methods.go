@@ -35,6 +35,12 @@ func (k Kickr) IsHelmPublishAuto() bool {
 	return k.CI != nil && k.CI.Helm != nil && k.CI.Helm.Publish == HelmAuto
 }
 
+// IsHosting returns truthy in case the configuration has CI enabled, a website to deploy
+// and the input hosting name matches the one configured.
+func (k Kickr) IsHosting(hosting string) bool {
+	return k.CI != nil && k.CI.Website != nil && k.CI.Website.Hosting == hosting
+}
+
 // HasHelmPublish returns truthy in case the configuration has CI enabled, helm chart generation enabled
 // and publication to a helm repository enabled.
 func (k Kickr) HasHelmPublish() bool {
@@ -56,11 +62,10 @@ func (k Kickr) HasAutoDeployment() bool {
 
 	docker := k.CI.Docker != nil && k.CI.Docker.Auto
 	helm := k.CI.Helm != nil && (k.CI.Helm.Deploy == HelmAuto || k.CI.Helm.Publish == HelmAuto)
-	netlify := k.CI.Netlify != nil && k.CI.Netlify.Auto
-	pages := k.CI.Pages != nil && k.CI.Pages.Auto
 	release := k.CI.Release != nil && k.CI.Release.Auto
+	website := k.CI.Website != nil && k.CI.Website.Auto
 
-	return docker || helm || netlify || pages || release
+	return docker || helm || website || release
 }
 
 // HasDeployment returns truthy in case the configuration has CI enabled and Deployment configuration.
@@ -71,11 +76,10 @@ func (k Kickr) HasDeployment() bool {
 
 	docker := k.CI.Docker != nil
 	helm := k.CI.Helm != nil
-	netlify := k.CI.Netlify != nil
-	pages := k.CI.Pages != nil
 	release := k.CI.Release != nil
+	website := k.CI.Website != nil
 
-	return docker || helm || netlify || pages || release
+	return docker || helm || website || release
 }
 
 // EnsureDefaults migrates old properties into new fields

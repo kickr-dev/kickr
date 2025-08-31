@@ -54,10 +54,11 @@ hugo-build:
   stage: build
   variables:
     DIST_FOLDER: dist
+    LOG_LEVEL: info
   before_script:
     - apk add go
   script:
-    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$DIST_FOLDER" --logLevel debug
+    - hugo --gc --minify --destination "$DIST_FOLDER" --logLevel "$LOG_LEVEL"
   artifacts:
     name: $ENV
     paths:
@@ -79,7 +80,7 @@ pages:
     - >
       if [ "$DIST_FOLDER" != "public" ]; then
         mkdir -p public
-        $DIST_FOLDER/* public
+        mv "$DIST_FOLDER"/* public
       fi
   artifacts:
     name: $ENV

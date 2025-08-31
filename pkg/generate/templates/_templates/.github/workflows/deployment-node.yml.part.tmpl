@@ -41,10 +41,23 @@ jobs:
 <<- else >>
       - run: << $manager >> install --frozen-lockfile
 <<- end >>
+<<- if and .CI.Website .CI.Website.Directory >>
+      - run: |-
+          if [ ! -d "$DIRECTORY" ]; then
+            echo "Provided directory '$DIRECTORY' doesn't exist"
+            exit 2
+          fi
+          cd "$DIRECTORY"
+          << $manager >> run build
+        env:
+          DIRECTORY: << .CI.Website.Directory >>
+          VERSION: ${{ needs.version.outputs.version }}
+<<- else >>
       - run: << $manager >> run build
         env:
           VERSION: ${{ needs.version.outputs.version }}
-<<- if and .CI .CI.Pages >>
+<<- end >>
+<<- if .IsHosting "pages" >>
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
           name: github-pages

@@ -76,6 +76,11 @@ const (
 )
 
 const (
+	HostingNetlify string = "netlify"
+	HostingPages   string = "pages"
+)
+
+const (
 	// PreCommitAutoCommit is an available pre-commit option to auto-commit issues identified by pre-commit.
 	PreCommitAutoCommit = "auto-commit"
 

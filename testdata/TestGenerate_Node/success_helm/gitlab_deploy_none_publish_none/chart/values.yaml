@@ -29,7 +29,7 @@ jobs: {}
 #                all workers                #
 #############################################
 workers:
-  index.js:
+  main:
     paused: true
     replicaCount: 1
     image:
@@ -39,7 +39,7 @@ workers:
       # Overrides the image tag whose default is the chart appVersion.
       tag: ""
     env:
-      BINARY_NAME: index.js
+      BINARY_NAME: main
       BINARY_PORT: 3000
     envFrom: []
       # - prefix: ""
