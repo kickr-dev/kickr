@@ -14,7 +14,7 @@ require (
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/kickr-dev/engine v0.0.0-20250829173046-229551ddba50
 	github.com/kilianpaquier/compare v1.1.0
-	github.com/spf13/cobra v1.9.1
+	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
 	gitlab.com/gitlab-org/api/client-go v0.142.5
@@ -136,7 +136,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
-	github.com/spf13/pflag v1.0.7 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
