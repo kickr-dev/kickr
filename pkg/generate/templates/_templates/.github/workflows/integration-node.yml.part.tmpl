@@ -25,7 +25,7 @@ jobs:
 <<- if eq $manager "bun" >>
 <<- if has "harden-runner" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
-      - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
+      - uses: step-security/setup-bun@81c6b5758214d7e8b68a403c6a55a040e9b8879a # v2.0.3
 <<- else >>
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 <<- end >>
@@ -61,7 +61,7 @@ jobs:
 <<- if eq $manager "bun" >>
 <<- if has "harden-runner" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
-      - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
+      - uses: step-security/setup-bun@81c6b5758214d7e8b68a403c6a55a040e9b8879a # v2.0.3
 <<- else >>
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 <<- end >>
@@ -115,7 +115,7 @@ jobs:
 <<- if eq $manager "bun" >>
 <<- if has "harden-runner" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
-      - uses: step-security/setup-bun@a961ff54612b97ac3259f517fb6a81be3b657a59 # v2.0.2
+      - uses: step-security/setup-bun@81c6b5758214d7e8b68a403c6a55a040e9b8879a # v2.0.3
 <<- else >>
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 <<- end >>
