@@ -34,7 +34,7 @@ func TestParserChart(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
 		chartdir := filepath.Join(destdir, "chart")
-		require.NoError(t, os.Mkdir(chartdir, files.RwxRxRxRx))
+		require.NoError(t, os.MkdirAll(chartdir, files.RwxRxRxRx))
 		require.NoError(t, os.WriteFile(
 			filepath.Join(chartdir, kickr.File),
 			[]byte("description: a description"), files.RwRR))

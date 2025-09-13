@@ -44,7 +44,7 @@ jobs:
     steps:
       - id: pull_requests
         if: ${{ github.event_name == 'push' }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           result-encoding: string
           script: |-
@@ -63,12 +63,21 @@ jobs:
           echo "skip=false" >> $GITHUB_OUTPUT
 
   node-audit:
-    name: Node Audit
+    name: Node Audit ${{ matrix.name }}
     runs-on: ubuntu-latest
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - directory: .
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: package.json
@@ -76,37 +85,58 @@ jobs:
         continue-on-error: true
 
   node-lint:
-    name: Node Lint
+    name: Node Lint ${{ matrix.name }}
     runs-on: ubuntu-latest
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: lint
+            directory: .
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: package.json
-      - run: mkdir -p reports/
-      - run: bun install --frozen-lockfile
-      - run: bun run lint -o reports/node-lint.xslint.json -f json
+      - run: |-
+          mkdir -p reports/
+          bun install --frozen-lockfile
+          bun run lint -o reports/node-lint.xslint.json -f json
 
   node-test:
-    name: Node Test
+    name: Node Test ${{ matrix.name }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     needs: node-lint
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - macos-latest
-          - ubuntu-latest
-          - windows-latest
+        include:
+          - artifact: coverage
+            directory: .
+            os: macos-latest
+          - artifact: coverage
+            directory: .
+            os: ubuntu-latest
+          - artifact: coverage
+            directory: .
+            os: windows-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: package.json
-      - run: mkdir -p reports/
       - run: |-
+          mkdir -p reports/
           bun install --frozen-lockfile
           bun test --rerun-each 10 --coverage --coverage-reporter=lcov --coverage-dir=reports --reporter=junit --reporter-outfile="reports/node-test.xunit.xml"
 

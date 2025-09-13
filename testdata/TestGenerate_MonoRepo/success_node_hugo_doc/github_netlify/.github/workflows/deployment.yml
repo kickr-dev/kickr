@@ -29,7 +29,7 @@ jobs:
       actions: read
     steps:
       - id: conclusion
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           result-encoding: string
           script: |-
@@ -74,9 +74,19 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
 
   hugo-build:
-    name: Hugo Build
+    name: Hugo Build ${{ matrix.name }}
     runs-on: ubuntu-latest
     needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: build-docs
+            directory: docs
+            name: (docs)
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -84,56 +94,67 @@ jobs:
           submodules: true # fetch Hugo themes
       - uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
-          path: /home/runner/.cache/hugo_cache
-          key: hugo-${{ hashFiles('go.sum') }}
+          path: ${{ github.workspace }}/.hugo_cache
+          key: hugomod
           restore-keys: |
-            hugo-
+            hugomod
       # https://github.com/marketplace/actions/hugo-setup
       - uses: peaceiris/actions-hugo@75d2e84710de30f6ff7268e08f310b60ef14033f # v3.0.0
         with:
           hugo-version: latest
           extended: true
-      - run: |-
-          if [ ! -d "$DIRECTORY" ]; then
-            echo "Provided directory '$DIRECTORY' doesn't exist"
-            exit 2
-          fi
-          cd "$DIRECTORY"
-          hugo --gc --enableGitInfo --minify --destination "${GITHUB_WORKSPACE}/dist" --logLevel "$LOG_LEVEL"
+      - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
         env:
-          DIRECTORY: docs
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
           VERSION: ${{ needs.version.outputs.version }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - if: ${{ endsWith(matrix.artifact, '-pages') }}
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
-          name: build
-          path: dist
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.directory }}/dist
+          retention-days: 1
+      - if: ${{ !endsWith(matrix.artifact, '-pages') }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.directory }}/dist
           retention-days: 1
 
   node-build:
-    name: Node Build
+    name: Node Build ${{ matrix.name }}
     runs-on: ubuntu-latest
     needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: build
+            directory: .
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version-file: package.json
-      - run: bun install --frozen-lockfile
       - run: |-
-          if [ ! -d "$DIRECTORY" ]; then
-            echo "Provided directory '$DIRECTORY' doesn't exist"
-            exit 2
-          fi
-          cd "$DIRECTORY"
+          bun install --frozen-lockfile
           bun run build
         env:
-          DIRECTORY: docs
           VERSION: ${{ needs.version.outputs.version }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - if: ${{ endsWith(matrix.artifact, '-pages') }}
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
-          name: build
-          path: dist
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.directory }}/dist
+          retention-days: 1
+      - if: ${{ !endsWith(matrix.artifact, '-pages') }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.directory }}/dist
           retention-days: 1
 
   netlify:
@@ -142,7 +163,6 @@ jobs:
     if: ${{ inputs.netlify != 'none' }}
     needs:
       - hugo-build
-      - node-build
     environment:
       name: netlify
       url: ${{ steps.netlify.outputs.deploy-url }}
@@ -153,11 +173,10 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:
-          name: build
+          name: build-docs
           path: dist
       - id: branch_sha
-        run: |-
-          echo "branch_sha=$(echo "$GITHUB_REF_NAME" | sha256sum | cut -c -8)" >> $GITHUB_OUTPUT
+        run: echo "branch_sha=$(echo "$GITHUB_REF_NAME" | sha256sum | cut -c -8)" >> $GITHUB_OUTPUT
       - id: config
         run: |-
           [ ! -f netlify.toml ] || echo "path=netlify.toml" >> $GITHUB_OUTPUT

@@ -35,3 +35,10 @@ func (k *KickrWrapper) SetGlob(name string, matches []string) {
 	}
 	k.Globs[name] = matches
 }
+
+// Mono is a wrapper used for monorepository parsing.
+// It helps identifying where is located a specific language.
+type Mono[T any] struct {
+	Directory string
+	Specifics T
+}

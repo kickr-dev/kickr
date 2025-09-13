@@ -117,10 +117,13 @@ updates:
 {{- end }}
 
 {{- if $node }}
-{{- $specifics := get .Languages "node" }}
-{{- $manager := cutAfter $specifics.PackageManager "@" }}
+{{- $nodes := get .Languages "node" }}
+{{- $managers := list }}
+{{- range $nodes }}{{- $managers = append $managers (cutAfter .Specifics.PackageManager "@") }}{{- end }}
 
-  - package-ecosystem: {{ eq $manager "bun" | ternary "bun" "npm" }}
+{{- range (uniq $managers) }}
+
+  - package-ecosystem: {{ eq . "bun" | ternary "bun" "npm" }}
     directory: /
     schedule:
       interval: daily
@@ -138,4 +141,5 @@ updates:
       prefix: chore
     cooldown:
       default-days: 5
+{{- end }}
 {{- end }}

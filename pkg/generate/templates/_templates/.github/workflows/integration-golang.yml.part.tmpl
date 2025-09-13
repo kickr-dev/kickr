@@ -11,7 +11,7 @@ jobs:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -33,13 +33,13 @@ jobs:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
           check-latest: true
           go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
@@ -74,13 +74,13 @@ jobs:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
           check-latest: true
           go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
@@ -91,14 +91,12 @@ jobs:
         run: go test ./... -v -coverpkg="./..." -covermode="count" -coverprofile="reports/go-coverage.native.out" -timeout=30s | tee "reports/tests.log"
       - if: ${{ matrix.os == 'windows-latest' }}
         run: go test ./... -v -coverpkg="./..." -covermode="count" -coverprofile="reports/go-coverage.native.out" -timeout=30s | tee "reports/tests.log"
-      - if: ${{ !cancelled() }}
-        shell: bash
+      - shell: bash
         run: |-
           go run github.com/jstemmer/go-junit-report/v2@latest -in "reports/tests.log" -out "reports/go-test.xunit.xml"
           go tool test2json < "reports/tests.log" > "reports/go-test.native.json"
 <<- if has "codecov" .CI.Options >>
-      - if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
@@ -110,8 +108,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           OS: ${{ matrix.os }}
-      - if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true

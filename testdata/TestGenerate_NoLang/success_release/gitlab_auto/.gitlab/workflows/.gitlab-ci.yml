@@ -16,6 +16,8 @@ include:
     file: "templates/gitlab-ci-pre-commit.yml"
 
 variables:
+  PRE_COMMIT_FILE: .pre-commit-config.yaml
+
   SEMREL_AUTO_RELEASE_ENABLED: $CI_COMMIT_REF_PROTECTED
   SEMREL_BRANCHES_REF: /^(master|main|v[0-9]+\.x|v[0-9]+\.[0-9]+\.x|next|alpha|beta|staging|dev|develop|development)$/
   SEMREL_HOOKS_DIR: scripts
@@ -23,8 +25,6 @@ variables:
   SEMREL_RELEASE_DISABLED: "false"
   SEMREL_REQUIRED_PLUGINS_FILE: .gitlab/semrel-plugins.txt
   SEMREL_TAG_FORMAT: v$${version}
-
-  PRE_COMMIT_FILE: .pre-commit-config.yaml
 
 semantic-release-info:
   variables:

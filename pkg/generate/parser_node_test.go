@@ -19,28 +19,49 @@ func TestParserNode(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("error_read_packagejson", func(t *testing.T) {
-		// Arrange
-		destdir := t.TempDir()
-		require.NoError(t, os.Mkdir(filepath.Join(destdir, parser.FilePackageJSON), files.RwxRxRxRx))
+		for _, dir := range []string{"", "docs"} {
+			t.Run(dir, func(t *testing.T) {
+				// Arrange
+				destdir := t.TempDir()
+				require.NoError(t, os.MkdirAll(filepath.Join(destdir, dir, parser.FilePackageJSON), files.RwxRxRxRx))
 
-		// Act
-		err := generate.ParserNode(ctx, destdir, &types.KickrWrapper{})
+				config := types.KickrWrapper{
+					Kickr: kickr.Kickr{
+						CI: &kickr.CI{Website: &kickr.Website{Directory: dir}},
+					},
+				}
 
-		// Assert
-		assert.ErrorContains(t, err, "read json")
+				// Act
+				err := generate.ParserNode(ctx, destdir, &config)
+
+				// Assert
+				assert.ErrorContains(t, err, "read json")
+			})
+		}
 	})
 
 	t.Run("error_validate_packagejson", func(t *testing.T) {
-		// Arrange
-		destdir := t.TempDir()
-		require.NoError(t, os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON), []byte("{}"), files.RwRR))
+		for _, dir := range []string{"", "docs"} {
+			t.Run(dir, func(t *testing.T) {
+				// Arrange
+				destdir := t.TempDir()
+				require.NoError(t, os.MkdirAll(filepath.Join(destdir, dir), files.RwxRxRxRx))
+				require.NoError(t, os.WriteFile(filepath.Join(destdir, dir, parser.FilePackageJSON), []byte("{}"), files.RwRR))
 
-		// Act
-		err := generate.ParserNode(ctx, destdir, &types.KickrWrapper{})
+				config := types.KickrWrapper{
+					Kickr: kickr.Kickr{
+						CI: &kickr.CI{Website: &kickr.Website{Directory: dir}},
+					},
+				}
 
-		// Assert
-		assert.ErrorIs(t, err, parser.ErrMissingPackageName)
-		assert.ErrorIs(t, err, parser.ErrInvalidPackageManager)
+				// Act
+				err := generate.ParserNode(ctx, destdir, &config)
+
+				// Assert
+				assert.ErrorIs(t, err, parser.ErrMissingPackageName)
+				assert.ErrorIs(t, err, parser.ErrInvalidPackageManager)
+			})
+		}
 	})
 
 	t.Run("success_no_nodejs", func(t *testing.T) {
@@ -75,9 +96,14 @@ func TestParserNode(t *testing.T) {
 
 		expected := types.KickrWrapper{
 			Languages: map[string]any{
-				"node": parser.PackageJSON{
-					Name:           "kickr",
-					PackageManager: "bun@1.1.6",
+				"node": generate.MonoNodes{
+					{
+						Directory: ".",
+						Specifics: parser.PackageJSON{
+							Name:           "kickr",
+							PackageManager: "bun@1.1.6",
+						},
+					},
 				},
 			},
 		}
@@ -100,17 +126,74 @@ func TestParserNode(t *testing.T) {
 
 		expected := types.KickrWrapper{
 			Executables: parser.Executables{
-				Workers: map[string]struct{}{"main": {}},
+				Workers: map[string]any{"main": struct{}{}},
 			},
 			Languages: map[string]any{
-				"node": parser.PackageJSON{
-					Main:           func() *string { v := "index.js"; return &v }(),
-					Name:           "kickr",
-					PackageManager: "bun@1.1.6",
+				"node": generate.MonoNodes{
+					{
+						Directory: ".",
+						Specifics: parser.PackageJSON{
+							Main:           func() *string { v := "index.js"; return &v }(),
+							Name:           "kickr",
+							PackageManager: "bun@1.1.6",
+						},
+					},
 				},
 			},
 		}
 		config := types.KickrWrapper{}
+
+		// Act
+		err := generate.ParserNode(ctx, destdir, &config)
+
+		// Assert
+		require.NoError(t, err)
+		assert.Equal(t, expected, config)
+	})
+
+	t.Run("success_root_and_sub_directory", func(t *testing.T) {
+		// Arrange
+		destdir := t.TempDir()
+		require.NoError(t, os.WriteFile(
+			filepath.Join(destdir, parser.FilePackageJSON),
+			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`), files.RwRR))
+		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
+		require.NoError(t, os.WriteFile(
+			filepath.Join(destdir, "docs", parser.FilePackageJSON),
+			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6" }`), files.RwRR))
+
+		expected := types.KickrWrapper{
+			Kickr: kickr.Kickr{
+				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+			},
+			Executables: parser.Executables{
+				Workers: map[string]any{"main": struct{}{}},
+			},
+			Languages: map[string]any{
+				"node": generate.MonoNodes{
+					{
+						Directory: ".",
+						Specifics: parser.PackageJSON{
+							Main:           func() *string { v := "index.js"; return &v }(),
+							Name:           "kickr",
+							PackageManager: "bun@1.1.6",
+						},
+					},
+					{
+						Directory: "docs",
+						Specifics: parser.PackageJSON{
+							Name:           "kickr",
+							PackageManager: "bun@1.1.6",
+						},
+					},
+				},
+			},
+		}
+		config := types.KickrWrapper{
+			Kickr: kickr.Kickr{
+				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+			},
+		}
 
 		// Act
 		err := generate.ParserNode(ctx, destdir, &config)
@@ -132,14 +215,16 @@ func TestParserNode(t *testing.T) {
 			Kickr: kickr.Kickr{
 				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
 			},
-			Executables: parser.Executables{
-				Workers: map[string]struct{}{"main": {}},
-			},
 			Languages: map[string]any{
-				"node": parser.PackageJSON{
-					Main:           func() *string { v := "index.js"; return &v }(),
-					Name:           "kickr",
-					PackageManager: "bun@1.1.6",
+				"node": generate.MonoNodes{
+					{
+						Directory: "docs",
+						Specifics: parser.PackageJSON{
+							Main:           func() *string { v := "index.js"; return &v }(),
+							Name:           "kickr",
+							PackageManager: "bun@1.1.6",
+						},
+					},
 				},
 			},
 		}

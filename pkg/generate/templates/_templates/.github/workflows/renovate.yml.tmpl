@@ -39,7 +39,7 @@ jobs:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: false # renovate needs to have access to docker sock
           egress-policy: audit
@@ -59,7 +59,7 @@ jobs:
         with:
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
-      - uses: renovatebot/github-action@7876d7a812254599d262d62b6b2c2706018258a2 # v43.0.10
+      - uses: renovatebot/github-action@6927a58a017ee9ac468a34a5b0d2a9a9bd45cac3 # v43.0.11
         with:
 <<- if eq .CI.Renovate.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
