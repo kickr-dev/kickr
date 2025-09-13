@@ -18,8 +18,8 @@ func Makefile() []engine.Template[types.KickrWrapper] {
 			Globs:      []string{"Makefile" + engine.TmplExtension},
 			Out:        "Makefile",
 			Remove: func(config types.KickrWrapper) bool {
-				_, ok := config.Languages["node"] // don't generate makefiles with node
-				return ok || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
+				_, ok := config.Languages["node"] // don't generate makefiles when there's only node language
+				return (ok && len(config.Languages) == 1) || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
 			},
 		},
 		{
@@ -27,8 +27,8 @@ func Makefile() []engine.Template[types.KickrWrapper] {
 			Globs:      engine.GlobsWithPart(path.Join("scripts", "mk", "build.mk")),
 			Out:        path.Join("scripts", "mk", "build.mk"),
 			Remove: func(config types.KickrWrapper) bool {
-				_, ok := config.Languages["node"] // don't generate makefiles with node
-				return ok || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
+				_, ok := config.Languages["node"] // don't generate makefiles when there's only node language
+				return (ok && len(config.Languages) == 1) || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
 			},
 		},
 	}

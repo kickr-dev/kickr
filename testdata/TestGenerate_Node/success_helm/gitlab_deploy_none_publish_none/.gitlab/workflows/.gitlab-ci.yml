@@ -28,6 +28,9 @@ include:
     file: "templates/gitlab-ci-node.yml"
 
 variables:
+  BUILD_DIR: dist
+  PRE_COMMIT_FILE: .pre-commit-config.yaml
+
   SEMREL_AUTO_RELEASE_ENABLED: false
   SEMREL_BRANCHES_REF: /^(master|main|v[0-9]+\.x|v[0-9]+\.[0-9]+\.x|next|alpha|beta|staging|dev|develop|development)$/
   SEMREL_HOOKS_DIR: scripts
@@ -35,8 +38,6 @@ variables:
   SEMREL_RELEASE_DISABLED: "true"
   SEMREL_REQUIRED_PLUGINS_FILE: .gitlab/semrel-plugins.txt
   SEMREL_TAG_FORMAT: v$${version}
-
-  PRE_COMMIT_FILE: .pre-commit-config.yaml
 
   HELM_CHART_DIR: chart/
   HELM_SCRIPTS_DIR: chart/hooks/
@@ -51,6 +52,7 @@ variables:
 
   NODE_AUDIT_DISABLED: "false"
   NODE_BUILD_ARGS: run build --prod
+  NODE_BUILD_DIR: $BUILD_DIR
   NODE_BUILD_DISABLED: "false"
   NODE_IMAGE: registry.hub.docker.com/library/node:lts-alpine
   NODE_LINT_ARGS: "run lint"
@@ -84,3 +86,8 @@ semantic-release-info:
 semantic-release:
   variables:
     GIT_DEPTH: "0"
+
+.node-base:
+  parallel:
+    matrix:
+      - NODE_PROJECT_DIR: .

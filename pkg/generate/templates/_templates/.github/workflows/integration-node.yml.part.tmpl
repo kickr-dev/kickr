@@ -1,38 +1,54 @@
 jobs:
 <<- define "node" >>
 
-<<- $specifics := get .Languages "node" >>
-<<- $manager := cutAfter $specifics.PackageManager "@" >>
+<<- $nodes := get .Languages "node" >>
+<<- $manager := cutAfter (first $nodes).Specifics.PackageManager "@" >>
 
   node-audit:
-    name: Node Audit
+    name: Node Audit ${{ matrix.name }}
     runs-on: ubuntu-latest
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+<<- range $nodes >>
+          - directory: << .Directory >>
+<<- if ne .Directory "." >>
+            name: << printf "(%s)" .Directory >>
+<<- end >>
+<<- end >>
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
+      # https://github.com/marketplace/actions/setup-pnpm
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "step-security-actions" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@81c6b5758214d7e8b68a403c6a55a040e9b8879a # v2.0.3
 <<- else >>
+      # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 <<- end >>
         with:
           bun-version-file: package.json
 <<- else >>
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      # https://github.com/marketplace/actions/setup-node-js-environment
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: << $manager >>
           node-version: lts/*
@@ -41,128 +57,158 @@ jobs:
         continue-on-error: true
 
   node-lint:
-    name: Node Lint
+    name: Node Lint ${{ matrix.name }}
     runs-on: ubuntu-latest
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+<<- range $nodes >>
+          - artifact: << ne .Directory "." | ternary (print "lint-" .Directory) "lint" >>
+            directory: << .Directory >>
+<<- if ne .Directory "." >>
+            name: << printf "(%s)" .Directory >>
+<<- end >>
+<<- end >>
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
+      # https://github.com/marketplace/actions/setup-pnpm
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "step-security-actions" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@81c6b5758214d7e8b68a403c6a55a040e9b8879a # v2.0.3
 <<- else >>
+      # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 <<- end >>
         with:
           bun-version-file: package.json
 <<- else >>
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      # https://github.com/marketplace/actions/setup-node-js-environment
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: << $manager >>
           node-version: lts/*
 <<- end >>
-      - run: mkdir -p reports/
-<<- if eq $manager "npm" >>
-      - run: << $manager >> ci
-<<- else >>
-      - run: << $manager >> install --frozen-lockfile
-<<- end >>
-      - run: << $manager >> run lint -o reports/node-lint.xslint.json -f json
+      - run: |-
+          mkdir -p reports/
+          << $manager >> << eq $manager "npm" | ternary "ci" "install --frozen-lockfile" >>
+          << $manager >> run lint -o reports/node-lint.xslint.json -f json
 <<- if has "sonarqube" .CI.Options >>
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: lint
-          path: reports
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.directory }}/reports
           retention-days: 1
 <<- end >>
 
   node-test:
-    name: Node Test
+    name: Node Test ${{ matrix.name }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     needs: node-lint
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - macos-latest
-          - ubuntu-latest
-          - windows-latest
+        include:
+<<- range $nodes >>
+          - artifact: << ne .Directory "." | ternary (print "coverage-" .Directory) "coverage" >>
+            directory: << .Directory >>
+<<- if ne .Directory "." >>
+            name: << printf "(%s)" .Directory >>
+<<- end >>
+            os: macos-latest
+          - artifact: << ne .Directory "." | ternary (print "coverage-" .Directory) "coverage" >>
+            directory: << .Directory >>
+<<- if ne .Directory "." >>
+            name: << printf "(%s)" .Directory >>
+<<- end >>
+            os: ubuntu-latest
+          - artifact: << ne .Directory "." | ternary (print "coverage-" .Directory) "coverage" >>
+            directory: << .Directory >>
+<<- if ne .Directory "." >>
+            name: << printf "(%s)" .Directory >>
+<<- end >>
+            os: windows-latest
+<<- end >>
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
     steps:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 <<- if eq $manager "pnpm" >>
+      # https://github.com/marketplace/actions/setup-pnpm
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "step-security-actions" .CI.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@81c6b5758214d7e8b68a403c6a55a040e9b8879a # v2.0.3
 <<- else >>
+      # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
 <<- end >>
         with:
           bun-version-file: package.json
 <<- else >>
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      # https://github.com/marketplace/actions/setup-node-js-environment
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           cache: << $manager >>
           node-version: lts/*
 <<- end >>
-      - run: mkdir -p reports/
-<<- if eq $manager "npm" >>
-      - run: << $manager >> ci
-<<- end >>
-<<- if eq $manager "bun" >>
       - run: |-
-          << $manager >> install --frozen-lockfile
+          mkdir -p reports/
+          << $manager >> << eq $manager "npm" | ternary "ci" "install --frozen-lockfile" >>
+<<- if eq $manager "bun" >>
           << $manager >> test --rerun-each 10 --coverage --coverage-reporter=lcov --coverage-dir=reports --reporter=junit --reporter-outfile="reports/node-test.xunit.xml"
 <<- else >>
-      - run: |-
-          << $manager >> install --frozen-lockfile
           << $manager >> run test -- --coverage --coverageDirectory=reports --reporters="jest-junit" --reporters="jest-sonar"
 <<- end >>
 <<- if has "codecov" .CI.Options >>
-      - if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+      - uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
           env_vars: OS
           fail_ci_if_error: false
-          files: reports/node-test.xunit.xml
+          files: ${{ matrix.directory }}/reports/node-test.xunit.xml
           flags: ${{ matrix.os }}
-          slug: ${{ github.repository }}
+          slug: ${{ matrix.name }}
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           OS: ${{ matrix.os }}
-      - if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@fdcc8476540edceab3de004e990f80d881c6cc00 # v5.5.0
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
           env_vars: OS
           fail_ci_if_error: false
-          files: reports/lcov.info
-          slug: ${{ github.repository }}
+          files: ${{ matrix.directory }}/reports/lcov.info
+          slug: ${{ matrix.name }}
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           OS: ${{ matrix.os }}
@@ -170,8 +216,8 @@ jobs:
 <<- if has "sonarqube" .CI.Options >>
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: coverage
-          path: reports
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.directory }}/reports
           retention-days: 1
 <<- end >>
 <<- end >>

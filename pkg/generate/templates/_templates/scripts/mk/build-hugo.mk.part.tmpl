@@ -1,23 +1,31 @@
 {{- define "hugo" }}
 
-.PHONY: build
-build:
-	@hugo --gc --minify --destination dist --logLevel debug
+{{- $nodes := get .Languages "hugo" }}
+{{- $websiteDirectory := "." }}
+{{- if .CI.Website }}{{- $websiteDirectory = .CI.Website.Directory | default "." }}{{- end }}
 
-.PHONY: serve
-serve:
-	@hugo server --disableFastRender --destination dist --logLevel debug
+{{- range $nodes }}
+{{- $suffix := ne .Directory "." | ternary (print "-" .Directory) "" }}
 
-.PHONY: production
-{{- if .IsHosting "netlify" }}
-production:
-	@netlify dev -c "make serve" \
+.PHONY: build{{ $suffix }}
+build{{ $suffix }}:
+	@hugo --gc --minify --destination dist --logLevel debug --source {{ .Directory }}
+
+.PHONY: serve{{ $suffix }}
+serve{{ $suffix }}:
+	@hugo server --disableFastRender --destination dist --logLevel debug --source {{ .Directory }}
+
+.PHONY: production{{ $suffix }}
+{{- if and ($.IsHosting "netlify") (eq $websiteDirectory .Directory) }}
+production{{ $suffix }}:
+	@netlify dev -c "make serve{{ $suffix }}" \
 		--target-port 1313 --port 8888
 		--dir dist
 		--framework hugo
 		--context production
 {{- else }}
-production: build
+production{{ $suffix }}: build{{ $suffix }}
 	@python3 -m http.server --directory dist
+{{- end }}
 {{- end }}
 {{- end }}

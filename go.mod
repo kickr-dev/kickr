@@ -2,7 +2,7 @@ module github.com/kickr-dev/kickr
 
 go 1.24.0
 
-toolchain go1.25.0
+toolchain go1.25.1
 
 // replace github.com/kickr-dev/engine => ../engine
 
@@ -12,7 +12,7 @@ require (
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/goccy/go-yaml v1.18.0
 	github.com/jarcoal/httpmock v1.4.1
-	github.com/kickr-dev/engine v0.0.0-20250829173046-229551ddba50
+	github.com/kickr-dev/engine v0.0.0-20250913113416-93d8bfd70a26
 	github.com/kilianpaquier/compare v1.1.0
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
@@ -122,6 +122,7 @@ require (
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pjbgf/sha1cd v0.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

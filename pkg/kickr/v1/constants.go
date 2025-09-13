@@ -45,6 +45,8 @@ const (
 	OptionLabeler string = "labeler"
 	// OptionScoreCardOSSF is the CI option to add OSSF Scorecard badge and associated workflow (with GitHub Actions).
 	OptionScoreCardOSSF string = "ossf-scorecard"
+	// OptionStepSecurityActions is the CI option to use step-security maintained actions instead of initial authors' actions.
+	OptionStepSecurityActions string = "step-security-actions"
 
 	// OptionBackmerge is the CI release option to backmerge stable branches between them.
 	OptionBackmerge string = "backmerge"

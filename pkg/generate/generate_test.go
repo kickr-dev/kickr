@@ -348,8 +348,16 @@ func TestGenerate_Golang(t *testing.T) {
 							Provider: ci,
 							Docker:   &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
 							Helm:     &kickr.Helm{Deploy: kickr.HelmManual, Path: "path/to/repository", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"},
-							Options:  []string{kickr.OptionCodeCov, kickr.OptionCodeQL, kickr.OptionHardenRunner, kickr.OptionLabeler, kickr.OptionScoreCardOSSF, kickr.OptionSonarQube},
-							Release:  &kickr.Release{},
+							Options: []string{
+								kickr.OptionCodeCov,
+								kickr.OptionCodeQL,
+								kickr.OptionHardenRunner,
+								kickr.OptionLabeler,
+								kickr.OptionScoreCardOSSF,
+								kickr.OptionSonarQube,
+								kickr.OptionStepSecurityActions,
+							},
+							Release: &kickr.Release{},
 						},
 						Description:  "A useful project description",
 						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
@@ -394,10 +402,10 @@ func TestGenerate_Hugo(t *testing.T) {
 	t.Run("success_netlify", func(t *testing.T) {
 		cases := []kickr.CI{
 			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Directory: "path/to/dir"}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
 
 			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Directory: "path/to/dir"}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
 		}
 		for _, ci := range cases {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
@@ -416,10 +424,10 @@ func TestGenerate_Hugo(t *testing.T) {
 	t.Run("success_pages", func(t *testing.T) {
 		cases := []kickr.CI{
 			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages, Directory: "path/to/dir"}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages}},
 
 			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages, Directory: "path/to/dir"}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages}},
 		}
 		for _, ci := range cases {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
@@ -522,10 +530,10 @@ func TestGenerate_Node(t *testing.T) {
 
 		cases := []kickr.CI{
 			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Directory: "path/to/dir"}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
 
 			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Directory: "path/to/dir"}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
 		}
 		for _, ci := range cases {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
@@ -554,10 +562,10 @@ func TestGenerate_Node(t *testing.T) {
 
 		cases := []kickr.CI{
 			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages, Directory: "path/to/dir"}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages}},
 
 			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages, Directory: "path/to/dir"}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages}},
 		}
 		for _, ci := range cases {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
@@ -654,9 +662,14 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		return file.Close()
 	}
 
-	node := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
-		return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
-			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
+	node := func(dir string) engine.Parser[types.KickrWrapper] {
+		return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+			if err := os.MkdirAll(filepath.Join(destdir, dir), files.RwxRxRxRx); err != nil {
+				return fmt.Errorf("mkdir all: %w", err)
+			}
+			return os.WriteFile(filepath.Join(destdir, dir, parser.FilePackageJSON),
+				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
+		}
 	}
 
 	t.Run("success_node_hugo_doc", func(t *testing.T) {
@@ -676,13 +689,13 @@ func TestGenerate_MonoRepo(t *testing.T) {
 							Provider: tc.Provider,
 							Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 						},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
+						Exclude:  []string{kickr.ExcludePreCommit},
 						Platform: tc.Provider,
 					},
 				}
 
 				// Act & Assert
-				test(ctx, t, config, node, hugo)
+				test(ctx, t, config, node(""), hugo)
 			})
 		}
 	})
@@ -704,7 +717,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 							Provider: tc.Provider,
 							Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 						},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
+						Exclude:  []string{kickr.ExcludePreCommit},
 						Platform: tc.Provider,
 					},
 				}
@@ -738,7 +751,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc), node)
+				test(ctx, t, config, golang(tc), node("docs"))
 			})
 		}
 	})

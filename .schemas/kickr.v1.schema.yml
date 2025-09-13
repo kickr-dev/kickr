@@ -115,6 +115,7 @@ properties:
                   - labeler
                   - ossf-scorecard
                   - sonarqube
+                  - step-security-actions
       # force with GitHub the presence of 'release.auth' when 'release' is provided
       - if:
           properties:

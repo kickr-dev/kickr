@@ -248,8 +248,8 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/kevinburke/ssh_config v1.2.0 h1:x584FjTGwHzMwvHx18PXxbBVzfnxogHaAReU4gf13a4=
 github.com/kevinburke/ssh_config v1.2.0/go.mod h1:CT57kijsi8u/K/BOFA39wgDQJ9CxiF4nAY/ojJ6r6mM=
-github.com/kickr-dev/engine v0.0.0-20250829173046-229551ddba50 h1:FJemJDUpLg8MbhxyqCNWPq8vizz3a7t8x9ckJcGtaT8=
-github.com/kickr-dev/engine v0.0.0-20250829173046-229551ddba50/go.mod h1:FhE5sH9Mke4cUKlxoK3SGkTAN211GLmhfo/Tmo0ksYM=
+github.com/kickr-dev/engine v0.0.0-20250913113416-93d8bfd70a26 h1:EIVElsg8OxQmnFIDu0b1YAmsG7ZFDVaWr6uKxkSKY/I=
+github.com/kickr-dev/engine v0.0.0-20250913113416-93d8bfd70a26/go.mod h1:ZDq4ztEgVLfdPvrPFOSaMCkkEgi+cry9zPn9AbM3IAc=
 github.com/kilianpaquier/compare v1.1.0 h1:gCJvpnsTBEDEFMYQ+6sVsffo8AzOiFVf3U5VFbDZn2A=
 github.com/kilianpaquier/compare v1.1.0/go.mod h1:UssLUC5WsVVCq7BEjnv4890B9G/M047vaciME3wi/PE=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
@@ -328,6 +328,8 @@ github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
 github.com/opencontainers/image-spec v1.1.1 h1:y0fUlFfIZhPF1W537XOLg0/fcx6zcHCJwooC2xJA040=
 github.com/opencontainers/image-spec v1.1.1/go.mod h1:qpqAh3Dmcf36wStyyWU+kCeDgrGnAve2nCC8+7h8Q0M=
+github.com/pelletier/go-toml/v2 v2.2.4 h1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=
+github.com/pelletier/go-toml/v2 v2.2.4/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
 github.com/peterbourgon/diskv v2.0.1+incompatible h1:UBdAOUP5p4RWqPBg048CAvpKN+vxiaj6gdUUzhl4XmI=
 github.com/peterbourgon/diskv v2.0.1+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR/tNboyR3/BZd58JJSHlUSCU=
 github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5 h1:Ii+DKncOVM8Cu1Hc+ETb5K+23HdAMvESYE3ZJ5b5cMI=

@@ -7,7 +7,7 @@
 {{- $shell := and (not (has "shell" .Exclude)) (hasKey .Globs "shell") }}
 
 {{- $node := hasKey .Languages "node" }}
-{{- $nodebuild := and $node (gt .Binaries 0) }}
+{{- $nodemain := and $node (get .Languages "node").HasMain }}
 
 ---
 include:
@@ -100,21 +100,15 @@ include:
 {{- end }}
 
 variables:
-  SEMREL_AUTO_RELEASE_ENABLED: {{ .IsReleaseAuto | ternary "$CI_COMMIT_REF_PROTECTED" "false" }}
-  SEMREL_BRANCHES_REF: /^(master|main|v[0-9]+\.x|v[0-9]+\.[0-9]+\.x|next|alpha|beta|staging|dev|develop|development)$/
-  SEMREL_HOOKS_DIR: scripts
-  SEMREL_INFO_ON: all
-  SEMREL_RELEASE_DISABLED: "{{ not .CI.Release }}"
-  SEMREL_REQUIRED_PLUGINS_FILE: .gitlab/semrel-plugins.txt
-  SEMREL_TAG_FORMAT: v$${version}
+{{- if or $hugo $nodemain }}
+  BUILD_DIR: dist
+{{- end }}
 
 {{- if not (has "pre-commit" .Exclude) }}
-
   PRE_COMMIT_FILE: .pre-commit-config.yaml
 {{- end }}
 
 {{- if $shell }}
-
   BASH_SHELLCHECK_FILES: "**/*.(bash|dash|ksh|sh)"
   BASH_BATS_ENABLED: "false"
 {{- end }}
@@ -124,9 +118,16 @@ variables:
 {{- end }}
 
 {{- if .DependencyManager "dependabot" }}
-
   SETTINGS__GITLAB_URL: $CI_SERVER_FQDN
 {{- end }}
+
+  SEMREL_AUTO_RELEASE_ENABLED: {{ .IsReleaseAuto | ternary "$CI_COMMIT_REF_PROTECTED" "false" }}
+  SEMREL_BRANCHES_REF: /^(master|main|v[0-9]+\.x|v[0-9]+\.[0-9]+\.x|next|alpha|beta|staging|dev|develop|development)$/
+  SEMREL_HOOKS_DIR: scripts
+  SEMREL_INFO_ON: all
+  SEMREL_RELEASE_DISABLED: "{{ not .CI.Release }}"
+  SEMREL_REQUIRED_PLUGINS_FILE: .gitlab/semrel-plugins.txt
+  SEMREL_TAG_FORMAT: v$${version}
 
 {{- if .CI.Docker }}
 {{- $registry := .CI.Docker.Registry | default "$CI_REGISTRY" }}
@@ -190,7 +191,8 @@ variables:
 
   NODE_AUDIT_DISABLED: "false"
   NODE_BUILD_ARGS: run build --prod
-  NODE_BUILD_DISABLED: "{{ not $nodebuild }}"
+  NODE_BUILD_DIR: $BUILD_DIR
+  NODE_BUILD_DISABLED: "{{ not $nodemain }}"
   NODE_IMAGE: registry.hub.docker.com/library/node:lts-alpine
   NODE_LINT_ARGS: "run lint"
   NODE_LINT_ENABLED: "true"
@@ -271,53 +273,39 @@ go-build:
 {{- end }}
 
 {{- if $hugo }}
+{{- $nodes := get .Languages "hugo" }}
 
 hugo-build:
   image: hugomods/hugo:exts
   stage: build
   variables:
-{{- if and .CI.Website .CI.Website.Directory }}
-    DIRECTORY: {{ .CI.Website.Directory }}
-{{- end }}
-    DIST_FOLDER: dist
     LOG_LEVEL: info
+  parallel:
+    matrix:
+{{- range $nodes }}
+      - HUGO_PROJECT_DIR: {{ .Directory }}
+{{- end }}
   before_script:
     - apk add go
-{{- if and .CI.Website .CI.Website.Directory }}
   script:
-    - >
-      if [ ! -d "$DIRECTORY" ]; then
-        echo "Provided directory '$DIRECTORY' doesn't exist"
-        exit 2
-      fi
-    - cd $DIRECTORY
-    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$DIST_FOLDER" --logLevel "$LOG_LEVEL"
-{{- else }}
-  script:
-    - hugo --gc --minify --destination "$DIST_FOLDER" --logLevel "$LOG_LEVEL"
-{{- end }}
+    - cd "$HUGO_PROJECT_DIR"
+    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$BUILD_DIR" --logLevel "$LOG_LEVEL"
   artifacts:
-    name: $ENV
+    name: "$CI_JOB_NAME artifacts from $CI_PROJECT_NAME on $CI_COMMIT_REF_SLUG"
     paths:
-      - $DIST_FOLDER
+      - $BUILD_DIR
     expire_in: 1 day
 {{- end }}
 
-{{- if and $nodebuild .CI.Website .CI.Website.Directory }}
+{{- if $node }}
+{{- $nodes := get .Languages "node" }}
 
-node-build:
-  variables:
-    DIRECTORY: {{ .CI.Website.Directory }}
-  script:
-    - >
-      if [ ! -d "$DIRECTORY" ]; then
-        echo "Provided directory '$DIRECTORY' doesn't exist"
-        exit 2
-      fi
-    - cd $DIRECTORY
-    # see https://gitlab.com/to-be-continuous/node/-/blob/master/templates/gitlab-ci-node.yml?ref_type=heads#L680
-    - $NODE_MANAGER $NODE_TEST_ARGS
-    - if [[ "$NODE_BUILD_DISABLED" != "true" ]]; then $NODE_MANAGER $NODE_BUILD_ARGS; fi
+.node-base:
+  parallel:
+    matrix:
+{{- range $nodes }}
+      - NODE_PROJECT_DIR: {{ .Directory }}
+{{- end }}
 {{- end }}
 
 {{- if .DependencyManager "renovate" }}
@@ -339,7 +327,14 @@ renovate-depcheck:
   <<: *renovate-rules
 {{- end }}
 
-{{- if .IsHosting "netlify" }}
+{{- if .CI.Website }}
+
+{{- $needs := list }}
+{{- $websiteDirectory := .CI.Website.Directory | default "." }}
+{{- if $node }}{{- range (get .Languages "node") }}{{- if eq .Directory $websiteDirectory }}{{- $needs = append $needs "node-build" }}{{- end }}{{- end }}{{- end }}
+{{- if $hugo }}{{- range (get .Languages "hugo") }}{{- if eq .Directory $websiteDirectory }}{{- $needs = append $needs "hugo-build" }}{{- end }}{{- end }}{{- end }}
+
+{{- if eq .CI.Website.Hosting "netlify" }}
 
 netlify:
   stage: deploy
@@ -347,8 +342,10 @@ netlify:
   environment:
     name: $ENV
     action: start
-  variables:
-    DIST_FOLDER: dist
+  dependencies:
+{{- range $needs }}
+    - "{{ . }}: [{{ $websiteDirectory }}]"
+{{- end }}
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
@@ -364,10 +361,10 @@ netlify:
   before_script:
     - npm install -g netlify-cli
   script:
-    - netlify deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --dir "$DIST_FOLDER" $ARGS
+    - netlify deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --dir "$BUILD_DIR" $ARGS
 {{- end }}
 
-{{- if .IsHosting "pages" }}
+{{- if eq .CI.Website.Hosting "pages" }}
 
 pages:
   stage: deploy
@@ -377,7 +374,10 @@ pages:
     url: $CI_PAGES_URL
   variables:
     ENV: production
-    DIST_FOLDER: dist
+  dependencies:
+{{- range $needs }}
+    - "{{ . }}: [{{ $websiteDirectory }}]"
+{{- end }}
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 {{- if not .CI.Website.Auto }}
@@ -385,13 +385,14 @@ pages:
 {{- end }}
   script:
     - >
-      if [ "$DIST_FOLDER" != "public" ]; then
+      if [ "$BUILD_DIR" != "public" ]; then
         mkdir -p public
-        mv "$DIST_FOLDER"/* public
+        mv "$BUILD_DIR"/* public
       fi
   artifacts:
-    name: $ENV
+    name: "$CI_JOB_NAME artifacts from $CI_PROJECT_NAME on $CI_COMMIT_REF_SLUG"
     paths:
       - public
     expire_in: 1 day
+{{- end }}
 {{- end }}

@@ -76,10 +76,10 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		config := types.KickrWrapper{
 			Kickr: kickr.Kickr{CI: &kickr.CI{Options: []string{kickr.OptionSonarQube}}},
 			Executables: parser.Executables{
-				Clis:    map[string]struct{}{"cli": {}},
-				Crons:   map[string]struct{}{"cron": {}},
-				Jobs:    map[string]struct{}{"job": {}},
-				Workers: map[string]struct{}{"worker": {}},
+				Clis:    map[string]any{"cli": struct{}{}},
+				Crons:   map[string]any{"cron": struct{}{}},
+				Jobs:    map[string]any{"job": struct{}{}},
+				Workers: map[string]any{"worker": struct{}{}},
 			},
 			Languages: map[string]any{"go": nil},
 		}
