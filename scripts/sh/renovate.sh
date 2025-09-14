@@ -1,5 +1,7 @@
 #!/bin/sh
 
-# renovate: datasource=golang-version depName=golang
-install-tool golang 1.25.0
+install-tool golang "$(grep '^toolchain ' go.mod | awk '{print $2}' | sed 's/^go//')"
 make testdata
+
+make build
+./kickr
