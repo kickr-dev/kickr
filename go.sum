@@ -244,8 +244,6 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/kevinburke/ssh_config v1.2.0 h1:x584FjTGwHzMwvHx18PXxbBVzfnxogHaAReU4gf13a4=
 github.com/kevinburke/ssh_config v1.2.0/go.mod h1:CT57kijsi8u/K/BOFA39wgDQJ9CxiF4nAY/ojJ6r6mM=
-github.com/kickr-dev/engine v0.0.0-20250915194545-4e2f5e047768 h1:s1zw4tKo+llD1O6QFkqctJ4vjUBSNoj++XPTYl1LzLA=
-github.com/kickr-dev/engine v0.0.0-20250915194545-4e2f5e047768/go.mod h1:a5ZtDbYIwINbEtVcqYkGt2kzd+FmFfIUHCD9a/KYE40=
 github.com/kickr-dev/engine v0.0.0-20250915194917-9d928c868844 h1:Z8ReDu9F75qVAydzPilYmy5Nxmib1qlfKKcE1PmqYV4=
 github.com/kickr-dev/engine v0.0.0-20250915194917-9d928c868844/go.mod h1:a5ZtDbYIwINbEtVcqYkGt2kzd+FmFfIUHCD9a/KYE40=
 github.com/kilianpaquier/compare v1.1.0 h1:gCJvpnsTBEDEFMYQ+6sVsffo8AzOiFVf3U5VFbDZn2A=
@@ -409,8 +407,8 @@ github.com/yannh/kubeconform v0.7.0 h1:ZFfniR8VChrWQxaxTUGnNrxw8RIDkjVBrjdhXSamw
 github.com/yannh/kubeconform v0.7.0/go.mod h1:oHO1wjM16sTRW6s41HJUox+tD69qOTE5ZVQ9HeqX+xM=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
-gitlab.com/gitlab-org/api/client-go v0.143.3 h1:4Q4zumLVUnxn/s06RD9U3fyibD1/zr43gTDDtRkjqbA=
-gitlab.com/gitlab-org/api/client-go v0.143.3/go.mod h1:rw89Kl9AsKmxRhzkfUSfZ+1jpTewwueKvAYwoYmUoQ8=
+gitlab.com/gitlab-org/api/client-go v0.144.0 h1:np2G+h2vanpxQrqGIM9LGmoKQecyUanj68JlNmNdc3o=
+gitlab.com/gitlab-org/api/client-go v0.144.0/go.mod h1:rw89Kl9AsKmxRhzkfUSfZ+1jpTewwueKvAYwoYmUoQ8=
 go.opentelemetry.io/auto/sdk v1.1.0 h1:cH53jehLUN6UFLY71z+NDOiNJqDdPRaXzTel0sJySYA=
 go.opentelemetry.io/auto/sdk v1.1.0/go.mod h1:3wSPjt5PWp2RhlCcmmOial7AvC4DQqZb7a7wCow3W8A=
 go.opentelemetry.io/contrib/bridges/prometheus v0.57.0 h1:UW0+QyeyBVhn+COBec3nGhfnFe5lwB0ic1JBVjzhk0w=
