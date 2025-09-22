@@ -44,6 +44,8 @@ properties:
         $ref: "#/$defs/docker"
       helm:
         $ref: "#/$defs/helm"
+      terraform:
+        $ref: "#/$defs/terraform"
       release:
         $ref: "#/$defs/release"
       website:
@@ -60,10 +62,6 @@ properties:
             release:
               properties:
                 auth: false
-            # don't allow GitLab CI/CD to provide 'deploy' in helm section
-            helm:
-              properties:
-                deploy: false
             # don't allow GitLab CI/CD to provide 'auth' renovate section
             renovate:
               properties:
@@ -231,6 +229,29 @@ properties:
         - gitflow-branches
         - golangci-lint
         - gomod-tidy
+        - terraform
+
+  terraform:
+    type: object
+    description: |
+      terraform section can be provided to tune how terraform / opentofu templates (pre-commit, continuous integration) behaviors will be generated.
+
+      By default, if a module is present at repository's root, then there's no need to provide the list of modules.
+      However, if current repository is composed of multiple root modules (in subdirectories),
+      then it's required to provide the full list of modules to generate templates correctly.
+
+      The engine property can be provided to use terraform instead of opentofu (by default).
+    properties:
+      engine:
+        type: string
+        default: opentofu
+        enum:
+          - opentofu
+          - terraform
+      modules:
+        type: array
+        items:
+          type: string
 
 $defs:
   docker:
@@ -257,15 +278,23 @@ $defs:
     title: Helm
     type: object
     additionalProperties: false
+    dependentRequired:
+      deploy:
+        - environments
+      publish:
+        - path
+        - registry
+      path:
+        - registry
+      registry:
+        - path
     properties:
       deploy:
         type: string
         description: deploy helm chart to kubernetes cluster(s).
-        default: none
         enum:
           - auto
           - manual
-          - none
       environments:
         type: array
         description: |
@@ -285,6 +314,7 @@ $defs:
             - production
             - review
             - staging
+          minItems: 1
       path:
         type: string
         description: path within the helm registry (default is the path on VCS remote URL).
@@ -293,11 +323,9 @@ $defs:
       publish:
         type: string
         description: publish helm chart to the registry.
-        default: none
         enum:
           - auto
           - manual
-          - none
       registry:
         type: string
         description: |
@@ -307,14 +335,41 @@ $defs:
         examples:
           - ghcr.io
           - oci://ghcr.io
+
+  terraform:
+    title: Terraform Configuration
+    type: object
+    additionalProperties: false
     dependentRequired:
-      registry:
-        - path
-      publish:
-        - path
-        - registry
-      path:
-        - registry
+      apply:
+        - environments
+    properties:
+      apply:
+        type: string
+        description: apply strategy.
+        enum:
+          - auto
+          - manual
+      environments:
+        type: array
+        description: |
+          environments to associate a specific terraform apply with.
+
+          Only those four environments can be provided, defining under the hood specific behaviors (for GitHub Actions):
+            - 'review' will only be run on non-protected branches
+            - 'integration' will only be run on protected
+            - 'staging' will only be run on the default branch
+            - 'production' will only be run on the default branch
+
+          Concerning GitLab CI/CD, rules can be found at https://gitlab.com/to-be-continuous/terraform#global-configuration.
+        items:
+          type: string
+          enum:
+            - integration
+            - production
+            - review
+            - staging
+          minItems: 1
 
   website:
     title: Static Deployment

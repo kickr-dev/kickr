@@ -54,6 +54,12 @@ func (k Kickr) HasHelmDeploy() bool {
 	return k.CI != nil && k.CI.Helm != nil && slices.Contains([]string{HelmAuto, HelmManual}, k.CI.Helm.Deploy)
 }
 
+// HasTerraformApply returns truthy in case the configuration has CI enabled, terraform generation enabled
+// and apply is enabled in terraform CI configuration.
+func (k Kickr) HasTerraformApply() bool {
+	return k.CI != nil && k.CI.Terraform != nil && slices.Contains([]string{HelmAuto, HelmManual}, k.CI.Terraform.Apply)
+}
+
 // HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
 func (k Kickr) HasKickr() bool {
 	return k.CI != nil && slices.ContainsFunc(k.CI.Options, func(o string) bool {
@@ -71,9 +77,10 @@ func (k Kickr) HasAutoDeployment() bool {
 	docker := k.CI.Docker != nil && k.CI.Docker.Auto
 	helm := k.CI.Helm != nil && (k.CI.Helm.Deploy == HelmAuto || k.CI.Helm.Publish == HelmAuto)
 	release := k.CI.Release != nil && k.CI.Release.Auto
+	terraform := k.CI.Terraform != nil && k.CI.Terraform.Apply == TerraformAuto
 	website := k.CI.Website != nil && k.CI.Website.Auto
 
-	return docker || helm || website || release
+	return docker || helm || website || release || terraform
 }
 
 // HasDeployment returns truthy in case the configuration has CI enabled and Deployment configuration.
@@ -85,9 +92,10 @@ func (k Kickr) HasDeployment() bool {
 	docker := k.CI.Docker != nil
 	helm := k.CI.Helm != nil
 	release := k.CI.Release != nil
+	terraform := k.CI.Terraform != nil
 	website := k.CI.Website != nil
 
-	return docker || helm || website || release
+	return docker || helm || website || release || terraform
 }
 
 // EnsureDefaults migrates old properties into new fields

@@ -32,12 +32,10 @@ func TestGenerate_NoLang(t *testing.T) {
 			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
 			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
 			{Provider: parser.GitHub, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmNone}},
 
 			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
 			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
 			{Provider: parser.GitLab, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmNone}},
 		}
 
 		for _, ci := range cases {
@@ -391,7 +389,13 @@ func TestGenerate_Golang(t *testing.T) {
 						CI: &kickr.CI{
 							Provider: ci,
 							Docker:   &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
-							Helm:     &kickr.Helm{Deploy: kickr.HelmManual, Path: "path/to/repository", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"},
+							Helm: &kickr.Helm{
+								Deploy:       kickr.HelmManual,
+								Environments: []string{"staging", "production"},
+								Path:         "path/to/repository",
+								Publish:      kickr.HelmManual,
+								Registry:     "chartmuseum.example.com",
+							},
 							Options: []string{
 								kickr.OptionCodeCov,
 								kickr.OptionCodeQL,
@@ -634,23 +638,23 @@ func TestGenerate_Node(t *testing.T) {
 
 		cases := []kickr.CI{
 			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmAuto}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmManual}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmAuto, Environments: []string{"review"}}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmManual, Environments: []string{"integration"}}},
 			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
 			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
 
 			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmAuto}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmManual}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmAuto, Environments: []string{"review"}}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmManual, Environments: []string{"integration"}}},
 			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
 			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
 		}
 		for _, ci := range cases {
-			publish := kickr.HelmNone
+			publish := "none"
 			if ci.Helm.Publish != "" {
 				publish = ci.Helm.Publish
 			}
-			deploy := kickr.HelmNone
+			deploy := "none"
 			if ci.Helm.Deploy != "" {
 				deploy = ci.Helm.Deploy
 			}
@@ -668,6 +672,87 @@ func TestGenerate_Node(t *testing.T) {
 
 				// Act & Assert
 				test(ctx, t, config, node)
+			})
+		}
+	})
+}
+
+func TestGenerate_Terraform(t *testing.T) {
+	ctx := t.Context()
+
+	t.Run("success_multiple_modules", func(t *testing.T) {
+		type testcase struct {
+			Apply    string
+			Engine   string
+			Provider string
+		}
+
+		// Arrange
+		terraform := func(subdir string) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
+				if err := os.MkdirAll(filepath.Join(destdir, subdir), files.RwxRxRxRx); err != nil {
+					return fmt.Errorf("mkdir all: %w", err)
+				}
+				return os.WriteFile(filepath.Join(destdir, subdir, "main.tf"), []byte(
+					`terraform { backend "s3" {} }`+"\n"+
+						`variable "my_secret" { sensitive = true }`+"\n"+
+						`variable "github_var" {}`+"\n"+
+						`variable "my_var" {}`+"\n"), files.RwRR)
+			}
+		}
+
+		cases := []testcase{
+			{Apply: kickr.TerraformManual, Engine: kickr.EngineOpentofu, Provider: parser.GitHub},
+			{Apply: kickr.TerraformAuto, Engine: kickr.EngineTerraform, Provider: parser.GitHub},
+
+			{Apply: kickr.TerraformManual, Engine: kickr.EngineOpentofu, Provider: parser.GitLab},
+			{Apply: kickr.TerraformAuto, Engine: kickr.EngineTerraform, Provider: parser.GitLab},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Provider+"_"+tc.Engine, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: kickr.Kickr{
+						CI: &kickr.CI{
+							Provider:  tc.Provider,
+							Release:   &kickr.Release{},
+							Terraform: &kickr.TerraformCI{Apply: tc.Apply, Environments: []string{"production"}},
+						},
+						Platform: tc.Provider,
+						Terraform: &kickr.Terraform{
+							Engine:  tc.Engine,
+							Modules: []string{"modules/one", "modules/two"},
+						},
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerDependabot},
+					},
+				}
+
+				// Act & Assert
+				test(ctx, t, config, terraform(filepath.Join("modules", "one")), terraform(filepath.Join("modules", "two")))
+			})
+		}
+	})
+
+	t.Run("root_module", func(t *testing.T) {
+		// Arrange
+		terraform := func(_ context.Context, destdir string, _ *types.Repository) error {
+			return os.WriteFile(filepath.Join(destdir, "main.tf"), []byte("terraform {}\n"), files.RwRR)
+		}
+
+		for _, provider := range []string{parser.GitHub, parser.GitLab} {
+			t.Run(provider, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: kickr.Kickr{
+						CI:           &kickr.CI{Provider: provider},
+						PreCommit:    []string{kickr.PreCommitTerraform},
+						Platform:     provider,
+						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
+					},
+				}
+
+				// Act & Assert
+				test(ctx, t, config, terraform)
 			})
 		}
 	})
@@ -702,13 +787,22 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		return file.Close()
 	}
 
-	node := func(dir string) engine.Parser[types.Repository] {
+	node := func(subdir string) engine.Parser[types.Repository] {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
-			if err := os.MkdirAll(filepath.Join(destdir, dir), files.RwxRxRxRx); err != nil {
+			if err := os.MkdirAll(filepath.Join(destdir, subdir), files.RwxRxRxRx); err != nil {
 				return fmt.Errorf("mkdir all: %w", err)
 			}
-			return os.WriteFile(filepath.Join(destdir, dir, parser.FilePackageJSON),
+			return os.WriteFile(filepath.Join(destdir, subdir, parser.FilePackageJSON),
 				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
+		}
+	}
+
+	terraform := func(subdir string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		return func(_ context.Context, destdir string, _ *types.Repository) error {
+			if err := os.MkdirAll(filepath.Join(destdir, subdir), files.RwxRxRxRx); err != nil {
+				return fmt.Errorf("mkdir all: %w", err)
+			}
+			return os.WriteFile(filepath.Join(destdir, subdir, "main.tf"), []byte(`variable "my_var" {}`+"\n"), files.RwRR)
 		}
 	}
 
@@ -795,6 +889,37 @@ func TestGenerate_MonoRepo(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("success_go_self_terraform", func(t *testing.T) {
+		cases := []testcase{
+			{Provider: parser.GitLab},
+			{Provider: parser.GitLab},
+			{Provider: parser.GitHub},
+			{Provider: parser.GitHub},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Provider, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: kickr.Kickr{
+						CI: &kickr.CI{
+							Provider: tc.Provider,
+							Terraform: &kickr.TerraformCI{
+								Apply:        kickr.TerraformManual,
+								Environments: []string{"production"},
+							},
+						},
+						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
+						Platform:  tc.Provider,
+						Terraform: &kickr.Terraform{Engine: kickr.EngineOpentofu, Modules: []string{".terraform"}},
+					},
+				}
+
+				// Act & Assert
+				test(ctx, t, config, golang(tc), terraform(".terraform"))
+			})
+		}
+	})
 }
 
 func ParserInfo(_ context.Context, _ string, config *types.Repository) error {
@@ -823,16 +948,29 @@ func test(ctx context.Context, t *testing.T, config types.Repository, parsers ..
 
 	// Act
 	_, err := engine.Generate(ctx, destdir, config,
-		slices.Concat(parsers, []engine.Parser[types.Repository]{ParserInfo, generate.ParserGlob, generate.ParserGolang, generate.ParserNode, generate.ParserHelm}),
+		slices.Concat(parsers, []engine.Parser[types.Repository]{
+			// must be kept first since it parses Git informations (useful for next parsers)
+			// generate.ParserGit,
+			ParserInfo,
+
+			generate.ParserGlob,
+			generate.ParserGolang,
+			generate.ParserNode,
+			generate.ParserTerraform,
+
+			// must be kept last since it marshals config and merges it with chart overrides
+			generate.ParserHelm,
+		}),
 		[]engine.Generator[types.Repository]{
-			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),
-			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),
-			engine.GeneratorTemplates(templates.FS(), templates.Docker()),
-			engine.GeneratorTemplates(templates.FS(), templates.Golang()),
-			engine.GeneratorTemplates(templates.FS(), templates.Misc()),
-			engine.GeneratorTemplates(templates.FS(), templates.Makefile()),
-			engine.GeneratorTemplates(templates.FS(), templates.Chart()),
-			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())),
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),                        // bot
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
+			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
+			engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
+			engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
+			engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
+			engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
+			engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
 		})
 
 	// Assert

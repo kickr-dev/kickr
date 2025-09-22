@@ -81,8 +81,8 @@ variables:
   HELM_PUBLISH_STRATEGY: manual
   HELM_PUBLISH_URL: chartmuseum.example.com/path/to/repository
 
-  HELM_REVIEW_ENABLED: "true"
-  HELM_INTEG_ENABLED: "true"
+  HELM_REVIEW_ENABLED: "false"
+  HELM_INTEG_ENABLED: "false"
   HELM_STAGING_ENABLED: "true"
   HELM_PROD_ENABLED: "true"
 

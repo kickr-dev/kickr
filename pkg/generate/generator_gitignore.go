@@ -25,11 +25,12 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 	}
 	return func(ctx context.Context, destdir string, config types.Repository) error {
 		mapping := map[string][]string{
-			"go":    {"go"},
-			"helm":  {"helm"},
-			"hugo":  {"hugo"},
-			"node":  {"node"},
-			"shell": nil,
+			"go":        {"go"},
+			"helm":      {"helm"},
+			"hugo":      {"hugo"},
+			"node":      {"node"},
+			"shell":     nil,
+			"terraform": {"terraform"},
 		}
 
 		query := make([]string, 0, len(config.Languages)+3)

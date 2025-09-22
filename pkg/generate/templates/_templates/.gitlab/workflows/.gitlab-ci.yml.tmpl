@@ -10,6 +10,8 @@
 
 {{- $precommit := not (has "pre-commit" .Exclude) }}
 
+{{- $terraform := hasKey .Languages "terraform" }}
+
 ---
 include:
 
@@ -100,6 +102,15 @@ include:
     file: "templates/gitlab-ci-sonar.yml"
 {{- end }}
 
+{{- if $terraform }}
+
+  # Terraform template
+  # https://gitlab.com/to-be-continuous/terraform
+  - project: to-be-continuous/sonar
+    ref: 8fbbaa868bfa0fd31f9add0bf97c7317becac284 # 8.0.2
+    file: "templates/gitlab-ci-terraform.yml"
+{{- end }}
+
 variables:
 {{- if or $hugo $nodemain }}
   BUILD_DIR: dist
@@ -177,13 +188,15 @@ variables:
 
 {{- if .HasHelmDeploy }}
 
-  HELM_REVIEW_ENABLED: "true"
-  HELM_INTEG_ENABLED: "true"
-  HELM_STAGING_ENABLED: "true"
-  HELM_PROD_ENABLED: "true"
+  HELM_REVIEW_ENABLED: "{{ has "review" .CI.Helm.Environments }}"
+  HELM_INTEG_ENABLED: "{{ has "integration" .CI.Helm.Environments }}"
+  HELM_STAGING_ENABLED: "{{ has "staging" .CI.Helm.Environments }}"
+  HELM_PROD_ENABLED: "{{ has "production" .CI.Helm.Environments }}"
 
   HELM_DEPLOY_ARGS: upgrade --install --version "$SEMREL_INFO_NEXT_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$SEMREL_INFO_NEXT_VERSION"
+{{- if has "production" .CI.Helm.Environments }}
   HELM_PROD_DEPLOY_STRATEGY: {{ .CI.Helm.Deploy }}
+{{- end }}
 
   HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
   HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$SEMREL_INFO_NEXT_VERSION
@@ -227,6 +240,21 @@ variables:
     -Dsonar.links.ci=$CI_PROJECT_URL/-/pipelines
     -Dsonar.links.issue=$CI_PROJECT_URL/-/issues
   SONAR_QUALITY_GATE_ENABLED: "true"
+{{- end }}
+
+{{- if $terraform }}
+{{- $engine := "opentofu" }}
+{{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
+
+  TF_IMAGE: {{ eq $engine "terraform" | ternary "docker.io/hashicorp/terraform:latest" "ghcr.io/opentofu/opentofu:minimal" }}
+
+{{- if .HasTerraformApply }}
+
+  TF_REVIEW_ENABLED: "{{ has "review" .CI.Terraform.Environments }}"
+  TF_INTEG_ENABLED: "{{ has "integration" .CI.Terraform.Environments }}"
+  TF_STAGING_ENABLED: "{{ has "staging" .CI.Terraform.Environments }}"
+  TF_PROD_ENABLED: "{{ has "production" .CI.Terraform.Environments }}"
+{{- end }}
 {{- end }}
 
 default:
@@ -314,7 +342,6 @@ go-build:
 {{- end }}
 
 {{- if $hugo }}
-{{- $nodes := get .Languages "hugo" }}
 
 hugo-build:
   image: hugomods/hugo:exts
@@ -323,7 +350,7 @@ hugo-build:
     LOG_LEVEL: info
   parallel:
     matrix:
-{{- range $nodes }}
+{{- range get .Languages "hugo" }}
       - HUGO_PROJECT_DIR: {{ .Directory }}
 {{- end }}
   before_script:
@@ -339,12 +366,11 @@ hugo-build:
 {{- end }}
 
 {{- if $node }}
-{{- $nodes := get .Languages "node" }}
 
 .node-base:
   parallel:
     matrix:
-{{- range $nodes }}
+{{- range get .Languages "node" }}
       - NODE_PROJECT_DIR: {{ .Directory }}
 {{- end }}
 {{- end }}
@@ -436,5 +462,28 @@ pages:
     paths:
       - public
     expire_in: 1 day
+{{- end }}
+{{- end }}
+
+{{- if $terraform }}
+
+{{- $engine := "opentofu" }}
+{{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
+
+{{- if eq $engine "opentofu" }}
+
+.tf-commands:
+  gitlab_auth:
+    # https://gitlab.com/to-be-continuous/terraform/-/issues/88
+    - alias terraform=tofu
+    - !reference [ .tf-commands, default, gitlab_auth ]
+{{- end }}
+
+.tf-base:
+  parallel:
+    matrix:
+{{- range get .Languages "terraform" }}
+      - TF_PROJECT_DIR: {{ .Directory }}
+        TF_GITLAB_BACKEND_DISABLED: "{{ ne .Specifics.Backend "http" }}"
 {{- end }}
 {{- end }}

@@ -111,6 +111,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
 
+		t.Cleanup(httpmock.Reset)
 		httpmock.RegisterResponderWithQuery(http.MethodGet, url,
 			map[string]string{"fullname": "name", "project": "kickr"},
 			httpmock.NewJsonResponderOrPanic(http.StatusOK, gitlab.LicenseTemplate{Content: "some content"}))

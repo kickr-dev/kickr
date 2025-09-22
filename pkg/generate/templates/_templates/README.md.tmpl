@@ -43,8 +43,7 @@
 {{- end }}
 
 {{- if hasKey .Languages "node" }}
-{{- $nodes := get .Languages "node" }}
-{{- range $nodes }}
+{{- range get .Languages "node" }}
 {{- if and (not .Specifics.Private) (eq .Specifics.PublishConfig.Registry "") }}
   <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/{{ toQuery .Specifics.Name }}?style={{ $style }}">
 {{- end }}

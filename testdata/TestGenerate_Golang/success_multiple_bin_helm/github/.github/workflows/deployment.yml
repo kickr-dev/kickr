@@ -287,7 +287,7 @@ jobs:
           HELM_REPO_USERNAME: ${{ secrets.HELM_REPO_USERNAME || github.repository_owner }}
 
   helm-deploy:
-    name: Helm Deploy
+    name: Helm Deploy (${{ matrix.environment }})
     runs-on: ubuntu-latest
     if: ${{ inputs.helm_deploy != 'none' }}
     needs:
@@ -296,27 +296,21 @@ jobs:
     environment: ${{ matrix.environment }}
     strategy:
       fail-fast: false
-      # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
-      # for more information about how to exclude environments depending on branches
       matrix:
         environment:
-          - review
-          - integration
           - staging
           - production
         production:
           - ${{ github.ref_name == github.event.repository.default_branch }}
         protected:
           - ${{ github.ref_name == github.event.repository.default_branch || github.ref_protected }}
-        exclude:
-          - environment: review # disable on protected branches
-            protected: true
-          - environment: integration # disable on non-protected branches
-            protected: false
-          - environment: staging # disable on non-production branches
-            production: false
-          - environment: production # disable on non-production branches
-            production: false
+        # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
+        # for more information about how to include environments depending on branches
+        include:
+          - environment: staging # enabled on production branches
+            production: true
+          - environment: production # enabled on production branches
+            production: true
     steps:
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
@@ -357,6 +351,8 @@ jobs:
     needs:
       - docker-build
       - go-build
+      - helm-push
+      - helm-deploy
     environment:
       name: release
       url: ${{ steps.environment_url.outputs.environment_url }}
