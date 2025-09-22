@@ -46,6 +46,22 @@ type Helm struct {
 	Registry string `json:"registry,omitempty" yaml:"registry,omitempty"`
 }
 
+type TerraformCI struct {
+	// Apply strategy.
+	Apply string `json:"apply,omitempty" yaml:"apply,omitempty"`
+
+	// Environments to associate a specific terraform apply with.
+	//
+	// Only those four environments can be provided, defining under the hood specific behaviors (for GitHub Actions):
+	//  - 'integration' will only be run on protected
+	//  - 'production' will only be run on the default branch
+	//  - 'review' will only be run on non-protected branches
+	//  - 'staging' will only be run on the default branch
+	//
+	// Concerning GitLab CI/CD, rules can be found at https://gitlab.com/to-be-continuous/terraform#global-configuration.
+	Environments []string `json:"environments,omitempty" yaml:"environments,omitempty"`
+}
+
 type Website struct {
 	Auto bool `json:"auto,omitempty" yaml:"auto,omitempty"`
 

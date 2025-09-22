@@ -9,6 +9,7 @@
 {{- $helm := and .CI .CI.Helm }}
 {{- $hugo := hasKey .Languages "hugo" }}
 {{- $node := hasKey .Languages "node" }}
+{{- $terraform := hasKey .Languages "terraform" }}
 
 version: 2
 updates:
@@ -89,9 +90,8 @@ updates:
 {{- end }}
 
 {{- if $node }}
-{{- $nodes := get .Languages "node" }}
 {{- $managers := list }}
-{{- range $nodes }}{{- $managers = append $managers (cutAfter .Specifics.PackageManager "@") }}{{- end }}
+{{- range get .Languages "node" }}{{- $managers = append $managers (cutAfter .Specifics.PackageManager "@") }}{{- end }}
 
 {{- range (uniq $managers) }}
 
@@ -111,4 +111,20 @@ updates:
       include: scope
       prefix: chore
 {{- end }}
+{{- end }}
+
+{{- if $terraform }}
+
+  - package-ecosystem: terraform
+    directory: /
+    auto-merge:
+      allow:
+        - dependency-name: "*"
+          update-types:
+            - version-update:semver-minor
+            - version-update:semver-patch
+      delay: 10
+    commit-message:
+      include: scope
+      prefix: chore
 {{- end }}

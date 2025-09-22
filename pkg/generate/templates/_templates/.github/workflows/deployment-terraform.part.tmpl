@@ -1,0 +1,101 @@
+jobs:
+<<- define "terraform" >>
+
+<<- $engine := "opentofu" >>
+<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
+<<- $cmd := eq $engine "opentofu" | ternary "tofu" "terraform" >>
+
+<<- range $node := get .Languages "terraform" >>
+
+  terraform-apply<< ne $node.Directory "." | ternary (print "-" (sha1sum $node.Directory)) "" >>:
+    name: Terraform Apply<< ne $node.Directory "." | ternary (printf " (%s)" $node.Directory) "" >>
+    runs-on: ubuntu-latest
+    if: ${{ inputs.<< $engine >>_apply != 'none' }}
+    needs: version
+    environment: ${{ matrix.environment }}
+    strategy:
+      fail-fast: false
+      matrix:
+        environment:
+<<- if has "review" $.CI.Terraform.Environments >>
+          - review
+<<- end >>
+<<- if has "integration" $.CI.Terraform.Environments >>
+          - integration
+<<- end >>
+<<- if has "staging" $.CI.Terraform.Environments >>
+          - staging
+<<- end >>
+<<- if has "production" $.CI.Terraform.Environments >>
+          - production
+<<- end >>
+        production:
+          - ${{ github.ref_name == github.event.repository.default_branch }}
+        protected:
+          - ${{ github.ref_name == github.event.repository.default_branch || github.ref_protected }}
+        # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
+        # for more information about how to include environments depending on branches
+        include:
+<<- if has "review" $.CI.Terraform.Environments >>
+          - environment: review # enabled on non-protected branches
+            protected: false
+<<- end >>
+<<- if has "integration" $.CI.Terraform.Environments >>
+          - environment: integration # enabled on protected branches
+            protected: true
+<<- end >>
+<<- if has "staging" $.CI.Terraform.Environments >>
+          - environment: staging # enabled on production branches
+            production: true
+<<- end >>
+<<- if has "production" $.CI.Terraform.Environments >>
+          - environment: production # enabled on production branches
+            production: true
+<<- end >>
+<<- if ne $node.Directory "." >>
+    defaults:
+      run:
+        working-directory: << $node.Directory >>
+<<- end >>
+    steps:
+<<- if has "harden-runner" $.CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+<<- if eq $engine "terraform" >>
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
+          terraform_version: 1.13.3
+<<- else >>
+      - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        with:
+          # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
+          tofu_version: 1.10.6
+<<- end >>
+      - run: |-
+          << $cmd >> init
+          << $cmd >> apply -no-color -auto-approve
+<<- if or (gt (len $node.Specifics.Variables) 0) (eq $node.Specifics.Backend "s3") >>
+        env:
+<<- if eq $node.Specifics.Backend "s3" >>
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+<<- end >>
+<<- range $name, $var := $node.Specifics.Variables >>
+<<- $source := $var.Sensitive | ternary "secrets" "vars" >>
+<<- if and (hasPrefix "github_" $name) (ne "github_token" $name) >>
+          TF_VAR_<< $name >>: ${{ << print "github." (trimPrefix "github_" $name) >> }}
+<<- else >>
+          TF_VAR_<< $name >>: ${{ << print $source "." (upper $name) >> }}
+<<- end >>
+<<- end >>
+          TF_VAR_version: ${{ needs.version.outputs.version }}
+<<- end >>
+<<- end >>
+<<- end >>

@@ -112,36 +112,26 @@ jobs:
           retention-days: 1
 
   helm-deploy:
-    name: Helm Deploy
+    name: Helm Deploy (${{ matrix.environment }})
     runs-on: ubuntu-latest
     if: ${{ inputs.helm_deploy != 'none' }}
     needs:
-      - helm-lint-test
       - version
     environment: ${{ matrix.environment }}
     strategy:
       fail-fast: false
-      # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
-      # for more information about how to exclude environments depending on branches
       matrix:
         environment:
-          - review
           - integration
-          - staging
-          - production
         production:
           - ${{ github.ref_name == github.event.repository.default_branch }}
         protected:
           - ${{ github.ref_name == github.event.repository.default_branch || github.ref_protected }}
-        exclude:
-          - environment: review # disable on protected branches
+        # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
+        # for more information about how to include environments depending on branches
+        include:
+          - environment: integration # enabled on protected branches
             protected: true
-          - environment: integration # disable on non-protected branches
-            protected: false
-          - environment: staging # disable on non-production branches
-            production: false
-          - environment: production # disable on non-production branches
-            production: false
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       # https://github.com/marketplace/actions/helm-tool-installer

@@ -1,10 +1,9 @@
 {{- define "hugo" }}
 
-{{- $nodes := get .Languages "hugo" }}
 {{- $websiteDirectory := "." }}
 {{- if .CI.Website }}{{- $websiteDirectory = .CI.Website.Directory | default "." }}{{- end }}
 
-{{- range $nodes }}
+{{- range get .Languages "hugo" }}
 {{- $suffix := ne .Directory "." | ternary (print "-" .Directory) "" | replace "/" "-" }}
 
 .PHONY: build{{ $suffix }}

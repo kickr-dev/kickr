@@ -73,13 +73,29 @@ const (
 	HelmAuto string = "auto"
 	// HelmManual is the constant indicating that Helm chart publication / deployment should be made manually.
 	HelmManual string = "manual"
-	// HelmNone is the constant indicating that Helm chart publication / deployment should not be made.
-	HelmNone string = "none"
 )
 
 const (
+	// TerraformAuto is the constant indicating that terraform / opentofu apply should be made automatically.
+	TerraformAuto string = "auto"
+	// TerraformManual is the constant indicating that terraform / opentofu apply should be made manually.
+	TerraformManual string = "manual"
+)
+
+const (
+	// HostingNetlify is the hosting name for netlify.
 	HostingNetlify string = "netlify"
-	HostingPages   string = "pages"
+
+	// HostingPages is the hosting name for pages (any Git platform).
+	HostingPages string = "pages"
+)
+
+const (
+	// EngineOpentofu is the IaC engine name for opentofu.
+	EngineOpentofu string = "opentofu"
+
+	// EngineTerraform is the IaC engine name for terraform.
+	EngineTerraform string = "terraform"
 )
 
 const (
@@ -109,4 +125,9 @@ const (
 	//
 	// It will ensure go.mod and go.sum are tidied before committing anything.
 	PreCommitGomodTidy = "gomod-tidy"
+
+	// PreCommitTerraform is an available pre-commit option for pre-commit configuration file.
+	//
+	// It will ensure there's no terraform lint / validate issue before committing anything.
+	PreCommitTerraform = "terraform"
 )

@@ -7,7 +7,6 @@ run-name: Deployment
 <<- $gobuild := and $golang (gt .Binaries 0) >>
 
 <<- $hugo := hasKey .Languages "hugo" >>
-
 <<- $node := hasKey .Languages "node" >>
 
 on:
@@ -42,6 +41,17 @@ on:
           - full
           - none
         default: << .CI.Website.Auto | ternary "full" "none" >>
+<<- end >>
+<<- if .HasTerraformApply >>
+<<- $engine := "opentofu" >>
+<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
+      << $engine >>_apply:
+        description: << title $engine >> apply job run mode.
+        type: choice
+        options:
+          - full
+          - none
+        default: << eq .CI.Terraform.Apply "auto" | ternary "full" "none" >>
 <<- end >>
 <<- if .CI.Release >>
       release:
@@ -208,16 +218,25 @@ jobs:
 <<- if .CI.Docker >><< template "docker" . >><<- end >>
 <<- if .CI.Helm >><< template "helm" . >><<- end >>
 <<- if .CI.Website >><< template "static" . >><<- end >>
+<<- if .HasTerraformApply >><< template "terraform" . >><<- end >>
 
 <<- if .CI.Release >>
 
 <<- $needs := list >>
 <<- if .CI.Docker >><<- $needs = append $needs "docker-build" >><<- end >>
 <<- if $gobuild >><<- $needs = append $needs "go-build" >><<- end >>
+<<- if .HasHelmPublish >><<- $needs = append $needs "helm-push" >><<- end >>
+<<- if .HasHelmDeploy >><<- $needs = append $needs "helm-deploy" >><<- end >>
 <<- if $hugo >><<- $needs = append $needs "hugo-build" >><<- end >>
 <<- if .IsHosting "netlify" >><<- $needs = append $needs "netlify" >><<- end >>
 <<- if and $node (hasKey .Workers "main") >><<- $needs = append $needs "node-build" >><<- end >>
 <<- if .IsHosting "pages" >><<- $needs = append $needs "pages" >><<- end >>
+<<- if .HasTerraformApply >>
+<<- range $node := get .Languages "terraform" >>
+<<- $needs = append $needs (print "terraform-apply" (ne $node.Directory "." | ternary (print "-" (sha1sum $node.Directory)) "")) >>
+<<- end >>
+<<- end >>
+
 <<- if eq (len $needs) 0 >><< $needs = append $needs "version" >><<- end >>
 
   release:

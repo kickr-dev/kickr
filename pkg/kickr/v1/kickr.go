@@ -62,6 +62,15 @@ type Kickr struct {
 	// In case a specific hook, not implemented, must be provided, then '.pre-commit-config.yaml' file can be modified
 	// and the top comment indicating that it's generated can be removed to avoid being overridden.
 	PreCommit []string `json:"pre-commit,omitempty" yaml:"pre-commit,omitempty"`
+
+	// Terraform section can be provided to tune how terraform / opentofu templates (pre-commit, continuous integration) behaviors will be generated.
+	//
+	// By default, if a module is present at repository's root, then there's no need to provide the list of modules.
+	// However, if current repository is composed of multiple root modules (in subdirectories),
+	// then it's required to provide the full list of modules to generate templates correctly.
+	//
+	// The engine property can be provided to use terraform instead of opentofu (by default).
+	Terraform *Terraform `json:"terraform,omitempty" yaml:"terraform,omitempty"`
 }
 
 type CI struct {
@@ -77,10 +86,11 @@ type CI struct {
 	// Those are various and may differ depending on used CI/CD provider.
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
 
-	Docker  *Docker  `json:"docker,omitempty"  yaml:"docker,omitempty"`
-	Helm    *Helm    `json:"helm,omitempty"    yaml:"helm,omitempty"`
-	Release *Release `json:"release,omitempty" yaml:"release,omitempty"`
-	Website *Website `json:"website,omitempty" yaml:"website,omitempty"`
+	Docker    *Docker      `json:"docker,omitempty"    yaml:"docker,omitempty"`
+	Helm      *Helm        `json:"helm,omitempty"      yaml:"helm,omitempty"`
+	Release   *Release     `json:"release,omitempty"   yaml:"release,omitempty"`
+	Terraform *TerraformCI `json:"terraform,omitempty" yaml:"terraform,omitempty"`
+	Website   *Website     `json:"website,omitempty"   yaml:"website,omitempty"`
 }
 
 type Renovate struct {
@@ -111,4 +121,21 @@ type Maintainer struct {
 	Name  string  `json:"name,omitempty"  yaml:"name,omitempty"`
 	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
 	URL   *string `json:"url,omitempty"   yaml:"url,omitempty"`
+}
+
+// Terraform section can be provided to tune how terraform / opentofu templates (pre-commit, continuous integration) behaviors will be generated.
+//
+// By default, if a 'main.tf' is present at repository's root, then there's no need to provide the list of modules.
+// However, if current repository is composed of multiple terraform root modules (in subdirectories),
+// then it's required to provide the full list of modules to generate templates correctly.
+//
+// The engine property can be provided to use terraform instead of opentofu (by default).
+type Terraform struct {
+	// Engine.
+	//
+	// Enums:
+	// 	- opentofu
+	// 	- terraform
+	Engine  string   `json:"engine,omitempty"  yaml:"engine,omitempty"`
+	Modules []string `json:"modules,omitempty" yaml:"modules,omitempty"`
 }

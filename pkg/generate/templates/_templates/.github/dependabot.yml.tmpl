@@ -9,6 +9,7 @@
 {{- $helm := and .CI .CI.Helm }}
 {{- $hugo := hasKey .Languages "hugo" }}
 {{- $node := hasKey .Languages "node" }}
+{{- $terraform := hasKey .Languages "terraform" }}
 
 version: 2
 enable-beta-ecosystems: true
@@ -135,9 +136,8 @@ updates:
 {{- end }}
 
 {{- if $node }}
-{{- $nodes := get .Languages "node" }}
 {{- $managers := list }}
-{{- range $nodes }}{{- $managers = append $managers (cutAfter .Specifics.PackageManager "@") }}{{- end }}
+{{- range get .Languages "node" }}{{- $managers = append $managers (cutAfter .Specifics.PackageManager "@") }}{{- end }}
 
 {{- range (uniq $managers) }}
 
@@ -163,4 +163,24 @@ updates:
     cooldown:
       default-days: 5
 {{- end }}
+{{- end }}
+
+{{- if $terraform }}
+
+  - package-ecosystem: terraform
+    directory: /
+    schedule:
+      interval: daily
+      time: "12:00"
+      timezone: "Etc/UTC"
+    groups:
+      minor/patch:
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      include: scope
+      prefix: chore
+    cooldown:
+      default-days: 5
 {{- end }}

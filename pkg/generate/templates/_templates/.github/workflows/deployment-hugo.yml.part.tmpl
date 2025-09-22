@@ -1,6 +1,5 @@
 jobs:
 <<- define "hugo" >>
-<<- $nodes := get .Languages "hugo" >>
 
 <<- $websiteDirectory := "." >>
 <<- if .CI.Website >><<- $websiteDirectory = .CI.Website.Directory | default "." >><<- end >>
@@ -13,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-<<- range $nodes >>
+<<- range get .Languages "hugo" >>
 <<- $artifact := "build" >>
 <<- if ne .Directory "." >><<- $artifact = print $artifact "-" .Directory >><<- end >>
 <<- if and ($.IsHosting "pages") (eq $websiteDirectory .Directory) >><<- $artifact = print $artifact "-pages" >><<- end >>

@@ -9,3 +9,4 @@ clean:
 
 {{- if hasKey .Languages "hugo" }}{{ template "hugo" . }}{{- end }}
 {{- if hasKey .Languages "go" }}{{ template "golang" . }}{{- end }}
+{{- if hasKey .Languages "terraform" }}{{ template "terraform" . }}{{- end }}

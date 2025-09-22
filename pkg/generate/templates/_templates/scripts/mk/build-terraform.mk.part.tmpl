@@ -1,0 +1,28 @@
+{{- define "terraform" }}
+
+{{- $engine := "opentofu" }}
+{{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
+{{- $cmd := eq $engine "opentofu" | ternary "tofu" "terraform" }}
+
+PWD         ?= $(pwd)
+TFLINT_PATH ?= .tflint.hcl
+
+.PHONY: lint
+lint:
+	@tflint --config "${PWD}/${TFLINT_PATH}" --recursive --format compact $(ARGS) || \
+		echo "tflint failed, running 'make lint-fix' may fix some issues"
+
+.PHONY: lint-fix
+lint-fix:
+	@ARGS="--fix" make -s lint
+
+{{- range get .Languages "terraform" }}
+{{- $suffix := ne .Directory "." | ternary (print "-" .Directory) "" | replace "/" "-" }}
+
+plan{{ $suffix }}:
+	@{{ $cmd }} -chdir={{ .Directory }} plan
+
+test{{ $suffix }}:
+	@{{ $cmd }} -chdir={{ .Directory }} test
+{{- end }}
+{{- end }}
