@@ -7,6 +7,10 @@ run-name: Integration
 <<- $node := hasKey .Languages "node" >>
 <<- $shell := and (not (has "shell" .Exclude)) (hasKey .Globs "shell") >>
 
+<<- $terraform := hasKey .Languages "terraform" >>
+<<- $engine := "opentofu" >>
+<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
+
 on:
   pull_request:
     types:
@@ -214,6 +218,7 @@ jobs:
 
 <<- if $golang >><< template "golang" . >><<- end >>
 <<- if $node >><< template "node" . >><<- end >>
+<<- if $terraform >><< template "terraform" . >><<- end >>
 
 <<- if has "sonarqube" .CI.Options >>
 
@@ -294,8 +299,18 @@ jobs:
 <<- if $node >>
       - node-test
 <<- end >>
+<<- if and $terraform (eq $engine "opentofu") >>
+      - opentofu-check
+      - opentofu-lint
+      - opentofu-plan
+<<- end >>
 <<- if not (has "pre-commit" .Exclude) >>
       - pre-commit
+<<- end >>
+<<- if and $terraform (eq $engine "terraform") >>
+      - terraform-check
+      - terraform-lint
+      - terraform-plan
 <<- end >>
 <<- if $shell >>
       - shellcheck

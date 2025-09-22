@@ -46,10 +46,14 @@ func gen(generators ...engine.Generator[types.KickrWrapper]) func(cmd *cobra.Com
 		// run generation
 		engine.SetLogger(logger)
 		parsers := []engine.Parser[types.KickrWrapper]{
+			// must be kept first since it parses Git informations (useful for next parsers)
 			generate.ParserGit,
+
 			generate.ParserGlob,
 			generate.ParserGolang,
 			generate.ParserNode,
+			generate.ParserTerraform,
+
 			// must be kept last since it marshals config and merges it with chart overrides
 			generate.ParserHelm,
 		}
@@ -71,16 +75,18 @@ var generateCmd = &cobra.Command{
 	Aliases: []string{"g"},
 	Short:   "Generate project layout",
 	Run: gen(
-		generate.GeneratorGitignore(http.DefaultClient),                                                                               // gitignore
-		generate.GeneratorLicense(http.DefaultClient),                                                                                 // license
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),                        // bot
+		generate.GeneratorGitignore(http.DefaultClient), // gitignore
+		generate.GeneratorLicense(http.DefaultClient),   // license
+
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
+		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),                        // bot
+		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
+		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 		engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
 		engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
-		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
 		engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
-		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
+		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
+		engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
 	),
 }
 

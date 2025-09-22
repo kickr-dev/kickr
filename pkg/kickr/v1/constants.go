@@ -95,4 +95,9 @@ const (
 	//
 	// It will ensure go.mod and go.sum are tidied before committing anything.
 	PreCommitGomodTidy = "gomod-tidy"
+
+	// PreCommitTerraform is an available pre-commit option for pre-commit configuration file.
+	//
+	// It will ensure there's no terraform lint / validate issue before committing anything.
+	PreCommitTerraform = "terraform"
 )

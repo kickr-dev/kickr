@@ -229,6 +229,37 @@ properties:
         - auto-commit
         - golangci-lint
         - gomod-tidy
+        - terraform
+
+  terraform:
+    type: object
+    description: |
+      terraform section can be provided to tune how terraform / opentofu templates (pre-commit, continuous integration) behaviors will be generated.
+
+      By default, if a module is present at repository's root, then there's no need to provide the list of modules.
+      However, if current repository is composed of multiple root modules (in subdirectories),
+      then it's required to provide the full list of modules to generate templates correctly.
+
+      The engine property can be provided to use terraform instead of opentofu (by default).
+    properties:
+      engine:
+        type: string
+        default: opentofu
+        enum:
+          - opentofu
+          - terraform
+      backend:
+        type: string
+        default: local
+        enum:
+          - http
+          - http-gitlab
+          - local
+          - s3
+      modules:
+        type: array
+        items:
+          type: string
 
 $defs:
   docker:

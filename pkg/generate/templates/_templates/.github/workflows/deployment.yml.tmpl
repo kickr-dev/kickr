@@ -7,8 +7,9 @@ run-name: Deployment
 <<- $gobuild := and $golang (gt .Binaries 0) >>
 
 <<- $hugo := hasKey .Languages "hugo" >>
-
 <<- $node := hasKey .Languages "node" >>
+<<- $terraform := hasKey .Languages "terraform" >>
+<<- $tfapply := not (regexMatch "terraform-\\w+-\\w+" .VCS.ProjectName) >>
 
 on:
   workflow_dispatch:
@@ -42,6 +43,17 @@ on:
           - full
           - none
         default: << .CI.Website.Auto | ternary "full" "none" >>
+<<- end >>
+<<- if and $terraform $tfapply >>
+<<- $engine := "opentofu" >>
+<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
+      << $engine >>_apply:
+        description: << title $engine >> apply job run mode.
+        type: choice
+        options:
+          - full
+          - none
+        default: none
 <<- end >>
 <<- if .CI.Release >>
       release:
@@ -208,6 +220,7 @@ jobs:
 <<- if .CI.Docker >><< template "docker" . >><<- end >>
 <<- if .CI.Helm >><< template "helm" . >><<- end >>
 <<- if .CI.Website >><< template "static" . >><<- end >>
+<<- if and $terraform $tfapply >><< template "terraform" . >><<- end >>
 
 <<- if .CI.Release >>
 

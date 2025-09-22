@@ -8,6 +8,9 @@
 {{- $node := hasKey .Languages "node" }}
 {{- $nodemain := and $node (get .Languages "node").HasMain }}
 
+{{- $terraform := hasKey .Languages "terraform" }}
+{{- $tfapply := not (regexMatch "terraform-\\w+-\\w+" .VCS.ProjectName) }}
+
 ---
 include:
 
@@ -96,6 +99,15 @@ include:
   - project: to-be-continuous/sonar
     ref: 0c896035e9c6310400205238880aed887823b14c # 5.0.1
     file: "templates/gitlab-ci-sonar.yml"
+{{- end }}
+
+{{- if $terraform }}
+
+  # Terraform template
+  # https://gitlab.com/to-be-continuous/terraform
+  - project: to-be-continuous/sonar
+    ref: 8fbbaa868bfa0fd31f9add0bf97c7317becac284 # 8.0.2
+    file: "templates/gitlab-ci-terraform.yml"
 {{- end }}
 
 variables:
@@ -225,6 +237,17 @@ variables:
     -Dsonar.links.ci=$CI_PROJECT_URL/-/pipelines
     -Dsonar.links.issue=$CI_PROJECT_URL/-/issues
   SONAR_QUALITY_GATE_ENABLED: "true"
+{{- end }}
+
+{{- if $terraform }}
+{{- $engine := "opentofu" }}
+{{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
+
+  TF_IMAGE: {{ eq $engine "terraform" | ternary "docker.io/hashicorp/terraform:latest" "ghcr.io/opentofu/opentofu:minimal" }}
+  TF_GITLAB_BACKEND_DISABLED: "false"
+  TF_REVIEW_ENABLED: "{{ $tfapply }}"
+  TF_STAGING_ENABLED: "{{ $tfapply }}"
+  TF_PROD_ENABLED: "{{ $tfapply }}"
 {{- end }}
 
 default:
@@ -416,5 +439,28 @@ pages:
     paths:
       - public
     expire_in: 1 day
+{{- end }}
+{{- end }}
+
+{{- if $terraform }}
+{{- $nodes := get .Languages "terraform" }}
+
+{{- $engine := "opentofu" }}
+{{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
+
+{{- if eq $engine "opentofu" }}
+
+.tf-commands:
+  gitlab_auth:
+    # https://gitlab.com/to-be-continuous/terraform/-/issues/88
+    - alias terraform=tofu
+    - !reference [ .tf-commands, default, gitlab_auth ]
+{{- end }}
+
+.tf-base:
+  parallel:
+    matrix:
+{{- range $nodes }}
+      - TF_PROJECT_DIR: {{ .Directory }}
 {{- end }}
 {{- end }}

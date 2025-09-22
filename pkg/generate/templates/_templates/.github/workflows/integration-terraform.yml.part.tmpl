@@ -1,0 +1,139 @@
+jobs:
+<<- define "terraform" >>
+
+<<- $engine := "opentofu" >>
+<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
+<<- $cmd := eq $engine "opentofu" | ternary "tofu" "terraform" >>
+
+<<- $nodes := get .Languages "terraform" >>
+
+  << $engine >>-check:
+    name: << title $engine >> Check ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: run-workflow
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+<<- range $nodes >>
+          - directory: << .Directory >>
+<<- if ne .Directory "." >>
+            name: << printf "(%s)" .Directory >>
+<<- end >>
+<<- if gt (len .Specifics.Variables) 0 >>
+            vars:
+<<- range $name, $var := .Specifics.Variables >>
+<<- $source := $var.Sensitive | ternary "secrets" "vars" >>
+              TF_VAR_<< $name >>: ${{ << $source >>.<< upper $name >> }}
+<<- end >>
+<<- end >>
+<<- end >>
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+<<- if has "harden-runner" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+<<- if eq $engine "terraform" >>
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
+          terraform_version: 1.13.3
+<<- else >>
+      - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        with:
+          # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
+          tofu_version: 1.10.6
+<<- end >>
+      - run: << $cmd >> fmt -check
+      - run: << $cmd >> init
+        env: ${{ matrix.vars }}
+      - run: << $cmd >> validate -no-color
+
+  << $engine >>-lint:
+    name: << title $engine >> Lint
+    runs-on: ubuntu-latest
+    needs: << $engine >>-check
+    steps:
+<<- if has "harden-runner" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: terraform-linters/setup-tflint@ae78205cfffec9e8d93fd2b3115c7e9d3166d4b6 # v5.0.0
+        with:
+          # renovate: datasource=github-tags packageName=terraform-linters/tflint depName=tflint
+          tflint_version: v0.52.0
+      - run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: |-
+          mkdir -p reports/
+          tflint --config .tflint.hcl --recursive --format sarif | tee reports/tflint.sarif
+      - if: ${{ !cancelled() }}
+        uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3 # v3.30.3
+        with:
+          category: tflint
+          sarif_file: reports/tflint.sarif
+
+  << $engine >>-plan:
+    name: << title $engine >> Plan ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: << $engine >>-lint
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+<<- range $nodes >>
+          - directory: << .Directory >>
+<<- if ne .Directory "." >>
+            name: << printf "(%s)" .Directory >>
+<<- end >>
+<<- if gt (len .Specifics.Variables) 0 >>
+            vars:
+<<- range $name, $var := .Specifics.Variables >>
+<<- $source := $var.Sensitive | ternary "secrets" "vars" >>
+              TF_VAR_<< $name >>: ${{ << $source >>.<< upper $name >> }}
+<<- end >>
+<<- end >>
+<<- end >>
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+<<- if has "harden-runner" .CI.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+<<- if eq $engine "terraform" >>
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
+          terraform_version: 1.13.3
+<<- else >>
+      - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        with:
+          # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
+          tofu_version: 1.10.6
+<<- end >>
+      - run: |-
+          << $cmd >> init
+          << $cmd >> plan -no-color
+        env: ${{ matrix.vars }}
+<<- end >>

@@ -79,6 +79,8 @@ func (k Kickr) HasDeployment() bool {
 	release := k.CI.Release != nil
 	website := k.CI.Website != nil
 
+	// FIXME terraform
+
 	return docker || helm || website || release
 }
 
