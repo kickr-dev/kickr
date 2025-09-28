@@ -86,7 +86,7 @@ const (
 	// PreCommitAutoCommit is an available pre-commit option to auto-commit issues identified by pre-commit.
 	PreCommitAutoCommit = "auto-commit"
 
-	// PreCommitGomodTidy is an available pre-commit option for pre-commit configuration file.
+	// PreCommitGolangciLint is an available pre-commit option for pre-commit configuration file.
 	//
 	// It will ensure there's no lint issue before committing anything.
 	PreCommitGolangciLint = "golangci-lint"
