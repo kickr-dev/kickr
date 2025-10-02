@@ -18,7 +18,7 @@ include:
   # Dependabot template
   # https://gitlab.com/dependabot-gitlab/dependabot-standalone
   - project: dependabot-gitlab/dependabot-standalone
-    ref: 9f0f321615d5d648a1f330ccff1e8bad34fd8e33 # 3.63.1
+    ref: 513ed5ba3594c91302a5615b1a879a33b05679eb # 3.64.0
     file: .gitlab-ci.yml
 
   # Node.js template
