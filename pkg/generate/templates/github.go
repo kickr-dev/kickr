@@ -47,6 +47,14 @@ func githubWorkflow() []engine.Template[types.KickrWrapper] {
 		Remove:     func(config types.KickrWrapper) bool { return !config.IsCI(parser.GitHub) },
 	})
 
+	kickra := path.Join(".github", "workflows", "kickr.yml")
+	templates = append(templates, engine.Template[types.KickrWrapper]{
+		Delimiters: engine.DelimitersChevron(),
+		Globs:      []string{kickra + engine.TmplExtension},
+		Out:        kickra,
+		Remove:     func(config types.KickrWrapper) bool { return !config.IsCI(parser.GitHub) },
+	})
+
 	labeler := path.Join(".github", "workflows", "labeler.yml")
 	templates = append(templates, engine.Template[types.KickrWrapper]{
 		Delimiters: engine.DelimitersChevron(),

@@ -47,3 +47,12 @@ build:
 			-X 'github.com/kickr-dev/kickr/internal/build.version=${VERSION}' \
 		" \
 		-o kickr ./cmd/kickr
+
+.PHONY: docker
+docker:
+	@docker build . \
+		-f Dockerfile \
+		-t kickr:${VERSION} \
+		--build-arg GIT_REF_NAME=$(shell git rev-parse --abbrev-ref HEAD) \
+		--build-arg GIT_COMMIT=$(shell git rev-parse HEAD) \
+		--build-arg VERSION=${VERSION}

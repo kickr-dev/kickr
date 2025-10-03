@@ -8,6 +8,7 @@ ci:
     - codeql
     - harden-runner
     - ossf-scorecard
+  docker: {}
   release:
     auth: github-token
 dependencies:

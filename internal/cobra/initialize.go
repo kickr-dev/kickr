@@ -23,7 +23,7 @@ var initializeCmd = &cobra.Command{
 			return
 		}
 
-		config, err := engine.Initialize(ctx, engine.WithFormGroups(initialize.Maintainer, initialize.License))
+		config, err := engine.Initialize(ctx, engine.WithFormGroups(initialize.Maintainer, initialize.License, initialize.Defaults))
 		if err != nil {
 			logger.Fatal(err)
 		}

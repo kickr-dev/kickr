@@ -4,7 +4,7 @@ Package initialize exposes pre-defined groups for kickr configuration initializa
 Example:
 
 	func main() {
-		config, err := engine.Initialize(ctx, engine.WithFormGroups(initialize.Maintainer, initialize.License))
+		config, err := engine.Initialize(ctx, engine.WithFormGroups(initialize.Maintainer, initialize.License, initialize.Defaults))
 		// handle err
 	}
 */
