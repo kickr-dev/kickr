@@ -40,12 +40,15 @@ variables:
   SEMREL_TAG_FORMAT: v$${version}
 
   GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_CI_LINT_IMAGE: registry.hub.docker.com/golangci/golangci-lint:latest-alpine
-  GO_IMAGE: registry.hub.docker.com/library/golang:latest
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:latest-alpine
+  GO_IMAGE: docker.io/library/golang:latest
   GO_OUTDATED_DISABLED: "false" # https://github.com/psampaz/go-mod-outdated
   GO_SBOM_DISABLED: "true"
   GO_TEST_FLAGS: -v -coverpkg=./... -covermode=count -timeout=30s
-  GO_TEST_IMAGE: registry.hub.docker.com/library/golang:latest
+  GO_TEST_IMAGE: docker.io/library/golang:latest
+
+default:
+  interruptible: true
 
 semantic-release-info:
   variables:
@@ -67,13 +70,14 @@ semantic-release-info:
     - cat "$SEMREL_CONFIG_DIR/semrel.out.env"
 
 semantic-release:
+  interruptible: false
   variables:
     GIT_DEPTH: "0"
 
 go-build:
   image: ghcr.io/goreleaser/goreleaser:latest
   rules:
-    # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L651
+    # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
     - if: $GO_TEST_IMAGE != ""
       exists:
         - .goreleaser.yml

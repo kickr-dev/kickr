@@ -44,6 +44,9 @@ variables:
   HELM_PUBLISH_STRATEGY: manual
   HELM_PUBLISH_URL: chartmuseum.example.com/path/to
 
+default:
+  interruptible: true
+
 semantic-release-info:
   variables:
     GIT_DEPTH: "0"

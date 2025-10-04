@@ -43,6 +43,9 @@ variables:
   HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
   HELM_PUBLISH_STRATEGY: none
 
+default:
+  interruptible: true
+
 semantic-release-info:
   variables:
     GIT_DEPTH: "0"

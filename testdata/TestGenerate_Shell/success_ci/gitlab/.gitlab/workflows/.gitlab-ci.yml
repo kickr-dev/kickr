@@ -34,6 +34,9 @@ variables:
   SEMREL_REQUIRED_PLUGINS_FILE: .gitlab/semrel-plugins.txt
   SEMREL_TAG_FORMAT: v$${version}
 
+default:
+  interruptible: true
+
 semantic-release-info:
   variables:
     GIT_DEPTH: "0"

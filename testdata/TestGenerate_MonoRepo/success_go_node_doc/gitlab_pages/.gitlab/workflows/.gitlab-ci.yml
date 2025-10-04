@@ -36,7 +36,7 @@ variables:
   NODE_BUILD_ARGS: run build --prod
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_BUILD_DISABLED: "false"
-  NODE_IMAGE: registry.hub.docker.com/library/node:lts-alpine
+  NODE_IMAGE: docker.io/library/node:lts-alpine
   NODE_LINT_ARGS: "run lint"
   NODE_LINT_ENABLED: "true"
   NODE_OUTDATED_ARGS: --long
@@ -47,12 +47,15 @@ variables:
   NODE_TEST_ARGS: test -- --coverage
 
   GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_CI_LINT_IMAGE: registry.hub.docker.com/golangci/golangci-lint:latest-alpine
-  GO_IMAGE: registry.hub.docker.com/library/golang:latest
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:latest-alpine
+  GO_IMAGE: docker.io/library/golang:latest
   GO_OUTDATED_DISABLED: "false" # https://github.com/psampaz/go-mod-outdated
   GO_SBOM_DISABLED: "true"
   GO_TEST_FLAGS: -v -coverpkg=./... -covermode=count -timeout=30s
-  GO_TEST_IMAGE: registry.hub.docker.com/library/golang:latest
+  GO_TEST_IMAGE: docker.io/library/golang:latest
+
+default:
+  interruptible: true
 
 semantic-release-info:
   variables:
@@ -62,6 +65,10 @@ semantic-release-info:
     - echo "SEMREL_INFO_NEXT_VERSION=v${DESCRIBE#v}" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
     - echo "SEMREL_INFO_NEXT_VERSION_TYPE=build" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
     - cat "$SEMREL_CONFIG_DIR/semrel.out.env"
+
+go-build:
+  rules:
+    - when: never # no binary to build
 
 .node-base:
   parallel:
