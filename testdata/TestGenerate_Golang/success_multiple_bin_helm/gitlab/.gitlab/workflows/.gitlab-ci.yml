@@ -169,7 +169,8 @@ go-build:
     - if: $CI_PIPELINE_SOURCE == 'web'
 
 renovate-validator:
-  <<: *renovate-rules
+  rules:
+    - when: never # validates projects configurations and not server configurations
 
 renovate-depcheck:
   <<: *renovate-rules

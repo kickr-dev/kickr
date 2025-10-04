@@ -29,7 +29,10 @@ include:
 
 variables:
   PRE_COMMIT_FILE: .pre-commit-config.yaml
-  RENOVATE_CONFIG_FILE: .github/renovate.json
+
+  RENOVATE_CONFIG_FILE: .gitlab/renovate.json
+  RENOVATE_ENDPOINT: "" # force empty endpoint to let Renovate choose with RENOVATE_PLATFORM (or server configuration platform)
+  RENOVATE_PLATFORM: gitlab
 
   SEMREL_AUTO_RELEASE_ENABLED: false
   SEMREL_BRANCHES_REF: /^(master|main|v[0-9]+\.x|v[0-9]+\.[0-9]+\.x|next|alpha|beta|staging|dev|develop|development)$/
@@ -92,7 +95,8 @@ semantic-release:
     - if: $CI_PIPELINE_SOURCE == 'web'
 
 renovate-validator:
-  <<: *renovate-rules
+  rules:
+    - when: never # validates projects configurations and not server configurations
 
 renovate-depcheck:
   <<: *renovate-rules

@@ -113,12 +113,15 @@ variables:
   BASH_BATS_ENABLED: "false"
 {{- end }}
 
-{{- if and (.DependencyManager "renovate") .CI.Renovate }}
-  RENOVATE_CONFIG_FILE: .github/renovate.json
-{{- end }}
-
 {{- if .DependencyManager "dependabot" }}
   SETTINGS__GITLAB_URL: $CI_SERVER_FQDN
+{{- end }}
+
+{{- if and (.DependencyManager "renovate") .CI.Renovate }}
+
+  RENOVATE_CONFIG_FILE: .gitlab/renovate.json
+  RENOVATE_ENDPOINT: "" # force empty endpoint to let Renovate choose with RENOVATE_PLATFORM (or server configuration platform)
+  RENOVATE_PLATFORM: {{ .VCS.Platform }}
 {{- end }}
 
   SEMREL_AUTO_RELEASE_ENABLED: {{ .IsReleaseAuto | ternary "$CI_COMMIT_REF_PROTECTED" "false" }}
@@ -228,6 +231,13 @@ variables:
 semantic-release-info:
   variables:
     GIT_DEPTH: "0"
+{{- if not .CI.Release }}
+  script:
+    - DESCRIBE=$(git describe --tags || echo "v1.0.0")
+    - echo "SEMREL_INFO_NEXT_VERSION=v${DESCRIBE#v}" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
+    - echo "SEMREL_INFO_NEXT_VERSION_TYPE=build" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
+    - cat "$SEMREL_CONFIG_DIR/semrel.out.env"
+{{- else }}
   after_script:
     - source "$SEMREL_CONFIG_DIR/semrel.out.env" && rm "$SEMREL_CONFIG_DIR/semrel.out.env"
     - >
@@ -247,6 +257,7 @@ semantic-release-info:
 semantic-release:
   variables:
     GIT_DEPTH: "0"
+{{- end }}
 
 {{- if $gobuild }}
 
@@ -321,7 +332,8 @@ hugo-build:
     - if: $CI_PIPELINE_SOURCE == 'web'
 
 renovate-validator:
-  <<: *renovate-rules
+  rules:
+    - when: never # validates projects configurations and not server configurations
 
 renovate-depcheck:
   <<: *renovate-rules
