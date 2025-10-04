@@ -5,7 +5,7 @@
 {{- if .CI.Website }}{{- $websiteDirectory = .CI.Website.Directory | default "." }}{{- end }}
 
 {{- range $nodes }}
-{{- $suffix := ne .Directory "." | ternary (print "-" .Directory) "" }}
+{{- $suffix := ne .Directory "." | ternary (print "-" .Directory) "" | replace "/" "-" }}
 
 .PHONY: build{{ $suffix }}
 build{{ $suffix }}:
