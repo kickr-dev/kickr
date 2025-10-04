@@ -80,7 +80,7 @@ properties:
               const: gitlab
         then:
           properties:
-            # don't allow GitLab CI/CD to provide 'auth' in renovate section
+            # don't allow GitLab CI/CD to provide 'auth' in release section
             release:
               properties:
                 auth: false
@@ -88,6 +88,10 @@ properties:
             helm:
               properties:
                 deploy: false
+            # don't allow GitLab CI/CD to provide 'auth' renovate section
+            renovate:
+              properties:
+                auth: false
             # only allow specific options with GitLab CI/CD
             options:
               type: array
