@@ -98,7 +98,6 @@ properties:
               items:
                 type: string
                 enum:
-                  - codecov
                   - sonarqube
       # specific rules for GitHub Actions
       - if:
