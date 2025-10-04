@@ -90,8 +90,8 @@ plugins:
         - package.json
 {{- end }}
       message: "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-{{- if .IsCI "github" }}
-  - - "@semantic-release/{{ .CI.Provider }}"
+{{- if eq .VCS.Platform "github" }}
+  - - "@semantic-release/github"
     - draftRelease: false
       failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
       failCommentCondition: <% return false; %>
@@ -104,8 +104,8 @@ plugins:
         - path: dist
 {{- end }}
 {{- end }}
-{{- if .IsCI "gitlab" }}
-  - - "@semantic-release/{{ .CI.Provider }}"
+{{- if eq .VCS.Platform "gitlab" }}
+  - - "@semantic-release/gitlab"
     - failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
       failCommentCondition: <% return false; %>
       successComment: 🎉 This issue has been resolved in version v${nextRelease.version} 🎉
