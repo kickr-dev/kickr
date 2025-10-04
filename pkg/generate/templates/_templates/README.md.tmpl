@@ -9,21 +9,21 @@
 {{- if .License }}
   <img alt="GitHub License" src="https://img.shields.io/github/license/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
+{{- end }}
 {{- if .IsCI "github" }}
   <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/{{ .VCS.ProjectPath }}/integration.yml?style={{ $style }}">
 {{- end }}
-{{- end }}
 
-{{- if eq .Platform "gitlab" }}
 {{- $url := toQuery (print "https://" .VCS.ProjectHost) }}
+{{- if eq .Platform "gitlab" }}
   <img alt="GitLab Release" src="https://img.shields.io/gitlab/v/release/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&include_prereleases&sort=semver&style={{ $style }}">
   <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
 {{- if .License }}
   <img alt="GitLab License" src="https://img.shields.io/gitlab/license/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
 {{- end }}
+{{- end }}
 {{- if .IsCI "gitlab" }}
   <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&branch=main&style={{ $style }}">
-{{- end }}
 {{- end }}
 
 {{- if and .CI (has "codecov" .CI.Options) }}
@@ -31,8 +31,7 @@
 {{- end }}
 
 {{- if and .CI (has "sonarqube" .CI.Options) }}
-{{- $url := toQuery "https://sonarcloud.io" }}
-  <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .VCS.ProjectPath | replace "/" "_" }}?server={{ $url }}&style={{ $style }}">
+  <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .VCS.ProjectPath | replace "/" "_" }}?server={{ toQuery "https://sonarsource.com" }}&style={{ $style }}">
 {{- end }}
 
 {{- if or (hasKey .Languages "go") (hasKey .Languages "hugo") }}
