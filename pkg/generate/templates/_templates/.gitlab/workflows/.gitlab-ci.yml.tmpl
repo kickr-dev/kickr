@@ -36,7 +36,7 @@ include:
     file: "/templates/gitlab-ci-bash.yml"
 {{- end }}
 
-{{- if .DependencyManager "renovate" }}
+{{- if and (.DependencyManager "renovate") .CI.Renovate }}
 
   # Renovate template
   # https://gitlab.com/to-be-continuous/renovate
@@ -319,7 +319,7 @@ hugo-build:
 {{- end }}
 {{- end }}
 
-{{- if .DependencyManager "renovate" }}
+{{- if and (.DependencyManager "renovate") .CI.Renovate }}
 
 .renovate-rules: &renovate-rules
   rules:
