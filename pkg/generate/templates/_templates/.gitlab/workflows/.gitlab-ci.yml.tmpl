@@ -35,7 +35,7 @@ include:
     file: "/templates/gitlab-ci-bash.yml"
 {{- end }}
 
-{{- if and (.DependencyManager "renovate") .CI.Renovate }}
+{{- if and (.DependencyManager "renovate") (has "renovate" .CI.Options) }}
 
   # Renovate template
   # https://gitlab.com/to-be-continuous/renovate
@@ -116,7 +116,7 @@ variables:
   SETTINGS__GITLAB_URL: $CI_SERVER_FQDN
 {{- end }}
 
-{{- if and (.DependencyManager "renovate") .CI.Renovate }}
+{{- if and (.DependencyManager "renovate") (has "renovate" .CI.Options) }}
 
   RENOVATE_CONFIG_FILE: .gitlab/renovate.json
   RENOVATE_ENDPOINT: "" # force empty endpoint to let Renovate choose with RENOVATE_PLATFORM (or server configuration platform)
@@ -329,7 +329,7 @@ hugo-build:
 {{- end }}
 {{- end }}
 
-{{- if and (.DependencyManager "renovate") .CI.Renovate }}
+{{- if and (.DependencyManager "renovate") (has "renovate" .CI.Options) }}
 
 .renovate-rules: &renovate-rules
   rules:

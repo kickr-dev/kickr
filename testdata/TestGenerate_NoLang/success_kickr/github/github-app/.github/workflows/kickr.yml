@@ -20,26 +20,14 @@ jobs:
     name: Kickr
     runs-on: ubuntu-latest
     steps:
-<<- if has "harden-runner" .CI.Options >>
-      # https://docs.stepsecurity.io/harden-runner/workflow-runs
-      # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
-        with:
-          disable-sudo-and-containers: true
-          egress-policy: audit
-<<- end >>
-<<- if has "kickr:github-app" .CI.Options >>
       - id: app_token
         uses: actions/create-github-app-token@bf559f85448f9380bcfa2899dbdc01eb5b37be3a # v3.0.0-beta.2
         with:
           app-id: ${{ vars.KICKR_APP_ID }}
           private-key: ${{ secrets.KICKR_PRIVATE_KEY }}
-<<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-<<- if has "kickr:github-app" .CI.Options >>
         with:
           token: ${{ steps.app_token.outputs.token }}
-<<- end >>
       - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
         with:
           check-latest: true
@@ -57,8 +45,4 @@ jobs:
           sign-commits: true
           signoff: true
           title: "ci(layout): regenerate kickr layout"
-<<- if has "kickr:github-app" .CI.Options >>
           token: ${{ steps.app_token.outputs.token }}
-<<- else >>
-          token: ${{ secrets.KICKR_TOKEN }}
-<<- end >>

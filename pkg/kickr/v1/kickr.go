@@ -81,15 +81,6 @@ type CI struct {
 	Helm    *Helm    `json:"helm,omitempty"    yaml:"helm,omitempty"`
 	Release *Release `json:"release,omitempty" yaml:"release,omitempty"`
 	Website *Website `json:"website,omitempty" yaml:"website,omitempty"`
-
-	// Renovate configuration in Continuous Integration.
-	//
-	// This section can only be provided when 'dependencies.manager' is 'renovate'.
-	//
-	// There's two possibility:
-	//  - with GitLab CI/CD, only 'renovate' can be provided (a simple string) to indicate that the project must generated Renovate CI/CD jobs / steps.
-	//  - with GitHub Actions, 'renovate' (simple string), 'renovate:' (empty object) or the whole object can be given, since 'auth' may or may not be provided.
-	Renovate *Renovate `json:"renovate,omitempty" yaml:"renovate,omitempty"`
 }
 
 type Renovate struct {

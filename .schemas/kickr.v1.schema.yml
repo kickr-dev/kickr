@@ -48,30 +48,6 @@ properties:
         $ref: "#/$defs/release"
       website:
         $ref: "#/$defs/website"
-      renovate:
-        type:
-          - "null"
-          - object
-        additionalProperties: false
-        description: |
-          renovate configuration in Continuous Integration.
-
-          This section can only be provided when 'dependencies.manager' is 'renovate'.
-
-          There's two possibility:
-            - with GitLab CI/CD, only 'renovate' can be provided (a simple string) to indicate that the project must generated Renovate CI/CD jobs / steps.
-            - with GitHub Actions, 'renovate' (simple string), 'renovate:' (empty object) or the whole object can be given, since 'auth' may or may not be provided.
-        properties:
-          auth:
-            type: string
-            enum:
-              - github-app
-              - github-token
-              - personal-token
-            description: |
-              auth corresponds to the authentication method used by Renovate when running in self-hosted mode.
-
-              Since GitLab provides features around tokens, this property cannot be given when running with it (i.e. will always be 'personal-token').
     allOf:
       # specific rules for GitLab CI/CD
       - if:
@@ -98,6 +74,8 @@ properties:
               items:
                 type: string
                 enum:
+                  - kickr
+                  - renovate
                   - sonarqube
       # specific rules for GitHub Actions
       - if:
@@ -115,8 +93,12 @@ properties:
                   - codecov
                   - codeql
                   - harden-runner
+                  - kickr:github-app
+                  - kickr:personal-token
                   - labeler
                   - ossf-scorecard
+                  - renovate:github-app
+                  - renovate:personal-token
                   - sonarqube
                   - step-security-actions
       # force with GitHub the presence of 'release.auth' when 'release' is provided

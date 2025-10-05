@@ -62,42 +62,74 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 	})
 
-	t.Run("success_renovate", func(t *testing.T) {
-		type testcase struct {
-			CI   string
-			Auth string
-		}
+	t.Run("success_kickr", func(t *testing.T) {
+		t.Run("github", func(t *testing.T) {
+			for _, auth := range []string{kickr.AuthGitHubApp, kickr.AuthPersonalToken} {
+				t.Run(auth, func(t *testing.T) {
+					// Arrange
+					config := types.KickrWrapper{
+						Kickr: kickr.Kickr{
+							CI:       &kickr.CI{Provider: parser.GitHub, Options: []string{"kickr:" + auth}},
+							Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+							Platform: parser.GitHub,
+						},
+					}
 
-		cases := []testcase{
-			{CI: parser.GitHub},
+					// Act & Assert
+					test(ctx, t, config)
+				})
+			}
+		})
 
-			{CI: parser.GitHub, Auth: kickr.AuthGitHubApp},
-			{CI: parser.GitHub, Auth: kickr.AuthGitHubToken},
-			{CI: parser.GitHub, Auth: kickr.AuthPersonalToken},
-
-			{CI: parser.GitLab},
-		}
-		for _, tc := range cases {
-			name := tc.CI
-			if tc.Auth != "" {
-				name += "_auth_" + tc.Auth
+		t.Run("gitlab", func(t *testing.T) {
+			// Arrange
+			config := types.KickrWrapper{
+				Kickr: kickr.Kickr{
+					CI:       &kickr.CI{Provider: parser.GitLab, Options: []string{"kickr"}},
+					Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+					Platform: parser.GitLab,
+				},
 			}
 
-			t.Run(name, func(t *testing.T) {
-				// Arrange
-				config := types.KickrWrapper{
-					Kickr: kickr.Kickr{
-						CI:           &kickr.CI{Provider: tc.CI, Renovate: &kickr.Renovate{Auth: tc.Auth}},
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
-						Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
-						Platform:     tc.CI,
-					},
-				}
+			// Act & Assert
+			test(ctx, t, config)
+		})
+	})
 
-				// Act & Assert
-				test(ctx, t, config)
-			})
-		}
+	t.Run("success_renovate", func(t *testing.T) {
+		t.Run("github", func(t *testing.T) {
+			for _, auth := range []string{kickr.AuthGitHubApp, kickr.AuthPersonalToken} {
+				t.Run(auth, func(t *testing.T) {
+					// Arrange
+					config := types.KickrWrapper{
+						Kickr: kickr.Kickr{
+							CI:           &kickr.CI{Provider: parser.GitHub, Options: []string{"renovate:" + auth}},
+							Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
+							Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+							Platform:     parser.GitHub,
+						},
+					}
+
+					// Act & Assert
+					test(ctx, t, config)
+				})
+			}
+		})
+
+		t.Run("gitlab", func(t *testing.T) {
+			// Arrange
+			config := types.KickrWrapper{
+				Kickr: kickr.Kickr{
+					CI:           &kickr.CI{Provider: parser.GitLab, Options: []string{"renovate"}},
+					Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
+					Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+					Platform:     parser.GitLab,
+				},
+			}
+
+			// Act & Assert
+			test(ctx, t, config)
+		})
 
 		t.Run("templates", func(t *testing.T) {
 			// Arrange
@@ -474,8 +506,9 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("success_library", func(t *testing.T) {
 		type testcase struct {
-			Manager        string
 			CI             string
+			Manager        string
+			Options        []string
 			PackageManager string
 		}
 
@@ -488,17 +521,12 @@ func TestGenerate_Node(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, Options: []string{"renovate:personal-token"}, PackageManager: "bun@1.1.6"},
 			{Manager: kickr.ManagerDependabot, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
-			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
-			{Manager: kickr.ManagerDependabot, CI: parser.GitHub, PackageManager: "npm@7.0.0"},
 
-			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
+			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, Options: []string{"renovate"}, PackageManager: "bun@1.1.6"},
 			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
-			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
-			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "npm@7.0.0"},
 		}
-
 		for _, tc := range cases {
 			name := fmt.Sprint(tc.CI, "_", tc.Manager, "_", tc.PackageManager)
 			t.Run(name, func(t *testing.T) {
@@ -506,9 +534,9 @@ func TestGenerate_Node(t *testing.T) {
 				config := types.KickrWrapper{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
+							Options:  tc.Options,
 							Provider: tc.CI,
 							Release:  &kickr.Release{Options: []string{kickr.OptionBackmerge}},
-							Renovate: &kickr.Renovate{Auth: kickr.AuthPersonalToken},
 						},
 						Dependencies: &kickr.Dependencies{Manager: tc.Manager},
 						Platform:     tc.CI,

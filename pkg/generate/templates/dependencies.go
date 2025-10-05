@@ -2,6 +2,8 @@ package templates
 
 import (
 	"path"
+	"slices"
+	"strings"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
@@ -41,7 +43,7 @@ func Renovate() []engine.Template[types.KickrWrapper] {
 			Out:        path.Join(".github", "workflows", "renovate.yml"),
 			Remove: func(config types.KickrWrapper) bool {
 				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
-				ci := config.CI != nil && config.CI.Provider == parser.GitHub && config.CI.Renovate != nil
+				ci := config.CI != nil && config.CI.Provider == parser.GitHub && slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, "renovate:") })
 				return !manager || !ci
 			},
 		},
@@ -59,7 +61,7 @@ func Renovate() []engine.Template[types.KickrWrapper] {
 			Out:        path.Join(".github", "renovate.json"),
 			Remove: func(config types.KickrWrapper) bool {
 				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
-				ci := config.CI != nil && config.CI.Provider == parser.GitHub && config.CI.Renovate != nil
+				ci := config.CI != nil && config.CI.Provider == parser.GitHub && slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, "renovate:") })
 				return !manager || !ci
 			},
 		},
@@ -69,7 +71,7 @@ func Renovate() []engine.Template[types.KickrWrapper] {
 			Out:        path.Join(".gitlab", "renovate.json"),
 			Remove: func(config types.KickrWrapper) bool {
 				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
-				ci := config.CI != nil && config.CI.Provider == parser.GitLab && config.CI.Renovate != nil
+				ci := config.CI != nil && config.CI.Provider == parser.GitLab && slices.Contains(config.CI.Options, "renovate")
 				return !manager || !ci
 			},
 		},

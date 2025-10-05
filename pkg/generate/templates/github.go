@@ -3,6 +3,7 @@ package templates
 import (
 	"path"
 	"slices"
+	"strings"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
@@ -52,7 +53,9 @@ func githubWorkflow() []engine.Template[types.KickrWrapper] {
 		Delimiters: engine.DelimitersChevron(),
 		Globs:      []string{kickra + engine.TmplExtension},
 		Out:        kickra,
-		Remove:     func(config types.KickrWrapper) bool { return !config.IsCI(parser.GitHub) },
+		Remove: func(config types.KickrWrapper) bool {
+			return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, "kickr:") })
+		},
 	})
 
 	labeler := path.Join(".github", "workflows", "labeler.yml")
