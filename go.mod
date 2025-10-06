@@ -9,7 +9,7 @@ toolchain go1.25.1
 require (
 	github.com/charmbracelet/huh v0.7.0
 	github.com/charmbracelet/log v0.4.2
-	github.com/go-git/go-git/v5 v5.16.2
+	github.com/go-git/go-git/v5 v5.16.3
 	github.com/goccy/go-yaml v1.18.0
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/kickr-dev/engine v0.0.0-20250915194917-9d928c868844
@@ -17,7 +17,7 @@ require (
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
-	gitlab.com/gitlab-org/api/client-go v0.148.0
+	gitlab.com/gitlab-org/api/client-go v0.148.1
 	helm.sh/helm/v3 v3.19.0
 )
 
