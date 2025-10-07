@@ -17,7 +17,7 @@ if [ "$cmd" = "" ]; then
 fi
 log_info "Found kickr generator named '$cmd'"
 
-workspaces=$(find / -name workspaces 2>&1 | grep -v "Permission denied" | grep -v "No such file or directory")
+workspaces=$(find / -name workspaces 2>/dev/null)
 for workspace in $workspaces; do
   dirs=$(find "$workspace" -name testdata -prune -o -name .kickr -exec dirname {} +;)
   for dir in $dirs; do
