@@ -84,5 +84,5 @@ include: .gitlab/workflows/.gitlab-ci.yml
 {{- end }}
 
 variables:
-  PROD_REF: /^(master|main)$/
-  INTEG_REF: /^(staging|dev|develop|development)$/
+  PROD_REF: /^(main|master|v[0-9]+(\.[0-9]+)?\.x)$/
+  INTEG_REF: /^(alpha|beta|dev[a-z]*|next|rc|staging)$/

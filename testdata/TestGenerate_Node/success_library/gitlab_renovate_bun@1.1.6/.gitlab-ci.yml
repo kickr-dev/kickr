@@ -16,5 +16,5 @@ include: .gitlab/workflows/.gitlab-ci.yml
 # GITHUB_COM_TOKEN: A GitHub access token to allow Renovate fetch changelogs. [See doc](https://docs.renovatebot.com/getting-started/running/#githubcom-token-for-changelogs)
 
 variables:
-  PROD_REF: /^(master|main)$/
-  INTEG_REF: /^(staging|dev|develop|development)$/
+  PROD_REF: /^(main|master|v[0-9]+(\.[0-9]+)?\.x)$/
+  INTEG_REF: /^(alpha|beta|dev[a-z]*|next|rc|staging)$/

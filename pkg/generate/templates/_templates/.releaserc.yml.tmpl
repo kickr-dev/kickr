@@ -7,13 +7,13 @@
 {{- $node := hasKey .Languages "node" }}
 
 branches:
-  - (master|main)
+  - (main|master)
   - v+([0-9])?(.{+([0-9]),x}).x
-  - name: (rc|next|beta|alpha)
+  - name: (alpha|beta|next|rc)
     prerelease: true
   - name: staging
     prerelease: beta
-  - name: (dev|develop|development)
+  - name: dev*([a-z])
     prerelease: alpha
 
 tagFormat: v${version}
@@ -123,9 +123,9 @@ plugins:
         - from: ^(master|main)$
           to: staging
         - from: ^(master|main)$
-          to: ^(dev|develop|development)$
+          to: ^(dev[a-z]*)$
         - from: staging
-          to: ^(dev|develop|development)$
+          to: ^(dev[a-z]*)$
 {{- if ne .CI.Provider .Platform }}
       platform: {{ .Platform }}
 {{- end }}
