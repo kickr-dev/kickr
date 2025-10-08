@@ -8,6 +8,8 @@
 {{- $node := hasKey .Languages "node" }}
 {{- $nodemain := and $node (get .Languages "node").HasMain }}
 
+{{- $precommit := not (has "pre-commit" .Exclude) }}
+
 ---
 include:
 
@@ -17,7 +19,7 @@ include:
     ref: e32f092873147606d5cb198bba45b470e4826649 # 4.0.1
     file: "templates/gitlab-ci-semrel.yml"
 
-{{- if not (has "pre-commit" .Exclude) }}
+{{- if $precommit }}
 
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
@@ -103,7 +105,7 @@ variables:
   BUILD_DIR: dist
 {{- end }}
 
-{{- if not (has "pre-commit" .Exclude) }}
+{{- if $precommit }}
   PRE_COMMIT_FILE: .pre-commit-config.yaml
 {{- end }}
 
@@ -229,6 +231,13 @@ variables:
 
 default:
   interruptible: true
+
+{{- if and $precommit (has "conventional-commits" .PreCommit) }}
+
+pre-commit:
+  variables:
+    GIT_DEPTH: "0"
+{{- end }}
 
 semantic-release-info:
   variables:
