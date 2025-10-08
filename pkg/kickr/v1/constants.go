@@ -86,9 +86,23 @@ const (
 	// PreCommitAutoCommit is an available pre-commit option to auto-commit issues identified by pre-commit.
 	PreCommitAutoCommit = "auto-commit"
 
+	// PreCommitConventionalBranches is an available pre-commit option for pre-commit configuration file.
+	//
+	// It will ensure there's no branch issue format issue before committing anything.
+	//
+	// See https://conventional-branch.github.io/#specification
+	PreCommitConventionalBranches = "conventional-branches"
+
+	// PreCommitConventionalCommits is an available pre-commit option for pre-commit configuration file.
+	//
+	// It will ensure there's no commit message format issue before committing anything.
+	//
+	// See https://www.conventionalcommits.org/en/v1.0.0/#specification
+	PreCommitConventionalCommits = "conventional-commits"
+
 	// PreCommitGolangciLint is an available pre-commit option for pre-commit configuration file.
 	//
-	// It will ensure there's no lint issue before committing anything.
+	// It will ensure there's no golang lint issue before committing anything.
 	PreCommitGolangciLint = "golangci-lint"
 
 	// PreCommitGomodTidy is an available pre-commit option for pre-commit configuration file.

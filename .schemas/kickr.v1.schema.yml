@@ -227,6 +227,8 @@ properties:
       type: string
       enum:
         - auto-commit
+        - conventional-branches
+        - conventional-commits
         - golangci-lint
         - gomod-tidy
 

@@ -10,5 +10,5 @@ include: .gitlab/workflows/.gitlab-ci.yml
 # NETLIFY_AUTH_TOKEN: The netlify authentication token (it's a personal token) to use for deployments (once connected, can be retrieved here https://app.netlify.com/user/applications#content)
 
 variables:
-  PROD_REF: /^(master|main)$/
-  INTEG_REF: /^(staging|dev|develop|development)$/
+  PROD_REF: /^(main|master|v[0-9]+(\.[0-9]+)?\.x)$/
+  INTEG_REF: /^(alpha|beta|dev[a-z]*|next|rc|staging)$/

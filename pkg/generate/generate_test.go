@@ -154,19 +154,31 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("success_precommit", func(t *testing.T) {
-		for _, precommit := range []bool{true, false} {
-			t.Run(strconv.FormatBool(precommit), func(t *testing.T) {
+		type testcase struct {
+			CI        string
+			PreCommit bool
+		}
+
+		cases := []testcase{
+			{CI: parser.GitHub},
+			{CI: parser.GitHub, PreCommit: true},
+			{CI: parser.GitLab},
+			{CI: parser.GitLab, PreCommit: true},
+		}
+		for _, tc := range cases {
+			name := tc.CI + "_" + strconv.FormatBool(tc.PreCommit)
+			t.Run(name, func(t *testing.T) {
 				// Arrange
 				config := types.KickrWrapper{
 					Kickr: kickr.Kickr{
-						CI:      &kickr.CI{Provider: parser.GitHub},
+						CI:      &kickr.CI{Provider: tc.CI},
 						Exclude: []string{kickr.ExcludeMakefile},
 					},
 				}
-				if !precommit {
+				if !tc.PreCommit {
 					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
 				} else {
-					config.PreCommit = append(config.PreCommit, kickr.PreCommitAutoCommit)
+					config.PreCommit = append(config.PreCommit, kickr.PreCommitAutoCommit, kickr.PreCommitConventionalBranches, kickr.PreCommitConventionalCommits)
 				}
 
 				// Act & Assert
