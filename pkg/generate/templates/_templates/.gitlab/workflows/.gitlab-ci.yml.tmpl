@@ -232,11 +232,22 @@ variables:
 default:
   interruptible: true
 
-{{- if and $precommit (has "conventional-commits" .PreCommit) }}
+{{- if and $precommit (or (has "conventional-commits" .PreCommit) (has "gitflow-branches" .PreCommit)) }}
 
 pre-commit:
   variables:
+{{- if has "conventional-commits" .PreCommit }}
     GIT_DEPTH: "0"
+{{- end }}
+{{- if has "gitflow-branches" .PreCommit }}
+    GIT_STRATEGY: clone
+  before_script:
+    # see https://gitlab.com/to-be-continuous/pre-commit/-/blob/main/templates/gitlab-ci-pre-commit.yml?ref_type=heads#L429
+    - !reference [.pre-commit-scripts]
+    - install_ca_certs "${CUSTOM_CA_CERTS:-$DEFAULT_CA_CERTS}"
+    - apk add git
+    - git checkout -b "$CI_COMMIT_REF_NAME"
+{{- end }}
 {{- end }}
 
 semantic-release-info:

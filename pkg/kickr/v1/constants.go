@@ -86,12 +86,12 @@ const (
 	// PreCommitAutoCommit is an available pre-commit option to auto-commit issues identified by pre-commit.
 	PreCommitAutoCommit = "auto-commit"
 
-	// PreCommitConventionalBranches is an available pre-commit option for pre-commit configuration file.
+	// PreCommitGitflowBranches is an available pre-commit option for pre-commit configuration file.
 	//
 	// It will ensure there's no branch issue format issue before committing anything.
 	//
 	// See https://conventional-branch.github.io/#specification
-	PreCommitConventionalBranches = "conventional-branches"
+	PreCommitGitflowBranches = "gitflow-branches"
 
 	// PreCommitConventionalCommits is an available pre-commit option for pre-commit configuration file.
 	//

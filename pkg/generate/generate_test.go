@@ -178,7 +178,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				if !tc.PreCommit {
 					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
 				} else {
-					config.PreCommit = append(config.PreCommit, kickr.PreCommitAutoCommit, kickr.PreCommitConventionalBranches, kickr.PreCommitConventionalCommits)
+					config.PreCommit = append(config.PreCommit, kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits)
 				}
 
 				// Act & Assert

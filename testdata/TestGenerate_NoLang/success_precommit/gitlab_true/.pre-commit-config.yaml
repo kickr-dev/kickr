@@ -34,7 +34,6 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
         args: [--fix=lf]
-      # see https://conventional-branch.github.io/#specification
       - id: no-commit-to-branch
-        args: [--branch, '', --pattern, '^(?!(alpha|beta|dev[a-z]*|main|master|next|rc|staging|v[0-9]+(\.[0-9]+)?\.x|(chore|bugfix|feat|feature|fix|hotfix|release)(\/[\w-]+){1,2})$).*']
+        args: [--branch, '', --pattern, '^(?!(alpha|beta|dev[a-z]*|main|master|next|rc|staging|v[0-9]+(\.[0-9]+)?\.x|(docs|feat|feature|fix|hotfix|release|support)(\/[\w-]+){1,2})$).*']
       - id: trailing-whitespace

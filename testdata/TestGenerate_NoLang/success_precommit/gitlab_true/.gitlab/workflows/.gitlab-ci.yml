@@ -32,6 +32,13 @@ default:
 pre-commit:
   variables:
     GIT_DEPTH: "0"
+    GIT_STRATEGY: clone
+  before_script:
+    # see https://gitlab.com/to-be-continuous/pre-commit/-/blob/main/templates/gitlab-ci-pre-commit.yml?ref_type=heads#L429
+    - !reference [.pre-commit-scripts]
+    - install_ca_certs "${CUSTOM_CA_CERTS:-$DEFAULT_CA_CERTS}"
+    - apk add git
+    - git checkout -b "$CI_COMMIT_REF_NAME"
 
 semantic-release-info:
   variables:
