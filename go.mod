@@ -2,7 +2,7 @@ module github.com/kickr-dev/kickr
 
 go 1.24.0
 
-toolchain go1.25.1
+toolchain go1.25.2
 
 // replace github.com/kickr-dev/engine => ../engine
 
@@ -17,7 +17,7 @@ require (
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
-	gitlab.com/gitlab-org/api/client-go v0.150.0
+	gitlab.com/gitlab-org/api/client-go v0.154.0
 	helm.sh/helm/v3 v3.19.0
 )
 
