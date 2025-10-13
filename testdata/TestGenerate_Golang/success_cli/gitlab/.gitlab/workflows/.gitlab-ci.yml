@@ -18,7 +18,7 @@ include:
   # Dependabot template
   # https://gitlab.com/dependabot-gitlab/dependabot-standalone
   - project: dependabot-gitlab/dependabot-standalone
-    ref: b67bae73a3853e4277e6010ce22599573fb40b6e # 3.65.0
+    ref: ba18dee90d3445af36b5579faae3fd2b219d78a3 # 3.66.0
     file: .gitlab-ci.yml
 
   # Go template
