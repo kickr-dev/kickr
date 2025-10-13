@@ -2,7 +2,7 @@ module github.com/kickr-dev/kickr
 
 go 1.24.0
 
-toolchain go1.25.1
+toolchain go1.25.2
 
 // replace github.com/kickr-dev/engine => ../engine
 
