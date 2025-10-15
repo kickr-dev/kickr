@@ -7,7 +7,7 @@ toolchain go1.25.2
 // replace github.com/kickr-dev/engine => ../engine
 
 require (
-	github.com/charmbracelet/huh v0.7.0
+	github.com/charmbracelet/huh v0.8.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/go-git/go-git/v5 v5.16.3
 	github.com/goccy/go-yaml v1.18.0
@@ -17,7 +17,7 @@ require (
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
-	gitlab.com/gitlab-org/api/client-go v0.154.0
+	gitlab.com/gitlab-org/api/client-go v0.156.0
 	helm.sh/helm/v3 v3.19.0
 )
 
@@ -39,7 +39,7 @@ require (
 	github.com/bluekeyes/go-gitdiff v0.8.1 // indirect
 	github.com/catppuccin/go v0.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
-	github.com/charmbracelet/bubbles v0.21.0 // indirect
+	github.com/charmbracelet/bubbles v0.21.1-0.20250623103423-23b8fd6302d7 // indirect
 	github.com/charmbracelet/bubbletea v1.3.8 // indirect
 	github.com/charmbracelet/colorprofile v0.3.2 // indirect
 	github.com/charmbracelet/lipgloss v1.1.0 // indirect
