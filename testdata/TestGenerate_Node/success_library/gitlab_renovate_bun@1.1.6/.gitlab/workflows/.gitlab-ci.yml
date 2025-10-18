@@ -18,7 +18,7 @@ include:
   # Renovate template
   # https://gitlab.com/to-be-continuous/renovate
   - project: to-be-continuous/renovate
-    ref: 375f05c3ecaca43927de26862f5a95f4655a5284 # 1.8.0
+    ref: e2184598f034cc6fb4a85893746e0a24bcc8c743 # 1.9.0
     file: "templates/gitlab-ci-renovate.yml"
 
   # Node.js template
