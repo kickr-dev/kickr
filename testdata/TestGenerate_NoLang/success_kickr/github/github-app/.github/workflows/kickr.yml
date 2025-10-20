@@ -32,7 +32,7 @@ jobs:
         with:
           check-latest: true
           token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: kickr-dev/action-setup@42b5f08d1fb32296ea649d2656361d688d57dbbb # v0.0.0
+      - uses: kickr-dev/action-setup@743e6047a045df20b006cc3f02c7b2010ce473de # v0.0.0
         with:
           install-mode: goinstall
           version: beta
