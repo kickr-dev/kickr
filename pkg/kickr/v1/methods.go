@@ -6,6 +6,7 @@ package kickr
 import (
 	"cmp"
 	"slices"
+	"strings"
 )
 
 // IsCI returns truthy in case the input provider is the one specified in configuration.
@@ -51,6 +52,13 @@ func (k Kickr) HasHelmPublish() bool {
 // and deployment to kubernetes cluster(s) enabled.
 func (k Kickr) HasHelmDeploy() bool {
 	return k.CI != nil && k.CI.Helm != nil && slices.Contains([]string{HelmAuto, HelmManual}, k.CI.Helm.Deploy)
+}
+
+// HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
+func (k Kickr) HasKickr() bool {
+	return k.CI != nil && slices.ContainsFunc(k.CI.Options, func(o string) bool {
+		return strings.HasPrefix(o, "kickr:")
+	})
 }
 
 // HasAutoDeployment returns truthy in case the configuration has CI enabled,

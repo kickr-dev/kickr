@@ -13,7 +13,7 @@
 version: 2
 enable-beta-ecosystems: true
 updates:
-{{- if .IsCI "github" }}
+{{- if and (not .HasKickr) (.IsCI "github") }}
 
   - package-ecosystem: github-actions
     directory: /

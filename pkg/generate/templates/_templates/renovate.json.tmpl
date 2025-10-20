@@ -9,9 +9,12 @@
 
     "extends": [
         "github>kickr-dev/renovate//configs/renovate/default.json"{{ if or $tmpl (and .CI .CI.Docker) }},
-        "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or (hasKey .Languages "go") (hasKey .Languages "hugo") }},
-        "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if $tmpl }},
-        "github>kickr-dev/renovate//configs/renovate/tmpl.json"{{ end }}{{ with .Dependencies.Local }},
+        "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or $tmpl (.IsCI "github") }},
+        "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl (.IsCI "gitlab") }},
+        "github>kickr-dev/renovate//configs/renovate/gitlab-ci.json"{{ end }}{{ if or (hasKey .Languages "go") (hasKey .Languages "hugo") }},
+        "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if or .HasKickr $tmpl }},
+        "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if not (has "pre-commit" .Exclude) }},
+        "github>kickr-dev/renovate//configs/renovate/pre-commit.json"{{ end }}{{ with .Dependencies.Local }},
         "local>{{ $.VCS.ProjectPath }}//{{ . }}"{{ end }}
     ]
 }
