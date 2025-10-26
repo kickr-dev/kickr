@@ -12,7 +12,7 @@
 
 | Version | Supported |
 | ------- | --------- |
-{{- range $index, $tag := $tags | uniq }}
+{{- range $index, $tag := $tags | uniq | reverse }}
 {{- if gt $index 2 }}{{ break }}{{- end }}{{- /* keep the first last two major tags only */}}
 | {{ . }}.x    | ✅         |
 {{- end }}
