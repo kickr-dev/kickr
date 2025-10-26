@@ -24,6 +24,11 @@ func Misc() []engine.Template[types.KickrWrapper] {
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{"SECURITY.md" + engine.TmplExtension},
+			Out:        "SECURITY.md",
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".pre-commit-config.yaml" + engine.TmplExtension},
 			Out:        ".pre-commit-config.yaml",
 			Remove:     func(config types.KickrWrapper) bool { return slices.Contains(config.Exclude, kickr.ExcludePreCommit) },
