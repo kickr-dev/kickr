@@ -13,7 +13,7 @@ import (
 
 // ParserGit adds git configuration (if the current repository is a git repository)
 // to the configuration.
-func ParserGit(_ context.Context, destdir string, config *types.KickrWrapper) error {
+func ParserGit(_ context.Context, destdir string, config *types.Repository) error {
 	vcs, err := parser.Git(destdir)
 	if err != nil {
 		for _, is := range []error{git.ErrRepositoryNotExists, git.ErrRemoteNotFound} {
@@ -35,4 +35,4 @@ func ParserGit(_ context.Context, destdir string, config *types.KickrWrapper) er
 	return nil
 }
 
-var _ engine.Parser[types.KickrWrapper] = ParserGit // ensure interface is implemented
+var _ engine.Parser[types.Repository] = ParserGit // ensure interface is implemented

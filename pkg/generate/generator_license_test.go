@@ -34,7 +34,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(dest, "file.txt"), files.RwxRxRxRx))
 
 		// Act
-		err := gen(ctx, destdir, types.KickrWrapper{})
+		err := gen(ctx, destdir, types.Repository{})
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("remove '%s'", generator.FileLicense))
@@ -46,7 +46,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		dest := filepath.Join(destdir, generator.FileLicense)
 
 		// Act
-		err := gen(ctx, destdir, types.KickrWrapper{})
+		err := gen(ctx, destdir, types.Repository{})
 
 		// Assert
 		require.NoError(t, err)
@@ -62,7 +62,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, destdir, types.KickrWrapper{})
+		err = gen(ctx, destdir, types.Repository{})
 
 		// Assert
 		require.NoError(t, err)
@@ -86,7 +86,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "error message"))
 
 		// Act
-		err := gen(ctx, t.TempDir(), types.KickrWrapper{Kickr: kickr.Kickr{License: "mit"}})
+		err := gen(ctx, t.TempDir(), types.Repository{Kickr: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		assert.ErrorContains(t, err, "download license")
@@ -101,7 +101,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, destdir, types.KickrWrapper{Kickr: kickr.Kickr{License: "mit"}})
+		err = gen(ctx, destdir, types.Repository{Kickr: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		require.NoError(t, err)
@@ -115,7 +115,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			map[string]string{"fullname": "name", "project": "kickr"},
 			httpmock.NewJsonResponderOrPanic(http.StatusOK, gitlab.LicenseTemplate{Content: "some content"}))
 
-		config := types.KickrWrapper{
+		config := types.Repository{
 			Kickr: kickr.Kickr{
 				License:     "mit",
 				Maintainers: []*kickr.Maintainer{{Name: "name"}},

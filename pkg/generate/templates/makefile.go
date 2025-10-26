@@ -11,13 +11,13 @@ import (
 )
 
 // Makefile returns the slice of templates related to make configuration (build, test, docker make tasks).
-func Makefile() []engine.Template[types.KickrWrapper] {
-	return []engine.Template[types.KickrWrapper]{
+func Makefile() []engine.Template[types.Repository] {
+	return []engine.Template[types.Repository]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"Makefile" + engine.TmplExtension},
 			Out:        "Makefile",
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				_, ok := config.Languages["node"] // don't generate makefiles when there's only node language
 				return (ok && len(config.Languages) == 1) || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
 			},
@@ -26,7 +26,7 @@ func Makefile() []engine.Template[types.KickrWrapper] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart(path.Join("scripts", "mk", "build.mk")),
 			Out:        path.Join("scripts", "mk", "build.mk"),
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				_, ok := config.Languages["node"] // don't generate makefiles when there's only node language
 				return (ok && len(config.Languages) == 1) || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
 			},

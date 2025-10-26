@@ -47,7 +47,7 @@ func TestParserGlob(t *testing.T) {
 				}
 
 				expected := map[string]any{tc.GlobName: tc.Files}
-				config := types.KickrWrapper{}
+				config := types.Repository{}
 
 				// Act
 				err := generate.ParserGlob(t.Context(), destdir, &config)

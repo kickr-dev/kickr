@@ -32,7 +32,7 @@ func TestGeneratorGitignore(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "some error"))
 
 		// Act
-		err := gen(ctx, t.TempDir(), types.KickrWrapper{})
+		err := gen(ctx, t.TempDir(), types.Repository{})
 
 		// Assert
 		assert.ErrorContains(t, err, "download gitignore")
@@ -45,7 +45,7 @@ func TestGeneratorGitignore(t *testing.T) {
 		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/go,dotenv,sonar,sonarqube",
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
-		config := types.KickrWrapper{
+		config := types.Repository{
 			Kickr:     kickr.Kickr{CI: &kickr.CI{Options: []string{kickr.OptionSonarQube}}},
 			Languages: map[string]any{"go": nil},
 		}
@@ -73,7 +73,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/go,dotenv,sonar,sonarqube",
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
-		config := types.KickrWrapper{
+		config := types.Repository{
 			Kickr: kickr.Kickr{CI: &kickr.CI{Options: []string{kickr.OptionSonarQube}}},
 			Executables: parser.Executables{
 				Clis:    map[string]any{"cli": struct{}{}},

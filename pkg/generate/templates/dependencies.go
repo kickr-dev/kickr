@@ -13,13 +13,13 @@ import (
 )
 
 // Dependabot returns the slice of templates related to dependabot configuration.
-func Dependabot() []engine.Template[types.KickrWrapper] {
-	return []engine.Template[types.KickrWrapper]{
+func Dependabot() []engine.Template[types.Repository] {
+	return []engine.Template[types.Repository]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".github", "dependabot.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "dependabot.yml"),
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				return config.Dependencies == nil || config.Dependencies.Manager != kickr.ManagerDependabot || config.Platform != parser.GitHub
 			},
 		},
@@ -27,7 +27,7 @@ func Dependabot() []engine.Template[types.KickrWrapper] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".gitlab", "dependabot.yml"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "dependabot.yml"),
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				return config.Dependencies == nil || config.Dependencies.Manager != kickr.ManagerDependabot || !config.IsCI(parser.GitLab)
 			},
 		},
@@ -35,13 +35,13 @@ func Dependabot() []engine.Template[types.KickrWrapper] {
 }
 
 // Renovate returns the slice of templates related to renovate configuration.
-func Renovate() []engine.Template[types.KickrWrapper] {
-	return []engine.Template[types.KickrWrapper]{
+func Renovate() []engine.Template[types.Repository] {
+	return []engine.Template[types.Repository]{
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join(".github", "workflows", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "workflows", "renovate.yml"),
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
 				ci := config.CI != nil && config.CI.Provider == parser.GitHub && slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, "renovate:") })
 				return !manager || !ci
@@ -51,7 +51,7 @@ func Renovate() []engine.Template[types.KickrWrapper] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"renovate.json" + engine.TmplExtension},
 			Out:        "renovate.json",
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				return config.Dependencies == nil || config.Dependencies.Manager != kickr.ManagerRenovate
 			},
 		},
@@ -59,7 +59,7 @@ func Renovate() []engine.Template[types.KickrWrapper] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".github", "renovate.json"),
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
 				ci := config.CI != nil && config.CI.Provider == parser.GitHub && slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, "renovate:") })
 				return !manager || !ci
@@ -69,7 +69,7 @@ func Renovate() []engine.Template[types.KickrWrapper] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "renovate.json"),
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				manager := config.Dependencies != nil && config.Dependencies.Manager == kickr.ManagerRenovate
 				ci := config.CI != nil && config.CI.Provider == parser.GitLab && slices.Contains(config.CI.Options, "renovate")
 				return !manager || !ci

@@ -9,8 +9,8 @@ import (
 )
 
 // Chart returns the slice of templates related to helm chart generation.
-func Chart() []engine.Template[types.KickrWrapper] {
-	var templates []engine.Template[types.KickrWrapper] //nolint:prealloc
+func Chart() []engine.Template[types.Repository] {
+	var templates []engine.Template[types.Repository] //nolint:prealloc
 
 	tmplfiles := []string{
 		path.Join("chart", "templates", "_helpers.tpl"),
@@ -23,11 +23,11 @@ func Chart() []engine.Template[types.KickrWrapper] {
 		path.Join("chart", "templates", "serviceaccount.yaml"),
 	}
 	for _, src := range tmplfiles {
-		templates = append(templates, engine.Template[types.KickrWrapper]{
+		templates = append(templates, engine.Template[types.Repository]{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				return config.CI == nil || config.CI.Helm == nil
 			},
 		})
@@ -40,21 +40,21 @@ func Chart() []engine.Template[types.KickrWrapper] {
 		path.Join("chart", "charts", ".gitkeep"),
 	}
 	for _, src := range chartfiles {
-		templates = append(templates, engine.Template[types.KickrWrapper]{
+		templates = append(templates, engine.Template[types.Repository]{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
-			Remove: func(config types.KickrWrapper) bool {
+			Remove: func(config types.Repository) bool {
 				return config.CI == nil || config.CI.Helm == nil
 			},
 		})
 	}
 
-	templates = append(templates, engine.Template[types.KickrWrapper]{
+	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      engine.GlobsWithPart(path.Join("chart", "values.yaml")),
 		Out:        path.Join("chart", "values.yaml"),
-		Remove: func(config types.KickrWrapper) bool {
+		Remove: func(config types.Repository) bool {
 			return config.CI == nil || config.CI.Helm == nil
 		},
 	})

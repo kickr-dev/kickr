@@ -52,7 +52,7 @@ var ErrMultipleManagers = errors.New("multiple node package manager")
 //
 // In case of success, the function will set the language to "node"
 // and the worker to "main" if the main property is present in the package.json file.
-func ParserNode(_ context.Context, destdir string, config *types.KickrWrapper) error {
+func ParserNode(_ context.Context, destdir string, config *types.Repository) error {
 	monos := make(MonoNodes, 0, 2)
 
 	// scan destdir potential node repository
@@ -98,4 +98,4 @@ func ParserNode(_ context.Context, destdir string, config *types.KickrWrapper) e
 	return nil
 }
 
-var _ engine.Parser[types.KickrWrapper] = ParserNode // ensure interface is implemented
+var _ engine.Parser[types.Repository] = ParserNode // ensure interface is implemented

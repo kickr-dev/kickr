@@ -17,8 +17,8 @@ Example:
 
 		// run generation
 		result, err := engine.Generate(ctx, destdir, &types.KickrWrapper{Kickr: config},
-			[]engine.Parser[types.KickrWrapper]{generate.ParserGit, generate.ParserGolang, generate.ParserNode, generate.ParserChart},
-			[]engine.Generator[types.KickrWrapper]{generate.GeneratorGitignore, generate.GeneratorLicense})
+			[]engine.Parser[types.Repository]{generate.ParserGit, generate.ParserGolang, generate.ParserNode, generate.ParserChart},
+			[]engine.Generator[types.Repository]{generate.GeneratorGitignore, generate.GeneratorLicense})
 		// handle err
 	}
 */

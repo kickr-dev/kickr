@@ -21,7 +21,7 @@ import (
 //
 // If a hugo config or theme file is present, it will be detected
 // and 'hugo' will be set as the language ('go' will not in that case).
-func ParserGolang(ctx context.Context, destdir string, config *types.KickrWrapper) error {
+func ParserGolang(ctx context.Context, destdir string, config *types.Repository) error {
 	root, err := parserHugo(ctx, destdir, config)
 	if err != nil {
 		return fmt.Errorf("parse hugo: %w", err)
@@ -64,9 +64,9 @@ func ParserGolang(ctx context.Context, destdir string, config *types.KickrWrappe
 	return nil
 }
 
-var _ engine.Parser[types.KickrWrapper] = ParserGolang // ensure interface is implemented
+var _ engine.Parser[types.Repository] = ParserGolang // ensure interface is implemented
 
-func parserHugo(_ context.Context, destdir string, config *types.KickrWrapper) (bool, error) {
+func parserHugo(_ context.Context, destdir string, config *types.Repository) (bool, error) {
 	var root bool
 	monos := make([]types.Mono[parser.HugoCompose], 0, 2)
 

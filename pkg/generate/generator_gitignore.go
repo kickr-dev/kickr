@@ -19,11 +19,11 @@ import (
 //
 // It patches it alongside with custom kickr patches as some exclusion
 // may be missing depending on kickr layout generation.
-func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, config types.KickrWrapper) error {
+func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, config types.Repository) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
-	return func(ctx context.Context, destdir string, config types.KickrWrapper) error {
+	return func(ctx context.Context, destdir string, config types.Repository) error {
 		mapping := map[string][]string{
 			"go":    {"go"},
 			"helm":  {"helm"},
@@ -51,7 +51,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 			return fmt.Errorf("download gitignore: %w", err)
 		}
 
-		template := engine.Template[types.KickrWrapper]{
+		template := engine.Template[types.Repository]{
 			Delimiters: engine.DelimitersBracket(),
 			Patches:    []string{".gitignore" + engine.PatchExtension + engine.TmplExtension},
 			Out:        ".gitignore",
@@ -63,4 +63,4 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 	}
 }
 
-var _ engine.Generator[types.KickrWrapper] = GeneratorGitignore(nil) // ensure interface is implemented
+var _ engine.Generator[types.Repository] = GeneratorGitignore(nil) // ensure interface is implemented

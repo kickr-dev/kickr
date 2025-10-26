@@ -48,7 +48,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			name := fmt.Sprint(ci.Provider, "_publish_", publish)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:       &ci,
 						Exclude:  []string{kickr.ExcludeMakefile},
@@ -67,7 +67,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			for _, auth := range []string{kickr.AuthGitHubApp, kickr.AuthPersonalToken} {
 				t.Run(auth, func(t *testing.T) {
 					// Arrange
-					config := types.KickrWrapper{
+					config := types.Repository{
 						Kickr: kickr.Kickr{
 							CI:       &kickr.CI{Provider: parser.GitHub, Options: []string{"kickr:" + auth}},
 							Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
@@ -83,7 +83,7 @@ func TestGenerate_NoLang(t *testing.T) {
 
 		t.Run("gitlab", func(t *testing.T) {
 			// Arrange
-			config := types.KickrWrapper{
+			config := types.Repository{
 				Kickr: kickr.Kickr{
 					CI:       &kickr.CI{Provider: parser.GitLab, Options: []string{"kickr"}},
 					Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
@@ -101,7 +101,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			for _, auth := range []string{kickr.AuthGitHubApp, kickr.AuthPersonalToken} {
 				t.Run(auth, func(t *testing.T) {
 					// Arrange
-					config := types.KickrWrapper{
+					config := types.Repository{
 						Kickr: kickr.Kickr{
 							CI:           &kickr.CI{Provider: parser.GitHub, Options: []string{"renovate:" + auth}},
 							Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
@@ -118,7 +118,7 @@ func TestGenerate_NoLang(t *testing.T) {
 
 		t.Run("gitlab", func(t *testing.T) {
 			// Arrange
-			config := types.KickrWrapper{
+			config := types.Repository{
 				Kickr: kickr.Kickr{
 					CI:           &kickr.CI{Provider: parser.GitLab, Options: []string{"renovate"}},
 					Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
@@ -133,7 +133,7 @@ func TestGenerate_NoLang(t *testing.T) {
 
 		t.Run("templates", func(t *testing.T) {
 			// Arrange
-			tmpl := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+			tmpl := func(_ context.Context, destdir string, _ *types.Repository) error {
 				file, err := os.Create(filepath.Join(destdir, "template.tmpl"))
 				if err != nil {
 					return fmt.Errorf("create: %w", err)
@@ -141,7 +141,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				return file.Close()
 			}
 
-			config := types.KickrWrapper{
+			config := types.Repository{
 				Kickr: kickr.Kickr{
 					Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
 					Exclude:      []string{kickr.ExcludeMakefile},
@@ -169,7 +169,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			name := tc.CI + "_" + strconv.FormatBool(tc.PreCommit)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:      &kickr.CI{Provider: tc.CI},
 						Exclude: []string{kickr.ExcludeMakefile},
@@ -216,7 +216,7 @@ func TestGenerate_NoLang(t *testing.T) {
 
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: tc.CI,
@@ -237,7 +237,7 @@ func TestGenerate_NoLang(t *testing.T) {
 func TestGenerate_Shell(t *testing.T) {
 	ctx := t.Context()
 
-	shell := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+	shell := func(_ context.Context, destdir string, _ *types.Repository) error {
 		return os.WriteFile(filepath.Join(destdir, "script.sh"), []byte("#!/bin/sh\n"), files.RwxRxRxRx)
 	}
 
@@ -245,7 +245,7 @@ func TestGenerate_Shell(t *testing.T) {
 		for _, ci := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:      &kickr.CI{Provider: ci},
 						Exclude: []string{kickr.ExcludeMakefile},
@@ -262,7 +262,7 @@ func TestGenerate_Shell(t *testing.T) {
 		for _, precommit := range []bool{true, false} {
 			t.Run(strconv.FormatBool(precommit), func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile}}}
+				config := types.Repository{Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile}}}
 				if !precommit {
 					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
 				}
@@ -279,8 +279,8 @@ func TestGenerate_Golang(t *testing.T) {
 
 	t.Run("success_cli", func(t *testing.T) {
 		// Arrange
-		golang := func(ci string) func(ctx context.Context, destdir string, config *types.KickrWrapper) error {
-			return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		golang := func(ci string) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", ci)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
@@ -310,7 +310,7 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, ci := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:           &kickr.CI{Provider: ci, Release: &kickr.Release{}},
 						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerDependabot},
@@ -326,8 +326,8 @@ func TestGenerate_Golang(t *testing.T) {
 
 	t.Run("success_library", func(t *testing.T) {
 		// Arrange
-		golang := func(platform string) func(ctx context.Context, destdir string, config *types.KickrWrapper) error {
-			return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		golang := func(platform string) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", platform)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
@@ -339,7 +339,7 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, platform := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(platform, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						Exclude:   []string{kickr.ExcludeMakefile},
 						PreCommit: []string{kickr.PreCommitGomodTidy},
@@ -355,8 +355,8 @@ func TestGenerate_Golang(t *testing.T) {
 
 	t.Run("success_multiple_bin_helm", func(t *testing.T) {
 		// Arrange
-		golang := func(ci string) func(ctx context.Context, destdir string, config *types.KickrWrapper) error {
-			return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		golang := func(ci string) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", ci)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
@@ -386,7 +386,7 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, ci := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: ci,
@@ -421,7 +421,7 @@ func TestGenerate_Golang(t *testing.T) {
 func TestGenerate_Hugo(t *testing.T) {
 	ctx := t.Context()
 
-	hugo := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+	hugo := func(_ context.Context, destdir string, _ *types.Repository) error {
 		file, err := os.Create(filepath.Join(destdir, "hugo.toml"))
 		if err != nil {
 			return fmt.Errorf("create: %w", err)
@@ -433,7 +433,7 @@ func TestGenerate_Hugo(t *testing.T) {
 		for _, ci := range []string{parser.GitHub, parser.GitLab} {
 			t.Run(ci, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{CI: &kickr.CI{Provider: ci}, Platform: ci},
 				}
 
@@ -455,7 +455,7 @@ func TestGenerate_Hugo(t *testing.T) {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{CI: &ci, Platform: ci.Provider},
 				}
 
@@ -477,7 +477,7 @@ func TestGenerate_Hugo(t *testing.T) {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{CI: &ci, Platform: ci.Provider},
 				}
 
@@ -493,8 +493,8 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("success_package_managers", func(t *testing.T) {
 		// Arrange
-		node := func(tc string) func(ctx context.Context, destdir string, config *types.KickrWrapper) error {
-			return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		node := func(tc string) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				content := fmt.Appendf(nil, `{ "name": "kickr", "packageManager": "%s" }`+"\n", tc)
 				return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON), content, files.RwRR)
 			}
@@ -503,7 +503,7 @@ func TestGenerate_Node(t *testing.T) {
 		for _, tc := range []string{"bun@1.1.6", "npm@7.0.0", "pnpm@9.0.0", "yarn@1.22.10"} {
 			t.Run(tc, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:       &kickr.CI{Provider: parser.GitHub},
 						Platform: parser.GitHub,
@@ -525,8 +525,8 @@ func TestGenerate_Node(t *testing.T) {
 		}
 
 		// Arrange
-		node := func(tc testcase) func(ctx context.Context, destdir string, config *types.KickrWrapper) error {
-			return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		node := func(tc testcase) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				content := fmt.Appendf(nil, `{ "name": "kickr", "packageManager": "%s" }`+"\n", tc.PackageManager)
 				return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON), content, files.RwRR)
 			}
@@ -543,7 +543,7 @@ func TestGenerate_Node(t *testing.T) {
 			name := fmt.Sprint(tc.CI, "_", tc.Manager, "_", tc.PackageManager)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Options:  tc.Options,
@@ -563,7 +563,7 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("success_netlify", func(t *testing.T) {
 		// Arrange
-		node := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
 				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
 		}
@@ -579,7 +579,7 @@ func TestGenerate_Node(t *testing.T) {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:       &ci,
 						Exclude:  []string{kickr.ExcludeMakefile},
@@ -595,7 +595,7 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("success_pages", func(t *testing.T) {
 		// Arrange
-		node := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
 				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
 		}
@@ -611,7 +611,7 @@ func TestGenerate_Node(t *testing.T) {
 			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:       &ci,
 						Exclude:  []string{kickr.ExcludeMakefile},
@@ -627,7 +627,7 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("success_helm", func(t *testing.T) {
 		// Arrange
-		node := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
 				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
 		}
@@ -658,7 +658,7 @@ func TestGenerate_Node(t *testing.T) {
 			name := fmt.Sprint(ci.Provider, "_deploy_", deploy, "_publish_", publish)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI:       &ci,
 						Exclude:  []string{kickr.ExcludeMakefile},
@@ -681,8 +681,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		Hosting  string
 	}
 
-	golang := func(tc testcase) func(ctx context.Context, destdir string, config *types.KickrWrapper) error {
-		return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+	golang := func(tc testcase) func(ctx context.Context, destdir string, config *types.Repository) error {
+		return func(_ context.Context, destdir string, _ *types.Repository) error {
 			gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", tc.Provider)
 			if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 				return fmt.Errorf("write file: %w", err)
@@ -691,7 +691,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 	}
 
-	hugo := func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+	hugo := func(_ context.Context, destdir string, _ *types.Repository) error {
 		if err := os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx); err != nil {
 			return fmt.Errorf("mkdir all: %w", err)
 		}
@@ -702,8 +702,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		return file.Close()
 	}
 
-	node := func(dir string) engine.Parser[types.KickrWrapper] {
-		return func(_ context.Context, destdir string, _ *types.KickrWrapper) error {
+	node := func(dir string) engine.Parser[types.Repository] {
+		return func(_ context.Context, destdir string, _ *types.Repository) error {
 			if err := os.MkdirAll(filepath.Join(destdir, dir), files.RwxRxRxRx); err != nil {
 				return fmt.Errorf("mkdir all: %w", err)
 			}
@@ -723,7 +723,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: tc.Provider,
@@ -751,7 +751,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: tc.Provider,
@@ -779,7 +779,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
-				config := types.KickrWrapper{
+				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: tc.Provider,
@@ -797,7 +797,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 	})
 }
 
-func ParserInfo(_ context.Context, _ string, config *types.KickrWrapper) error {
+func ParserInfo(_ context.Context, _ string, config *types.Repository) error {
 	config.VCS = parser.VCS{
 		Platform:    config.Platform,
 		ProjectHost: config.Platform + ".com",
@@ -808,7 +808,7 @@ func ParserInfo(_ context.Context, _ string, config *types.KickrWrapper) error {
 }
 
 // test verifies every generation with provided config, parser and t.Name folder expected results.
-func test(ctx context.Context, t *testing.T, config types.KickrWrapper, parsers ...engine.Parser[types.KickrWrapper]) {
+func test(ctx context.Context, t *testing.T, config types.Repository, parsers ...engine.Parser[types.Repository]) {
 	t.Helper()
 
 	// Arrange
@@ -823,8 +823,8 @@ func test(ctx context.Context, t *testing.T, config types.KickrWrapper, parsers 
 
 	// Act
 	_, err := engine.Generate(ctx, destdir, config,
-		slices.Concat(parsers, []engine.Parser[types.KickrWrapper]{ParserInfo, generate.ParserGlob, generate.ParserGolang, generate.ParserNode, generate.ParserHelm}),
-		[]engine.Generator[types.KickrWrapper]{
+		slices.Concat(parsers, []engine.Parser[types.Repository]{ParserInfo, generate.ParserGlob, generate.ParserGolang, generate.ParserNode, generate.ParserHelm}),
+		[]engine.Generator[types.Repository]{
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),
 			engine.GeneratorTemplates(templates.FS(), templates.Docker()),
