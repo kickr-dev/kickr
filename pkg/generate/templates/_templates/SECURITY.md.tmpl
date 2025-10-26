@@ -4,8 +4,6 @@
 
 ## Supported Versions
 
-Only the latest released version of {{ .VCS.ProjectName }} is supported with security updates.
-
 {{- $tags := list }}
 {{- range .VCS.Tags }}
 {{- $tag := index (regexSplit "\\." . -1) 0 }}

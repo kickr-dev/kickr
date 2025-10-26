@@ -4,8 +4,6 @@
 
 ## Supported Versions
 
-Only the latest released version of kickr is supported with security updates.
-
 | Version | Supported |
 | ------- | --------- |
 | Latest  | ✅         |
