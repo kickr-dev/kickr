@@ -29,6 +29,7 @@ jobs:
   renovate:
     name: Renovate
     runs-on: ubuntu-latest
+    environment: renovate
     steps:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
