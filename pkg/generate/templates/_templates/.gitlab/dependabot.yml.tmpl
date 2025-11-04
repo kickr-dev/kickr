@@ -16,6 +16,9 @@ updates:
 
   - package-ecosystem: gitsubmodule
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     auto-merge:
       allow:
         - dependency-name: "*"
@@ -32,6 +35,9 @@ updates:
 
   - package-ecosystem: docker
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     auto-merge:
       allow:
         - dependency-name: "*"
@@ -48,6 +54,9 @@ updates:
 
   - package-ecosystem: helm
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     auto-merge:
       allow:
         - dependency-name: "*"
@@ -64,6 +73,9 @@ updates:
 
   - package-ecosystem: gomod
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     auto-merge:
       allow:
         - dependency-name: "*"
@@ -85,6 +97,9 @@ updates:
 
   - package-ecosystem: {{ eq . "bun" | ternary "bun" "npm" }}
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     auto-merge:
       allow:
         - dependency-name: "*"

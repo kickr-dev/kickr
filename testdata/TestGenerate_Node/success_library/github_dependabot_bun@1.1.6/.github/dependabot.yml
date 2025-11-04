@@ -11,6 +11,9 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     schedule:
       interval: daily
       time: "12:00"
@@ -29,6 +32,9 @@ updates:
 
   - package-ecosystem: bun
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     schedule:
       interval: daily
       time: "12:00"

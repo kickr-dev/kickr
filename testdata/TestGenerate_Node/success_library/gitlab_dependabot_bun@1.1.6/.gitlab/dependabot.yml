@@ -10,6 +10,9 @@ updates:
 
   - package-ecosystem: bun
     directory: /
+    labels:
+      - dependabot
+      - dependencies
     auto-merge:
       allow:
         - dependency-name: "*"
