@@ -28,7 +28,7 @@ jobs:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -38,12 +38,12 @@ jobs:
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.13.3
+          terraform_version: 1.13.5
 <<- else >>
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.10.6
+          tofu_version: 1.10.7
 <<- end >>
       - run: << $cmd >> fmt -check
       - run: << $cmd >> init -backend=false
@@ -60,7 +60,7 @@ jobs:
 <<- if has "harden-runner" .CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -69,7 +69,7 @@ jobs:
       - uses: terraform-linters/setup-tflint@ae78205cfffec9e8d93fd2b3115c7e9d3166d4b6 # v5.0.0
         with:
           # renovate: datasource=github-tags packageName=terraform-linters/tflint depName=tflint
-          tflint_version: v0.52.0
+          tflint_version: v0.59.1
       - run: tflint --init
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,7 +77,7 @@ jobs:
           mkdir -p reports/
           tflint --config "$(pwd)/.tflint.hcl" --recursive --format sarif | tee reports/tflint.sarif
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@192325c86100d080feab897ff886c34abd4c83a3 # v3.30.3
+        uses: github/codeql-action/upload-sarif@5d5cd550d3e189c569da8f16ea8de2d821c9bf7a # v3.31.2
         with:
           category: tflint
           sarif_file: reports/tflint.sarif
@@ -115,7 +115,7 @@ jobs:
 <<- if has "harden-runner" $.CI.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+      - uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -125,12 +125,12 @@ jobs:
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.13.3
+          terraform_version: 1.13.5
 <<- else >>
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.10.6
+          tofu_version: 1.10.7
 <<- end >>
       - run: |-
           << $cmd >> init
