@@ -12,7 +12,7 @@ on:
         options:
           - full
           - none
-        default: none
+        default: full
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -72,8 +72,8 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
 
-  terraform-apply-975b1ffb4b9555e663ab89e7f430e11e03e38590:
-    name: Terraform Apply (.terraform)
+  terraform-apply:
+    name: Terraform Apply
     runs-on: ubuntu-latest
     if: ${{ inputs.opentofu_apply != 'none' }}
     needs: version
@@ -92,9 +92,6 @@ jobs:
         include:
           - environment: production # enabled on production branches
             production: true
-    defaults:
-      run:
-        working-directory: .terraform
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
@@ -105,5 +102,6 @@ jobs:
           tofu init
           tofu apply -no-color -auto-approve
         env:
-          TF_VAR_my_var: ${{ vars.MY_VAR }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           TF_VAR_version: ${{ needs.version.outputs.version }}

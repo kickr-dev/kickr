@@ -34,6 +34,11 @@ variables:
 
   TF_IMAGE: ghcr.io/opentofu/opentofu:minimal
 
+  TF_REVIEW_ENABLED: "false"
+  TF_INTEG_ENABLED: "false"
+  TF_STAGING_ENABLED: "false"
+  TF_PROD_ENABLED: "true"
+
 default:
   interruptible: true
 

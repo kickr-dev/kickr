@@ -25,7 +25,7 @@ type TerraformModule struct {
 	Backend string
 }
 
-var backends = []string{"s3"}
+var backends = []string{"http", "s3"}
 
 // var moduleRegexp = regexp.MustCompile(`terraform-\S+-\S+`)
 

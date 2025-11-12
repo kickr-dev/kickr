@@ -141,8 +141,6 @@ jobs:
           tofu init
           tofu apply -no-color -auto-approve
         env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           TF_VAR_github_var: ${{ github.var }}
           TF_VAR_my_secret: ${{ vars.MY_SECRET }}
           TF_VAR_my_var: ${{ vars.MY_VAR }}
@@ -181,8 +179,6 @@ jobs:
           tofu init
           tofu apply -no-color -auto-approve
         env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           TF_VAR_github_var: ${{ github.var }}
           TF_VAR_my_secret: ${{ vars.MY_SECRET }}
           TF_VAR_my_var: ${{ vars.MY_VAR }}

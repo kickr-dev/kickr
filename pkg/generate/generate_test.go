@@ -694,7 +694,7 @@ func TestGenerate_Terraform(t *testing.T) {
 					return fmt.Errorf("mkdir all: %w", err)
 				}
 				return os.WriteFile(filepath.Join(destdir, subdir, "main.tf"), []byte(
-					`terraform { backend "s3" {} }`+"\n"+
+					`terraform { backend "http" {} }`+"\n"+
 						`variable "my_secret" { sensitive = true }`+"\n"+
 						`variable "github_var" {}`+"\n"+
 						`variable "my_var" {}`+"\n"), files.RwRR)
@@ -736,7 +736,7 @@ func TestGenerate_Terraform(t *testing.T) {
 	t.Run("root_module", func(t *testing.T) {
 		// Arrange
 		terraform := func(_ context.Context, destdir string, _ *types.Repository) error {
-			return os.WriteFile(filepath.Join(destdir, "main.tf"), []byte("terraform {}\n"), files.RwRR)
+			return os.WriteFile(filepath.Join(destdir, "main.tf"), []byte(`terraform { backend "s3" {} }`+"\n"), files.RwRR)
 		}
 
 		for _, provider := range []string{parser.GitHub, parser.GitLab} {
@@ -744,7 +744,13 @@ func TestGenerate_Terraform(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:           &kickr.CI{Provider: provider},
+						CI: &kickr.CI{
+							Provider: provider,
+							Terraform: &kickr.TerraformCI{
+								Apply:        kickr.TerraformAuto,
+								Environments: []string{"production"},
+							},
+						},
 						PreCommit:    []string{kickr.PreCommitTerraform},
 						Platform:     provider,
 						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
@@ -900,13 +906,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: tc.Provider,
-							Terraform: &kickr.TerraformCI{
-								Apply:        kickr.TerraformManual,
-								Environments: []string{"production"},
-							},
-						},
+						CI:        &kickr.CI{Provider: tc.Provider},
 						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
 						Platform:  tc.Provider,
 						Terraform: &kickr.Terraform{Engine: kickr.EngineOpentofu, Modules: []string{".terraform"}},
