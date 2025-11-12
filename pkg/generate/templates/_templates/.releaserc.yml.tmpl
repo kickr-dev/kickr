@@ -74,7 +74,7 @@ plugins:
         - BREAKING CHANGES
         - BREAKING
   - "@semantic-release/changelog"
-{{- if and .License (or (eq .License "bsl-1.0") (eq .License "mit")) }}
+{{- if and .License (slice "bsl-1.0" "mit" | has .License) }}
   - "semantic-release-license"
 {{- end }}
 {{- if $node }}
@@ -83,7 +83,7 @@ plugins:
   - - "@semantic-release/git"
     - assets:
         - CHANGELOG.md
-{{- if and .License (or (eq .License "bsl-1.0") (eq .License "mit")) }}
+{{- if and .License (slice "bsl-1.0" "mit" | has .License) }}
         - LICENSE
 {{- end }}
 {{- if $node }}

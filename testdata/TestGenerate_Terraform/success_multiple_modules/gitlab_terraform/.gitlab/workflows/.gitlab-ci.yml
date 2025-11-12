@@ -78,5 +78,9 @@ semantic-release:
     matrix:
       - TF_PROJECT_DIR: modules/one
         TF_GITLAB_BACKEND_DISABLED: "true"
+        # see https://gitlab.com/to-be-continuous/terraform/-/blob/master/templates/gitlab-ci-terraform.yml?ref_type=heads#L774
+        TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_ENVIRONMENT_SLUG}.one
       - TF_PROJECT_DIR: modules/two
         TF_GITLAB_BACKEND_DISABLED: "true"
+        # see https://gitlab.com/to-be-continuous/terraform/-/blob/master/templates/gitlab-ci-terraform.yml?ref_type=heads#L774
+        TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/${CI_ENVIRONMENT_SLUG}.two

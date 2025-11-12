@@ -893,8 +893,6 @@ func TestGenerate_MonoRepo(t *testing.T) {
 	t.Run("success_go_self_terraform", func(t *testing.T) {
 		cases := []testcase{
 			{Provider: parser.GitLab},
-			{Provider: parser.GitLab},
-			{Provider: parser.GitHub},
 			{Provider: parser.GitHub},
 		}
 		for _, tc := range cases {
