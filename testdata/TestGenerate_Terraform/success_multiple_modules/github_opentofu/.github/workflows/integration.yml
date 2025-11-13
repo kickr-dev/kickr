@@ -125,7 +125,7 @@ jobs:
           category: tflint
           sarif_file: reports/tflint.sarif
 
-  opentofu-plan-7a37101bbd7b71ad83f871dfc0bdaee8d4ab6503:
+  opentofu-plan-4f87104d:
     name: Opentofu Plan (modules/one)
     runs-on: ubuntu-latest
     needs: opentofu-check
@@ -152,7 +152,7 @@ jobs:
           TF_VAR_my_secret: ${{ vars.MY_SECRET }}
           TF_VAR_my_var: ${{ vars.MY_VAR }}
 
-  opentofu-plan-46ddf2cf26e511d8747f0fd68a15abf372f263e1:
+  opentofu-plan-046426cf:
     name: Opentofu Plan (modules/two)
     runs-on: ubuntu-latest
     needs: opentofu-check
@@ -186,8 +186,8 @@ jobs:
     needs:
       - opentofu-check
       - opentofu-lint
-      - opentofu-plan-7a37101bbd7b71ad83f871dfc0bdaee8d4ab6503
-      - opentofu-plan-46ddf2cf26e511d8747f0fd68a15abf372f263e1
+      - opentofu-plan-4f87104d
+      - opentofu-plan-046426cf
       - pre-commit
     steps:
       - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}

@@ -233,7 +233,7 @@ jobs:
 <<- if .IsHosting "pages" >><<- $needs = append $needs "pages" >><<- end >>
 <<- if .HasTerraformApply >>
 <<- range $node := get .Languages "terraform" >>
-<<- $needs = append $needs (print "terraform-apply" (ne $node.Directory "." | ternary (print "-" (sha1sum $node.Directory)) "")) >>
+<<- $needs = append $needs (print "terraform-apply" (ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "")) >>
 <<- end >>
 <<- end >>
 

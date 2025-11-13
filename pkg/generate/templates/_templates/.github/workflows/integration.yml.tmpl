@@ -308,7 +308,7 @@ jobs:
       - opentofu-lint
 <<- if .HasTerraformApply >>
 <<- range $node := get .Languages "terraform" >>
-      - opentofu-plan<< ne $node.Directory "." | ternary (print "-" (sha1sum $node.Directory)) "" >>
+      - opentofu-plan<< ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "" >>
 <<- end >>
 <<- end >>
 <<- end >>
@@ -320,7 +320,7 @@ jobs:
       - terraform-lint
 <<- if .HasTerraformApply >>
 <<- range $node := get .Languages "terraform" >>
-      - terraform-plan<< ne $node.Directory "." | ternary (print "-" (sha1sum $node.Directory)) "" >>
+      - terraform-plan<< ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "" >>
 <<- end >>
 <<- end >>
 <<- end >>

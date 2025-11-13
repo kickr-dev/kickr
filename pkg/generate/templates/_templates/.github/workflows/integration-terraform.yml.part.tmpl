@@ -85,7 +85,7 @@ jobs:
 <<- if .HasTerraformApply >>
 <<- range $node := $nodes >>
 
-  << $engine >>-plan<< ne $node.Directory "." | ternary (print "-" (sha1sum $node.Directory)) "" >>:
+  << $engine >>-plan<< ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "" >>:
     name: << title $engine >> Plan<< ne $node.Directory "." | ternary (printf " (%s)" $node.Directory) "" >>
     runs-on: ubuntu-latest
     needs: << $engine >>-check

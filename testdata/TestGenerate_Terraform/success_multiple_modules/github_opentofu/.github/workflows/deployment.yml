@@ -108,7 +108,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
 
-  terraform-apply-7a37101bbd7b71ad83f871dfc0bdaee8d4ab6503:
+  terraform-apply-4f87104d:
     name: Terraform Apply (modules/one)
     runs-on: ubuntu-latest
     if: ${{ inputs.opentofu_apply != 'none' }}
@@ -146,7 +146,7 @@ jobs:
           TF_VAR_my_var: ${{ vars.MY_VAR }}
           TF_VAR_version: ${{ needs.version.outputs.version }}
 
-  terraform-apply-46ddf2cf26e511d8747f0fd68a15abf372f263e1:
+  terraform-apply-046426cf:
     name: Terraform Apply (modules/two)
     runs-on: ubuntu-latest
     if: ${{ inputs.opentofu_apply != 'none' }}
@@ -189,8 +189,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ inputs.release != 'none' && github.ref_protected }}
     needs:
-      - terraform-apply-7a37101bbd7b71ad83f871dfc0bdaee8d4ab6503
-      - terraform-apply-46ddf2cf26e511d8747f0fd68a15abf372f263e1
+      - terraform-apply-4f87104d
+      - terraform-apply-046426cf
     environment:
       name: release
       url: ${{ steps.environment_url.outputs.environment_url }}

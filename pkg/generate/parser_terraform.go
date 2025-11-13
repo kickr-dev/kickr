@@ -27,8 +27,6 @@ type TerraformModule struct {
 
 var backends = []string{"http", "s3"}
 
-// var moduleRegexp = regexp.MustCompile(`terraform-\S+-\S+`)
-
 // ParserTerraform detects the presence of a terraform module with its 'main.tf' at destdir base directory
 // or within specified modules (by config.Terraform.Modules) with their own 'main.tf'.
 //

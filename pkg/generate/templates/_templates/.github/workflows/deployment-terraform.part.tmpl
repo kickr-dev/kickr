@@ -7,7 +7,7 @@ jobs:
 
 <<- range $node := get .Languages "terraform" >>
 
-  terraform-apply<< ne $node.Directory "." | ternary (print "-" (sha1sum $node.Directory)) "" >>:
+  terraform-apply<< ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "" >>:
     name: Terraform Apply<< ne $node.Directory "." | ternary (printf " (%s)" $node.Directory) "" >>
     runs-on: ubuntu-latest
     if: ${{ inputs.<< $engine >>_apply != 'none' }}
