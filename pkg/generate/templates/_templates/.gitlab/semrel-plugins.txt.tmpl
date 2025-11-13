@@ -10,7 +10,7 @@ conventional-changelog-conventionalcommits
 @semantic-release/npm
 {{- end }}
 
-{{- if and .License (slice "bsl-1.0" "mit" | has .License) }}
+{{- if and .License (list "bsl-1.0" "mit" | has .License) }}
 semantic-release-license
 {{- end }}
 
