@@ -18,7 +18,7 @@ include:
   # Dependabot template
   # https://gitlab.com/dependabot-gitlab/dependabot-standalone
   - project: dependabot-gitlab/dependabot-standalone
-    ref: 01ad107e3fcb64e32b1498e84e8a509bb6f33224 # 3.69.1
+    ref: 18abe52a7ab55b4375e41b96361f266498579fc9 # 3.70.0
     file: .gitlab-ci.yml
 
   # Terraform template
