@@ -106,7 +106,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - project: to-be-continuous/sonar
+  - project: to-be-continuous/terraform
     ref: 8fbbaa868bfa0fd31f9add0bf97c7317becac284 # 8.0.2
     file: "templates/gitlab-ci-terraform.yml"
 {{- end }}
@@ -247,6 +247,7 @@ variables:
 {{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
 
   TF_IMAGE: {{ eq $engine "terraform" | ternary "docker.io/hashicorp/terraform:latest" "ghcr.io/opentofu/opentofu:minimal" }}
+  TF_TRIVY_DISABLED: "true"
 
 {{- if .HasTerraformApply }}
 
@@ -466,18 +467,6 @@ pages:
 {{- end }}
 
 {{- if $terraform }}
-
-{{- $engine := "opentofu" }}
-{{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
-
-{{- if eq $engine "opentofu" }}
-
-.tf-commands:
-  gitlab_auth:
-    # https://gitlab.com/to-be-continuous/terraform/-/issues/88
-    - alias terraform=tofu
-    - !reference [ .tf-commands, default, gitlab_auth ]
-{{- end }}
 
 .tf-base:
   parallel:

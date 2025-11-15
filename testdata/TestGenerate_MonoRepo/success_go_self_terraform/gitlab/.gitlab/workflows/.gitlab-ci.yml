@@ -17,7 +17,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - project: to-be-continuous/sonar
+  - project: to-be-continuous/terraform
     ref: 8fbbaa868bfa0fd31f9add0bf97c7317becac284 # 8.0.2
     file: "templates/gitlab-ci-terraform.yml"
 
@@ -40,6 +40,7 @@ variables:
   GO_TEST_IMAGE: docker.io/library/golang:latest
 
   TF_IMAGE: ghcr.io/opentofu/opentofu:minimal
+  TF_TRIVY_DISABLED: "true"
 
 default:
   interruptible: true
@@ -56,12 +57,6 @@ semantic-release-info:
 go-build:
   rules:
     - when: never # no binary to build
-
-.tf-commands:
-  gitlab_auth:
-    # https://gitlab.com/to-be-continuous/terraform/-/issues/88
-    - alias terraform=tofu
-    - !reference [ .tf-commands, default, gitlab_auth ]
 
 .tf-base:
   parallel:
