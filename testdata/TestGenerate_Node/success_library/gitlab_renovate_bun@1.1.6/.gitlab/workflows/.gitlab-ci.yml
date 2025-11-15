@@ -80,6 +80,9 @@ semantic-release-info:
 
 semantic-release:
   interruptible: false
+  id_tokens:
+    NPM_ID_TOKEN:
+      aud: npm:registry.npmjs.org
   variables:
     GIT_DEPTH: "0"
 

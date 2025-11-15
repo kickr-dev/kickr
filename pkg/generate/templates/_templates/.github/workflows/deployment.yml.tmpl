@@ -187,7 +187,7 @@ jobs:
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 <<- end >>
-<<- if and $node (not (first (get .Languages "node")).Specifics.Private) >>
+<<- if and $node (not (first (get .Languages "node")).Specifics.Private) (not (first (get .Languages "node")).Specifics.PublishConfig.Registry) >>
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 <<- end >>
       - id: version
@@ -320,7 +320,7 @@ jobs:
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 <<- end >>
-<<- if and $node (not (first (get .Languages "node")).Specifics.Private) >>
+<<- if and $node (not (first (get .Languages "node")).Specifics.Private) (not (first (get .Languages "node")).Specifics.PublishConfig.Registry) >>
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 <<- end >>
       - id: environment_url
