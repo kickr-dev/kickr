@@ -53,7 +53,7 @@ include: .gitlab/workflows/.gitlab-ci.yml
 {{- end }}
 {{- end }}
 
-{{- if .DependencyManager "renovate" }}
+{{- if and (.DependencyManager "renovate") (has "renovate" .CI.Options) }}
 
 # https://gitlab.com/to-be-continuous/renovate
 # Don't forget to setup a scheduled pipeline every once in a while to run Renovate updates checks.
