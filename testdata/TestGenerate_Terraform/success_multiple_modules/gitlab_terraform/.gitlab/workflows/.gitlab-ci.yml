@@ -24,7 +24,7 @@ include:
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
   - project: to-be-continuous/terraform
-    ref: 4371f590e23280655278624eb562407213d0c048 # 8.0.3
+    ref: a8edc659533b6ba8e5e8eed2486ac77c77e9e229 # 8.1.0
     file: "templates/gitlab-ci-terraform.yml"
 
 variables:
