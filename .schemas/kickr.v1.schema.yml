@@ -62,10 +62,6 @@ properties:
             release:
               properties:
                 auth: false
-            # don't allow GitLab CI/CD to provide 'auth' renovate section
-            renovate:
-              properties:
-                auth: false
             # only allow specific options with GitLab CI/CD
             options:
               type: array
@@ -109,18 +105,6 @@ properties:
         then:
           properties:
             release:
-              required:
-                - auth
-      # force with GitHub the presence of 'renovate.auth' when 'renovate' is provided
-      - if:
-          properties:
-            provider:
-              const: github
-          required:
-            - renovate
-        then:
-          properties:
-            renovate:
               required:
                 - auth
 
@@ -418,18 +402,3 @@ $defs:
           type: string
           enum:
             - backmerge
-
-allOf:
-  # don't allow renovate section in CI/CD when the dependencies manager is not renovate
-  - if:
-      properties:
-        dependencies:
-          properties:
-            manager:
-              const: renovate
-    then: {}
-    else:
-      properties:
-        ci:
-          properties:
-            renovate: false
