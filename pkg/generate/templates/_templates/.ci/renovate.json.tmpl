@@ -7,8 +7,9 @@
 
     "autodiscover": true,
 {{- if eq (len .Languages) 0 }}
-    "autodiscoverNamespaces": [ "{{ trimSuffix (print "/" .VCS.ProjectName) .VCS.ProjectPath }}" ]
+    "autodiscoverNamespaces": [ "{{ trimSuffix (print "/" .VCS.ProjectName) .VCS.ProjectPath }}" ],
 {{- else }}
-    "autodiscoverFilter": [ "{{ .VCS.ProjectPath }}" ]
+    "autodiscoverFilter": [ "{{ .VCS.ProjectPath }}" ],
 {{- end }}
+    "onboarding": false
 }
