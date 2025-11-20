@@ -13,13 +13,13 @@ require (
 	github.com/goccy/go-yaml v1.18.0
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.1
-	github.com/kickr-dev/engine v0.0.0-20251026134155-33b51015476a
+	github.com/kickr-dev/engine v0.0.0-20251120211330-9ae9389e9238
 	github.com/kilianpaquier/compare v1.1.0
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
 	gitlab.com/gitlab-org/api/client-go v0.160.0
-	helm.sh/helm/v3 v3.19.2
+	helm.sh/helm/v3 v3.19.1
 )
 
 require (
@@ -151,7 +151,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp v0.0.0-20250813145105-42675adae3e6 // indirect
-	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/mod v0.30.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect

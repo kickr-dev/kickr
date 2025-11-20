@@ -277,7 +277,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(<< (get .Languages "go").Module | default (print .VCS.ProjectHost "/" .VCS.ProjectPath) >>)
+        - prefix(github.com/kickr-dev)
     gofmt:
       # Apply the rewrite rules to the source before reformatting.
       # https://pkg.go.dev/cmd/gofmt

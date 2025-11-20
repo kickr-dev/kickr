@@ -37,7 +37,6 @@ func TestGenerate_NoLang(t *testing.T) {
 			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
 			{Provider: parser.GitLab, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
 		}
-
 		for _, ci := range cases {
 			publish := "nil"
 			if ci.Helm != nil && ci.Helm.Publish != "" {
@@ -279,7 +278,7 @@ func TestGenerate_Golang(t *testing.T) {
 		// Arrange
 		golang := func(ci string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
-				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", ci)
+				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", ci)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
 				}
@@ -326,9 +325,47 @@ func TestGenerate_Golang(t *testing.T) {
 		// Arrange
 		golang := func(platform string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
-				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", platform)
+				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", platform)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
+				}
+				return nil
+			}
+		}
+
+		for _, platform := range []string{parser.GitLab, parser.GitHub} {
+			t.Run(platform, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: kickr.Kickr{
+						Exclude:   []string{kickr.ExcludeMakefile},
+						PreCommit: []string{kickr.PreCommitGomodTidy},
+						Platform:  platform,
+					},
+				}
+
+				// Act & Assert
+				test(ctx, t, config, golang(platform))
+			})
+		}
+	})
+
+	t.Run("success_multiple_libraries", func(t *testing.T) {
+		// Arrange
+		golang := func(platform string) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
+				if err := os.WriteFile(filepath.Join(destdir, parser.FileGowork), []byte("go 1.23\n\nuse (\n\t./kickr\n\t./engine\n)\n"), files.RwRR); err != nil {
+					return fmt.Errorf("write file: %w", err)
+				}
+
+				for _, dir := range []string{"kickr", "engine"} {
+					if err := os.MkdirAll(filepath.Join(destdir, dir), files.RwxRxRxRx); err != nil {
+						return fmt.Errorf("mkdir all: %w", err)
+					}
+					gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/%s\n\ngo 1.23\n", platform, dir)
+					if err := os.WriteFile(filepath.Join(destdir, dir, parser.FileGomod), gomod, files.RwRR); err != nil {
+						return fmt.Errorf("write file: %w", err)
+					}
 				}
 				return nil
 			}
@@ -355,7 +392,7 @@ func TestGenerate_Golang(t *testing.T) {
 		// Arrange
 		golang := func(ci string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
-				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", ci)
+				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", ci)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
 				}
@@ -774,7 +811,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 
 	golang := func(tc testcase) func(ctx context.Context, destdir string, config *types.Repository) error {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
-			gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\ngo 1.23\n", tc.Provider)
+			gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", tc.Provider)
 			if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 				return fmt.Errorf("write file: %w", err)
 			}
