@@ -36,7 +36,7 @@ func githubWorkflow() []engine.Template[types.Repository] {
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || (!config.HasHelmPublish() && !config.HasDeployment() && !config.HasRelease())
+			return !config.IsCI(parser.GitHub) || (!config.HasDeployment() && !config.HasRelease())
 		},
 	})
 

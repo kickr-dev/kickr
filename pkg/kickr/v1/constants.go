@@ -43,6 +43,9 @@ const (
 	OptionHardenRunner string = "harden-runner"
 	// OptionLabeler is the auto labeling option for CI tuning.
 	OptionLabeler string = "labeler"
+	// OptionRenovate is the renovate option for CI tuning
+	// (only with GitLab CICD since with GitHub Actions, the option must be suffixed with the authentication method).
+	OptionRenovate string = "renovate"
 	// OptionScoreCardOSSF is the CI option to add OSSF Scorecard badge and associated workflow (with GitHub Actions).
 	OptionScoreCardOSSF string = "ossf-scorecard"
 	// OptionStepSecurityActions is the CI option to use step-security maintained actions instead of initial authors' actions.

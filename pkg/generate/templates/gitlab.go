@@ -2,25 +2,63 @@ package templates
 
 import (
 	"path"
+	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
+	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 // GitLab returns the slice of templates related to GitLab configuration.
 func GitLab() []engine.Template[types.Repository] {
-	srcs := []string{".gitlab-ci.yml", path.Join(".gitlab", "workflows", ".gitlab-ci.yml")}
+	var templates []engine.Template[types.Repository]
 
-	templates := make([]engine.Template[types.Repository], 0, len(srcs))
-	for _, src := range srcs {
-		templates = append(templates, engine.Template[types.Repository]{
-			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{src + engine.TmplExtension},
-			Out:        src,
-			Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitLab) },
-		})
-	}
+	gitlabci := path.Join(".gitlab-ci.yml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      []string{gitlabci + engine.TmplExtension},
+		Out:        gitlabci,
+		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitLab) },
+	})
+
+	semrel := path.Join(".gitlab", "pipelines", "semantic-release.yml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      []string{semrel + engine.TmplExtension},
+		Out:        semrel,
+		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitLab) },
+	})
+
+	deployment := path.Join(".gitlab", "pipelines", "deployment.yml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      engine.GlobsWithPart(deployment),
+		Out:        deployment,
+		Remove: func(config types.Repository) bool {
+			return !config.IsCI(parser.GitLab) || !config.HasDeployment()
+		},
+	})
+
+	integration := path.Join(".gitlab", "pipelines", "integration.yml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      []string{integration + engine.TmplExtension},
+		Out:        integration,
+		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitLab) },
+	})
+
+	dependencies := path.Join(".gitlab", "pipelines", "dependencies.yml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      []string{dependencies + engine.TmplExtension},
+		Out:        dependencies,
+		Remove: func(config types.Repository) bool {
+			return !config.IsCI(parser.GitLab) || config.Dependencies == nil ||
+				(config.Dependencies.Manager == kickr.ManagerRenovate && !slices.Contains(config.CI.Options, kickr.OptionRenovate))
+		},
+	})
+
 	return templates
 }

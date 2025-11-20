@@ -91,11 +91,10 @@ func (k Kickr) HasDeployment() bool {
 
 	docker := k.CI.Docker != nil
 	helm := k.CI.Helm != nil
-	release := k.CI.Release != nil
 	terraform := k.CI.Terraform != nil
 	website := k.CI.Website != nil
 
-	return docker || helm || website || release || terraform
+	return docker || helm || website || terraform
 }
 
 // EnsureDefaults migrates old properties into new fields
