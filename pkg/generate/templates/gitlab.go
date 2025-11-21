@@ -55,7 +55,7 @@ func GitLab() []engine.Template[types.Repository] {
 		Globs:      []string{dependencies + engine.TmplExtension},
 		Out:        dependencies,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitLab) || config.Dependencies == nil ||
+			return config.Dependencies == nil || !config.IsCI(parser.GitLab) ||
 				(config.Dependencies.Manager == kickr.ManagerRenovate && !slices.Contains(config.CI.Options, kickr.OptionRenovate))
 		},
 	})
