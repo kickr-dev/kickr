@@ -1,9 +1,9 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
-    "github-actions": {
-        "enabled": false // project's Actions are maintained by templates updates
-    },
+    "ignorePaths": [
+        "**/testdata/**"
+    ],
 
     "packageRules": [
         {
