@@ -125,6 +125,7 @@ properties:
         examples:
           - configs/renovate.json5
           - configs/renovate.local.json5
+          - configs/renovate/local.json
     allOf:
       - if:
           properties:
