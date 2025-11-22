@@ -63,7 +63,7 @@ func (k Kickr) HasTerraformApply() bool {
 // HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
 func (k Kickr) HasKickr() bool {
 	return k.CI != nil && slices.ContainsFunc(k.CI.Options, func(o string) bool {
-		return strings.HasPrefix(o, "kickr:")
+		return strings.HasPrefix(o, "kickr")
 	})
 }
 
