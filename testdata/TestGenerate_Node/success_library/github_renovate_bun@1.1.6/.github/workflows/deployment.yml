@@ -89,7 +89,6 @@ jobs:
             @kilianpaquier/semantic-release-backmerge
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - id: version
         run: |-
           if [ -n "$SEMREL_INFO_NEXT_VERSION" ]; then
@@ -139,7 +138,6 @@ jobs:
             @kilianpaquier/semantic-release-backmerge
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - id: environment_url
         if: ${{ inputs.release == 'release' && steps.semrel_version.outputs.new_release_published == 'true' }}
         run: |-
