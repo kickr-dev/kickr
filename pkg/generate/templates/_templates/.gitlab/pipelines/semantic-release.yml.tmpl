@@ -57,7 +57,7 @@ semantic-release-info:
 
 semantic-release:
   interruptible: false
-{{- if and $node (not (first (get .Languages "node")).Specifics.Private) (not (first (get .Languages "node")).Specifics.PublishConfig.Registry) }}
+{{- if and $node (not (first (get .Languages "node")).Specifics.Private) (eq (first (get .Languages "node")).Specifics.PublishConfig.Registry "") }}
   id_tokens:
     NPM_ID_TOKEN:
       aud: npm:registry.npmjs.org
