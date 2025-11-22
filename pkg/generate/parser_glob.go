@@ -21,6 +21,7 @@ func ParserGlob(_ context.Context, destdir string, config *types.Repository) err
 		{Glob: ".gitmodules", Name: "gitmodules"},
 		{Glob: "*.*sh", Name: "shell"},
 		{Glob: "*.tmpl", Name: "tmpl"},
+		{Glob: "go.mod", Name: "gomod"},
 	}
 	for _, check := range checks {
 		matches := files.Glob(destdir, check.Glob, files.GlobExcludedDirectories("node_modules", "testdata"))
