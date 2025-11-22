@@ -41,6 +41,9 @@ const (
 	OptionCodeQL string = "codeql"
 	// OptionHardenRunner is the CI option to ensure runners (with GitHub Actions) doesn't have too many open rights.
 	OptionHardenRunner string = "harden-runner"
+	// OptionKickr is the kickr option for CI tuning
+	// (only with GitLab CICD since with GitHub Actions, the option must be suffixed with the authentication method).
+	OptionKickr string = "kickr"
 	// OptionLabeler is the auto labeling option for CI tuning.
 	OptionLabeler string = "labeler"
 	// OptionRenovate is the renovate option for CI tuning
