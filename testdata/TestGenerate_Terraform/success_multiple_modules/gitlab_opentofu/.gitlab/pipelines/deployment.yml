@@ -11,7 +11,9 @@ include:
 
 variables:
 
-  TF_IMAGE: ghcr.io/opentofu/opentofu:minimal
+  TF_IMAGE: ghcr.io/opentofu/opentofu:latest
+  TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
+  TF_CHECKOV_ENABLED: "false"
   TF_TRIVY_DISABLED: "true"
 
   TF_REVIEW_ENABLED: "false"
@@ -19,7 +21,7 @@ variables:
   TF_STAGING_ENABLED: "false"
   TF_PROD_ENABLED: "true"
 
-.tf-base:
+.tf-workspace:
   variables:
     TF_BASE_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state
   parallel:

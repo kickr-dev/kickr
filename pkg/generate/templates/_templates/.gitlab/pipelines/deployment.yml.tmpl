@@ -97,7 +97,9 @@ variables:
 {{- $engine := "opentofu" }}
 {{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
 
-  TF_IMAGE: {{ eq $engine "terraform" | ternary "docker.io/hashicorp/terraform:latest" "ghcr.io/opentofu/opentofu:minimal" }}
+  TF_IMAGE: {{ eq $engine "terraform" | ternary "docker.io/hashicorp/terraform:latest" "ghcr.io/opentofu/opentofu:latest" }}
+  TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
+  TF_CHECKOV_ENABLED: "false"
   TF_TRIVY_DISABLED: "true"
 
 {{- if .HasTerraformApply }}
@@ -115,7 +117,7 @@ variables:
 {{- if $terraform }}
 {{- $nodes := get .Languages "terraform" }}
 
-.tf-base:
+.tf-workspace:
   variables:
 {{- if eq (len $nodes) 1 }}
 {{- $firstnode := first $nodes }}
