@@ -16,7 +16,7 @@ netlify:
         ENV: production
     - variables:
         ARGS: --alias=$BRANCH_SHA
-        ENV: $CI_COMMIT_REF_NAME
+        ENV: review/$CI_COMMIT_REF_NAME
       when: manual
   before_script:
     - npm install -g netlify-cli
