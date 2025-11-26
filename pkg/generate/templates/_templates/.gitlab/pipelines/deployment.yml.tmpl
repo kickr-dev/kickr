@@ -99,8 +99,11 @@ variables:
 
   TF_IMAGE: {{ eq $engine "terraform" | ternary "docker.io/hashicorp/terraform:latest" "ghcr.io/opentofu/opentofu:latest" }}
   TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
+
   TF_CHECKOV_ENABLED: "false"
+  TF_FMT_ENABLED: "true"
   TF_TRIVY_DISABLED: "true"
+  TF_VALIDATE_ENABLED: "true"
 
 {{- if .HasTerraformApply }}
 
