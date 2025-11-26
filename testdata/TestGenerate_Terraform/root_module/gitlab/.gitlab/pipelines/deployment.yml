@@ -6,7 +6,7 @@ include:
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
   - project: to-be-continuous/terraform
-    ref: a8edc659533b6ba8e5e8eed2486ac77c77e9e229 # 8.1.0
+    ref: 920199235a0f000daa8cc05940abd9ba59308445 # 8.1.1
     file: templates/gitlab-ci-terraform.yml
 
 variables:
