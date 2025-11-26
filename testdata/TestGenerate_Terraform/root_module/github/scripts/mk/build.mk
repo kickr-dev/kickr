@@ -7,6 +7,12 @@ clean:
 PWD         ?= $(pwd)
 TFLINT_PATH ?= .tflint.hcl
 
+fmt:
+	@tofu fmt -diff -recursive
+
+validate:
+	@tofu validate
+
 .PHONY: lint
 lint:
 	@tflint --config "${PWD}/${TFLINT_PATH}" --recursive --format compact $(ARGS) || \

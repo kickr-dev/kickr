@@ -7,6 +7,12 @@
 PWD         ?= $(pwd)
 TFLINT_PATH ?= .tflint.hcl
 
+fmt:
+	@{{ $cmd }} fmt -diff -recursive
+
+validate:
+	@{{ $cmd }} validate
+
 .PHONY: lint
 lint:
 	@tflint --config "${PWD}/${TFLINT_PATH}" --recursive --format compact $(ARGS) || \
