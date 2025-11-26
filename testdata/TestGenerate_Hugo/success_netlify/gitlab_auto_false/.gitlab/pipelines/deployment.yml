@@ -16,7 +16,7 @@ netlify:
         ENV: production
       when: manual
     - variables:
-        ARGS: --alias $BRANCH_SHA
+        ARGS: --alias=$BRANCH_SHA
         ENV: $CI_COMMIT_REF_NAME
       when: manual
   before_script:
