@@ -90,7 +90,7 @@ jobs:
           go-version: '1.23'
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: mkdir -p reports/
-      - uses: golangci/golangci-lint-action@0a35821d5c230e903fcfe077583637dea1b27b47 # v9
+      - uses: golangci/golangci-lint-action@e7fa5ac41e1cf5b7d48e45e42232ce7ada589601 # v9.1.0
         with:
           args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.sarif.path="reports/golangci-lint.sarif" --output.text.path=stdout
           problem-matchers: true
