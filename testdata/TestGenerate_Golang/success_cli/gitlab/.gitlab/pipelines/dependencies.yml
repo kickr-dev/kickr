@@ -5,7 +5,7 @@ include:
   # Dependabot template
   # https://gitlab.com/dependabot-gitlab/dependabot-standalone
   - project: dependabot-gitlab/dependabot-standalone
-    ref: 1dbd09f7bac9f5c6131111a65056b96bc24cedb6 # 3.71.0
+    ref: e418bb71ab1878ab03f83ba1530be934357ee0af # 3.72.0
     file: .gitlab-ci.yml
 
 variables:
