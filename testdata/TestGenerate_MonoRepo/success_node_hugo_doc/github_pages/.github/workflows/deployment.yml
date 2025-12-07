@@ -63,7 +63,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - id: version
         run: |-
           DESCRIBE=$(git describe --tags || echo "v0.0.0")
@@ -87,7 +87,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
           submodules: true # fetch Hugo themes
@@ -133,7 +133,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       # https://github.com/marketplace/actions/setup-bun
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:

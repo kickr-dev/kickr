@@ -68,7 +68,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           # renovate: datasource=github-tags packageName=actions/python-versions
@@ -88,7 +88,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
@@ -105,7 +105,7 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - uses: terraform-linters/setup-tflint@4cb9feea73331a35b422df102992a03a44a3bb33 # v6.2.1
         with:
           # renovate: datasource=github-tags packageName=terraform-linters/tflint depName=tflint
@@ -133,7 +133,7 @@ jobs:
         environment:
           - production
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
