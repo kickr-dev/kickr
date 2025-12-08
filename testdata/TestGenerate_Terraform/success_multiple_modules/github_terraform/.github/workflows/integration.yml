@@ -95,7 +95,7 @@ jobs:
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.14.0
+          terraform_version: 1.14.1
       - run: terraform fmt -check
       - run: terraform init -backend=false
       - run: terraform validate -no-color
@@ -143,7 +143,7 @@ jobs:
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.14.0
+          terraform_version: 1.14.1
       - run: |-
           terraform init
           terraform plan -no-color
@@ -170,7 +170,7 @@ jobs:
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.14.0
+          terraform_version: 1.14.1
       - run: |-
           terraform init
           terraform plan -no-color
