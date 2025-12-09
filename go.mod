@@ -15,7 +15,7 @@ require (
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/kickr-dev/engine v0.0.0-20251120211330-9ae9389e9238
 	github.com/kilianpaquier/compare v1.1.0
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
 	gitlab.com/gitlab-org/api/client-go v1.5.0
