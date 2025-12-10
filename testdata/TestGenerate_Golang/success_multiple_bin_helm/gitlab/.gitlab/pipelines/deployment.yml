@@ -6,7 +6,7 @@ include:
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
   - project: to-be-continuous/docker
-    ref: 365dec032be075de4ef5d72dfca42a240608e472 # 8.0.6
+    ref: bdd5249bb106f5d49c3459f2c3126a361b1959dd # 8.0.7
     file: templates/gitlab-ci-docker.yml
 
   # Helm template
