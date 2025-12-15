@@ -92,7 +92,7 @@ jobs:
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.10.7
+          tofu_version: 1.11.0
       - run: tofu fmt -check
       - run: tofu init -backend=false
       - run: tofu validate -no-color
@@ -137,7 +137,7 @@ jobs:
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.10.7
+          tofu_version: 1.11.0
       - run: |-
           tofu init
           tofu plan -no-color
