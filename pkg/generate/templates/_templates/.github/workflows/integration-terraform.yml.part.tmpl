@@ -38,12 +38,12 @@ jobs:
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.14.1
+          terraform_version: 1.14.2
 <<- else >>
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.11.0
+          tofu_version: 1.11.1
 <<- end >>
       - run: << $cmd >> fmt -check
       - run: << $cmd >> init -backend=false
@@ -125,12 +125,12 @@ jobs:
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.14.1
+          terraform_version: 1.14.2
 <<- else >>
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.11.0
+          tofu_version: 1.11.1
 <<- end >>
       - run: |-
           << $cmd >> init
