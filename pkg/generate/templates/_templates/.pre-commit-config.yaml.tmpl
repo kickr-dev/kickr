@@ -86,7 +86,7 @@ repos:
 
   - repo: https://github.com/terraform-docs/terraform-docs
     # renovate: datasource=github-tags packageName=terraform-docs/terraform-docs depName=terraform-docs
-    rev: v0.20.0
+    rev: v0.21.0
     hooks:
 {{- range $node := get .Languages "terraform" }}
       - id: terraform-docs-go
