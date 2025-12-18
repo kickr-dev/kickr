@@ -111,7 +111,7 @@ jobs:
           << $manager >> << eq $manager "npm" | ternary "ci" "install --frozen-lockfile" >>
           << $manager >> run lint -o reports/node-lint.xslint.json -f json
 <<- if has "sonarqube" .CI.Options >>
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.directory }}/reports
@@ -214,7 +214,7 @@ jobs:
           OS: ${{ matrix.os }}
 <<- end >>
 <<- if has "sonarqube" .CI.Options >>
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.directory }}/reports
