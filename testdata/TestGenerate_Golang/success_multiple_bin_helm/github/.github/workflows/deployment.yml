@@ -263,7 +263,7 @@ jobs:
       - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.0.2
+          version: v4.0.4
       - run: helm package --version "$VERSION" --app-version "$VERSION" --dependency-update "$HELM_CHART_DIR"
         env:
           HELM_CHART_DIR: chart/
@@ -323,7 +323,7 @@ jobs:
       - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.0.2
+          version: v4.0.4
       - shell: bash
         run: |-
           args=(--install --kube-context "$ENVIRONMENT" --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION")
