@@ -19,7 +19,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
 	gitlab.com/gitlab-org/api/client-go v1.9.0
-	helm.sh/helm/v3 v3.19.4
+	helm.sh/helm/v4 v4.0.4
 )
 
 require (
