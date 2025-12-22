@@ -16,10 +16,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/yannh/kubeconform/pkg/validator"
-	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/chart/loader"
-	"helm.sh/helm/v3/pkg/chartutil"
-	"helm.sh/helm/v3/pkg/release"
+	"helm.sh/helm/v4/pkg/action"
+	"helm.sh/helm/v4/pkg/chart"
+	"helm.sh/helm/v4/pkg/chart/common"
+	"helm.sh/helm/v4/pkg/chart/loader"
+	"helm.sh/helm/v4/pkg/release"
 
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
@@ -38,7 +39,7 @@ func TestHelmTemplate(t *testing.T) {
 	require.NoError(t, err)
 
 	// parse kube version since lint doesn't take latest one
-	kubeVersion, err := chartutil.ParseKubeVersion("1.33")
+	kubeVersion, err := common.ParseKubeVersion("1.33")
 	require.NoError(t, err)
 
 	// run all tests
@@ -75,12 +76,18 @@ func TestHelmTemplate(t *testing.T) {
 			// Act
 			r, err := template(ctx, kubeVersion, chartdir, filepath.Join(assertdir, "values.yaml"))
 			if err != nil {
-				if r != nil {
-					t.Fatal(err, r.Manifest)
+				if r == nil {
+					t.Fatal(err)
 				}
-				t.Fatal(err)
+				accessor, accerr := release.NewAccessor(r)
+				if accerr != nil {
+					t.Fatal(err) // no bother with accerr, it's not the most important error here
+				}
+				t.Fatal(err, accessor.Manifest())
 			}
-			require.NoError(t, os.WriteFile(actual, []byte(r.Manifest), files.RwRR))
+			accessor, err := release.NewAccessor(r)
+			require.NoError(t, err)
+			require.NoError(t, os.WriteFile(actual, []byte(accessor.Manifest()), files.RwRR))
 
 			t.Run("lint", func(t *testing.T) {
 				t.Parallel()
@@ -123,7 +130,7 @@ func TestHelmTemplate(t *testing.T) {
 }
 
 // lint runs a lint on given chart directory with input values file as templating.
-func lint(kubeVersion *chartutil.KubeVersion, chartdir, valuesFile string) (*action.LintResult, error) {
+func lint(kubeVersion *common.KubeVersion, chartdir, valuesFile string) (*action.LintResult, error) {
 	// load values
 	rawValues, err := os.ReadFile(valuesFile)
 	if err != nil && !errors.Is(err, fs.ErrNotExist) {
@@ -144,11 +151,15 @@ func lint(kubeVersion *chartutil.KubeVersion, chartdir, valuesFile string) (*act
 }
 
 // template runs a dry run of an helm install and returns the computed manifest.
-func template(ctx context.Context, kubeVersion *chartutil.KubeVersion, chartdir, valuesFile string) (*release.Release, error) {
+func template(ctx context.Context, kubeVersion *common.KubeVersion, chartdir, valuesFile string) (release.Releaser, error) {
 	// load chart
-	chart, err := loader.LoadDir(chartdir)
+	c, err := loader.LoadDir(chartdir)
 	if err != nil {
 		return nil, fmt.Errorf("load chart dir: %w", err)
+	}
+	accessor, err := chart.NewDefaultAccessor(c)
+	if err != nil {
+		return nil, fmt.Errorf("new default accessor: %w", err)
 	}
 
 	// load values
@@ -162,13 +173,12 @@ func template(ctx context.Context, kubeVersion *chartutil.KubeVersion, chartdir,
 	}
 
 	client := action.NewInstall(&action.Configuration{})
-	client.ClientOnly = true
-	client.DryRun = true
+	client.DryRunStrategy = action.DryRunClient
 	client.KubeVersion = kubeVersion
-	client.ReleaseName = chart.Name()
+	client.ReleaseName = accessor.Name()
 
 	// run install and retrieve resulting manifest
-	r, err := client.RunWithContext(ctx, chart, values)
+	r, err := client.RunWithContext(ctx, c, values)
 	if err != nil {
 		return r, fmt.Errorf("template chart: %w", err)
 	}
