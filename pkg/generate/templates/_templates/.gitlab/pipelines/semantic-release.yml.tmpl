@@ -61,6 +61,8 @@ semantic-release:
   id_tokens:
     NPM_ID_TOKEN:
       aud: npm:registry.npmjs.org
+    SIGSTORE_ID_TOKEN:
+      aud: sigstore
 {{- end }}
   variables:
     GIT_DEPTH: "0"
