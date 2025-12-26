@@ -30,7 +30,7 @@ func Golang() []engine.Template[types.Repository] {
 			Globs:      []string{".goreleaser.yml" + engine.TmplExtension},
 			Out:        ".goreleaser.yml",
 			Remove: func(config types.Repository) bool {
-				return slices.Contains(config.Exclude, kickr.ExcludeGoreleaser) || noGo(config) || len(config.Clis) == 0 //nolint:revive
+				return slices.Contains(config.Exclude, kickr.ExcludeGoreleaser) || noGo(config) || len(config.Clis) == 0 //nolint:nolintlint,revive
 			},
 		},
 		{
