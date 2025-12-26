@@ -32,6 +32,7 @@ netlify:
         ARGS: --alias=$BRANCH_SHA
         ENV: review/$CI_COMMIT_REF_NAME
       when: manual
+      allow_failure: true
   before_script:
     - npm install -g netlify-cli
   script:
