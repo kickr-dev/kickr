@@ -34,9 +34,9 @@ LABEL org.opencontainers.image.vendor="kilianpaquier"
 
 LABEL org.opencontainers.image.title="kickr"
 LABEL org.opencontainers.image.licenses="APACHE-2.0"
-LABEL org.opencontainers.image.url="github.com/kickr-dev/kickr"
-LABEL org.opencontainers.image.source="github.com/kickr-dev/kickr"
-LABEL org.opencontainers.image.documentation="github.com/kickr-dev/kickr"
+LABEL org.opencontainers.image.url="gitlab.com/kickr-dev/kickr"
+LABEL org.opencontainers.image.source="gitlab.com/kickr-dev/kickr"
+LABEL org.opencontainers.image.documentation="gitlab.com/kickr-dev/kickr"
 
 WORKDIR /app
 
