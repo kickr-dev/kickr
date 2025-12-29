@@ -38,7 +38,9 @@ pre-commit:
     - git checkout -b "$CI_COMMIT_REF_NAME"
 
 go-build:
-  image: ghcr.io/goreleaser/goreleaser:latest
+  image:
+    name: ghcr.io/goreleaser/goreleaser:latest
+    entrypoint: [""]
   rules:
     # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
     - if: $GO_TEST_IMAGE != ""
