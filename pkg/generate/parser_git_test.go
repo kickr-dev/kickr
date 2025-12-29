@@ -33,10 +33,10 @@ func TestParserGit(t *testing.T) {
 	t.Run("success_vcs", func(t *testing.T) {
 		// Arrange
 		expected := types.Repository{
-			Kickr: kickr.Kickr{Platform: parser.GitHub},
+			Kickr: kickr.Kickr{Platform: parser.GitLab},
 			VCS: parser.VCS{
-				Platform:    parser.GitHub,
-				ProjectHost: "github.com",
+				Platform:    parser.GitLab,
+				ProjectHost: "gitlab.com",
 				ProjectName: "kickr",
 				ProjectPath: "kickr-dev/kickr",
 			},
@@ -54,16 +54,16 @@ func TestParserGit(t *testing.T) {
 	t.Run("success_platform_already_present", func(t *testing.T) {
 		// Arrange
 		expected := types.Repository{
-			Kickr: kickr.Kickr{Platform: parser.GitLab},
+			Kickr: kickr.Kickr{Platform: parser.GitHub},
 			VCS: parser.VCS{
-				Platform:    parser.GitLab,
-				ProjectHost: "github.com",
+				Platform:    parser.GitHub,
+				ProjectHost: "gitlab.com",
 				ProjectName: "kickr",
 				ProjectPath: "kickr-dev/kickr",
 			},
 		}
 		config := types.Repository{
-			Kickr: kickr.Kickr{Platform: parser.GitLab},
+			Kickr: kickr.Kickr{Platform: parser.GitHub},
 		}
 
 		// Act
