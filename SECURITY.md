@@ -11,4 +11,5 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it through **GitHub**'s private vulnerability [reporting system](https://github.com/kickr-dev/kickr/security/advisories/new).
+If you discover a security vulnerability, please report it through a **GitLab**'s [issue](https://gitlab.com/kickr-dev/kickr/issues)
+and make sure to tick checkbox `Turn on confidentiality: Limit visibility to project members with at least the Planner role.`.
