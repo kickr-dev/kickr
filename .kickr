@@ -5,7 +5,6 @@ ci:
   provider: gitlab
   options:
     - kickr
-  docker: {}
   release: {}
 dependencies:
   manager: renovate

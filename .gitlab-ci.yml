@@ -11,12 +11,6 @@ include:
 # GITLAB_TOKEN: A GitLab 'project access token' or 'personal access token' with `api`, `read_repository` and `write_repository` scopes.
 # SEMREL_GPG_SIGNKEY: Path to the GPG signkey exported with `gpg --armor --export-secret-key` (optional).
 
-# https://gitlab.com/to-be-continuous/docker
-# In case a mirror is needed
-# DOCKER_REGISTRY_MIRROR: The mirror registry URL
-# DOCKER_REGISTRY_MIRROR_USER: The username with read access to registry mirror
-# DOCKER_REGISTRY_MIRROR_PASSWORD: The user password / token with read access to registry mirror
-
 default:
   interruptible: true
 
