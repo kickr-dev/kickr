@@ -96,8 +96,12 @@ Generate project layout
 Usage:
   kickr generate [flags]
 
+Aliases:
+  generate, g
+
 Flags:
-  -h, --help   help for generate
+  -f, --force   force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed
+  -h, --help    help for generate
 
 Global Flags:
   -d, --dir string          set directory where generation will be made (default is current directory)

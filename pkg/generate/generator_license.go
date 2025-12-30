@@ -46,7 +46,7 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 			return nil
 		}
 
-		if files.Exists(dest) {
+		if !engine.Forced() && files.Exists(dest) {
 			engine.GetLogger().Infof("not generating '%s' since it already exists", generator.FileLicense)
 			return nil
 		}

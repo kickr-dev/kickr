@@ -9,10 +9,12 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	engine.SetLogger(log.NewWithOptions(os.Stderr, log.Options{
-		CallerFormatter: log.ShortCallerFormatter,
-		Level:           log.WarnLevel,
-		ReportCaller:    true,
-	}))
+	engine.Configure(
+		engine.WithForce(true),
+		engine.WithLogger(log.NewWithOptions(os.Stderr, log.Options{
+			CallerFormatter: log.ShortCallerFormatter,
+			Level:           log.WarnLevel,
+			ReportCaller:    true,
+		})))
 	m.Run()
 }

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/jarcoal/httpmock"
+	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/generator"
 	"github.com/kickr-dev/engine/pkg/parser"
@@ -94,6 +95,10 @@ func TestGeneratorLicense_Download(t *testing.T) {
 
 	t.Run("success_already_exists", func(t *testing.T) {
 		// Arrange
+		forced := engine.Forced()
+		engine.Configure(engine.WithForce(false), engine.WithLogger(engine.GetLogger()))
+		t.Cleanup(func() { engine.Configure(engine.WithForce(forced), engine.WithLogger(engine.GetLogger())) })
+
 		destdir := t.TempDir()
 		dest := filepath.Join(destdir, generator.FileLicense)
 		license, err := os.Create(dest)

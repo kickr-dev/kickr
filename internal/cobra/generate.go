@@ -17,6 +17,37 @@ import (
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
+var (
+	force bool
+
+	generateCmd = &cobra.Command{
+		Use:     "generate",
+		Aliases: []string{"g"},
+		Short:   "Generate project layout",
+		Run: gen(
+			generate.GeneratorGitignore(http.DefaultClient), // gitignore
+			generate.GeneratorLicense(http.DefaultClient),   // license
+
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),                        // bot
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
+			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
+			engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
+			engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
+			engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
+			engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
+			engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
+		),
+	}
+)
+
+func init() {
+	rootCmd.AddCommand(generateCmd)
+
+	generateCmd.PersistentFlags().BoolVarP(&force, "force", "f", false,
+		"force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed")
+}
+
 func gen(generators ...engine.Generator[types.Repository]) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
@@ -44,7 +75,7 @@ func gen(generators ...engine.Generator[types.Repository]) func(cmd *cobra.Comma
 		config.EnsureDefaults()
 
 		// run generation
-		engine.SetLogger(logger)
+		engine.Configure(engine.WithForce(force), engine.WithLogger(logger))
 		parsers := []engine.Parser[types.Repository]{
 			// must be kept first since it parses Git informations (useful for next parsers)
 			generate.ParserGit,
@@ -68,28 +99,4 @@ func gen(generators ...engine.Generator[types.Repository]) func(cmd *cobra.Comma
 			logger.Fatal(err)
 		}
 	}
-}
-
-var generateCmd = &cobra.Command{
-	Use:     "generate",
-	Aliases: []string{"g"},
-	Short:   "Generate project layout",
-	Run: gen(
-		generate.GeneratorGitignore(http.DefaultClient), // gitignore
-		generate.GeneratorLicense(http.DefaultClient),   // license
-
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),                        // bot
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
-		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
-		engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
-		engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
-		engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
-		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
-		engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
-	),
-}
-
-func init() {
-	rootCmd.AddCommand(generateCmd)
 }
