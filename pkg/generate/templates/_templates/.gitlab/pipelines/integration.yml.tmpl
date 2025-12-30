@@ -136,7 +136,9 @@ pre-commit:
 {{- if gt .Binaries 0 }}
 
 go-build:
-  image: ghcr.io/goreleaser/goreleaser:latest
+  image:
+    name: ghcr.io/goreleaser/goreleaser:latest
+    entrypoint: [""]
   rules:
     # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
     - if: $GO_TEST_IMAGE != ""
