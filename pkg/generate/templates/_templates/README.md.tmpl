@@ -1,6 +1,6 @@
 # {{ .VCS.ProjectName }} <!-- omit in toc -->
 
-<p align="center">
+<div align="center">
 {{- $style := "for-the-badge" }}
 
 {{- if eq .Platform "github" }}
@@ -53,6 +53,6 @@
 {{- if and (.IsCI "github") (has "ossf-scorecard" .CI.Options) }}
   <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}?label={{ toQuery "OpenSSF Scorecard" }}&style={{ $style }}">
 {{- end }}
-</p>
+</div>
 
 ---
