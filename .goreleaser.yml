@@ -41,7 +41,7 @@ checksum:
   name_template: checksums.txt
 
 nfpms:
-  - maintainer: kilianpaquier
+  - maintainer: u.kilianpaquier
     license: APACHE-2.0
     file_name_template: >-
       {{- .ProjectName }}_
