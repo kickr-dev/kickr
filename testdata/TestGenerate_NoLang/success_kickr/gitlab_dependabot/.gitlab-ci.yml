@@ -11,6 +11,8 @@ include:
 # SETTINGS__GITLAB_ACCESS_TOKEN: A GitLab access token to allow Dependabot creating merge requests. [See doc](https://dependabot-gitlab.gitlab.io/dependabot/config/environment.html#access)
 # SETTINGS__GITHUB_ACCESS_TOKEN: A GitHub access token to allow Dependabot fetch changelogs. [See doc](https://dependabot-gitlab.gitlab.io/dependabot/config/environment.html#access)
 
+# KICKR_TOKEN: A GitLab access token to allow kickr layout update (`write_repository`, `api` with a `Developer` role)
+
 default:
   interruptible: true
 

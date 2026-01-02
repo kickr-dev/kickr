@@ -55,8 +55,18 @@ func GitLab() []engine.Template[types.Repository] {
 		Globs:      []string{dependencies + engine.TmplExtension},
 		Out:        dependencies,
 		Remove: func(config types.Repository) bool {
-			return config.Dependencies == nil || !config.IsCI(parser.GitLab) ||
+			return !config.IsCI(parser.GitLab) || config.Dependencies == nil || //nolint:revive,nolintlint
 				(config.Dependencies.Manager == kickr.ManagerRenovate && !slices.Contains(config.CI.Options, kickr.OptionRenovate))
+		},
+	})
+
+	kickrp := path.Join(".gitlab", "pipelines", "kickr.yml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      []string{kickrp + engine.TmplExtension},
+		Out:        kickrp,
+		Remove: func(config types.Repository) bool {
+			return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionKickr)
 		},
 	})
 

@@ -13,7 +13,12 @@ variables:
   RENOVATE_ENDPOINT: "" # force empty endpoint to let Renovate choose with RENOVATE_PLATFORM (or server configuration platform)
   RENOVATE_PLATFORM: gitlab
 
-.renovate-rules: &renovate-rules
+renovate-validator:
+  rules:
+    - when: never # validates projects configurations and not server configurations
+
+renovate-depcheck:
+  needs: []
   rules:
     # see https://gitlab.com/to-be-continuous/renovate/-/blob/master/templates/gitlab-ci-renovate.yml?ref_type=heads#L348
     # update mode only with schedule triggering
@@ -22,10 +27,3 @@ variables:
         RENOVATE_DRY_RUN: "false"
     # dry run with web triggering
     - if: $CI_PIPELINE_SOURCE == 'web'
-
-renovate-validator:
-  rules:
-    - when: never # validates projects configurations and not server configurations
-
-renovate-depcheck:
-  <<: *renovate-rules
