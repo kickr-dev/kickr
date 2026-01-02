@@ -97,7 +97,11 @@ variables:
 {{- $engine := "opentofu" }}
 {{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
 
-  TF_IMAGE: {{ eq $engine "terraform" | ternary "docker.io/hashicorp/terraform:latest" "ghcr.io/opentofu/opentofu:latest" }}
+{{- if eq $engine "terraform" }}
+  TF_IMAGE: docker.io/hashicorp/terraform:1.14.3
+{{- else }}
+  TF_IMAGE: ghcr.io/opentofu/opentofu:1.11.2
+{{- end }}
   TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
 
   TF_CHECKOV_ENABLED: "false"

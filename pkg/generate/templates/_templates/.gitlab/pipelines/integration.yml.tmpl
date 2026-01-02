@@ -71,14 +71,15 @@ variables:
 {{- end }}
 
 {{- if $golang }}
+{{- $specifics := get .Languages "go" }}
 
   GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:latest-alpine
-  GO_IMAGE: docker.io/library/golang:latest
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.7.2-alpine
+  GO_IMAGE: docker.io/library/golang:{{ $specifics.Toolchain | default $specifics.Go }}
   GO_OUTDATED_DISABLED: "false" # https://github.com/psampaz/go-mod-outdated
   GO_SBOM_DISABLED: "true"
   GO_TEST_FLAGS: -v -coverpkg=./... -covermode=count -timeout=30s
-  GO_TEST_IMAGE: docker.io/library/golang:latest
+  GO_TEST_IMAGE: docker.io/library/golang:{{ $specifics.Toolchain | default $specifics.Go }}
 {{- end }}
 
 {{- if $node }}
@@ -87,7 +88,7 @@ variables:
   NODE_BUILD_ARGS: run build --prod
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_BUILD_DISABLED: "{{ not $nodemain }}"
-  NODE_IMAGE: docker.io/library/node:lts-alpine
+  NODE_IMAGE: docker.io/library/node:24.12.0-alpine
   NODE_LINT_ARGS: "run lint"
   NODE_LINT_ENABLED: "true"
   NODE_OUTDATED_ARGS: --long
@@ -137,7 +138,7 @@ pre-commit:
 
 go-build:
   image:
-    name: ghcr.io/goreleaser/goreleaser:latest
+    name: ghcr.io/goreleaser/goreleaser:v2.13.2
     entrypoint: [""]
   rules:
     # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
@@ -189,12 +190,14 @@ go-build:
 {{- $nodes := get .Languages "hugo" }}
 
 hugo-build:
-  image: hugomods/hugo:exts
+  image: docker.io/library/alpine:3.23.2
   stage: build
-{{- if and (eq (len $nodes) 1) (ne (first $nodes).Directory ".") }}
   variables:
+{{- if and (eq (len $nodes) 1) (ne (first $nodes).Directory ".") }}
     HUGO_PROJECT_DIR: {{ (first $nodes).Directory }}
 {{- end }}
+    # renovate: datasource=github-tags packageName=jdx/mise depName=mise
+    MISE_VERSION: v2025.12.12
 {{- if gt (len $nodes) 1 }}
   parallel:
     matrix:
@@ -203,7 +206,13 @@ hugo-build:
 {{- end }}
 {{- end }}
   before_script:
-    - apk add go
+    - export PATH="$HOME/.local/share/mise/shims:$PATH"
+    - apk update -q && apk add -q curl
+    - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
+    # renovate: datasource=golang-version packageName=golang/go depName=golang
+    - mise use -g golang@1.25.5
+    # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
+    - mise use -g hugo-extended@0.153.2
   script:
     - >
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"
