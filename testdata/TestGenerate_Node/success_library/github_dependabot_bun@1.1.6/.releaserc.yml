@@ -87,9 +87,9 @@ plugins:
           path: CHANGELOG.md
   - - "@kilianpaquier/semantic-release-backmerge"
     - targets:
-        - from: ^(master|main)$
+        - from: ^(main|master)$
           to: staging
-        - from: ^(master|main)$
-          to: ^(dev[a-z]*)$
+        - from: ^(main|master)$
+          to: ^(dev|develop)$
         - from: staging
-          to: ^(dev[a-z]*)$
+          to: ^(dev|develop)$
