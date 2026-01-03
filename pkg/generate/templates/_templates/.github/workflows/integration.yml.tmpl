@@ -112,7 +112,7 @@ jobs:
       - if: ${{ !cancelled() }}
 <<- if has "step-security-actions" .CI.Options >>
         # https://app.stepsecurity.io/github-action-advisor/step-security/git-auto-commit-action
-        uses: step-security/git-auto-commit-action@e2d505468267a3cb406af729d48d664de1f16393 # v6.0.2
+        uses: step-security/git-auto-commit-action@905c3cd6e9ed2b67b4d46ff401fdb6d745d0ff9d # v7.1.0
 <<- else >>
         # https://github.com/marketplace/actions/git-auto-commit
         uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
