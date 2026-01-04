@@ -59,3 +59,24 @@ variables:
   HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
   HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$SEMREL_INFO_NEXT_VERSION
   HELM_STAGING_APP_NAME: $HELM_BASE_APP_NAME
+
+# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1224
+.docker-buildah-build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DOCKER_BUILD_TOOL == "buildah" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "buildah")'
+
+# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1166
+.docker-dind-build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DOCKER_BUILD_TOOL == "dind" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "dind")'
+
+# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1124
+.docker-kaniko-build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DOCKER_BUILD_TOOL == "kaniko" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "kaniko")'

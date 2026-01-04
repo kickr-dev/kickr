@@ -21,6 +21,8 @@ netlify:
   dependencies:
     - {{ not $matrix | ternary $needs (printf "%s: [%s]" $needs $websiteDirectory | quote) }}
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
         ARGS: --prod
@@ -51,6 +53,8 @@ pages:
   dependencies:
     - {{ not $matrix | ternary $needs (printf "%s: [%s]" $needs $websiteDirectory | quote) }}
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
 {{- if not .CI.Website.Auto }}
       when: manual

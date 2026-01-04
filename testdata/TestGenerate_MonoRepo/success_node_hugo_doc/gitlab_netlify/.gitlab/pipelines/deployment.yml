@@ -10,6 +10,8 @@ netlify:
   dependencies:
     - hugo-build
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
         ARGS: --prod

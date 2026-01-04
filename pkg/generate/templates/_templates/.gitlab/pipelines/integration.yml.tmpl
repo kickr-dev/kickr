@@ -141,6 +141,8 @@ go-build:
     name: ghcr.io/goreleaser/goreleaser:v2.13.2
     entrypoint: [""]
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
     # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
     - if: $GO_TEST_IMAGE != ""
       exists:

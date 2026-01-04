@@ -14,7 +14,9 @@ variables:
   TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
 
   TF_CHECKOV_ENABLED: "false"
+  TF_DOCS_ENABLED: "false"
   TF_FMT_ENABLED: "true"
+  TF_PUBLISH_ENABLED: "false"
   TF_TRIVY_DISABLED: "true"
   TF_VALIDATE_ENABLED: "true"
 

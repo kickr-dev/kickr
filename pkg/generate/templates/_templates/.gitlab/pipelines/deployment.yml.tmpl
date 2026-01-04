@@ -105,7 +105,9 @@ variables:
   TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
 
   TF_CHECKOV_ENABLED: "false"
+  TF_DOCS_ENABLED: "false"
   TF_FMT_ENABLED: "true"
+  TF_PUBLISH_ENABLED: "false"
   TF_TRIVY_DISABLED: "true"
   TF_VALIDATE_ENABLED: "true"
 
@@ -119,9 +121,33 @@ variables:
 {{- end }}
 {{- end }}
 
+{{- if .CI.Docker }}
+
+# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1224
+.docker-buildah-build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DOCKER_BUILD_TOOL == "buildah" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "buildah")'
+
+# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1166
+.docker-dind-build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DOCKER_BUILD_TOOL == "dind" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "dind")'
+
+# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1124
+.docker-kaniko-build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: never
+    - if: '$DOCKER_BUILD_TOOL == "kaniko" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "kaniko")'
+{{- end }}
+
 {{- if .CI.Website }}{{ template "static" . }}{{- end }}
 
-{{- if $terraform }}
+{{- if and $terraform .HasTerraformApply }}
 {{- $nodes := get .Languages "terraform" }}
 
 .tf-workspace:
