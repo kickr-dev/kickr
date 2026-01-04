@@ -17,4 +17,3 @@ maintainers:
 platform: gitlab
 pre-commit:
   - conventional-commits
-  - gitflow-branches

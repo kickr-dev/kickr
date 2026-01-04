@@ -19,27 +19,20 @@ variables:
   PRE_COMMIT_FILE: .pre-commit-config.yaml
 
   GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:latest-alpine
-  GO_IMAGE: docker.io/library/golang:latest
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.7.2-alpine
+  GO_IMAGE: docker.io/library/golang:1.25.5
   GO_OUTDATED_DISABLED: "false" # https://github.com/psampaz/go-mod-outdated
   GO_SBOM_DISABLED: "true"
   GO_TEST_FLAGS: -v -coverpkg=./... -covermode=count -timeout=30s
-  GO_TEST_IMAGE: docker.io/library/golang:latest
+  GO_TEST_IMAGE: docker.io/library/golang:1.25.5
 
 pre-commit:
   variables:
     GIT_DEPTH: "0"
-    GIT_STRATEGY: clone
-  before_script:
-    # see https://gitlab.com/to-be-continuous/pre-commit/-/blob/main/templates/gitlab-ci-pre-commit.yml?ref_type=heads#L429
-    - !reference [.pre-commit-scripts]
-    - install_ca_certs "${CUSTOM_CA_CERTS:-$DEFAULT_CA_CERTS}"
-    - apk add git
-    - git checkout -b "$CI_COMMIT_REF_NAME"
 
 go-build:
   image:
-    name: ghcr.io/goreleaser/goreleaser:latest
+    name: ghcr.io/goreleaser/goreleaser:v2.13.2
     entrypoint: [""]
   rules:
     # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
