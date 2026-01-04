@@ -18,7 +18,7 @@ hugo-build:
   stage: build
   variables:
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2025.12.12
+    MISE_VERSION: v2025.12.13
   before_script:
     - export PATH="$HOME/.local/share/mise/shims:$PATH"
     - apk update -q && apk add -q curl
