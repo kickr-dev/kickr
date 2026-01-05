@@ -49,6 +49,7 @@ workflow:
 semantic-release-info:
   variables:
     GIT_DEPTH: "0"
+    GITLAB_TOKEN: $RELEASE_TOKEN
 {{- if not .CI.Release }}
   script:
     - DESCRIBE=$(git describe --tags || echo "v1.0.0")
