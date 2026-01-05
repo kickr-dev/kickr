@@ -69,3 +69,4 @@ semantic-release:
   interruptible: false
   variables:
     GIT_DEPTH: "0"
+    GITLAB_TOKEN: $RELEASE_TOKEN

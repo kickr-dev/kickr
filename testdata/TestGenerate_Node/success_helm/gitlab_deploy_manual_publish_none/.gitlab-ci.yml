@@ -9,9 +9,9 @@ include:
 
 # https://gitlab.com/to-be-continuous/helm
 # For a flawless integration with GitLab environments, those variables may be defined in this file or in project / group variables.
-# HELM_ENVIRONMENT_URL: "https://%{environment_name}.nonprod.acme.domain" # global url for all environments
-# HELM_PROD_ENVIRONMENT_URL: "https://$HELM_BASE_APP_NAME.acme.domain" # override for prod (late expansion of $HELM_BASE_APP_NAME not needed here)
-# HELM_REVIEW_ENVIRONMENT_URL: "https://wonderapp-review.nonprod.acme.domain/%{environment_name}" override for review (using separate resource paths)
+# HELM_ENVIRONMENT_URL: "https://%{environment_name}.nonprod.acme.domain" # global url for all environments.
+# HELM_PROD_ENVIRONMENT_URL: "https://$HELM_BASE_APP_NAME.acme.domain" # override for prod (late expansion of $HELM_BASE_APP_NAME not needed here).
+# HELM_REVIEW_ENVIRONMENT_URL: "https://wonderapp-review.nonprod.acme.domain/%{environment_name}" override for review (using separate resource paths).
 
 # https://gitlab.com/to-be-continuous/helm
 # In case a private helm repository must be used, those variables may be defined in this file (except the password) or in project / group variables

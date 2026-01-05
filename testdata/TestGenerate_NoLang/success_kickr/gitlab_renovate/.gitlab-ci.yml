@@ -7,7 +7,7 @@ include:
 # secret variables
 # (define the variables below in your GitLab group/project variables)
 
-# KICKR_TOKEN: A GitLab access token to allow kickr layout update (`write_repository`, `api` with a `Developer` role)
+# KICKR_TOKEN: A GitLab access token to allow kickr layout update (`write_repository` and `api` scopes with a `Developer` role).
 
 default:
   interruptible: true

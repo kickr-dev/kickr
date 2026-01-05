@@ -74,3 +74,4 @@ semantic-release:
       aud: sigstore
   variables:
     GIT_DEPTH: "0"
+    GITLAB_TOKEN: $RELEASE_TOKEN

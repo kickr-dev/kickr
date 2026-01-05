@@ -13,8 +13,8 @@ include:
 # HELM_REPO_OTHER_PROJ_USER: "gitlab-token"
 # HELM_REPO_OTHER_PROJ_PASSWORD: Helm password / token with read (and/or write) access to 'other-proj' repository (see above)
 
-# HELM_PUBLISH_USER: Helm repository username (default is $CI_REGISTRY_USER)
-# HELM_PUBLISH_PASSWORD: Helm repository password (default is $CI_REGISTRY_PASSWORD)
+# HELM_PUBLISH_USER: Helm repository username (default is $CI_REGISTRY_USER).
+# HELM_PUBLISH_PASSWORD: Helm repository password (default is $CI_REGISTRY_PASSWORD).
 
 default:
   interruptible: true
