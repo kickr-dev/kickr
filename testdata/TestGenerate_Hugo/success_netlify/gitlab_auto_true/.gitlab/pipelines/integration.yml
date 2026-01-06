@@ -21,7 +21,7 @@ hugo-build:
     MISE_VERSION: v2025.12.13
   before_script:
     - export PATH="$HOME/.local/share/mise/shims:$PATH"
-    - apt-get update -yq && apt-get install -yq curl
+    - apt-get update -yq && apt-get install -yq curl git
     - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
     - mise use -g golang@1.25.5
