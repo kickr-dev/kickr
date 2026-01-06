@@ -91,17 +91,19 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
           submodules: true # fetch Hugo themes
-      - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5 # v3.5.1
         with:
-          path: ${{ github.workspace }}/.hugo_cache
-          key: hugomod
-          restore-keys: |
-            hugomod
-      # https://github.com/marketplace/actions/hugo-setup
-      - uses: peaceiris/actions-hugo@75d2e84710de30f6ff7268e08f310b60ef14033f # v3.0.0
-        with:
-          hugo-version: latest
-          extended: true
+          # renovate: datasource=github-tags packageName=jdx/mise depName=mise
+          version: v2025.12.13
+          install: false
+          cache: true
+      - run: |-
+          # renovate: datasource=golang-version packageName=golang/go depName=golang
+          - mise use -g golang@1.25.5
+          # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
+          - mise use -g hugo-extended@0.153.2
+          # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
+          - mise use -g github:sass/dart-sass@1.97.2
       - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}

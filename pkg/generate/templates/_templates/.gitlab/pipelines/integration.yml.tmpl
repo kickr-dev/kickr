@@ -215,6 +215,8 @@ hugo-build:
     - mise use -g golang@1.25.5
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
     - mise use -g hugo-extended@0.153.2
+    # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
+    - mise use -g github:sass/dart-sass@1.97.2
   script:
     - >
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"
