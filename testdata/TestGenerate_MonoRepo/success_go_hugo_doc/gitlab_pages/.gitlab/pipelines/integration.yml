@@ -25,7 +25,7 @@ go-build:
     - when: never # no binary to build
 
 hugo-build:
-  image: docker.io/library/alpine:3.23.2
+  image: docker.io/library/debian:trixie-slim
   stage: build
   variables:
     HUGO_PROJECT_DIR: docs
@@ -33,7 +33,7 @@ hugo-build:
     MISE_VERSION: v2025.12.13
   before_script:
     - export PATH="$HOME/.local/share/mise/shims:$PATH"
-    - apk update -q && apk add -q curl
+    - apt-get update -yq && apt-get install -yq curl
     - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
     - mise use -g golang@1.25.5
