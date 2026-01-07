@@ -20,7 +20,7 @@ func TestParserChart(t *testing.T) {
 	t.Run("error_merge_values", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		kickrfile := filepath.Join(destdir, "chart", kickr.Files()[0])
+		kickrfile := filepath.Join(destdir, "chart", kickr.CustomValues)
 		require.NoError(t, os.MkdirAll(kickrfile, files.RwxRxRxRx))
 
 		// Act
@@ -36,7 +36,7 @@ func TestParserChart(t *testing.T) {
 		chartdir := filepath.Join(destdir, "chart")
 		require.NoError(t, os.MkdirAll(chartdir, files.RwxRxRxRx))
 		require.NoError(t, os.WriteFile(
-			filepath.Join(chartdir, kickr.Files()[0]),
+			filepath.Join(chartdir, kickr.CustomValues),
 			[]byte("description: a description"), files.RwRR))
 
 		expected := types.Repository{

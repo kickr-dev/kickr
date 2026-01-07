@@ -6,6 +6,7 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
+	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 // Chart returns the slice of templates related to helm chart generation.
@@ -34,7 +35,7 @@ func Chart() []engine.Template[types.Repository] {
 	}
 
 	chartfiles := []string{
-		path.Join("chart", ".kickr"),
+		path.Join("chart", kickr.CustomValues),
 		path.Join("chart", ".helmignore"),
 		path.Join("chart", "Chart.yaml"),
 		path.Join("chart", "charts", ".gitkeep"),

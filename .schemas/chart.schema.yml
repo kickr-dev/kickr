@@ -22,11 +22,11 @@ $defs:
       - repository
     properties:
       name:
-        $ref: https://json.schemastore.org/chart.json#/properties/dependencies/items/properties/name
+        $ref: https://schemastore.org/chart.json#/properties/dependencies/items/properties/name
       version:
-        $ref: https://json.schemastore.org/chart.json#/properties/dependencies/items/properties/version
+        $ref: https://schemastore.org/chart.json#/properties/dependencies/items/properties/version
       repository:
-        $ref: https://json.schemastore.org/chart.json#/properties/dependencies/items/properties/repository
+        $ref: https://schemastore.org/chart.json#/properties/dependencies/items/properties/repository
       values:
         type: object
         additionalProperties: true
@@ -221,7 +221,7 @@ $defs:
 
 properties:
   description:
-    $ref: https://json.schemastore.org/chart.json#/properties/description
+    $ref: https://schemastore.org/chart.json#/properties/description
 
   dependencies:
     type: array
@@ -236,10 +236,10 @@ properties:
       $ref: "#/$defs/dependency"
 
   maintainers:
-    $ref: https://json.schemastore.org/chart.json#/properties/maintainers
+    $ref: https://schemastore.org/chart.json#/properties/maintainers
 
   imagePullSecrets:
-    $ref: s://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.33.4/_definitions.json#/definitions/io.k8s.api.core.v1.PodSpec/properties/imagePullSecrets
+    $ref: https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.33.4/_definitions.json#/definitions/io.k8s.api.core.v1.PodSpec/properties/imagePullSecrets
 
   nameOverride:
     type: string

@@ -1,7 +1,10 @@
 //nolint:revive // should be generated
 package kickr
 
-const Schema = "kickr.v1.schema.json"
+const (
+	CustomValues = "values.custom.yaml"
+	Schema       = "kickr.v1.schema.json"
+)
 
 const (
 	// ExcludeGoreleaser can be given in kickr exclusions ('exclude' key) to avoid generating a .goreleaser.yml file.
