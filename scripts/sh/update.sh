@@ -19,7 +19,7 @@ log_info "Found kickr generator named '$cmd'"
 
 workspaces=$(find / -name workspaces 2>/dev/null)
 for workspace in $workspaces; do
-  dirs=$(find "$workspace" -name testdata -prune -o -name .kickr -exec dirname {} +;)
+  dirs=$(find "$workspace" -name testdata -prune -o -name .kickr.yml -exec dirname {} +;)
   for dir in $dirs; do
     log_info "Updating layout of $dir"
     $cmd --dir "$dir" generate

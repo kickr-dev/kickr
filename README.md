@@ -95,7 +95,7 @@ Usage:
   kickr generate [flags]
 
 Aliases:
-  generate, g
+  generate
 
 Flags:
   -f, --force   force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed

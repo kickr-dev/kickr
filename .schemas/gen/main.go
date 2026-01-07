@@ -6,11 +6,10 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/goccy/go-yaml"
-
-	"github.com/kickr-dev/engine/pkg/files"
 )
 
 func run() error {
@@ -19,14 +18,19 @@ func run() error {
 		return fmt.Errorf("get wd: %w", err)
 	}
 
-	paths := []string{
-		filepath.Join(dir, "chart.schema.yml"),
-		filepath.Join(dir, "kickr.v1.schema.yml"),
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return fmt.Errorf("read dir: %w", err)
 	}
 
 	errs := make([]error, 0, 2)
-	for _, file := range paths {
-		in, err := os.ReadFile(file)
+	for _, file := range entries {
+		filename := file.Name()
+		if !slices.Contains([]string{".yml", ".yaml"}, filepath.Ext(filename)) {
+			continue // ignore non-ya?ml files
+		}
+
+		in, err := os.ReadFile(filename)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("read file: %w", err))
 			continue
@@ -38,7 +42,7 @@ func run() error {
 			continue
 		}
 
-		if err := os.WriteFile(strings.TrimSuffix(file, filepath.Ext(file))+".json", out, files.RwRR); err != nil {
+		if err := os.WriteFile(strings.TrimSuffix(filename, filepath.Ext(filename))+".json", out, 0o644); err != nil {
 			errs = append(errs, fmt.Errorf("write file: %w", err))
 			continue
 		}

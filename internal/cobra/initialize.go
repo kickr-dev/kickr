@@ -1,8 +1,6 @@
 package cobra
 
 import (
-	"path/filepath"
-
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/spf13/cobra"
@@ -16,12 +14,12 @@ var initializeCmd = &cobra.Command{
 	Short: "Initialize new kickr project",
 	Run: func(cmd *cobra.Command, _ []string) {
 		ctx := cmd.Context()
-		dest := filepath.Join(wd, kickr.File)
 
-		if files.Exists(dest) {
+		if dest := kickr.File(wd); dest != "" {
 			logger.Info("project already initialized")
 			return
 		}
+		dest := kickr.Files()[0]
 
 		config, err := engine.Initialize(ctx, engine.WithFormGroups(initialize.Maintainer, initialize.License, initialize.Defaults))
 		if err != nil {

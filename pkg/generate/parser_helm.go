@@ -43,7 +43,8 @@ func ParserHelm(_ context.Context, destdir string, config *types.Repository) err
 		"projectName": config.VCS.ProjectName,
 		"projectPath": config.VCS.ProjectPath,
 	}
-	values, err := parser.MergeValues(base, filepath.Join(destdir, "chart", kickr.File))
+
+	values, err := parser.MergeValues(base, kickr.File(filepath.Join(destdir, "chart")))
 	if err != nil {
 		return fmt.Errorf("merge values: %w", err)
 	}

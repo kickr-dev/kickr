@@ -3,7 +3,6 @@ package cobra
 import (
 	"net/http"
 	"os"
-	"path/filepath"
 	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
@@ -21,9 +20,8 @@ var (
 	force bool
 
 	generateCmd = &cobra.Command{
-		Use:     "generate",
-		Aliases: []string{"g"},
-		Short:   "Generate project layout",
+		Use:   "generate",
+		Short: "Generate project layout",
 		Run: gen(
 			generate.GeneratorGitignore(http.DefaultClient), // gitignore
 			generate.GeneratorLicense(http.DefaultClient),   // license
@@ -51,13 +49,12 @@ func init() {
 func gen(generators ...engine.Generator[types.Repository]) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		dest := filepath.Join(wd, kickr.File)
-		logger.Infof("generating layout in %s", wd)
 
-		// initialize configuration if it does not exist
-		if !files.Exists(dest) {
+		dest := kickr.File(wd)
+		if dest == "" {
 			initializeCmd.Run(cmd, args) // will fatal if initialization fails
 		}
+		logger.Infof("generating layout in %s", wd)
 
 		// validate configuration
 		if err := files.Validate(
