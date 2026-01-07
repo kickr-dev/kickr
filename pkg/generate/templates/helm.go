@@ -10,7 +10,7 @@ import (
 
 // Chart returns the slice of templates related to helm chart generation.
 func Chart() []engine.Template[types.Repository] {
-	var templates []engine.Template[types.Repository] //nolint:prealloc
+	var templates []engine.Template[types.Repository] //nolint:prealloc // better readability
 
 	tmplfiles := []string{
 		path.Join("chart", "templates", "_helpers.tpl"),

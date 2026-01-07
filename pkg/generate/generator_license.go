@@ -20,7 +20,7 @@ import (
 // GeneratorLicense generates the license file for the project.
 func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir string, config types.Repository) error {
 	if httpClient == nil {
-		httpClient = http.DefaultClient //nolint:revive
+		httpClient = http.DefaultClient //nolint:revive // modified parameter
 	}
 	return func(ctx context.Context, destdir string, config types.Repository) error {
 		client, err := gitlab.NewClient(os.Getenv("GITLAB_TOKEN"),
