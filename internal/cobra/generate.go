@@ -42,7 +42,7 @@ var (
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
-	generateCmd.PersistentFlags().BoolVarP(&force, "force", "f", false,
+	generateCmd.Flags().BoolVarP(&force, "force", "f", false,
 		"force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed")
 }
 
