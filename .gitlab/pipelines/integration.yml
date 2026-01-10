@@ -32,7 +32,7 @@ pre-commit:
 
 go-build:
   image:
-    name: ghcr.io/goreleaser/goreleaser:v2.13.2
+    name: ghcr.io/goreleaser/goreleaser:v2.13.3
     entrypoint: [""]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
