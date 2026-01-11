@@ -19,6 +19,8 @@ hugo-build:
   variables:
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
     MISE_VERSION: v2025.12.13
+  rules:
+    - !reference [.test-policy, rules]
   before_script:
     - export PATH="$HOME/.local/share/mise/shims:$PATH"
     - apt-get update -yq && apt-get install -yq curl git

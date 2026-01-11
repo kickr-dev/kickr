@@ -28,7 +28,7 @@ and multiple files automatically generated to avoid multiple hours to setup Cont
 
 Kickr generation can be done with 'kickr' command or 'kickr generate' command.`,
 		SilenceErrors:     true, // don't print errors with cobra, let logger.Fatal handle them
-		PersistentPreRunE: globalFlags,
+		PersistentPreRunE: preRun,
 		Run:               generateCmd.Run,
 	}
 )
@@ -38,7 +38,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "set logging level")
 	rootCmd.PersistentFlags().StringVar(&logFormat, "log-format", "text", `set logging format (either "text" or "json")`)
 
-	_ = globalFlags(nil, nil) // ensure logging is correctly configured with default values even when a bad input flag is given
+	_ = preRun(nil, nil) // ensure logging is correctly configured with default values even when a bad input flag is given
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -49,7 +49,7 @@ func Execute() {
 	}
 }
 
-func globalFlags(_ *cobra.Command, _ []string) error {
+func preRun(*cobra.Command, []string) error {
 	styles := log.DefaultStyles()
 	switch logFormat {
 	case "text":

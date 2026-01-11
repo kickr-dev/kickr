@@ -207,6 +207,8 @@ hugo-build:
       - HUGO_PROJECT_DIR: {{ .Directory }}
 {{- end }}
 {{- end }}
+  rules:
+    - !reference [.test-policy, rules]
   before_script:
     - export PATH="$HOME/.local/share/mise/shims:$PATH"
     - apt-get update -yq && apt-get install -yq curl git
