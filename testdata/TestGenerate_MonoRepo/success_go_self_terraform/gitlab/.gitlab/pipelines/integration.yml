@@ -6,7 +6,7 @@ include:
   # Go template
   # https://gitlab.com/to-be-continuous/golang
   - project: to-be-continuous/golang
-    ref: 156a4275a22b839532e8c6acb825b8cadc065103 # 4.15.1
+    ref: 13cde466644e49f8d07867d6a64efa89a61cc50c # 4.15.2
     file: templates/gitlab-ci-golang.yml
 
 variables:

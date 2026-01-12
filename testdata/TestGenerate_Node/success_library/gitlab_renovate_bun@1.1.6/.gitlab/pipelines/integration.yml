@@ -6,13 +6,13 @@ include:
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
   - project: to-be-continuous/pre-commit
-    ref: 85ef9be998d1cbabe018eb1b293c09c0c07d448c # 1.4.1
+    ref: 781cb6e8a6a4009a4ca29357fd6aa1a81f9867cd # 1.4.2
     file: templates/gitlab-ci-pre-commit.yml
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
   - project: to-be-continuous/node
-    ref: f67302a5a04e265da76c373a7e95c9f5e242d12f # 5.0.2
+    ref: bff7399b7bce4652b3004442a19bfb00d3424915 # 5.0.3
     file: templates/gitlab-ci-node.yml
 
 variables:

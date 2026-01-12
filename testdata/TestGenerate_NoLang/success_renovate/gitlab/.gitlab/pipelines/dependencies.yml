@@ -5,7 +5,7 @@ include:
   # Renovate template
   # https://gitlab.com/to-be-continuous/renovate
   - project: to-be-continuous/renovate
-    ref: 9b2d7f51d4c059b28e5c8e72a4eb5d21e34887d5 # 1.12.1
+    ref: e7de9ee24ccdfad789dc9b844ea33e38aef141c4 # 1.12.2
     file: templates/gitlab-ci-renovate.yml
 
 variables:

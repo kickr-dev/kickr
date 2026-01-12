@@ -6,7 +6,7 @@ include:
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
   - project: to-be-continuous/pre-commit
-    ref: 85ef9be998d1cbabe018eb1b293c09c0c07d448c # 1.4.1
+    ref: 781cb6e8a6a4009a4ca29357fd6aa1a81f9867cd # 1.4.2
     file: templates/gitlab-ci-pre-commit.yml
 
 variables:

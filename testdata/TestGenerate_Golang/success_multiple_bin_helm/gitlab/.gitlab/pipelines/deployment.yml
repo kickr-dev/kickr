@@ -6,13 +6,13 @@ include:
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
   - project: to-be-continuous/docker
-    ref: e8dd148bb72efa7fd58795b65d816d3859be82d5 # 8.0.8
+    ref: 0041794749edcc840304e0913afb3af62dd6e254 # 8.0.9
     file: templates/gitlab-ci-docker.yml
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
   - project: to-be-continuous/helm
-    ref: 8c76890c33f7ddad7500cccca35e87beaa30c30a # 9.2.1
+    ref: 963353698ef5c5a4e96e8c801eec95f5214b6276 # 9.2.2
     file: templates/gitlab-ci-helm.yml
 
 variables:
