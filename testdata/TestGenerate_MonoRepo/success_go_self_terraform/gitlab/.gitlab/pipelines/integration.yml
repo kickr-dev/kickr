@@ -12,7 +12,7 @@ include:
 variables:
 
   GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.7.2-alpine
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.8.0-alpine
   GO_IMAGE: docker.io/library/golang:1.23
   GO_OUTDATED_DISABLED: "false" # https://github.com/psampaz/go-mod-outdated
   GO_SBOM_DISABLED: "true"

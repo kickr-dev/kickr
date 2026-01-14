@@ -28,7 +28,7 @@ include:
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
   - project: to-be-continuous/terraform
-    ref: 975788d2cc237e9b9bac1f76da34be38b7d8408e # 8.1.4
+    ref: 3afd2bc2bd3d25e2efacf6dbbf5c4b54c2595182 # 8.1.5
     file: templates/gitlab-ci-terraform.yml
 {{- end }}
 
@@ -100,7 +100,7 @@ variables:
 {{- if eq $engine "terraform" }}
   TF_IMAGE: docker.io/hashicorp/terraform:1.14.3
 {{- else }}
-  TF_IMAGE: ghcr.io/opentofu/opentofu:1.11.2
+  TF_IMAGE: ghcr.io/opentofu/opentofu:1.11.3
 {{- end }}
   TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
 
