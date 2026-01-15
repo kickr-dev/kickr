@@ -21,7 +21,7 @@ import (
 // may be missing depending on kickr layout generation.
 func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, config types.Repository) error {
 	if httpClient == nil {
-		httpClient = http.DefaultClient //nolint:revive // modified parameter
+		httpClient = http.DefaultClient //nolint:revive
 	}
 	return func(ctx context.Context, destdir string, config types.Repository) error {
 		mapping := map[string][]string{

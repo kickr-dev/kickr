@@ -11,6 +11,7 @@ include:
 
 variables:
   TF_IMAGE: docker.io/hashicorp/terraform:1.14.3
+  TF_TFLINT_IMAGE: ghcr.io/terraform-linters/tflint:v0.60.0
   TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
 
   TF_CHECKOV_ENABLED: "false"
