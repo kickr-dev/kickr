@@ -38,7 +38,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "set logging level")
 	rootCmd.PersistentFlags().StringVar(&logFormat, "log-format", "text", `set logging format (either "text" or "json")`)
 
-	_ = preRun(nil, nil) // ensure logging is correctly configured with default values even when a bad input flag is given
+	_ = preRun(rootCmd, nil) // ensure logging is correctly configured with default values even when a bad input flag is given
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
