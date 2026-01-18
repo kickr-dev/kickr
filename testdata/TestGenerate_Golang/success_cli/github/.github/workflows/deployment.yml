@@ -129,10 +129,12 @@ jobs:
           name: build
           # order is important to filter unwanted globs after the filter or desired globs
           path: |
-            dist/*
-            !dist/*.json
-            !dist/*.yaml
-            !dist/*/
+            checksums.txt
+            dist/*.apk
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+            dist/*.zip
           retention-days: 1
 
   release:
