@@ -3,7 +3,7 @@
 ---
 netlify:
   stage: deploy
-  image: docker.io/library/node:24.12.0-alpine
+  image: docker.io/library/node:24.13.0-alpine
   environment:
     name: $ENV
     action: start

@@ -23,7 +23,7 @@ variables:
   NODE_BUILD_ARGS: run build --prod
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_BUILD_DISABLED: "false"
-  NODE_IMAGE: docker.io/library/node:24.12.0-alpine
+  NODE_IMAGE: docker.io/library/node:24.13.0-alpine
   NODE_LINT_ARGS: "run lint"
   NODE_LINT_ENABLED: "true"
   NODE_OUTDATED_ARGS: --long
