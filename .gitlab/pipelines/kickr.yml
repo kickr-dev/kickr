@@ -6,6 +6,8 @@ kickr:
   stage: test
   needs: []
   rules:
+    - if: $KICKR_DISABLED == 'true'
+      when: never
     - if: $CI_PIPELINE_SOURCE == 'schedule'
   variables:
     COMMIT_MESSAGE: "ci(layout): regenerate kickr layout"
