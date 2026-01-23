@@ -100,7 +100,7 @@ variables:
 {{- if eq $engine "terraform" }}
   TF_IMAGE: docker.io/hashicorp/terraform:1.14.3
 {{- else }}
-  TF_IMAGE: ghcr.io/opentofu/opentofu:1.11.3
+  TF_IMAGE: ghcr.io/opentofu/opentofu:1.11.4
 {{- end }}
   TF_TFLINT_IMAGE: ghcr.io/terraform-linters/tflint:v0.60.0
   TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
