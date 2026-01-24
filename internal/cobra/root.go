@@ -1,90 +1,87 @@
 package cobra
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/charmbracelet/log"
 	"github.com/spf13/cobra"
 )
 
-var (
-	logFormat = "text"
-	logLevel  = "info"
-	wd        = ""
+const (
+	flagDir       = "dir"
+	flagShortDir  = "d"
+	flagLogFormat = "log-format"
+	flagLogLevel  = "log-level"
+)
 
-	logger = log.NewWithOptions(os.Stderr, log.Options{
-		CallerFormatter: log.ShortCallerFormatter,
-		ReportCaller:    true,
-	})
+// Execute adds all child commands to the root command and sets flags appropriately.
+func Execute() {
+	var wd string
 
-	rootCmd = &cobra.Command{
-		Use:   "kickr",
-		Short: generateCmd.Short,
+	cmd := rootCmd(&wd)
+	cmd.AddCommand(initializeCmd(&wd))
+	cmd.AddCommand(version())
+
+	generate := generateCmd(&wd, generators()...)
+	cmd.AddCommand(generate)
+
+	if err := cmd.Execute(); err != nil {
+		logger.Fatal(err.Error())
+	}
+}
+
+func rootCmd(wd *string) *cobra.Command {
+	logFormat, logLevel := "text", "info"
+
+	generate := generateCmd(wd, generators()...)
+
+	cmd := &cobra.Command{
+		Use: "kickr",
 		Long: `Kickr initializes or generates kickr projects. Kickr projects are only defined by a .kickr file
 and multiple files automatically generated to avoid multiple hours to setup Continuous Integration, coverage, security analyzes, helm chart, etc.
 
 Kickr generation can be done with 'kickr' command or 'kickr generate' command.`,
-		SilenceErrors:     true, // don't print errors with cobra, let logger.Fatal handle them
-		PersistentPreRunE: preRun,
-		Run:               generateCmd.Run,
+		SilenceErrors: true, // don't print errors with cobra, let logger.Fatal handle them
+		PersistentPreRunE: func(*cobra.Command, []string) error {
+			if err := setupLogger(logFormat, logLevel); err != nil {
+				return err
+			}
+			return setupWorkingDir(wd)
+		},
+
+		// defaulting command to genetate
+		Args:    generate.Args,
+		PreRunE: generate.PreRunE,
+		RunE:    generate.RunE,
 	}
-)
 
-func init() {
-	rootCmd.PersistentFlags().StringVarP(&wd, "dir", "d", "", "set directory where generation will be made (default is current directory)")
-	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "set logging level")
-	rootCmd.PersistentFlags().StringVar(&logFormat, "log-format", "text", `set logging format (either "text" or "json")`)
+	cmd.Flags().AddFlagSet(generate.Flags())
 
-	_ = preRun(rootCmd, nil) // ensure logging is correctly configured with default values even when a bad input flag is given
+	cmd.PersistentFlags().StringVarP(wd, flagDir, flagShortDir, coalesce(getenv(envPrefix+"working-"+flagDir), getenv(envPrefix+flagDir)),
+		"set directory where generation will be made (default is current directory)")
+	cmd.PersistentFlags().StringVar(&logFormat, flagLogFormat, coalesce(getenv(flagLogFormat), logFormat), `set logging format (either "text" or "json")`)
+	cmd.PersistentFlags().StringVar(&logLevel, flagLogLevel, coalesce(getenv(flagLogLevel), logLevel), "set logging level")
+
+	_ = cmd.PersistentPreRunE(nil, nil) // ensure logging is correctly configured with default values even when a bad input flag is given
+
+	return cmd
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		logger.Fatal(err)
-	}
-}
-
-func preRun(*cobra.Command, []string) error {
-	styles := log.DefaultStyles()
-	switch logFormat {
-	case "text":
-		logger.SetFormatter(log.TextFormatter)
-		for _, level := range []log.Level{log.DebugLevel, log.InfoLevel, log.WarnLevel, log.ErrorLevel, log.FatalLevel} {
-			styles.Levels[level] = styles.Levels[level].MaxWidth(len(level.String()))
-		}
-		logger.SetStyles(styles)
-	case "json":
-		logger.SetFormatter(log.JSONFormatter)
-	default:
-		return errors.New(`invalid --log-format argument, must be either "json" or "text"`)
-	}
-
-	level, err := log.ParseLevel(logLevel)
-	if err != nil {
-		level = log.InfoLevel
-	}
-	logger.SetLevel(level)
-
-	// retrieve current directory for generation if wd is empty
-	// or retrieve the absolute path for better print
-	// and avoid potential issues when generating files (never happened but we never know)
-	if wd == "" {
+func setupWorkingDir(wd *string) error {
+	if wd == nil || *wd == "" {
 		pwd, err := os.Getwd()
 		if err != nil {
 			return fmt.Errorf("get wd: %w", err)
 		}
-		wd = pwd
-	} else {
-		abs, err := filepath.Abs(wd)
-		if err != nil {
-			return fmt.Errorf("absolute path: %w", err)
-		}
-		wd = abs
+		*wd = pwd
+		return nil
 	}
+
+	abs, err := filepath.Abs(*wd)
+	if err != nil {
+		return fmt.Errorf("absolute path: %w", err)
+	}
+	*wd = abs
 	return nil
 }

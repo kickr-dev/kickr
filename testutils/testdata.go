@@ -41,7 +41,7 @@ func Testdata(tb testing.TB) string {
 
 	testdata, err := tdv()
 	if err != nil {
-		tb.Fatal(err)
+		tb.Fatal(err.Error())
 	}
 	return testdata
 }

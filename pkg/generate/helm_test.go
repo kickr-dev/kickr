@@ -77,11 +77,11 @@ func TestHelmTemplate(t *testing.T) {
 			r, err := template(ctx, kubeVersion, chartdir, filepath.Join(assertdir, "values.yaml"))
 			if err != nil {
 				if r == nil {
-					t.Fatal(err)
+					t.Fatal(err.Error())
 				}
 				accessor, accerr := release.NewAccessor(r)
 				if accerr != nil {
-					t.Fatal(err) // no bother with accerr, it's not the most important error here
+					t.Fatal(err.Error()) // no bother with accerr, it's not the most important error here
 				}
 				t.Fatal(err, accessor.Manifest())
 			}

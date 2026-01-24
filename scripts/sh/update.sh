@@ -22,7 +22,7 @@ for workspace in $workspaces; do
   dirs=$(find "$workspace" -name testdata -prune -o -name .kickr.yml -exec dirname {} +;)
   for dir in $dirs; do
     log_info "Updating layout of $dir"
-    $cmd --dir "$dir" generate
+    $cmd --dir "$dir"
   done
   unset dirs dir
 done

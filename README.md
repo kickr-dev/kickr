@@ -44,10 +44,9 @@ cp "/tmp/kickr/$new_version/kickr" "$INSTALL_DIR/kickr"
 
 ```
 Kickr initializes or generates kickr projects. Kickr projects are only defined by a .kickr file
-and multiple files automatically generated to avoid multiple hours to setup Continuous Integration, coverage, security analyses, helm chart, etc.
+and multiple files automatically generated to avoid multiple hours to setup Continuous Integration, coverage, security analyzes, helm chart, etc.
 
 Kickr generation can be done with 'kickr' command or 'kickr generate' command.
-Additional generation command are available to generate only subparts of kickr layout (like 'kickr chart').
 
 Usage:
   kickr [flags]
@@ -57,16 +56,15 @@ Available Commands:
   completion  Generate the autocompletion script for the specified shell
   generate    Generate project layout
   help        Help about any command
-  init        Initialize kickr project
-  version     Show current kickr version
+  init        Initialize new kickr project
+  version     Show current version
 
 Flags:
   -d, --dir string          set directory where generation will be made (default is current directory)
+  -f, --force               force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed
   -h, --help                help for kickr
       --log-format string   set logging format (either "text" or "json") (default "text")
       --log-level string    set logging level (default "info")
-
-Use "kickr [command] --help" for more information about a command.
 ```
 
 ### Init
@@ -93,9 +91,6 @@ Generate project layout
 
 Usage:
   kickr generate [flags]
-
-Aliases:
-  generate
 
 Flags:
   -f, --force   force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed

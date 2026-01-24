@@ -6,12 +6,11 @@ import (
 	"github.com/kickr-dev/kickr/internal/build"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Show current kickr version",
-	Run:   func(_ *cobra.Command, _ []string) { logger.Info(build.GetInfo()) },
-}
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
+func version() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Show current version",
+		Run:   func(_ *cobra.Command, _ []string) { logger.Info(build.GetInfo().String()) },
+	}
+	return cmd
 }

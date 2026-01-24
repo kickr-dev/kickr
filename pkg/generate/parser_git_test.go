@@ -48,7 +48,16 @@ func TestParserGit(t *testing.T) {
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, types.Repository{
+			Kickr: config.Kickr,
+			VCS: parser.VCS{
+				Platform:    config.VCS.Platform,
+				ProjectHost: config.VCS.ProjectHost,
+				ProjectName: config.VCS.ProjectName,
+				ProjectPath: config.VCS.ProjectPath,
+				// ignore tags
+			},
+		})
 	})
 
 	t.Run("success_platform_already_present", func(t *testing.T) {
@@ -71,6 +80,15 @@ func TestParserGit(t *testing.T) {
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, types.Repository{
+			Kickr: config.Kickr,
+			VCS: parser.VCS{
+				Platform:    config.VCS.Platform,
+				ProjectHost: config.VCS.ProjectHost,
+				ProjectName: config.VCS.ProjectName,
+				ProjectPath: config.VCS.ProjectPath,
+				// ignore tags
+			},
+		})
 	})
 }

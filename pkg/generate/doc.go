@@ -11,7 +11,7 @@ Example:
 		// read configuration
 		var config kickr.Kickr
 		if err := files.ReadYAML(dest, &config, os.ReadFile); err != nil {
-			logger.Fatal(err)
+			logger.Fatal(err.Error())
 		}
 		config.EnsureDefaults()
 

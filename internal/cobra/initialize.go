@@ -9,29 +9,27 @@ import (
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-var initializeCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize new kickr project",
-	Run: func(cmd *cobra.Command, _ []string) {
-		ctx := cmd.Context()
+func initializeCmd(wd *string) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "init",
+		Short: "Initialize new kickr project",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if dest := kickr.File(*wd); dest != "" {
+				logger.Info("project already initialized")
+				return nil
+			}
+			dest := kickr.Files()[0]
 
-		if dest := kickr.File(wd); dest != "" {
-			logger.Info("project already initialized")
-			return
-		}
-		dest := kickr.Files()[0]
+			config, err := engine.Initialize(cmd.Context(), engine.WithFormGroups(initialize.Maintainer, initialize.License, initialize.Defaults))
+			if err != nil {
+				return err
+			}
 
-		config, err := engine.Initialize(ctx, engine.WithFormGroups(initialize.Maintainer, initialize.License, initialize.Defaults))
-		if err != nil {
-			logger.Fatal(err)
-		}
-
-		if err := files.WriteYAML(dest, config, kickr.EncodeOpts()...); err != nil {
-			logger.Fatal(err)
-		}
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(initializeCmd)
+			if err := files.WriteYAML(dest, config, kickr.EncodeOpts()...); err != nil {
+				return err
+			}
+			return nil
+		},
+	}
+	return cmd
 }
