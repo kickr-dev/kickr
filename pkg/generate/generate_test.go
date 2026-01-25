@@ -62,22 +62,17 @@ func TestGenerate_NoLang(t *testing.T) {
 
 	t.Run("success_kickr", func(t *testing.T) {
 		type testcase struct {
-			Manager  string
 			Option   string
 			Provider string
 		}
 
 		cases := []testcase{
-			{Manager: kickr.ManagerRenovate, Option: kickr.OptionKickr + ":github-app", Provider: parser.GitHub},
-			{Manager: kickr.ManagerRenovate, Option: kickr.OptionKickr + ":personal-token", Provider: parser.GitHub},
-			{Manager: kickr.ManagerDependabot, Option: kickr.OptionKickr + ":github-app", Provider: parser.GitHub},
-			{Manager: kickr.ManagerDependabot, Option: kickr.OptionKickr + ":personal-token", Provider: parser.GitHub},
-
-			{Manager: kickr.ManagerRenovate, Option: kickr.OptionKickr, Provider: parser.GitLab},
-			{Manager: kickr.ManagerDependabot, Option: kickr.OptionKickr, Provider: parser.GitLab},
+			{Option: kickr.OptionKickr + ":github-app", Provider: parser.GitHub},
+			{Option: kickr.OptionKickr + ":personal-token", Provider: parser.GitHub},
+			{Option: kickr.OptionKickr, Provider: parser.GitLab},
 		}
 		for _, tc := range cases {
-			name := tc.Provider + "_" + tc.Manager
+			name := tc.Provider
 			if option := strings.Split(tc.Option, ":"); len(option) > 1 {
 				name += "_" + option[1]
 			}
@@ -85,10 +80,9 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:           &kickr.CI{Provider: tc.Provider, Options: []string{tc.Option}},
-						Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
-						Dependencies: &kickr.Dependencies{Manager: tc.Manager},
-						Platform:     tc.Provider,
+						CI:       &kickr.CI{Provider: tc.Provider, Options: []string{tc.Option}},
+						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+						Platform: tc.Provider,
 					},
 				}
 
@@ -105,10 +99,9 @@ func TestGenerate_NoLang(t *testing.T) {
 					// Arrange
 					config := types.Repository{
 						Kickr: kickr.Kickr{
-							CI:           &kickr.CI{Provider: parser.GitHub, Options: []string{"renovate:" + auth}},
-							Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
-							Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
-							Platform:     parser.GitHub,
+							CI:       &kickr.CI{Provider: parser.GitHub, Options: []string{"renovate:" + auth}},
+							Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+							Platform: parser.GitHub,
 						},
 					}
 
@@ -122,10 +115,9 @@ func TestGenerate_NoLang(t *testing.T) {
 			// Arrange
 			config := types.Repository{
 				Kickr: kickr.Kickr{
-					CI:           &kickr.CI{Provider: parser.GitLab, Options: []string{kickr.OptionRenovate}},
-					Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate, Local: "configs/renovate.json5"},
-					Exclude:      []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
-					Platform:     parser.GitLab,
+					CI:       &kickr.CI{Provider: parser.GitLab, Options: []string{kickr.OptionRenovate}},
+					Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+					Platform: parser.GitLab,
 				},
 			}
 
@@ -144,10 +136,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			}
 
 			config := types.Repository{
-				Kickr: kickr.Kickr{
-					Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
-					Exclude:      []string{kickr.ExcludeMakefile},
-				},
+				Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile}},
 			}
 
 			// Act & Assert
@@ -314,9 +303,8 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:           &kickr.CI{Provider: ci, Release: &kickr.Release{}},
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerDependabot},
-						Platform:     ci,
+						CI:       &kickr.CI{Provider: ci, Release: &kickr.Release{}},
+						Platform: ci,
 					},
 				}
 
@@ -449,11 +437,10 @@ func TestGenerate_Golang(t *testing.T) {
 							},
 							Release: &kickr.Release{},
 						},
-						Description:  "A useful project description",
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
-						Exclude:      []string{kickr.ExcludeShell},
-						Platform:     ci,
-						PreCommit:    []string{kickr.PreCommitGolangciLint},
+						Description: "A useful project description",
+						Exclude:     []string{kickr.ExcludeShell},
+						Platform:    ci,
+						PreCommit:   []string{kickr.PreCommitGolangciLint},
 					},
 				}
 
@@ -565,7 +552,6 @@ func TestGenerate_Node(t *testing.T) {
 	t.Run("success_library", func(t *testing.T) {
 		type testcase struct {
 			CI             string
-			Manager        string
 			Options        []string
 			PackageManager string
 		}
@@ -579,14 +565,11 @@ func TestGenerate_Node(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Manager: kickr.ManagerRenovate, CI: parser.GitHub, Options: []string{"renovate:personal-token"}, PackageManager: "bun@1.1.6"},
-			{Manager: kickr.ManagerDependabot, CI: parser.GitHub, PackageManager: "bun@1.1.6"},
-
-			{Manager: kickr.ManagerRenovate, CI: parser.GitLab, Options: []string{kickr.OptionRenovate}, PackageManager: "bun@1.1.6"},
-			{Manager: kickr.ManagerDependabot, CI: parser.GitLab, PackageManager: "bun@1.1.6"},
+			{CI: parser.GitHub, Options: []string{"renovate:personal-token"}, PackageManager: "bun@1.1.6"},
+			{CI: parser.GitLab, Options: []string{kickr.OptionRenovate}, PackageManager: "bun@1.1.6"},
 		}
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.CI, "_", tc.Manager, "_", tc.PackageManager)
+			name := fmt.Sprint(tc.CI, "_", tc.PackageManager)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
@@ -596,8 +579,7 @@ func TestGenerate_Node(t *testing.T) {
 							Provider: tc.CI,
 							Release:  &kickr.Release{Options: []string{kickr.OptionBackmerge}},
 						},
-						Dependencies: &kickr.Dependencies{Manager: tc.Manager},
-						Platform:     tc.CI,
+						Platform: tc.CI,
 					},
 				}
 
@@ -765,7 +747,6 @@ func TestGenerate_Terraform(t *testing.T) {
 							Engine:  tc.Engine,
 							Modules: []string{"modules/one", "modules/two"},
 						},
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerDependabot},
 					},
 				}
 
@@ -793,9 +774,8 @@ func TestGenerate_Terraform(t *testing.T) {
 								Environments: []string{"production"},
 							},
 						},
-						PreCommit:    []string{kickr.PreCommitTerraform},
-						Platform:     provider,
-						Dependencies: &kickr.Dependencies{Manager: kickr.ManagerRenovate},
+						PreCommit: []string{kickr.PreCommitTerraform},
+						Platform:  provider,
 					},
 				}
 
@@ -1003,13 +983,13 @@ func test(ctx context.Context, t *testing.T, config types.Repository, parsers ..
 		}),
 		[]engine.Generator[types.Repository]{
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
-			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),                        // bot
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 			engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
 			engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
 			engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
 			engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
+			engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
 			engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
 		})
 

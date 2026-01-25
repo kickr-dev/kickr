@@ -9,8 +9,6 @@ type Kickr struct {
 
 	CI *CI `json:"ci,omitempty" yaml:"ci,omitempty"`
 
-	Dependencies *Dependencies `json:"dependencies,omitempty" yaml:"dependencies,omitempty"`
-
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
 	// License can be one of the available options with GitLab license API.
@@ -103,18 +101,6 @@ type Renovate struct {
 	// 	- github-token
 	// 	- personal-token
 	Auth string `json:"auth,omitempty" yaml:"auth,omitempty"`
-}
-
-type Dependencies struct {
-	// Manager.
-	//
-	// Enums:
-	// 	- dependabot
-	// 	- renovate
-	Manager string `json:"manager,omitempty" yaml:"manager,omitempty"`
-
-	// Local (in the repository) renovate configuration path to use in global extends.
-	Local string `json:"local,omitempty" yaml:"local,omitempty"`
 }
 
 type Maintainer struct {

@@ -16,6 +16,7 @@ required:
 properties:
   version:
     type: integer
+    description: The kickr major version
     const: 1
 
   description:
@@ -26,6 +27,10 @@ properties:
 
   ci:
     type: object
+    description: |
+      CI section can be provided to enable Continuous Integration and Deployment generation.
+      With multiple options, generation can include renovate scheduling (with GitHub Actions), testing, linting, coverage exports to SonarQube or CodeCov
+      to Helm chart deployment / publishing, static website deployment to netlify / pages and terraform apply.
     additionalProperties: false
     required:
       - provider
@@ -108,50 +113,25 @@ properties:
               required:
                 - auth
 
-  dependencies:
-    type: object
-    additionalProperties: false
-    required:
-      - manager
-    properties:
-      manager:
-        type: string
-        enum:
-          - dependabot
-          - renovate
-      local:
-        type: string
-        description: local (in the repository) renovate configuration path to use in global extends.
-        examples:
-          - configs/renovate.json5
-          - configs/renovate.local.json5
-          - configs/renovate/local.json
-    allOf:
-      - if:
-          properties:
-            manager:
-              const: dependabot
-        then:
-          properties:
-            local: false
-
   exclude:
     type: array
+    description: Provide generations to disable in case it's too much, unnecessary or unwanted for the repository.
     items:
       type: string
       enum:
         - goreleaser
         - makefile
         - pre-commit
+        - renovate
         - shell
 
   license:
     type: string
-    enum: [ agpl-3.0, apache-2.0, bsd-2-clause, bsd-3-clause, bsl-1.0, cc0-1.0, epl-2.0, gpl-2.0, gpl-3.0, lgpl-2.1, mit, mpl-2.0, unlicense ]
     description: |
       license can be one of the available options with GitLab license API.
 
       With this property, kickr will automatically download the appropriate license file and save it in the project.
+    enum: [ agpl-3.0, apache-2.0, bsd-2-clause, bsd-3-clause, bsl-1.0, cc0-1.0, epl-2.0, gpl-2.0, gpl-3.0, lgpl-2.1, mit, mpl-2.0, unlicense ]
 
   maintainers:
     type: array
@@ -184,11 +164,6 @@ properties:
 
   platform:
     type: string
-    enum:
-      - bitbucket
-      - gitea
-      - github
-      - gitlab
     description: |
       platform defines the source code hosting platform (GitHub, GitLab, Gitea, Bitbucket).
 
@@ -196,6 +171,11 @@ properties:
       However, in case of mirroring, or other specific cases (like custom hosting), it may be updated (and it won't be overridden) to provide a custom platform.
 
       The platform serves in various cases to generate the right files format (dependabot for instance) but also for badges in README.md.
+    enum:
+      - bitbucket
+      - gitea
+      - github
+      - gitlab
 
   pre-commit:
     type: array
@@ -242,6 +222,8 @@ $defs:
   docker:
     title: Docker
     type: object
+    description: |
+      Docker section can be provided to tune where and when the built docker image should be pushed.
     additionalProperties: false
     properties:
       auto:
@@ -262,8 +244,15 @@ $defs:
   helm:
     title: Helm
     type: object
+    description: |
+      Helm section can be provided to specify if the current chart should be deployed or only published
+      and on how many environments should the deployement be available.
+
+      It also allows providing the publishing registry URL and path.
     additionalProperties: false
     dependentRequired:
+      environments:
+        - deploy
       deploy:
         - environments
       publish:
@@ -322,10 +311,14 @@ $defs:
           - oci://ghcr.io
 
   terraform:
-    title: Terraform Configuration
+    title: Terraform
     type: object
+    description: |
+      Terraform section can be provided to specify when the modules should be applied and how many environments there are.
     additionalProperties: false
     dependentRequired:
+      environments:
+        - apply
       apply:
         - environments
     properties:
@@ -359,6 +352,8 @@ $defs:
   website:
     title: Static Deployment
     type: object
+    description: |
+      Website section can be provided to specify options to tune which directory should be built and deployed, where and automatically or not.
     additionalProperties: false
     required:
       - hosting
@@ -382,6 +377,9 @@ $defs:
     type:
       - "null"
       - object
+    description: |
+      Release section can be provided to tune various configuration on the releasing part.
+      From automatic releasing to how the authentication should be made with which semantic-release plugins.
     additionalProperties: false
     properties:
       auth:

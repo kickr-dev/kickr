@@ -26,6 +26,11 @@ const (
 	// ExcludePreCommit can be given in kickr exclusions ('exclude' key) to avoid generating pre-commit files and associated Continuous Integration.
 	ExcludePreCommit string = "pre-commit"
 
+	// ExcludeRenovate can be given in kickr exclusions ('exclude' key) to avoid generating renovate settings.
+	//
+	// Excluding renovate here doesn't exclude the CI generation in case 'ci.options["renovate"]' is provided.
+	ExcludeRenovate string = "renovate"
+
 	// ExcludeShell can be given in kickr exclusions ('exclude' key)
 	// to avoid generating shell (check / test / pre-commit) Continuous Integration.
 	ExcludeShell string = "shell"
@@ -56,13 +61,6 @@ const (
 
 	// OptionBackmerge is the CI release option to backmerge stable branches between them.
 	OptionBackmerge string = "backmerge"
-)
-
-const (
-	// ManagerDependabot is the dependabot updater name for CI maintenance configuration.
-	ManagerDependabot string = "dependabot"
-	// ManagerRenovate is the renovate updater name for CI maintenance configuration.
-	ManagerRenovate string = "renovate"
 )
 
 const (

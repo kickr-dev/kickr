@@ -31,13 +31,13 @@ func generators() []engine.Generator[types.Repository] {
 		generate.GeneratorLicense(http.DefaultClient),   // license
 
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.Dependabot(), templates.Renovate())),                        // bot
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 		engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
 		engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
 		engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
 		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
+		engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
 		engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
 	}
 }

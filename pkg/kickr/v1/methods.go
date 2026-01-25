@@ -16,11 +16,6 @@ func (k Kickr) IsCI(provider string) bool {
 	return k.CI != nil && k.CI.Provider == provider
 }
 
-// DependencyManager returns truthy in case the input manager matches the configuration dependencies manager.
-func (k Kickr) DependencyManager(manager string) bool {
-	return k.Dependencies != nil && k.Dependencies.Manager == manager
-}
-
 // HasRelease returns truthy in case the configuration has CI enabled and Release configuration.
 func (k Kickr) HasRelease() bool {
 	return k.CI != nil && k.CI.Release != nil

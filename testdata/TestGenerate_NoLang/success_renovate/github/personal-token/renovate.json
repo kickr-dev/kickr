@@ -8,7 +8,6 @@
     "extends": [
         "github>kickr-dev/renovate//configs/renovate/default.json",
         "github>kickr-dev/renovate//configs/renovate/github-actions.json",
-        "github>kickr-dev/renovate//configs/renovate/pre-commit.json",
-        "local>kickr-dev/kickr//configs/renovate.json5"
+        "github>kickr-dev/renovate//configs/renovate/pre-commit.json"
     ]
 }
