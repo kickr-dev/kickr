@@ -3,7 +3,7 @@
 {{- $hugo := hasKey .Languages "hugo" }}
 {{- $node := hasKey .Languages "node" }}
 
-{{- $websiteDirectory := .CI.Website.Directory | default "." }}
+{{- $websiteDirectory := .Website.Directory | default "." }}
 
 {{- $needs := "" }}
 {{- if $node }}{{- range (get .Languages "node") }}{{- if eq .Directory $websiteDirectory }}{{- $needs = "node-build" }}{{- end }}{{- end }}{{- end }}
@@ -11,7 +11,7 @@
 
 {{- $matrix := or (and (eq $needs "node-build") (gt (len (get .Languages "node")) 1)) (and (eq $needs "hugo-build") (gt (len (get .Languages "hugo")) 1)) }}
 
-{{- if eq .CI.Website.Hosting "netlify" }}
+{{- if eq .Website.Hosting "netlify" }}
 netlify:
   stage: deploy
   image: docker.io/library/node:24.13.0-alpine
@@ -27,7 +27,7 @@ netlify:
       variables:
         ARGS: --prod
         ENV: production
-{{- if not .CI.Website.Auto }}
+{{- if not .Website.Auto }}
       when: manual
 {{- end }}
     - variables:
@@ -41,7 +41,7 @@ netlify:
     - netlify deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --dir "$BUILD_DIR" $ARGS
 {{- end }}
 
-{{- if eq .CI.Website.Hosting "pages" }}
+{{- if eq .Website.Hosting "pages" }}
 pages:
   stage: deploy
   environment:
@@ -56,7 +56,7 @@ pages:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-{{- if not .CI.Website.Auto }}
+{{- if not .Website.Auto }}
       when: manual
 {{- end }}
   script:

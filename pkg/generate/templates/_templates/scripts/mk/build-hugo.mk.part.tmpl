@@ -1,7 +1,7 @@
 {{- define "hugo" }}
 
 {{- $websiteDirectory := "." }}
-{{- if .CI.Website }}{{- $websiteDirectory = .CI.Website.Directory | default "." }}{{- end }}
+{{- if .Website }}{{- $websiteDirectory = .Website.Directory | default "." }}{{- end }}
 
 {{- range get .Languages "hugo" }}
 {{- $suffix := ne .Directory "." | ternary (print "-" .Directory) "" | replace "/" "-" }}

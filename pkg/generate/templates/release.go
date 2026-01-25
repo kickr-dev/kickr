@@ -16,7 +16,9 @@ func SemanticRelease() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".releaserc.yml" + engine.TmplExtension},
 			Out:        ".releaserc.yml",
-			Remove:     func(config types.Repository) bool { return !config.HasRelease() },
+			Remove: func(config types.Repository) bool {
+				return config.CI == nil || config.CI.Release == nil
+			},
 		},
 		{
 			Delimiters:     engine.DelimitersBracket(),
@@ -24,7 +26,7 @@ func SemanticRelease() []engine.Template[types.Repository] {
 			Out:            path.Join(".gitlab", "semrel-plugins.txt"),
 			GeneratePolicy: engine.PolicyAlways, // always generate semrel-plugins.txt
 			Remove: func(config types.Repository) bool {
-				return !config.HasRelease() || !config.IsCI(parser.GitLab)
+				return !config.IsCI(parser.GitLab) || config.CI.Release == nil //nolint:revive
 			},
 		},
 	}

@@ -21,7 +21,7 @@ on:
           - --dry-run=none
           - --dry-run=server
           - none
-        default: << eq .CI.Helm.Deploy "auto" | ternary "--dry-run=none" "--dry-run=server" >>
+        default: << eq .Helm.Deploy "auto" | ternary "--dry-run=none" "--dry-run=server" >>
 <<- end >>
 <<- if .HasHelmPublish >>
       helm_push:
@@ -31,16 +31,16 @@ on:
           - dry-run
           - none
           - full
-        default: << eq .CI.Helm.Publish "auto" | ternary "full" "dry-run" >>
+        default: << eq .Helm.Publish "auto" | ternary "full" "dry-run" >>
 <<- end >>
-<<- if .CI.Website >>
-      << .CI.Website.Hosting >>:
+<<- if .Website >>
+      << .Website.Hosting >>:
         description: Website deployment mode.
         type: choice
         options:
           - full
           - none
-        default: << .CI.Website.Auto | ternary "full" "none" >>
+        default: << .Website.Auto | ternary "full" "none" >>
 <<- end >>
 <<- if .HasTerraformApply >>
 <<- $engine := "opentofu" >>
@@ -51,7 +51,7 @@ on:
         options:
           - full
           - none
-        default: << eq .CI.Terraform.Apply "auto" | ternary "full" "none" >>
+        default: << eq .Terraform.Apply "auto" | ternary "full" "none" >>
 <<- end >>
 <<- if .CI.Release >>
       release:
@@ -220,15 +220,15 @@ jobs:
 <<- if $hugo >><< template "hugo" . >><<- end >>
 <<- if and $node (get .Languages "node").HasMain >><< template "node" . >><<- end >>
 
-<<- if .CI.Docker >><< template "docker" . >><<- end >>
-<<- if .CI.Helm >><< template "helm" . >><<- end >>
-<<- if .CI.Website >><< template "static" . >><<- end >>
+<<- if .Docker >><< template "docker" . >><<- end >>
+<<- if .Helm >><< template "helm" . >><<- end >>
+<<- if .Website >><< template "static" . >><<- end >>
 <<- if .HasTerraformApply >><< template "terraform" . >><<- end >>
 
 <<- if .CI.Release >>
 
 <<- $needs := list >>
-<<- if .CI.Docker >><<- $needs = append $needs "docker-build" >><<- end >>
+<<- if .Docker >><<- $needs = append $needs "docker-build" >><<- end >>
 <<- if $gobuild >><<- $needs = append $needs "go-build" >><<- end >>
 <<- if .HasHelmPublish >><<- $needs = append $needs "helm-push" >><<- end >>
 <<- if .HasHelmDeploy >><<- $needs = append $needs "helm-deploy" >><<- end >>

@@ -19,7 +19,7 @@ func CodeCov() []engine.Template[types.Repository] {
 			Globs:      []string{name + engine.TmplExtension},
 			Out:        name,
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionCodeCov)
+				return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsCodecov)
 			},
 		},
 	}
@@ -34,7 +34,7 @@ func Sonar() []engine.Template[types.Repository] {
 			Globs:      []string{name + engine.TmplExtension},
 			Out:        name,
 			Remove: func(config types.Repository) bool {
-				return config.CI == nil || !slices.Contains(config.CI.Options, kickr.OptionSonarQube)
+				return config.CI == nil || !slices.Contains(config.CI.Options, kickr.OptionsSonarQube)
 			},
 		},
 	}

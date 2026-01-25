@@ -14,18 +14,18 @@ include:
 # SEMREL_GPG_SIGNKEY: Path to the GPG signkey exported with `gpg --armor --export-secret-key` (optional).
 {{- end }}
 
-{{- if .CI.Docker }}
+{{- if .Docker }}
 
 # https://gitlab.com/to-be-continuous/docker
 # DOCKER_REGISTRY_MIRROR: The mirror registry URL (optional).
 # DOCKER_REGISTRY_MIRROR_USER: The username with read access to registry mirror (optional).
 # DOCKER_REGISTRY_MIRROR_PASSWORD: The user password / token with read access to registry mirror (optional).
-{{- if .CI.Docker.Registry }}
+{{- if .Docker.Registry }}
 
-# DOCKER_REGISTRY_SNAPSHOT_USER: The username with write access to {{ .CI.Docker.Registry }} (snapshot) to push docker images (default is $CI_REGISTRY_USER).
-# DOCKER_REGISTRY_SNAPSHOT_PASSWORD: The user password / token with write access to {{ .CI.Docker.Registry }} (snapshot) to push docker images (default is $CI_REGISTRY_PASSWORD).
-# DOCKER_REGISTRY_RELEASE_USER: The username with write access to {{ .CI.Docker.Registry }} to push docker images (default is $CI_REGISTRY_USER).
-# DOCKER_REGISTRY_RELEASE_PASSWORD: The user password / token with write access to {{ .CI.Docker.Registry }} to push docker images (default is $CI_REGISTRY_PASSWORD).
+# DOCKER_REGISTRY_SNAPSHOT_USER: The username with write access to {{ .Docker.Registry }} (snapshot) to push docker images (default is $CI_REGISTRY_USER).
+# DOCKER_REGISTRY_SNAPSHOT_PASSWORD: The user password / token with write access to {{ .Docker.Registry }} (snapshot) to push docker images (default is $CI_REGISTRY_PASSWORD).
+# DOCKER_REGISTRY_RELEASE_USER: The username with write access to {{ .Docker.Registry }} to push docker images (default is $CI_REGISTRY_USER).
+# DOCKER_REGISTRY_RELEASE_PASSWORD: The user password / token with write access to {{ .Docker.Registry }} to push docker images (default is $CI_REGISTRY_PASSWORD).
 {{- end }}
 {{- end }}
 
@@ -38,7 +38,7 @@ include:
 # HELM_REVIEW_ENVIRONMENT_URL: "https://wonderapp-review.nonprod.acme.domain/%{environment_name}" override for review (using separate resource paths).
 {{- end }}
 
-{{- if .CI.Helm }}
+{{- if .Helm }}
 
 # https://gitlab.com/to-be-continuous/helm
 # In case a private helm repository must be used, those variables may be defined in this file (except the password) or in project / group variables
@@ -46,7 +46,7 @@ include:
 # HELM_REPO_OTHER_PROJ_USER: "gitlab-token"
 # HELM_REPO_OTHER_PROJ_PASSWORD: Helm password / token with read (and/or write) access to 'other-proj' repository (see above)
 
-{{- if and .HasHelmPublish .CI.Helm.Registry }}
+{{- if and .HasHelmPublish .Helm.Registry }}
 
 # HELM_PUBLISH_USER: Helm repository username (default is $CI_REGISTRY_USER).
 # HELM_PUBLISH_PASSWORD: Helm repository password (default is $CI_REGISTRY_PASSWORD).

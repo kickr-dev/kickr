@@ -10,9 +10,7 @@ import (
 )
 
 // Chart returns the slice of templates related to helm chart generation.
-func Chart() []engine.Template[types.Repository] {
-	var templates []engine.Template[types.Repository]
-
+func Chart() (templates []engine.Template[types.Repository]) {
 	tmplfiles := []string{
 		path.Join("chart", "templates", "_helpers.tpl"),
 		path.Join("chart", "templates", "configmap.yaml"),
@@ -29,7 +27,7 @@ func Chart() []engine.Template[types.Repository] {
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
 			Remove: func(config types.Repository) bool {
-				return config.CI == nil || config.CI.Helm == nil
+				return config.Helm == nil
 			},
 		})
 	}
@@ -46,7 +44,7 @@ func Chart() []engine.Template[types.Repository] {
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
 			Remove: func(config types.Repository) bool {
-				return config.CI == nil || config.CI.Helm == nil
+				return config.Helm == nil
 			},
 		})
 	}
@@ -56,7 +54,7 @@ func Chart() []engine.Template[types.Repository] {
 		Globs:      engine.GlobsWithPart(path.Join("chart", "values.yaml")),
 		Out:        path.Join("chart", "values.yaml"),
 		Remove: func(config types.Repository) bool {
-			return config.CI == nil || config.CI.Helm == nil
+			return config.Helm == nil
 		},
 	})
 

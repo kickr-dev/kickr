@@ -16,11 +16,6 @@ func (k Kickr) IsCI(provider string) bool {
 	return k.CI != nil && k.CI.Provider == provider
 }
 
-// HasRelease returns truthy in case the configuration has CI enabled and Release configuration.
-func (k Kickr) HasRelease() bool {
-	return k.CI != nil && k.CI.Release != nil
-}
-
 // IsReleaseAuto returns truthy in case the configuration has CI enabled, release enabled and auto actived.
 func (k Kickr) IsReleaseAuto() bool {
 	return k.CI != nil && k.CI.Release != nil && k.CI.Release.Auto
@@ -28,31 +23,31 @@ func (k Kickr) IsReleaseAuto() bool {
 
 // IsHelmPublishAuto returns truthy in case the configuration has CI enabled, helm publish enabled and auto actived.
 func (k Kickr) IsHelmPublishAuto() bool {
-	return k.CI != nil && k.CI.Helm != nil && k.CI.Helm.Publish == HelmAuto
+	return k.Helm != nil && k.Helm.Publish == HelmPublishAuto
 }
 
 // IsHosting returns truthy in case the configuration has CI enabled, a website to deploy
 // and the input hosting name matches the one configured.
 func (k Kickr) IsHosting(hosting string) bool {
-	return k.CI != nil && k.CI.Website != nil && k.CI.Website.Hosting == hosting
+	return k.Website != nil && k.Website.Hosting == hosting
 }
 
 // HasHelmPublish returns truthy in case the configuration has CI enabled, helm chart generation enabled
 // and publication to a helm repository enabled.
 func (k Kickr) HasHelmPublish() bool {
-	return k.CI != nil && k.CI.Helm != nil && slices.Contains([]string{HelmAuto, HelmManual}, k.CI.Helm.Publish)
+	return k.Helm != nil && k.Helm.Publish != ""
 }
 
 // HasHelmDeploy returns truthy in case the configuration has CI enabled, helm chart generation enabled
 // and deployment to kubernetes cluster(s) enabled.
 func (k Kickr) HasHelmDeploy() bool {
-	return k.CI != nil && k.CI.Helm != nil && slices.Contains([]string{HelmAuto, HelmManual}, k.CI.Helm.Deploy)
+	return k.Helm != nil && k.Helm.Deploy != ""
 }
 
 // HasTerraformApply returns truthy in case the configuration has CI enabled, terraform generation enabled
 // and apply is enabled in terraform CI configuration.
 func (k Kickr) HasTerraformApply() bool {
-	return k.CI != nil && k.CI.Terraform != nil && slices.Contains([]string{HelmAuto, HelmManual}, k.CI.Terraform.Apply)
+	return k.Terraform != nil && k.Terraform.Apply != ""
 }
 
 // HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
@@ -69,28 +64,28 @@ func (k Kickr) HasAutoDeployment() bool {
 		return false
 	}
 
-	docker := k.CI.Docker != nil && k.CI.Docker.Auto
-	helm := k.CI.Helm != nil && (k.CI.Helm.Deploy == HelmAuto || k.CI.Helm.Publish == HelmAuto)
+	docker := k.Docker != nil && k.Docker.Auto
+	helm := k.Helm != nil && (k.Helm.Deploy == HelmDeployAuto || k.Helm.Publish == HelmPublishAuto)
 	release := k.CI.Release != nil && k.CI.Release.Auto
-	terraform := k.CI.Terraform != nil && k.CI.Terraform.Apply == TerraformAuto
-	website := k.CI.Website != nil && k.CI.Website.Auto
+	terraform := k.Terraform != nil && k.Terraform.Apply == TerraformApplyAuto
+	website := k.Website != nil && k.Website.Auto
 
 	return docker || helm || website || release || terraform
 }
 
 // HasDeployment returns truthy in case the configuration has CI enabled and Deployment configuration.
-func (k Kickr) HasDeployment() bool {
-	if k.CI == nil {
-		return false
-	}
+// func (k Kickr) HasDeployment() bool {
+// 	if k.CI == nil {
+// 		return false
+// 	}
 
-	docker := k.CI.Docker != nil
-	helm := k.CI.Helm != nil
-	terraform := k.CI.Terraform != nil
-	website := k.CI.Website != nil
+// 	docker := k.Docker != nil
+// 	helm := k.Helm != nil
+// 	terraform := k.Terraform != nil && k.Terraform.Apply != ""
+// 	website := k.Website != nil
 
-	return docker || helm || website || terraform
-}
+// 	return docker || helm || website || terraform
+// }
 
 // EnsureDefaults migrates old properties into new fields
 // and ensures default properties are always sets.
@@ -105,9 +100,17 @@ func (k *Kickr) EnsureDefaults() {
 
 	if k.CI != nil {
 		slices.Sort(k.CI.Options)
-
-		if k.CI.Helm != nil {
-			slices.Sort(k.CI.Helm.Environments)
+		if k.CI.Release != nil {
+			slices.Sort(k.CI.Release.Options)
 		}
+	}
+
+	if k.Helm != nil {
+		slices.Sort(k.Helm.Environments)
+	}
+
+	if k.Terraform != nil {
+		slices.Sort(k.Terraform.Environments)
+		slices.Sort(k.Terraform.Modules)
 	}
 }

@@ -6,9 +6,6 @@ ci:
   options:
     - kickr
   release: {}
-dependencies:
-  manager: renovate
-  local: configs/renovate/local.json
 exclude:
   - shell
 license: apache-2.0

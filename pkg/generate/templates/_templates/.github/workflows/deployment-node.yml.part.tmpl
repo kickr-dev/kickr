@@ -5,7 +5,7 @@ jobs:
 <<- $manager := cutAfter (first $nodes).Specifics.PackageManager "@" >>
 
 <<- $websiteDirectory := "." >>
-<<- if .CI.Website >><<- $websiteDirectory = .CI.Website.Directory | default "." >><<- end >>
+<<- if .Website >><<- $websiteDirectory = .Website.Directory | default "." >><<- end >>
 
   node-build:
     name: Node Build ${{ matrix.name }}

@@ -17,16 +17,14 @@ func GitHub() []engine.Template[types.Repository] {
 	return slices.Concat(githubWorkflow(), githubConfig())
 }
 
-func githubWorkflow() []engine.Template[types.Repository] {
-	var templates []engine.Template[types.Repository]
-
+func githubWorkflow() (templates []engine.Template[types.Repository]) {
 	codeql := path.Join(".github", "workflows", "codeql.yml")
 	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters: engine.DelimitersChevron(),
 		Globs:      []string{codeql + engine.TmplExtension},
 		Out:        codeql,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionCodeQL)
+			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsCodeQL)
 		},
 	})
 
@@ -36,7 +34,9 @@ func githubWorkflow() []engine.Template[types.Repository] {
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || (!config.HasDeployment() && !config.HasRelease())
+			return !config.IsCI(parser.GitHub) || //nolint:revive
+				(config.CI.Release == nil && config.Docker == nil && config.Helm == nil && config.Website == nil &&
+					(config.Terraform == nil || config.Terraform.Apply == ""))
 		},
 	})
 
@@ -64,7 +64,7 @@ func githubWorkflow() []engine.Template[types.Repository] {
 		Globs:      []string{labeler + engine.TmplExtension},
 		Out:        labeler,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionLabeler)
+			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsLabeler)
 		},
 	})
 
@@ -82,7 +82,7 @@ func githubWorkflow() []engine.Template[types.Repository] {
 		Globs:      []string{scorecard + engine.TmplExtension},
 		Out:        scorecard,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionScoreCardOSSF)
+			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsOSSFScorecard)
 		},
 	})
 
@@ -100,16 +100,14 @@ func githubWorkflow() []engine.Template[types.Repository] {
 	return templates
 }
 
-func githubConfig() []engine.Template[types.Repository] {
-	var templates []engine.Template[types.Repository]
-
+func githubConfig() (templates []engine.Template[types.Repository]) {
 	labeler := path.Join(".github", "labeler.yml")
 	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{labeler + engine.TmplExtension},
 		Out:        labeler,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionLabeler)
+			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsLabeler)
 		},
 	})
 

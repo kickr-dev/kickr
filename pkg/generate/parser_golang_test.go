@@ -43,7 +43,7 @@ func TestParserGolang(t *testing.T) {
 
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI: &kickr.CI{Website: &kickr.Website{Directory: dir}},
+						Website: &kickr.Website{Directory: dir},
 					},
 				}
 
@@ -136,7 +136,7 @@ func TestParserGolang(t *testing.T) {
 
 		expected := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 			Languages: map[string]any{
 				"go": parser.Gomod{
@@ -151,7 +151,7 @@ func TestParserGolang(t *testing.T) {
 		}
 		config := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 

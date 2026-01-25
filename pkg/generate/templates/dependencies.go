@@ -28,7 +28,7 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".github", "workflows", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "workflows", "renovate.yml"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, kickr.OptionRenovate+":") })
+				return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, kickr.OptionsRenovate+":") })
 			},
 		},
 		{
@@ -36,7 +36,7 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".github", "renovate.json"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, kickr.OptionRenovate+":") })
+				return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, kickr.OptionsRenovate+":") })
 			},
 		},
 		{
@@ -44,7 +44,7 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".gitlab", "pipelines", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "pipelines", "renovate.yml"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionRenovate)
+				return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionsRenovate)
 			},
 		},
 		{
@@ -52,7 +52,7 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "renovate.json"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionRenovate)
+				return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionsRenovate)
 			},
 		},
 	}

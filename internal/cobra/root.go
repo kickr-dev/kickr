@@ -43,6 +43,7 @@ and multiple files automatically generated to avoid multiple hours to setup Cont
 
 Kickr generation can be done with 'kickr' command or 'kickr generate' command.`,
 		SilenceErrors: true, // don't print errors with cobra, let logger.Fatal handle them
+		SilenceUsage:  true, // don't print help on errors
 		PersistentPreRunE: func(*cobra.Command, []string) error {
 			if err := setupLogger(logFormat, logLevel); err != nil {
 				return err
@@ -50,7 +51,7 @@ Kickr generation can be done with 'kickr' command or 'kickr generate' command.`,
 			return setupWorkingDir(wd)
 		},
 
-		// defaulting command to genetate
+		// defaulting command to generate
 		Args:    generate.Args,
 		PreRunE: generate.PreRunE,
 		RunE:    generate.RunE,

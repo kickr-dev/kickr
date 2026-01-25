@@ -25,10 +25,7 @@ func initializeCmd(wd *string) *cobra.Command {
 				return err
 			}
 
-			if err := files.WriteYAML(dest, config, kickr.EncodeOpts()...); err != nil {
-				return err
-			}
-			return nil
+			return files.WriteYAML(dest, config, kickr.EncodeOpts()...)
 		},
 	}
 	return cmd

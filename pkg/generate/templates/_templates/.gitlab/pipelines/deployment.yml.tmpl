@@ -3,9 +3,9 @@
 {{- $terraform := hasKey .Languages "terraform" }}
 
 ---
-{{- if or .CI.Docker .CI.Helm $terraform }}
+{{- if or .Docker .Helm $terraform }}
 include:
-{{- if .CI.Docker }}
+{{- if .Docker }}
 
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
@@ -14,7 +14,7 @@ include:
     file: templates/gitlab-ci-docker.yml
 {{- end }}
 
-{{- if .CI.Helm }}
+{{- if .Helm }}
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
@@ -33,9 +33,9 @@ include:
 {{- end }}
 
 variables:
-{{- if .CI.Docker }}
-{{- $registry := .CI.Docker.Registry | default "$CI_REGISTRY" }}
-{{- $path := .CI.Docker.Path | default "$CI_PROJECT_PATH" }}
+{{- if .Docker }}
+{{- $registry := .Docker.Registry | default "$CI_REGISTRY" }}
+{{- $path := .Docker.Path | default "$CI_PROJECT_PATH" }}
 
   DOCKER_RELEASE_IMAGE: "{{ $registry }}/{{ $path }}:$SEMREL_INFO_NEXT_VERSION"
   DOCKER_SNAPSHOT_IMAGE: "{{ $registry }}/{{ $path }}/snapshot:$SEMREL_INFO_NEXT_VERSION"
@@ -57,9 +57,9 @@ variables:
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 {{- end }}
 
-{{- if .CI.Helm }}
-{{- $registry := .CI.Helm.Registry | default "oci://$CI_REGISTRY" }}
-{{- $path := .CI.Helm.Path | default "$CI_PROJECT_PATH/charts" }}
+{{- if .Helm }}
+{{- $registry := .Helm.Registry | default "oci://$CI_REGISTRY" }}
+{{- $path := .Helm.Path | default "$CI_PROJECT_PATH/charts" }}
 
   HELM_CHART_DIR: chart/
   HELM_SCRIPTS_DIR: chart/hooks/
@@ -70,21 +70,20 @@ variables:
   HELM_PUBLISH_METHOD: {{ .HasHelmPublish | ternary "push" "disabled" }}
   HELM_PUBLISH_ON: {{ .HasHelmPublish | ternary "all" "none" }}
   HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
-  HELM_PUBLISH_STRATEGY: {{ .CI.Helm.Publish | default "none" }}
+  HELM_PUBLISH_STRATEGY: {{ .Helm.Publish | default "none" }}
 {{- if .HasHelmPublish }}
   HELM_PUBLISH_URL: {{ $registry }}/{{ trimSuffix (print "/" .VCS.ProjectName) $path }}
 {{- end }}
 
+  HELM_REVIEW_ENABLED: "{{ and .HasHelmDeploy (has "review" .Helm.Environments) }}"
+  HELM_INTEG_ENABLED: "{{ and .HasHelmDeploy (has "integration" .Helm.Environments) }}"
+  HELM_STAGING_ENABLED: "{{ and .HasHelmDeploy (has "staging" .Helm.Environments) }}"
+  HELM_PROD_ENABLED: "{{ and .HasHelmDeploy (has "production" .Helm.Environments) }}"
+
 {{- if .HasHelmDeploy }}
-
-  HELM_REVIEW_ENABLED: "{{ has "review" .CI.Helm.Environments }}"
-  HELM_INTEG_ENABLED: "{{ has "integration" .CI.Helm.Environments }}"
-  HELM_STAGING_ENABLED: "{{ has "staging" .CI.Helm.Environments }}"
-  HELM_PROD_ENABLED: "{{ has "production" .CI.Helm.Environments }}"
-
   HELM_DEPLOY_ARGS: upgrade --install --version "$SEMREL_INFO_NEXT_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$SEMREL_INFO_NEXT_VERSION"
-{{- if has "production" .CI.Helm.Environments }}
-  HELM_PROD_DEPLOY_STRATEGY: {{ .CI.Helm.Deploy }}
+{{- if has "production" .Helm.Environments }}
+  HELM_PROD_DEPLOY_STRATEGY: {{ .Helm.Deploy }}
 {{- end }}
 
   HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
@@ -112,17 +111,14 @@ variables:
   TF_TRIVY_DISABLED: "true"
   TF_VALIDATE_ENABLED: "true"
 
-{{- if .HasTerraformApply }}
-
-  TF_REVIEW_ENABLED: "{{ has "review" .CI.Terraform.Environments }}"
-  TF_INTEG_ENABLED: "{{ has "integration" .CI.Terraform.Environments }}"
-  TF_STAGING_ENABLED: "{{ has "staging" .CI.Terraform.Environments }}"
-  TF_PROD_ENABLED: "{{ has "production" .CI.Terraform.Environments }}"
-{{- end }}
+  TF_REVIEW_ENABLED: "{{ and .HasTerraformApply (has "review" .Terraform.Environments) }}"
+  TF_INTEG_ENABLED: "{{ and .HasTerraformApply (has "integration" .Terraform.Environments) }}"
+  TF_STAGING_ENABLED: "{{ and .HasTerraformApply (has "staging" .Terraform.Environments) }}"
+  TF_PROD_ENABLED: "{{ and .HasTerraformApply (has "production" .Terraform.Environments) }}"
 {{- end }}
 {{- end }}
 
-{{- if .CI.Docker }}
+{{- if .Docker }}
 
 # see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1224
 .docker-buildah-build:
@@ -146,7 +142,7 @@ variables:
     - if: '$DOCKER_BUILD_TOOL == "kaniko" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "kaniko")'
 {{- end }}
 
-{{- if .CI.Website }}{{ template "static" . }}{{- end }}
+{{- if .Website }}{{ template "static" . }}{{- end }}
 
 {{- if and $terraform .HasTerraformApply }}
 {{- $nodes := get .Languages "terraform" }}

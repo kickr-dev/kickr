@@ -59,7 +59,7 @@ func TestHelmTemplate(t *testing.T) {
 			// generate chart files
 			destdir := t.TempDir()
 			require.NoError(t, generate(ctx, destdir, types.Repository{
-				Kickr:     kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}},
+				Kickr:     kickr.Kickr{Helm: &kickr.Helm{}},
 				Languages: map[string]any{"helm": map[string]any{"projectName": "kickr"}},
 			}))
 			chartdir := filepath.Join(destdir, "chart")

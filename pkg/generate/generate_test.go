@@ -28,29 +28,34 @@ func TestGenerate_NoLang(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("success_chart", func(t *testing.T) {
-		// Arrange
-		cases := []kickr.CI{
+		type testcase struct {
+			Helm     *kickr.Helm
+			Provider string
+		}
+
+		cases := []testcase{
 			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmPublishManual, Registry: "chartmuseum.example.com"}},
 
 			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmManual, Registry: "chartmuseum.example.com"}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmPublishManual, Registry: "chartmuseum.example.com"}},
 		}
-		for _, ci := range cases {
+		for _, tc := range cases {
 			publish := "nil"
-			if ci.Helm != nil && ci.Helm.Publish != "" {
-				publish = ci.Helm.Publish
+			if tc.Helm.Publish != "" {
+				publish = tc.Helm.Publish
 			}
-			name := fmt.Sprint(ci.Provider, "_publish_", publish)
+			name := fmt.Sprint(tc.Provider, "_publish_", publish)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:       &ci,
-						Exclude:  []string{kickr.ExcludeMakefile},
-						Platform: ci.Provider,
+						CI:       &kickr.CI{Provider: tc.Provider},
+						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Helm:     tc.Helm,
+						Platform: tc.Provider,
 					},
 				}
 
@@ -67,9 +72,9 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Option: kickr.OptionKickr + ":github-app", Provider: parser.GitHub},
-			{Option: kickr.OptionKickr + ":personal-token", Provider: parser.GitHub},
-			{Option: kickr.OptionKickr, Provider: parser.GitLab},
+			{Option: kickr.OptionsKickrGitHubApp, Provider: parser.GitHub},
+			{Option: kickr.OptionsKickrPersonalToken, Provider: parser.GitHub},
+			{Option: kickr.OptionsKickr, Provider: parser.GitLab},
 		}
 		for _, tc := range cases {
 			name := tc.Provider
@@ -94,12 +99,12 @@ func TestGenerate_NoLang(t *testing.T) {
 
 	t.Run("success_renovate", func(t *testing.T) {
 		t.Run("github", func(t *testing.T) {
-			for _, auth := range []string{kickr.AuthGitHubApp, kickr.AuthPersonalToken} {
+			for _, auth := range []string{kickr.OptionsRenovateGitHubApp, kickr.OptionsRenovatePersonalToken} {
 				t.Run(auth, func(t *testing.T) {
 					// Arrange
 					config := types.Repository{
 						Kickr: kickr.Kickr{
-							CI:       &kickr.CI{Provider: parser.GitHub, Options: []string{"renovate:" + auth}},
+							CI:       &kickr.CI{Provider: parser.GitHub, Options: []string{auth}},
 							Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
 							Platform: parser.GitHub,
 						},
@@ -115,7 +120,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			// Arrange
 			config := types.Repository{
 				Kickr: kickr.Kickr{
-					CI:       &kickr.CI{Provider: parser.GitLab, Options: []string{kickr.OptionRenovate}},
+					CI:       &kickr.CI{Provider: parser.GitLab, Options: []string{kickr.OptionsRenovate}},
 					Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
 					Platform: parser.GitLab,
 				},
@@ -145,59 +150,63 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("success_precommit", func(t *testing.T) {
-		type testcase struct {
-			CI        string
-			PreCommit bool
-		}
+		t.Run("enabled", func(t *testing.T) {
+			for _, provider := range []string{parser.GitHub, parser.GitLab} {
+				t.Run(provider, func(t *testing.T) {
+					// Arrange
+					config := types.Repository{
+						Kickr: kickr.Kickr{
+							CI:        &kickr.CI{Provider: provider},
+							Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+							PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
+						},
+					}
 
-		cases := []testcase{
-			{CI: parser.GitHub},
-			{CI: parser.GitHub, PreCommit: true},
-			{CI: parser.GitLab},
-			{CI: parser.GitLab, PreCommit: true},
-		}
-		for _, tc := range cases {
-			name := tc.CI + "_" + strconv.FormatBool(tc.PreCommit)
-			t.Run(name, func(t *testing.T) {
-				// Arrange
-				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:      &kickr.CI{Provider: tc.CI},
-						Exclude: []string{kickr.ExcludeMakefile},
-					},
-				}
-				if !tc.PreCommit {
-					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
-				} else {
-					config.PreCommit = append(config.PreCommit, kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits)
-				}
+					// Act & Assert
+					test(ctx, t, config)
+				})
+			}
+		})
 
-				// Act & Assert
-				test(ctx, t, config)
-			})
-		}
+		t.Run("disabled", func(t *testing.T) {
+			for _, provider := range []string{parser.GitHub, parser.GitLab} {
+				t.Run(provider, func(t *testing.T) {
+					// Arrange
+					config := types.Repository{
+						Kickr: kickr.Kickr{
+							CI:        &kickr.CI{Provider: provider},
+							Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+							PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
+						},
+					}
+
+					// Act & Assert
+					test(ctx, t, config)
+				})
+			}
+		})
 	})
 
 	t.Run("success_release", func(t *testing.T) {
 		type testcase struct {
-			Auth string
-			Auto bool
-			CI   string
+			Auth     string
+			Auto     bool
+			Provider string
 		}
 
 		cases := []testcase{
-			{CI: parser.GitHub},
-			{CI: parser.GitHub, Auto: true},
+			{Provider: parser.GitHub},
+			{Provider: parser.GitHub, Auto: true},
 
-			{CI: parser.GitHub, Auth: kickr.AuthGitHubApp},
-			{CI: parser.GitHub, Auth: kickr.AuthGitHubToken},
-			{CI: parser.GitHub, Auth: kickr.AuthPersonalToken},
+			{Provider: parser.GitHub, Auth: kickr.ReleaseAuthGitHubApp},
+			{Provider: parser.GitHub, Auth: kickr.ReleaseAuthGitHubToken},
+			{Provider: parser.GitHub, Auth: kickr.ReleaseAuthPersonalToken},
 
-			{CI: parser.GitLab},
-			{CI: parser.GitLab, Auto: true},
+			{Provider: parser.GitLab},
+			{Provider: parser.GitLab, Auto: true},
 		}
 		for _, tc := range cases {
-			name := tc.CI
+			name := tc.Provider
 			if tc.Auto {
 				name += "_auto"
 			}
@@ -210,11 +219,11 @@ func TestGenerate_NoLang(t *testing.T) {
 				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
-							Provider: tc.CI,
+							Provider: tc.Provider,
 							Release:  &kickr.Release{Auto: tc.Auto, Auth: tc.Auth},
 						},
-						Exclude:  []string{kickr.ExcludeMakefile},
-						Platform: tc.CI,
+						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Platform: tc.Provider,
 					},
 				}
 
@@ -233,13 +242,13 @@ func TestGenerate_Shell(t *testing.T) {
 	}
 
 	t.Run("success_ci", func(t *testing.T) {
-		for _, ci := range []string{parser.GitLab, parser.GitHub} {
-			t.Run(ci, func(t *testing.T) {
+		for _, provider := range []string{parser.GitLab, parser.GitHub} {
+			t.Run(provider, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:      &kickr.CI{Provider: ci},
-						Exclude: []string{kickr.ExcludeMakefile},
+						CI:      &kickr.CI{Provider: provider},
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 					},
 				}
 
@@ -253,7 +262,7 @@ func TestGenerate_Shell(t *testing.T) {
 		for _, precommit := range []bool{true, false} {
 			t.Run(strconv.FormatBool(precommit), func(t *testing.T) {
 				// Arrange
-				config := types.Repository{Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile}}}
+				config := types.Repository{Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate}}}
 				if !precommit {
 					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
 				}
@@ -270,9 +279,9 @@ func TestGenerate_Golang(t *testing.T) {
 
 	t.Run("success_cli", func(t *testing.T) {
 		// Arrange
-		golang := func(ci string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
-				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", ci)
+				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
 				}
@@ -298,18 +307,18 @@ func TestGenerate_Golang(t *testing.T) {
 			}
 		}
 
-		for _, ci := range []string{parser.GitLab, parser.GitHub} {
-			t.Run(ci, func(t *testing.T) {
+		for _, provider := range []string{parser.GitLab, parser.GitHub} {
+			t.Run(provider, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: ci, Release: &kickr.Release{}},
-						Platform: ci,
+						CI:       &kickr.CI{Provider: provider, Release: &kickr.Release{}},
+						Platform: provider,
 					},
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(ci))
+				test(ctx, t, config, golang(provider))
 			})
 		}
 	})
@@ -331,7 +340,7 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						Exclude:   []string{kickr.ExcludeMakefile},
+						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitGomodTidy},
 						Platform:  platform,
 					},
@@ -369,7 +378,7 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						Exclude:   []string{kickr.ExcludeMakefile},
+						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitGomodTidy},
 						Platform:  platform,
 					},
@@ -383,9 +392,9 @@ func TestGenerate_Golang(t *testing.T) {
 
 	t.Run("success_multiple_bin_helm", func(t *testing.T) {
 		// Arrange
-		golang := func(ci string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
-				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", ci)
+				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
 				}
@@ -411,41 +420,41 @@ func TestGenerate_Golang(t *testing.T) {
 			}
 		}
 
-		for _, ci := range []string{parser.GitLab, parser.GitHub} {
-			t.Run(ci, func(t *testing.T) {
+		for _, provider := range []string{parser.GitLab, parser.GitHub} {
+			t.Run(provider, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
-							Provider: ci,
-							Docker:   &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
-							Helm: &kickr.Helm{
-								Deploy:       kickr.HelmManual,
-								Environments: []string{"staging", "production"},
-								Path:         "path/to/repository",
-								Publish:      kickr.HelmManual,
-								Registry:     "chartmuseum.example.com",
-							},
+							Provider: provider,
 							Options: []string{
-								kickr.OptionCodeCov,
-								kickr.OptionCodeQL,
-								kickr.OptionHardenRunner,
-								kickr.OptionLabeler,
-								kickr.OptionScoreCardOSSF,
-								kickr.OptionSonarQube,
-								kickr.OptionStepSecurityActions,
+								kickr.OptionsCodecov,
+								kickr.OptionsCodeQL,
+								kickr.OptionsHardenRunner,
+								kickr.OptionsLabeler,
+								kickr.OptionsOSSFScorecard,
+								kickr.OptionsSonarQube,
+								kickr.OptionsStepSecurityActions,
 							},
 							Release: &kickr.Release{},
 						},
+						Docker: &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
+						Helm: &kickr.Helm{
+							Deploy:       kickr.HelmDeployManual,
+							Environments: []string{kickr.EnvironmentStaging, kickr.EnvironmentProduction},
+							Path:         "path/to/repository",
+							Publish:      kickr.HelmPublishManual,
+							Registry:     "chartmuseum.example.com",
+						},
 						Description: "A useful project description",
-						Exclude:     []string{kickr.ExcludeShell},
-						Platform:    ci,
+						Exclude:     []string{kickr.ExcludeRenovate, kickr.ExcludeShell},
+						Platform:    provider,
 						PreCommit:   []string{kickr.PreCommitGolangciLint},
 					},
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(ci))
+				test(ctx, t, config, golang(provider))
 			})
 		}
 	})
@@ -463,11 +472,14 @@ func TestGenerate_Hugo(t *testing.T) {
 	}
 
 	t.Run("success_no_website", func(t *testing.T) {
-		for _, ci := range []string{parser.GitHub, parser.GitLab} {
-			t.Run(ci, func(t *testing.T) {
+		for _, provider := range []string{parser.GitHub, parser.GitLab} {
+			t.Run(provider, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{CI: &kickr.CI{Provider: ci}, Platform: ci},
+					Kickr: kickr.Kickr{
+						CI:       &kickr.CI{Provider: provider},
+						Platform: provider,
+					},
 				}
 
 				// Act & Assert
@@ -476,42 +488,35 @@ func TestGenerate_Hugo(t *testing.T) {
 		}
 	})
 
-	t.Run("success_netlify", func(t *testing.T) {
-		cases := []kickr.CI{
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
-
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
+	t.Run("success_hosting", func(t *testing.T) {
+		type testcase struct {
+			Provider string
+			Website  *kickr.Website
 		}
-		for _, ci := range cases {
-			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
+
+		cases := []testcase{
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+		}
+		for _, tc := range cases {
+			name := fmt.Sprint(tc.Provider, "_", tc.Website.Hosting, "_auto_", tc.Website.Auto)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{CI: &ci, Platform: ci.Provider},
-				}
-
-				// Act & Assert
-				test(ctx, t, config, hugo)
-			})
-		}
-	})
-
-	t.Run("success_pages", func(t *testing.T) {
-		cases := []kickr.CI{
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages}},
-
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages}},
-		}
-		for _, ci := range cases {
-			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
-			t.Run(name, func(t *testing.T) {
-				// Arrange
-				config := types.Repository{
-					Kickr: kickr.Kickr{CI: &ci, Platform: ci.Provider},
+					Kickr: kickr.Kickr{
+						CI:       &kickr.CI{Provider: tc.Provider},
+						Platform: tc.Provider,
+						Website:  tc.Website,
+					},
 				}
 
 				// Act & Assert
@@ -551,9 +556,9 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("success_library", func(t *testing.T) {
 		type testcase struct {
-			CI             string
 			Options        []string
 			PackageManager string
+			Provider       string
 		}
 
 		// Arrange
@@ -565,21 +570,21 @@ func TestGenerate_Node(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{CI: parser.GitHub, Options: []string{"renovate:personal-token"}, PackageManager: "bun@1.1.6"},
-			{CI: parser.GitLab, Options: []string{kickr.OptionRenovate}, PackageManager: "bun@1.1.6"},
+			{Provider: parser.GitHub, Options: []string{kickr.OptionsRenovatePersonalToken}, PackageManager: "bun@1.1.6"},
+			{Provider: parser.GitLab, Options: []string{kickr.OptionsRenovate}, PackageManager: "bun@1.1.6"},
 		}
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.CI, "_", tc.PackageManager)
+			name := fmt.Sprint(tc.Provider, "_", tc.PackageManager)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Options:  tc.Options,
-							Provider: tc.CI,
-							Release:  &kickr.Release{Options: []string{kickr.OptionBackmerge}},
+							Provider: tc.Provider,
+							Release:  &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}},
 						},
-						Platform: tc.CI,
+						Platform: tc.Provider,
 					},
 				}
 
@@ -589,61 +594,41 @@ func TestGenerate_Node(t *testing.T) {
 		}
 	})
 
-	t.Run("success_netlify", func(t *testing.T) {
+	t.Run("success_hosting", func(t *testing.T) {
+		type testcase struct {
+			Provider string
+			Website  *kickr.Website
+		}
+
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
 				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
 		}
 
-		cases := []kickr.CI{
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
+		cases := []testcase{
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
 
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingNetlify}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
 		}
-		for _, ci := range cases {
-			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
+		for _, tc := range cases {
+			name := fmt.Sprint(tc.Provider, "_", tc.Website.Hosting, "_auto_", tc.Website.Auto)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:       &ci,
-						Exclude:  []string{kickr.ExcludeMakefile},
-						Platform: ci.Provider,
-					},
-				}
-
-				// Act & Assert
-				test(ctx, t, config, node)
-			})
-		}
-	})
-
-	t.Run("success_pages", func(t *testing.T) {
-		// Arrange
-		node := func(_ context.Context, destdir string, _ *types.Repository) error {
-			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
-				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
-		}
-
-		cases := []kickr.CI{
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.HostingPages}},
-
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.HostingPages}},
-		}
-		for _, ci := range cases {
-			name := fmt.Sprint(ci.Provider, "_auto_", ci.Website.Auto)
-			t.Run(name, func(t *testing.T) {
-				// Arrange
-				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &ci,
-						Exclude:  []string{kickr.ExcludeMakefile},
-						Platform: ci.Provider,
+						CI:       &kickr.CI{Provider: tc.Provider},
+						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Platform: tc.Provider,
+						Website:  tc.Website,
 					},
 				}
 
@@ -654,43 +639,49 @@ func TestGenerate_Node(t *testing.T) {
 	})
 
 	t.Run("success_helm", func(t *testing.T) {
+		type testcase struct {
+			Helm     *kickr.Helm
+			Provider string
+		}
+
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
 				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
 		}
 
-		cases := []kickr.CI{
+		cases := []testcase{
 			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmAuto, Environments: []string{"review"}}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmManual, Environments: []string{"integration"}}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmDeployAuto, Environments: []string{kickr.EnvironmentReview}}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmDeployManual, Environments: []string{kickr.EnvironmentIntegration}}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmPublishManual}},
 
 			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmAuto, Environments: []string{"review"}}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmManual, Environments: []string{"integration"}}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmAuto}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmManual}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmDeployAuto, Environments: []string{kickr.EnvironmentReview}}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmDeployManual, Environments: []string{kickr.EnvironmentIntegration}}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmPublishManual}},
 		}
-		for _, ci := range cases {
+		for _, tc := range cases {
 			publish := "none"
-			if ci.Helm.Publish != "" {
-				publish = ci.Helm.Publish
+			if tc.Helm.Publish != "" {
+				publish = tc.Helm.Publish
 			}
 			deploy := "none"
-			if ci.Helm.Deploy != "" {
-				deploy = ci.Helm.Deploy
+			if tc.Helm.Deploy != "" {
+				deploy = tc.Helm.Deploy
 			}
 
-			name := fmt.Sprint(ci.Provider, "_deploy_", deploy, "_publish_", publish)
+			name := fmt.Sprint(tc.Provider, "_deploy_", deploy, "_publish_", publish)
 			t.Run(name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:       &ci,
-						Exclude:  []string{kickr.ExcludeMakefile},
-						Platform: ci.Provider,
+						CI:       &kickr.CI{Provider: tc.Provider},
+						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Helm:     tc.Helm,
+						Platform: tc.Provider,
 					},
 				}
 
@@ -726,11 +717,11 @@ func TestGenerate_Terraform(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Apply: kickr.TerraformManual, Engine: kickr.EngineOpentofu, Provider: parser.GitHub},
-			{Apply: kickr.TerraformAuto, Engine: kickr.EngineTerraform, Provider: parser.GitHub},
+			{Apply: kickr.TerraformApplyManual, Engine: kickr.TerraformEngineOpenTofu, Provider: parser.GitHub},
+			{Apply: kickr.TerraformApplyAuto, Engine: kickr.TerraformEngineTerraform, Provider: parser.GitHub},
 
-			{Apply: kickr.TerraformManual, Engine: kickr.EngineOpentofu, Provider: parser.GitLab},
-			{Apply: kickr.TerraformAuto, Engine: kickr.EngineTerraform, Provider: parser.GitLab},
+			{Apply: kickr.TerraformApplyManual, Engine: kickr.TerraformEngineOpenTofu, Provider: parser.GitLab},
+			{Apply: kickr.TerraformApplyAuto, Engine: kickr.TerraformEngineTerraform, Provider: parser.GitLab},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Provider+"_"+tc.Engine, func(t *testing.T) {
@@ -738,14 +729,15 @@ func TestGenerate_Terraform(t *testing.T) {
 				config := types.Repository{
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
-							Provider:  tc.Provider,
-							Release:   &kickr.Release{},
-							Terraform: &kickr.TerraformCI{Apply: tc.Apply, Environments: []string{"production"}},
+							Provider: tc.Provider,
+							Release:  &kickr.Release{},
 						},
 						Platform: tc.Provider,
 						Terraform: &kickr.Terraform{
-							Engine:  tc.Engine,
-							Modules: []string{"modules/one", "modules/two"},
+							Apply:        tc.Apply,
+							Engine:       tc.Engine,
+							Environments: []string{kickr.EnvironmentProduction},
+							Modules:      []string{"modules/one", "modules/two"},
 						},
 					},
 				}
@@ -769,13 +761,13 @@ func TestGenerate_Terraform(t *testing.T) {
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: provider,
-							Terraform: &kickr.TerraformCI{
-								Apply:        kickr.TerraformAuto,
-								Environments: []string{"production"},
-							},
 						},
 						PreCommit: []string{kickr.PreCommitTerraform},
 						Platform:  provider,
+						Terraform: &kickr.Terraform{
+							Apply:        kickr.TerraformApplyAuto,
+							Environments: []string{kickr.EnvironmentProduction},
+						},
 					},
 				}
 
@@ -836,10 +828,10 @@ func TestGenerate_MonoRepo(t *testing.T) {
 
 	t.Run("success_node_hugo_doc", func(t *testing.T) {
 		cases := []testcase{
-			{Provider: parser.GitLab, Hosting: kickr.HostingPages},
-			{Provider: parser.GitLab, Hosting: kickr.HostingNetlify},
-			{Provider: parser.GitHub, Hosting: kickr.HostingPages},
-			{Provider: parser.GitHub, Hosting: kickr.HostingNetlify},
+			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingPages},
+			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingNetlify},
+			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingPages},
+			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingNetlify},
 		}
 		for _, tc := range cases {
 			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
@@ -849,10 +841,10 @@ func TestGenerate_MonoRepo(t *testing.T) {
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: tc.Provider,
-							Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 						},
-						Exclude:  []string{kickr.ExcludePreCommit},
+						Exclude:  []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Platform: tc.Provider,
+						Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 					},
 				}
 
@@ -864,10 +856,10 @@ func TestGenerate_MonoRepo(t *testing.T) {
 
 	t.Run("success_go_hugo_doc", func(t *testing.T) {
 		cases := []testcase{
-			{Provider: parser.GitLab, Hosting: kickr.HostingPages},
-			{Provider: parser.GitLab, Hosting: kickr.HostingNetlify},
-			{Provider: parser.GitHub, Hosting: kickr.HostingPages},
-			{Provider: parser.GitHub, Hosting: kickr.HostingNetlify},
+			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingPages},
+			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingNetlify},
+			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingPages},
+			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingNetlify},
 		}
 		for _, tc := range cases {
 			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
@@ -877,10 +869,10 @@ func TestGenerate_MonoRepo(t *testing.T) {
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: tc.Provider,
-							Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 						},
-						Exclude:  []string{kickr.ExcludePreCommit},
+						Exclude:  []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Platform: tc.Provider,
+						Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 					},
 				}
 
@@ -892,10 +884,10 @@ func TestGenerate_MonoRepo(t *testing.T) {
 
 	t.Run("success_go_node_doc", func(t *testing.T) {
 		cases := []testcase{
-			{Provider: parser.GitLab, Hosting: kickr.HostingPages},
-			{Provider: parser.GitLab, Hosting: kickr.HostingNetlify},
-			{Provider: parser.GitHub, Hosting: kickr.HostingPages},
-			{Provider: parser.GitHub, Hosting: kickr.HostingNetlify},
+			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingPages},
+			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingNetlify},
+			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingPages},
+			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingNetlify},
 		}
 		for _, tc := range cases {
 			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
@@ -905,10 +897,10 @@ func TestGenerate_MonoRepo(t *testing.T) {
 					Kickr: kickr.Kickr{
 						CI: &kickr.CI{
 							Provider: tc.Provider,
-							Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 						},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
+						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Platform: tc.Provider,
+						Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
 					},
 				}
 
@@ -931,7 +923,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 						CI:        &kickr.CI{Provider: tc.Provider},
 						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
 						Platform:  tc.Provider,
-						Terraform: &kickr.Terraform{Engine: kickr.EngineOpentofu, Modules: []string{".terraform"}},
+						Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineOpenTofu, Modules: []string{".terraform"}},
 					},
 				}
 

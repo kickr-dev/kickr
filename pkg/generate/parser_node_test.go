@@ -27,7 +27,7 @@ func TestParserNode(t *testing.T) {
 
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI: &kickr.CI{Website: &kickr.Website{Directory: dir}},
+						Website: &kickr.Website{Directory: dir},
 					},
 				}
 
@@ -50,7 +50,7 @@ func TestParserNode(t *testing.T) {
 
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI: &kickr.CI{Website: &kickr.Website{Directory: dir}},
+						Website: &kickr.Website{Directory: dir},
 					},
 				}
 
@@ -70,12 +70,12 @@ func TestParserNode(t *testing.T) {
 
 		expected := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 		config := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 
@@ -164,7 +164,7 @@ func TestParserNode(t *testing.T) {
 
 		expected := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 			Executables: parser.Executables{
 				Workers: map[string]any{"main": struct{}{}},
@@ -191,7 +191,7 @@ func TestParserNode(t *testing.T) {
 		}
 		config := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 
@@ -213,7 +213,7 @@ func TestParserNode(t *testing.T) {
 
 		expected := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 			Languages: map[string]any{
 				"node": generate.MonoNodes{
@@ -230,7 +230,7 @@ func TestParserNode(t *testing.T) {
 		}
 		config := types.Repository{
 			Kickr: kickr.Kickr{
-				CI: &kickr.CI{Website: &kickr.Website{Directory: "docs"}},
+				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 

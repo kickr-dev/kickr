@@ -9,52 +9,35 @@ description: Kickr configuration file (https://github.com/kickr-dev/kickr)
 type: object
 additionalProperties: false
 
-required:
-  - maintainers
-  - version
+required: [maintainers, version]
 
 properties:
   version:
     type: integer
-    description: The kickr major version
+    description: Kickr schema version
     const: 1
 
   description:
     type: string
-    description: description is a free-form text that may be used in various cases like in the Helm chart, the Dockerfile, etc.
-    examples:
-      - useful description
+    description: A free-form text that may be used in various cases like in the Helm chart, the Dockerfile, etc.
 
   ci:
     type: object
-    description: |
-      CI section can be provided to enable Continuous Integration and Deployment generation.
-      With multiple options, generation can include renovate scheduling (with GitHub Actions), testing, linting, coverage exports to SonarQube or CodeCov
-      to Helm chart deployment / publishing, static website deployment to netlify / pages and terraform apply.
+    description: |-
+      Enable Continuous Integration / Deployment / Delivery jobs and actions (GitLab CICD, GitHub Actions)
+      with the possibility to tune some behaviors.
     additionalProperties: false
     required:
       - provider
     properties:
       provider:
         type: string
-        enum:
-          - github
-          - gitlab
+        description: Continuous Integration / Deployment / Delivery provider.
+        enum: [github, gitlab]
       options:
-        description:
-          options to add for CI/CD generation.
-
-          Those are various and may differ depending on used CI/CD provider.
-      docker:
-        $ref: "#/$defs/docker"
-      helm:
-        $ref: "#/$defs/helm"
-      terraform:
-        $ref: "#/$defs/terraform"
+        description: Available options to tune CI/CD behaviors, available options depend on the CI/CD provider.
       release:
-        $ref: "#/$defs/release"
-      website:
-        $ref: "#/$defs/website"
+        $ref: "#/$defs/ci/release"
     allOf:
       # specific rules for GitLab CI/CD
       - if:
@@ -72,10 +55,7 @@ properties:
               type: array
               items:
                 type: string
-                enum:
-                  - kickr
-                  - renovate
-                  - sonarqube
+                enum: [kickr, renovate, sonarqube]
       # specific rules for GitHub Actions
       - if:
           properties:
@@ -105,84 +85,73 @@ properties:
           properties:
             provider:
               const: github
-          required:
-            - release
+          required: [release]
         then:
           properties:
             release:
-              required:
-                - auth
+              required: [auth]
+
+  docker:
+    $ref: "#/$defs/docker"
 
   exclude:
     type: array
-    description: Provide generations to disable in case it's too much, unnecessary or unwanted for the repository.
+    description: Exclude part of Kickr generation.
     items:
       type: string
-      enum:
-        - goreleaser
-        - makefile
-        - pre-commit
-        - renovate
-        - shell
+      enum: [goreleaser, makefile, pre-commit, renovate, shell]
+
+  helm:
+    $ref: "#/$defs/helm"
 
   license:
     type: string
-    description: |
-      license can be one of the available options with GitLab license API.
-
-      With this property, kickr will automatically download the appropriate license file and save it in the project.
-    enum: [ agpl-3.0, apache-2.0, bsd-2-clause, bsd-3-clause, bsl-1.0, cc0-1.0, epl-2.0, gpl-2.0, gpl-3.0, lgpl-2.1, mit, mpl-2.0, unlicense ]
+    description: Specify the repository license.
+    enum: [agpl-3.0, apache-2.0, bsd-2-clause, bsd-3-clause, bsl-1.0, cc0-1.0, epl-2.0, gpl-2.0, gpl-3.0, lgpl-2.1, mit, mpl-2.0, unlicense]
 
   maintainers:
     type: array
     minItems: 1
-    description: |
-      maintainers defines the list of project maintainers.
-
-      When using kickr, at least one maintainer must be given.
-      Maintainers may be used in various places like in the Helm chart, Dockerfile, Goreleaser configuration, etc.
+    description: Repository's maintainers list. Helps generating various files like CODEOWNERS or Helm Chart maintainers list.
     items:
       type: object
       additionalProperties: false
-      required:
-        - name
+      required: [name]
       properties:
         name:
           type: string
-          examples:
-            - maintainer
+          description: |-
+            Maintainer name or username.
+            Username is preferred to be correctly identified within the CODEOWNERS file on the VCS platform.
+          examples: [maintainer]
         email:
           type: string
+          description: Maintainer email. Only useful to be provided when working with an Helm Chart.
           format: email
-          examples:
-            - maintainer@example.com
+          examples: [maintainer@example.com]
         url:
           type: string
+          description: Maintainer personal portfolio / URL. Only useful to be provided when working with an Helm Chart.
           format: uri
-          examples:
-            - maintainer.example.com
+          examples: [maintainer.example.com]
 
   platform:
     type: string
-    description: |
-      platform defines the source code hosting platform (GitHub, GitLab, Gitea, Bitbucket).
+    description: |-
+      Define the source code hosting platform (GitHub, GitLab, Gitea, Bitbucket).
 
       By default, it will be guessed based on Git remote URL.
-      However, in case of mirroring, or other specific cases (like custom hosting), it may be updated (and it won't be overridden) to provide a custom platform.
+      However, in case of mirroring, or other specific cases (like custom hosting), it may be updated to provide a custom platform.
 
-      The platform serves in various cases to generate the right files format (dependabot for instance) but also for badges in README.md.
-    enum:
-      - bitbucket
-      - gitea
-      - github
-      - gitlab
+      Helps generating various files the badges in README.md.
+    enum: [bitbucket, gitea, github, gitlab]
 
   pre-commit:
     type: array
-    description: |
-      pre-commit section can be provided to add additional, non-default, checks with pre-commit.
+    description: |-
+      Section to add additional, non-default, checks with pre-commit.
 
-      All options available here are implemented in kickr templates, there's no possibly to directly give pre-commit hooks definition.
+      All options available here are implemented in Kickr templates, there's no possibly to directly give pre-commit hooks definition.
 
       In case a specific hook, not implemented, must be provided, then '.pre-commit-config.yaml' file can be modified
       and the top comment indicating that it's generated can be removed to avoid being overridden.
@@ -197,207 +166,230 @@ properties:
         - terraform
 
   terraform:
+    $ref: "#/$defs/terraform"
+
+  website:
+    $ref: "#/$defs/website"
+
+allOf:
+  # Enrich multiple objects with their CI properties
+  - if:
+      required: [ci]
+    then:
+      properties:
+        docker:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/docker"
+            - $ref: "#/$defs/ci/docker"
+        helm:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/helm"
+            - $ref: "#/$defs/ci/helm"
+        terraform:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/terraform"
+            - $ref: "#/$defs/ci/terraform"
+        website:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/website"
+            - $ref: "#/$defs/ci/website"
+
+$defs:
+  ##############################################################
+  #
+  # Base configurations
+  #
+  ##############################################################
+  docker:
     type: object
-    description: |
-      terraform section can be provided to tune how terraform / opentofu templates (pre-commit, continuous integration) behaviors will be generated.
+    description: |-
+      General Docker configuration.
+
+      With 'ci' enabled, control where (registry and path) shall the built Docker image be pushed and when (automatically or not).
+    properties:
+      port:
+        type: integer
+        description: Port to expose in the Dockerfile.
+        examples: [3000]
+
+  helm:
+    type: object
+    description: |-
+      General Helm configuration. By providing this property an Helm Chart will be generated.
+
+      With 'ci' enabled, control how and when shall the Helm Chart be published or deployed alongside on which environments.
+
+  terraform:
+    type: object
+    description: |-
+      Configure the terraform modules and the engine to use (opentofu by default).
 
       By default, if a module is present at repository's root, then there's no need to provide the list of modules.
       However, if current repository is composed of multiple root modules (in subdirectories),
       then it's required to provide the full list of modules to generate templates correctly.
 
-      The engine property can be provided to use terraform instead of opentofu (by default).
+      With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments.
     properties:
       engine:
         type: string
+        description: The engine to use to lint, validate, test, apply the resources.
         default: opentofu
-        enum:
-          - opentofu
-          - terraform
+        enum: [opentofu, terraform]
       modules:
         type: array
+        description: List of terraform / opentofu modules.
         items:
           type: string
-
-$defs:
-  docker:
-    title: Docker
-    type: object
-    description: |
-      Docker section can be provided to tune where and when the built docker image should be pushed.
-    additionalProperties: false
-    properties:
-      auto:
-        type: boolean
-      path:
-        type: string
-        examples:
-          - kickr-dev/kickr
-      port:
-        type: integer
-        examples:
-          - 3000
-      registry:
-        type: string
-        examples:
-          - ghcr.io
-
-  helm:
-    title: Helm
-    type: object
-    description: |
-      Helm section can be provided to specify if the current chart should be deployed or only published
-      and on how many environments should the deployement be available.
-
-      It also allows providing the publishing registry URL and path.
-    additionalProperties: false
-    dependentRequired:
-      environments:
-        - deploy
-      deploy:
-        - environments
-      publish:
-        - path
-        - registry
-      path:
-        - registry
-      registry:
-        - path
-    properties:
-      deploy:
-        type: string
-        description: deploy helm chart to kubernetes cluster(s).
-        enum:
-          - auto
-          - manual
-      environments:
-        type: array
-        description: |
-          environments to associate a specific Kubernetes context to a branch.
-
-          Only those four environments can be provided, defining under the hood specific behaviors (for GitHub Actions):
-            - 'review' will only be run on non-protected branches
-            - 'integration' will only be run on protected
-            - 'staging' will only be run on the default branch
-            - 'production' will only be run on the default branch
-
-          Concerning GitLab CI/CD, rules can be found at https://gitlab.com/to-be-continuous/helm#managed-deployment-environments.
-        items:
-          type: string
-          enum:
-            - integration
-            - production
-            - review
-            - staging
-          minItems: 1
-      path:
-        type: string
-        description: path within the helm registry (default is the path on VCS remote URL).
-        examples:
-          - kickr-dev/kickr
-      publish:
-        type: string
-        description: publish helm chart to the registry.
-        enum:
-          - auto
-          - manual
-      registry:
-        type: string
-        description: |
-          registry URL (both OCI and non-OCI based registry are supported).
-
-          Depending on the project registry (GitHub, Jfrog, Nexus, etc.), this property may need a more specific path like 'oci://jfrog.example.com/my/registry'.
-        examples:
-          - ghcr.io
-          - oci://ghcr.io
-
-  terraform:
-    title: Terraform
-    type: object
-    description: |
-      Terraform section can be provided to specify when the modules should be applied and how many environments there are.
-    additionalProperties: false
-    dependentRequired:
-      environments:
-        - apply
-      apply:
-        - environments
-    properties:
-      apply:
-        type: string
-        description: apply strategy.
-        enum:
-          - auto
-          - manual
-      environments:
-        type: array
-        description: |
-          environments to associate a specific terraform apply with.
-
-          Only those four environments can be provided, defining under the hood specific behaviors (for GitHub Actions):
-            - 'review' will only be run on non-protected branches
-            - 'integration' will only be run on protected
-            - 'staging' will only be run on the default branch
-            - 'production' will only be run on the default branch
-
-          Concerning GitLab CI/CD, rules can be found at https://gitlab.com/to-be-continuous/terraform#global-configuration.
-        items:
-          type: string
-          enum:
-            - integration
-            - production
-            - review
-            - staging
-          minItems: 1
 
   website:
-    title: Static Deployment
     type: object
-    description: |
-      Website section can be provided to specify options to tune which directory should be built and deployed, where and automatically or not.
-    additionalProperties: false
-    required:
-      - hosting
+    description: |-
+      Configure which directory to build (depends on the repository files, a package.json for Node, a go.mod for Hugo)
+      and deploy.
+
+      With 'ci' enabled, control where shall the website be deployed (netlify, pages) and when.
     properties:
-      auto:
-        type: boolean
       directory:
         type: string
-        description: directory where is located the website to deploy (default is '.').
-        examples:
-          - docs
-          - exampleSite
-      hosting:
-        type: string
-        enum:
-          - netlify
-          - pages
+        description: Website directory location (default to '.')
+        examples: [docs, exampleSite]
 
-  release:
-    title: Release
-    type:
-      - "null"
-      - object
-    description: |
-      Release section can be provided to tune various configuration on the releasing part.
-      From automatic releasing to how the authentication should be made with which semantic-release plugins.
-    additionalProperties: false
-    properties:
-      auth:
-        type: string
-        enum:
-          - github-app
-          - github-token
-          - personal-token
-        description: |
-          auth corresponds to the authentication method used by semantic-release when creating GitHub / GitLab releases.
-
-          Since GitLab provides features around tokens, this property cannot be given when running with it (i.e. will always be 'personal-token').
-      auto:
-        type: boolean
-      options:
-        type: array
-        description: options to add in release job / release configuration.
-        items:
+  ##############################################################
+  #
+  # Continuous Integration / Deployment specificities
+  #
+  ##############################################################
+  ci:
+    docker:
+      type: object
+      properties:
+        auto:
+          type: boolean
+          description: Docker push strategy (automatic or not).
+        path:
           type: string
-          enum:
-            - backmerge
+          description: Docker image path inside the registry (default is the path on VCS remote URL).
+          examples: [kickr-dev/kickr]
+        registry:
+          type: string
+          description: |-
+            Docker registry where the image will be pushed.
+
+            By default it's the current VCS registry, i.e. 'ghcr.io' when working with GitHub
+            and 'registry.gitlab.com' when working with GitLab.
+          examples: [docker.io, ghcr.io, registry.gitlab.com]
+
+    helm:
+      type: object
+      dependentRequired:
+        environments: [deploy]
+        deploy: [environments]
+        publish: [path, registry]
+        path: [registry]
+        registry: [path]
+      properties:
+        deploy:
+          type: string
+          description: |-
+            Helm Chart deployment strategy (automatic or manual).
+            Not providing this property will mean 'never' as strategy, no deployment job will be generated.
+          enum: [auto, manual]
+        environments:
+          type: array
+          description: |-
+            Environments to associate a specific Kubernetes context to a branch.
+
+            Only those four environments can be provided, defining under the hood specific behaviors (for GitHub Actions):
+              - 'review' will only be run on non-protected branches
+              - 'integration' will only be run on protected
+              - 'staging' will only be run on the default branch
+              - 'production' will only be run on the default branch
+
+            Concerning GitLab CI/CD, rules can be found at https://gitlab.com/to-be-continuous/helm#managed-deployment-environments.
+          items:
+            type: string
+            enum: [integration, production, review, staging]
+            minItems: 1
+        path:
+          type: string
+          description: Path within the helm registry (default is the path on VCS remote URL).
+          examples: [kickr-dev/kickr]
+        publish:
+          type: string
+          description: |-
+            Helm Chart publishing strategy.
+            Not providing this property will mean 'never' as strategy, no publish job will be generated.
+          enum: [auto, manual]
+        registry:
+          type: string
+          description: |-
+            Registry URL (both OCI and non-OCI based registry are supported).
+
+            Depending on the project registry (GitHub, Jfrog, Nexus, etc.), this property may need a more specific path like 'oci://jfrog.example.com/my/registry'.
+          examples: [ghcr.io, oci://ghcr.io]
+
+    terraform:
+      type: object
+      dependentRequired:
+        environments: [apply]
+        apply: [environments]
+      properties:
+        apply:
+          type: string
+          description: |-
+            Apply strategy.
+            Not providing this property will mean 'never' as strategy, no apply job will be generated.
+          enum: [auto, manual]
+        environments:
+          type: array
+          description: |-
+            Environments to associate a specific terraform apply with.
+
+            Only those four environments can be provided, defining under the hood specific behaviors (for GitHub Actions):
+              - 'review' will only be run on non-protected branches
+              - 'integration' will only be run on protected
+              - 'staging' will only be run on the default branch
+              - 'production' will only be run on the default branch
+
+            Concerning GitLab CI/CD, rules can be found at https://gitlab.com/to-be-continuous/terraform#global-configuration.
+          items:
+            type: string
+            enum: [integration, production, review, staging]
+            minItems: 1
+
+    website:
+      type: object
+      required: [hosting]
+      properties:
+        auto:
+          type: boolean
+          description: Whether the website directory shall be built and deployed automatically (or not) on the hosting platform.
+        hosting:
+          type: string
+          description: Hosting platform for the website.
+          enum: [netlify, pages]
+
+    release:
+      type: object
+      additionalProperties: false
+      description: |-
+        Tune various configuration on the releasing part.
+        From automatic releasing to how the authentication should be made with which semantic-release plugins.
+      properties:
+        auth:
+          type: string
+          enum: [github-app, github-token, personal-token]
+          description: Authentication method to create releases through the current VCS platform API.
+        auto:
+          type: boolean
+          description: Whether the release job should be executed automatically (or not).
+        options:
+          type: array
+          description: Options to add in release job / release configuration.
+          items:
+            type: string
+            enum: [backmerge]

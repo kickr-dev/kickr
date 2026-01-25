@@ -87,7 +87,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 		config := types.Repository{
-			Kickr: kickr.Kickr{CI: &kickr.CI{Options: []string{kickr.OptionSonarQube}}},
+			Kickr: kickr.Kickr{CI: &kickr.CI{Options: []string{kickr.OptionsSonarQube}}},
 			Executables: parser.Executables{
 				Clis:    map[string]any{"cli": struct{}{}},
 				Crons:   map[string]any{"cron": struct{}{}},

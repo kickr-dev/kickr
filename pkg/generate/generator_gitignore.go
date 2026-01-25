@@ -43,7 +43,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 		query = append(query, "dotenv")
 
 		if config.CI != nil {
-			if slices.Contains(config.CI.Options, kickr.OptionSonarQube) {
+			if slices.Contains(config.CI.Options, kickr.OptionsSonarQube) {
 				query = append(query, "sonar", "sonarqube")
 			}
 		}

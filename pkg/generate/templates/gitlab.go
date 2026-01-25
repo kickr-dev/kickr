@@ -12,9 +12,7 @@ import (
 )
 
 // GitLab returns the slice of templates related to GitLab configuration.
-func GitLab() []engine.Template[types.Repository] {
-	var templates []engine.Template[types.Repository]
-
+func GitLab() (templates []engine.Template[types.Repository]) {
 	gitlabci := path.Join(".gitlab-ci.yml")
 	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters: engine.DelimitersBracket(),
@@ -37,7 +35,8 @@ func GitLab() []engine.Template[types.Repository] {
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitLab) || !config.HasDeployment()
+			return !config.IsCI(parser.GitLab) || //nolint:revive
+				(config.Docker == nil && config.Helm == nil && config.Terraform == nil && config.Website == nil)
 		},
 	})
 
@@ -55,7 +54,7 @@ func GitLab() []engine.Template[types.Repository] {
 		Globs:      []string{kickrp + engine.TmplExtension},
 		Out:        kickrp,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionKickr)
+			return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionsKickr)
 		},
 	})
 

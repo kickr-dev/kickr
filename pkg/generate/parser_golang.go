@@ -81,13 +81,13 @@ func parserHugo(_ context.Context, destdir string, config *types.Repository) (bo
 	}
 
 	// try to parse website directory for hugo
-	if config.CI != nil && config.CI.Website != nil && config.CI.Website.Directory != "" {
-		hugoc, err := parser.ReadHugo(filepath.Join(destdir, config.CI.Website.Directory))
+	if config.Website != nil && config.Website.Directory != "" {
+		hugoc, err := parser.ReadHugo(filepath.Join(destdir, config.Website.Directory))
 		if err == nil {
-			engine.GetLogger().Infof("hugo detected in '%s', theme or hugo files are present", config.CI.Website.Directory)
-			monos = append(monos, types.Mono[parser.HugoCompose]{Directory: config.CI.Website.Directory, Specifics: hugoc})
+			engine.GetLogger().Infof("hugo detected in '%s', theme or hugo files are present", config.Website.Directory)
+			monos = append(monos, types.Mono[parser.HugoCompose]{Directory: config.Website.Directory, Specifics: hugoc})
 		} else if !errors.Is(err, parser.ErrNoHugo) {
-			return false, fmt.Errorf("read hugo in '%s': %w", config.CI.Website.Directory, err)
+			return false, fmt.Errorf("read hugo in '%s': %w", config.Website.Directory, err)
 		}
 	}
 

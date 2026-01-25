@@ -2,7 +2,7 @@ jobs:
 <<- define "hugo" >>
 
 <<- $websiteDirectory := "." >>
-<<- if .CI.Website >><<- $websiteDirectory = .CI.Website.Directory | default "." >><<- end >>
+<<- if .Website >><<- $websiteDirectory = .Website.Directory | default "." >><<- end >>
 
   hugo-build:
     name: Hugo Build ${{ matrix.name }}

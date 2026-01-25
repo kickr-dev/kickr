@@ -26,7 +26,6 @@ variables:
   HELM_INTEG_ENABLED: "true"
   HELM_STAGING_ENABLED: "false"
   HELM_PROD_ENABLED: "false"
-
   HELM_DEPLOY_ARGS: upgrade --install --version "$SEMREL_INFO_NEXT_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$SEMREL_INFO_NEXT_VERSION"
 
   HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME

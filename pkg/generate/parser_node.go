@@ -73,18 +73,18 @@ func ParserNode(_ context.Context, destdir string, config *types.Repository) err
 	}
 
 	// scan website directory potential node repository
-	if config.CI != nil && config.CI.Website != nil && config.CI.Website.Directory != "" {
+	if config.Website != nil && config.Website.Directory != "" {
 		var website parser.PackageJSON
-		err := files.ReadJSON(filepath.Join(destdir, config.CI.Website.Directory, parser.FilePackageJSON), &website, os.ReadFile)
+		err := files.ReadJSON(filepath.Join(destdir, config.Website.Directory, parser.FilePackageJSON), &website, os.ReadFile)
 		if err == nil {
 			if err := website.Validate(); err != nil {
 				return fmt.Errorf("validate '%s': %w", parser.FilePackageJSON, err)
 			}
-			engine.GetLogger().Infof("node detected in '%s', a '%s' is present and valid", config.CI.Website.Directory, parser.FilePackageJSON)
+			engine.GetLogger().Infof("node detected in '%s', a '%s' is present and valid", config.Website.Directory, parser.FilePackageJSON)
 
-			monos = append(monos, types.Mono[parser.PackageJSON]{Directory: config.CI.Website.Directory, Specifics: website})
+			monos = append(monos, types.Mono[parser.PackageJSON]{Directory: config.Website.Directory, Specifics: website})
 		} else if !errors.Is(err, fs.ErrNotExist) {
-			return fmt.Errorf("read json in '%s': %w", config.CI.Website.Directory, err)
+			return fmt.Errorf("read json in '%s': %w", config.Website.Directory, err)
 		}
 	}
 

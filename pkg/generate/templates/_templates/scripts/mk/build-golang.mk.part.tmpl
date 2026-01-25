@@ -72,7 +72,7 @@ local-%:
 	@go run ./cmd/$*
 {{- end }}
 
-{{- if and .CI .CI.Docker }}
+{{- if .Docker }}
 
 .PHONY: docker
 docker:

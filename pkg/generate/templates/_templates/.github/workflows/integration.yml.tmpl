@@ -143,7 +143,7 @@ jobs:
           check_together: "yes"
 <<- end >>
 
-<<- if .CI.Docker >>
+<<- if .Docker >>
 
   docker-hadolint:
     name: Docker Hadolint
@@ -174,7 +174,7 @@ jobs:
           category: docker-hadolint
 <<- end >>
 
-<<- if .CI.Helm >>
+<<- if .Helm >>
 
   helm-lint-test:
     name: Helm Lint & Test
@@ -289,13 +289,13 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     needs:
-<<- if .CI.Docker >>
+<<- if .Docker >>
       - docker-hadolint
 <<- end >>
 <<- if $golang >>
       - go-test
 <<- end >>
-<<- if .CI.Helm >>
+<<- if .Helm >>
       - helm-lint-test
 <<- end >>
 <<- if $node >>
@@ -341,7 +341,7 @@ jobs:
         run: echo "Some jobs didn't end with success status" && exit 1
       - run: echo "All jobs ended with success"
 
-<<- if or .IsHelmPublishAuto .HasAutoDeployment .IsReleaseAuto >>
+<<- if or .HasAutoDeployment .IsReleaseAuto >>
 
   notify-workflow:
     name: Notify Workflow

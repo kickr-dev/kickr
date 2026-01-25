@@ -68,7 +68,7 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 			}
 			return initializeCmd(wd).RunE(cmd, args)
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			dest := kickr.File(*wd)
 			logger.Infof("generating layout in %s", *wd)
 
@@ -108,10 +108,7 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 			}
 
 			// save configuration again in case it was modified during generation
-			if err := files.WriteYAML(dest, result.Kickr, kickr.EncodeOpts()...); err != nil {
-				return err
-			}
-			return nil
+			return files.WriteYAML(dest, result.Kickr, kickr.EncodeOpts()...)
 		},
 	}
 

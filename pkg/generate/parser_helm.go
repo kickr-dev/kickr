@@ -20,7 +20,7 @@ import (
 // and merges it with <destdir>/chart/.kickr, this parser should be the last one called
 // to ensure the configuration is in a final state.
 func ParserHelm(_ context.Context, destdir string, config *types.Repository) error {
-	if config.CI == nil || config.CI.Helm == nil {
+	if config.Helm == nil {
 		return nil
 	}
 	engine.GetLogger().Infof("deployment with helm detected, configuration has 'helm' key in 'deployment' section")
@@ -28,8 +28,8 @@ func ParserHelm(_ context.Context, destdir string, config *types.Repository) err
 	base := map[string]any{
 		"description": config.Description,
 		"docker": func() kickr.Docker {
-			if config.CI.Docker != nil {
-				return *config.CI.Docker
+			if config.Docker != nil {
+				return *config.Docker
 			}
 			return kickr.Docker{}
 		}(),

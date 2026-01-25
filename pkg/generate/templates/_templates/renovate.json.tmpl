@@ -9,7 +9,7 @@
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
     "extends": [
-        "github>kickr-dev/renovate//configs/renovate/default.json"{{ if or $tmpl (and .CI .CI.Docker) }},
+        "github>kickr-dev/renovate//configs/renovate/default.json"{{ if or $tmpl .Docker }},
         "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or $tmpl (.IsCI "github") }},
         "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl (.IsCI "gitlab") }},
         "github>kickr-dev/renovate//configs/renovate/gitlab-ci.json"{{ end }}{{ if $gomod }},

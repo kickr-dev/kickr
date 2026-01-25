@@ -10,10 +10,10 @@ import (
 
 func TestRootFlags(t *testing.T) {
 	norun := func(cmd *cobra.Command) *cobra.Command {
-		cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		cmd.PreRunE = func(*cobra.Command, []string) error {
 			return nil
 		}
-		cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		cmd.RunE = func(*cobra.Command, []string) error {
 			return nil
 		}
 		return cmd

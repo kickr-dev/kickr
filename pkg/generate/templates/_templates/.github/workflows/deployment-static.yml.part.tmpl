@@ -2,7 +2,7 @@ jobs:
 <<- define "static" >>
 
 <<- $needs := list >>
-<<- $websiteDirectory := .CI.Website.Directory | default "." >>
+<<- $websiteDirectory := .Website.Directory | default "." >>
 
 <<- $node := hasKey .Languages "node" >>
 <<- if $node >><<- range (get .Languages "node") >><<- if eq .Directory $websiteDirectory >><<- $needs = append $needs "node-build" >><<- end >><<- end >><<- end >>
@@ -10,7 +10,7 @@ jobs:
 <<- $hugo := hasKey .Languages "hugo" >>
 <<- if $hugo >><<- range (get .Languages "hugo") >><<- if eq .Directory $websiteDirectory >><<- $needs = append $needs "hugo-build" >><<- end >><<- end >><<- end >>
 
-<<- if eq .CI.Website.Hosting "netlify" >>
+<<- if eq .Website.Hosting "netlify" >>
 
   netlify:
     name: Netlify
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
-          name: build<< ne .CI.Website.Directory "" | ternary (print "-" .CI.Website.Directory) "" >>
+          name: build<< ne .Website.Directory "" | ternary (print "-" .Website.Directory) "" >>
           path: dist
       - id: branch_sha
         run: echo "branch_sha=$(echo "$GITHUB_REF_NAME" | sha256sum | cut -c -8)" >> $GITHUB_OUTPUT
@@ -63,7 +63,7 @@ jobs:
           NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
 <<- end >>
 
-<<- if eq .CI.Website.Hosting "pages" >>
+<<- if eq .Website.Hosting "pages" >>
 
   pages:
     name: Pages
@@ -92,7 +92,7 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
         with:
-          artifact_name: build<< ne .CI.Website.Directory "" | ternary (print "-" .CI.Website.Directory) "" >>-pages
+          artifact_name: build<< ne .Website.Directory "" | ternary (print "-" .Website.Directory) "" >>-pages
           preview: ${{ github.ref_name != github.event.repository.default_branch }}
 <<- end >>
 <<- end >>

@@ -4,8 +4,8 @@ jobs:
 <<- $golang := hasKey .Languages "go" >>
 <<- $node := hasKey .Languages "node" >>
 
-<<- $registry := .CI.Helm.Registry | default "oci://ghcr.io" >>
-<<- $path := .CI.Helm.Path | default .VCS.ProjectPath >>
+<<- $registry := .Helm.Registry | default "oci://ghcr.io" >>
+<<- $path := .Helm.Path | default .VCS.ProjectPath >>
 <<- $ghcr := and (eq $registry "oci://ghcr.io") (eq $path .VCS.ProjectPath) >>
 
 <<- if .HasHelmPublish >>
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ inputs.helm_push != 'none' }}
     needs:
-<<- if .CI.Docker >>
+<<- if .Docker >>
       - docker-build
 <<- end >>
       - version
@@ -75,7 +75,7 @@ jobs:
     needs:
 <<- if .HasHelmPublish >>
       - helm-push
-<<- else if .CI.Docker >>
+<<- else if .Docker >>
       - docker-build
 <<- end >>
       - version
@@ -84,17 +84,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-<<- if has "review" .CI.Helm.Environments >>
-          - review
-<<- end >>
-<<- if has "integration" .CI.Helm.Environments >>
-          - integration
-<<- end >>
-<<- if has "staging" .CI.Helm.Environments >>
-          - staging
-<<- end >>
-<<- if has "production" .CI.Helm.Environments >>
-          - production
+<<- range .Helm.Environments >>
+          - << . >>
 <<- end >>
         production:
           - ${{ github.ref_name == github.event.repository.default_branch }}
@@ -103,19 +94,19 @@ jobs:
         # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
         # for more information about how to include environments depending on branches
         include:
-<<- if has "review" .CI.Helm.Environments >>
+<<- if has "review" .Helm.Environments >>
           - environment: review # enabled on non-protected branches
             protected: false
 <<- end >>
-<<- if has "integration" .CI.Helm.Environments >>
+<<- if has "integration" .Helm.Environments >>
           - environment: integration # enabled on protected branches
             protected: true
 <<- end >>
-<<- if has "staging" .CI.Helm.Environments >>
+<<- if has "staging" .Helm.Environments >>
           - environment: staging # enabled on production branches
             production: true
 <<- end >>
-<<- if has "production" .CI.Helm.Environments >>
+<<- if has "production" .Helm.Environments >>
           - environment: production # enabled on production branches
             production: true
 <<- end >>

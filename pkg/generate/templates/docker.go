@@ -14,7 +14,7 @@ func Docker() []engine.Template[types.Repository] {
 			Globs:      engine.GlobsWithPart("Dockerfile"),
 			Out:        "Dockerfile",
 			Remove: func(config types.Repository) bool {
-				return config.CI == nil || config.CI.Docker == nil || config.Binaries() == 0
+				return config.Docker == nil || config.Binaries() == 0
 			},
 		},
 		{
@@ -22,7 +22,7 @@ func Docker() []engine.Template[types.Repository] {
 			Globs:      []string{".dockerignore" + engine.TmplExtension},
 			Out:        ".dockerignore",
 			Remove: func(config types.Repository) bool {
-				return config.CI == nil || config.CI.Docker == nil || config.Binaries() == 0
+				return config.Docker == nil || config.Binaries() == 0
 			},
 		},
 		{
@@ -33,7 +33,7 @@ func Docker() []engine.Template[types.Repository] {
 			// however, it may change in the future with python (or rust or others ?) depending on flexibility in repositories layout
 			Remove: func(config types.Repository) bool {
 				_, ok := config.Languages["go"]
-				return !ok || config.CI == nil || config.CI.Docker == nil || config.Binaries() <= 1
+				return !ok || config.Docker == nil || config.Binaries() <= 1
 			},
 		},
 	}

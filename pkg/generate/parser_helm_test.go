@@ -24,7 +24,7 @@ func TestParserChart(t *testing.T) {
 		require.NoError(t, os.MkdirAll(kickrfile, files.RwxRxRxRx))
 
 		// Act
-		err := generate.ParserHelm(ctx, destdir, &types.Repository{Kickr: kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}}})
+		err := generate.ParserHelm(ctx, destdir, &types.Repository{Kickr: kickr.Kickr{Helm: &kickr.Helm{}}})
 
 		// Assert
 		assert.ErrorContains(t, err, "read yaml")
@@ -40,7 +40,7 @@ func TestParserChart(t *testing.T) {
 			[]byte("description: a description"), files.RwRR))
 
 		expected := types.Repository{
-			Kickr: kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}},
+			Kickr: kickr.Kickr{Helm: &kickr.Helm{}},
 			Languages: map[string]any{
 				"helm": map[string]any{
 					"description": "a description",
@@ -57,7 +57,7 @@ func TestParserChart(t *testing.T) {
 				},
 			},
 		}
-		config := types.Repository{Kickr: kickr.Kickr{CI: &kickr.CI{Helm: &kickr.Helm{}}}}
+		config := types.Repository{Kickr: kickr.Kickr{Helm: &kickr.Helm{}}}
 
 		// Act
 		err := generate.ParserHelm(ctx, destdir, &config)

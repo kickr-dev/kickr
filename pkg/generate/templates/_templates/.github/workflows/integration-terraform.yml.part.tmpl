@@ -94,17 +94,8 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-<<- if has "review" $.CI.Terraform.Environments >>
-          - review
-<<- end >>
-<<- if has "integration" $.CI.Terraform.Environments >>
-          - integration
-<<- end >>
-<<- if has "staging" $.CI.Terraform.Environments >>
-          - staging
-<<- end >>
-<<- if has "production" $.CI.Terraform.Environments >>
-          - production
+<<- range $.Terraform.Environments >>
+          - << . >>
 <<- end >>
 <<- if ne $node.Directory "." >>
     defaults:
