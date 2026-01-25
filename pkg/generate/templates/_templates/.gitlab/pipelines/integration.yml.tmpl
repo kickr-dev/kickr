@@ -200,7 +200,7 @@ hugo-build:
     HUGO_PROJECT_DIR: {{ (first $nodes).Directory }}
 {{- end }}
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.1.4
+    MISE_VERSION: v2026.1.5
 {{- if gt (len $nodes) 1 }}
   parallel:
     matrix:
