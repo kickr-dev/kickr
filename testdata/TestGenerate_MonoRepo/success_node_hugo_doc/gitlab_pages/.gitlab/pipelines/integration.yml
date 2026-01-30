@@ -13,18 +13,13 @@ variables:
   BUILD_DIR: dist
 
   NODE_AUDIT_DISABLED: "false"
-  NODE_BUILD_ARGS: run build --prod
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_BUILD_DISABLED: "false"
-  NODE_IMAGE: docker.io/library/node:24.13.0-alpine
-  NODE_LINT_ARGS: "run lint"
   NODE_LINT_ENABLED: "true"
-  NODE_OUTDATED_ARGS: --long
   NODE_OUTDATED_DISABLED: "false"
   NODE_PUBLISH_ENABLED: "false"
   NODE_SBOM_DISABLED: "true"
   NODE_SEMGREP_DISABLED: "false" # https://semgrep.dev/docs/
-  NODE_TEST_ARGS: test -- --coverage
 
 hugo-build:
   image: docker.io/library/debian:trixie-slim

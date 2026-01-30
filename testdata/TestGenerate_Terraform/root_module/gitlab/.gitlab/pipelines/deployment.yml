@@ -10,9 +10,7 @@ include:
     file: templates/gitlab-ci-terraform.yml
 
 variables:
-  TF_IMAGE: ghcr.io/opentofu/opentofu:1.11.4
-  TF_TFLINT_IMAGE: ghcr.io/terraform-linters/tflint:v0.60.0
-  TF_TFLINT_ARGS: --config "$CI_PROJECT_DIR/.tflint.hcl" --recursive
+  TF_IMAGE: ghcr.io/opentofu/opentofu:latest
 
   TF_CHECKOV_ENABLED: "false"
   TF_DOCS_ENABLED: "false"
