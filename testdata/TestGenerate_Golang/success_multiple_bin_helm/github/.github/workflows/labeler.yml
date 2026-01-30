@@ -35,7 +35,7 @@ jobs:
           egress-policy: audit
       # https://github.com/marketplace/actions/release-drafter
       - id: drafter
-        uses: release-drafter/release-drafter@267d2e0268deae5d44f3ba5029dd4d6e85f9d52d # v6.1.1
+        uses: release-drafter/release-drafter@6db134d15f3909ccc9eefd369f02bd1e9cffdf97 # v6.2.0
         with:
           commitish: ${{ github.base_ref }}
           config-name: labeler.yml
