@@ -118,18 +118,14 @@ pre-commit:
 {{- end }}
 {{- end }}
 
-{{- if $shell }}
-
-.bash-base:
-  needs: []
-{{- end }}
-
 {{- if $gobuild }}
 
 go-build:
   image:
     name: ghcr.io/goreleaser/goreleaser:latest
     entrypoint: [""]
+  needs:
+    - semantic-release-info
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: never
@@ -168,6 +164,10 @@ go-build:
         NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not .Specifics.Private) }}"
 {{- end }}
 {{- end }}
+
+node-build:
+  needs:
+    - semantic-release-info
 {{- end }}
 
 {{- if $hugo }}
@@ -176,6 +176,8 @@ go-build:
 hugo-build:
   image: docker.io/library/debian:trixie-slim
   stage: build
+  needs:
+    - semantic-release-info
   variables:
 {{- if and (eq (len $nodes) 1) (ne (first $nodes).Directory ".") }}
     HUGO_PROJECT_DIR: {{ (first $nodes).Directory }}

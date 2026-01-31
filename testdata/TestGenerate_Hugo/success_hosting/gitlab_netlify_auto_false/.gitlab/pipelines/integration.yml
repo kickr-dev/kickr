@@ -16,6 +16,8 @@ variables:
 hugo-build:
   image: docker.io/library/debian:trixie-slim
   stage: build
+  needs:
+    - semantic-release-info
   variables:
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
     MISE_VERSION: v2026.1.6

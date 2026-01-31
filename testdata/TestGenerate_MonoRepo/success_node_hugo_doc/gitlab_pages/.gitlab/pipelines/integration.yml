@@ -20,9 +20,15 @@ variables:
     NODE_PROJECT_DIR: .
     NODE_PUBLISH_ENABLED: "false"
 
+node-build:
+  needs:
+    - semantic-release-info
+
 hugo-build:
   image: docker.io/library/debian:trixie-slim
   stage: build
+  needs:
+    - semantic-release-info
   variables:
     HUGO_PROJECT_DIR: docs
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise

@@ -30,3 +30,7 @@ variables:
   variables:
     NODE_PROJECT_DIR: docs
     NODE_PUBLISH_ENABLED: "false"
+
+node-build:
+  needs:
+    - semantic-release-info

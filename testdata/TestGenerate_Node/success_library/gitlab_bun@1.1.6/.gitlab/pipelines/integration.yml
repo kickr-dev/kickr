@@ -25,3 +25,7 @@ variables:
   variables:
     NODE_PROJECT_DIR: .
     NODE_PUBLISH_ENABLED: "false"
+
+node-build:
+  needs:
+    - semantic-release-info

@@ -130,3 +130,10 @@ plugins:
       platform: {{ .Platform }}
 {{- end }}
 {{- end }}
+{{- if eq .CI.Provider "gitlab" }}
+  - - "@semantic-release/exec"
+    - analyzeCommitsCmd: echo "SEMREL_INFO_LAST_VERSION=${lastRelease.version}" > semrel.out.env
+      verifyReleaseCmd: |
+        echo "SEMREL_INFO_NEXT_VERSION=${nextRelease.version}" >> semrel.out.env
+        echo "SEMREL_INFO_NEXT_VERSION_TYPE=${nextRelease.type}" >> semrel.out.env
+{{- end }}

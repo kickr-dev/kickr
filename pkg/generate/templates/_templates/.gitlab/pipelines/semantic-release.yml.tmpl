@@ -50,18 +50,33 @@ workflow:
     # on production or integration branch(es)
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF || $CI_COMMIT_REF_NAME =~ $INTEG_REF'
 
-semantic-release-info:
+{{- if not .CI.Release }}
+
+.semrel-base:
   variables:
     GIT_DEPTH: "0"
-    GITLAB_TOKEN: $RELEASE_TOKEN
-{{- if not .CI.Release }}
+
+semantic-release-info:
+  stage: build
   script:
     - DESCRIBE=$(git describe --tags || echo "v1.0.0")
     - echo "SEMREL_INFO_NEXT_VERSION=v${DESCRIBE#v}" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
     - echo "SEMREL_INFO_NEXT_VERSION_TYPE=build" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
     - cat "$SEMREL_CONFIG_DIR/semrel.out.env"
+
 {{- else }}
-  after_script:
+
+.semrel-base:
+  variables:
+    GIT_DEPTH: "0"
+    GITLAB_TOKEN: $RELEASE_TOKEN
+
+semantic-release-info:
+  stage: build
+  variables:
+    SEMREL_DRY_RUN: "true"
+  script:
+    - !reference [semantic-release, script]
     - source "$SEMREL_CONFIG_DIR/semrel.out.env" && rm "$SEMREL_CONFIG_DIR/semrel.out.env"
     - >
       echo "BRANCH_SHA=$(echo "$CI_COMMIT_REF_NAME" | sha256sum | cut -c -8)" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
@@ -95,7 +110,4 @@ semantic-release:
     SIGSTORE_ID_TOKEN:
       aud: sigstore
 {{- end }}
-  variables:
-    GIT_DEPTH: "0"
-    GITLAB_TOKEN: $RELEASE_TOKEN
 {{- end }}
