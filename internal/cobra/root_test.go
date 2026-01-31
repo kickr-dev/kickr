@@ -28,7 +28,7 @@ func TestRootFlags(t *testing.T) {
 		cmd := norun(rootCmd(new(string)))
 
 		// Act
-		err := cmd.Execute()
+		err := cmd.ExecuteContext(t.Context())
 
 		// Assert
 		require.NoError(t, err)
@@ -52,7 +52,7 @@ func TestRootFlags(t *testing.T) {
 		cmd.SetArgs([]string{"--" + flagLogFormat, "json", "--" + flagLogLevel, "debug", "--" + flagDir, "/working-dir"})
 
 		// Act
-		err := cmd.Execute()
+		err := cmd.ExecuteContext(t.Context())
 
 		// Assert
 		require.NoError(t, err)

@@ -27,6 +27,8 @@ func Execute() {
 	cmd.AddCommand(generate)
 
 	if err := cmd.Execute(); err != nil {
+		subcmd, _, _ := cmd.Find(os.Args[1:])
+		usage(cmd, subcmd, err)
 		logger.Fatal(err.Error())
 	}
 }
@@ -43,7 +45,7 @@ and multiple files automatically generated to avoid multiple hours to setup Cont
 
 Kickr generation can be done with 'kickr' command or 'kickr generate' command.`,
 		SilenceErrors: true, // don't print errors with cobra, let logger.Fatal handle them
-		SilenceUsage:  true, // don't print help on errors
+		SilenceUsage:  true, // don't print help on errors, let usage function handle printing depending on command error
 		PersistentPreRunE: func(*cobra.Command, []string) error {
 			if err := setupLogger(logFormat, logLevel); err != nil {
 				return err

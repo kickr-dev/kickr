@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/log"
+	"github.com/spf13/cobra"
 )
 
 var logger = log.NewWithOptions(os.Stderr, log.Options{
@@ -49,4 +50,19 @@ func coalesce(values ...string) string {
 func getenv(flag string) string {
 	key := strings.ToUpper(strings.ReplaceAll(flag, "-", "_"))
 	return os.Getenv(key)
+}
+
+func usage(parent, child *cobra.Command, err error) {
+	for _, help := range []string{"required flag(s)", "unknown command", "unknown flag", "unknown shorthand flag"} {
+		if !strings.Contains(err.Error(), help) {
+			continue
+		}
+
+		if child != nil {
+			child.Println(child.UsageString())
+			break
+		}
+		parent.Println(parent.UsageString())
+		break
+	}
 }
