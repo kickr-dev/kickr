@@ -813,7 +813,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				return fmt.Errorf("mkdir all: %w", err)
 			}
 			return os.WriteFile(filepath.Join(destdir, subdir, parser.FilePackageJSON),
-				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
+				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js", "private": true }`+"\n"), files.RwRR)
 		}
 	}
 

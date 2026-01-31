@@ -6,7 +6,6 @@
   <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&branch=main&style=for-the-badge">
   <img alt="Go Version" src="https://img.shields.io/gitlab/go-mod/go-version/kickr-dev/kickr?style=for-the-badge">
   <img alt="Go Report Card" src="https://goreportcard.com/badge/gitlab.com/kickr-dev/kickr?style=for-the-badge">
-  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/kickr?style=for-the-badge">
 </div>
 
 ---

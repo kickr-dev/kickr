@@ -86,14 +86,8 @@ variables:
 
 {{- if $node }}
 
-  NODE_AUDIT_DISABLED: "false"
   NODE_BUILD_DIR: $BUILD_DIR
-  NODE_BUILD_DISABLED: "{{ not $nodemain }}"
   NODE_LINT_ENABLED: "true"
-  NODE_OUTDATED_DISABLED: "false"
-  NODE_PUBLISH_ENABLED: "false"
-  NODE_SBOM_DISABLED: "true"
-  NODE_SEMGREP_DISABLED: "false" # https://semgrep.dev/docs/
 {{- end }}
 
 {{- if has "sonarqube" .CI.Options }}
@@ -159,20 +153,19 @@ go-build:
 
 {{- if $node }}
 {{- $nodes := get .Languages "node" }}
-{{- $firstnode := first $nodes }}
-{{- if or (gt (len $nodes) 1) (ne $firstnode.Directory ".") }}
 
 .node-base:
-{{- if and (eq (len $nodes) 1) (ne $firstnode.Directory ".") }}
+{{- if eq (len $nodes) 1 }}
+{{- $firstnode := first $nodes }}
   variables:
     NODE_PROJECT_DIR: {{ $firstnode.Directory }}
-{{- end }}
-{{- if gt (len $nodes) 1 }}
+    NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not $firstnode.Specifics.Private) }}"
+{{- else }}
   parallel:
     matrix:
 {{- range $nodes }}
       - NODE_PROJECT_DIR: {{ .Directory }}
-{{- end }}
+        NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not .Specifics.Private) }}"
 {{- end }}
 {{- end }}
 {{- end }}

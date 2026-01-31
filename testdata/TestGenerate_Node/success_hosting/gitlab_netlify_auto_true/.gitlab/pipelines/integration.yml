@@ -19,11 +19,10 @@ variables:
   BUILD_DIR: dist
   PRE_COMMIT_FILE: .pre-commit-config.yaml
 
-  NODE_AUDIT_DISABLED: "false"
   NODE_BUILD_DIR: $BUILD_DIR
-  NODE_BUILD_DISABLED: "false"
   NODE_LINT_ENABLED: "true"
-  NODE_OUTDATED_DISABLED: "false"
-  NODE_PUBLISH_ENABLED: "false"
-  NODE_SBOM_DISABLED: "true"
-  NODE_SEMGREP_DISABLED: "false" # https://semgrep.dev/docs/
+
+.node-base:
+  variables:
+    NODE_PROJECT_DIR: .
+    NODE_PUBLISH_ENABLED: "true"
