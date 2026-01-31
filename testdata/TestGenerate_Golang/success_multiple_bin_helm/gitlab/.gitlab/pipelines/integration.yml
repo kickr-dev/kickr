@@ -48,8 +48,6 @@ go-build:
     - if: $GO_TEST_IMAGE != ""
       exists:
         - .goreleaser.yml
-  variables:
-    VERSION: $SEMREL_INFO_NEXT_VERSION
   script:
     - goreleaser release --clean --config .goreleaser.yml --skip=validate --skip=announce --skip=publish --snapshot
   artifacts:

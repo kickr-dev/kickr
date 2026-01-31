@@ -4,6 +4,18 @@
 
 version: 2
 
+announce:
+  skip: true
+changelog:
+  disable: true
+release:
+  disable: true
+
+checksum:
+  name_template: checksums.txt
+snapshot:
+  version_template: "{{ .Env.VERSION }}"
+
 builds:
 <<- range $name, $config := .Clis >>
   - main: ./cmd/<< $name >>
@@ -23,12 +35,6 @@ builds:
       - arm64
 <<- end >>
 
-announce:
-  skip: true
-
-changelog:
-  disable: true
-
 archives:
   - formats: tar.gz
     wrap_in_directory: false
@@ -40,9 +46,6 @@ archives:
     format_overrides:
       - goos: windows
         formats: zip
-
-checksum:
-  name_template: checksums.txt
 
 nfpms:
 <<- $maintainer := index .Maintainers 0 >>
@@ -56,6 +59,5 @@ nfpms:
       {{- .Arch }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     formats:
-      - apk
       - deb
       - rpm
