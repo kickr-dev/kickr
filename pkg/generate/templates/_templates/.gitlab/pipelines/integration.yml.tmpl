@@ -160,6 +160,9 @@ go-build:
 {{- end }}
 {{- end }}
 
+node-audit:
+  allow_failure: true
+
 node-build:
   needs:
     - semantic-release-info

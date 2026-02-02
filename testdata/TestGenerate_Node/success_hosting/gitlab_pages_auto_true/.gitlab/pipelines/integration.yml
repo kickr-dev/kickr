@@ -27,6 +27,9 @@ variables:
     NODE_PROJECT_DIR: .
     NODE_PUBLISH_ENABLED: "true"
 
+node-audit:
+  allow_failure: true
+
 node-build:
   needs:
     - semantic-release-info
