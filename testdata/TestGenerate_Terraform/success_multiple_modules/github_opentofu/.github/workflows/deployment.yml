@@ -101,14 +101,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: version
         run: |-
-          if [ -n "$SEMREL_INFO_NEXT_VERSION" ]; then
-            echo "version=v${SEMREL_INFO_NEXT_VERSION#v}" >> $GITHUB_OUTPUT
+          if [ -n "$VERSION" ]; then
+            echo "version=v${VERSION#v}" >> $GITHUB_OUTPUT
           else
             DESCRIBE=$(git describe --tags || echo "v0.0.0")
             echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
           fi
         env:
-          SEMREL_INFO_NEXT_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
       - run: echo ${VERSION}
         env:
           VERSION: ${{ steps.version.outputs.version }}

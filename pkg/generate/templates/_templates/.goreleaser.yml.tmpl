@@ -4,13 +4,6 @@
 
 version: 2
 
-announce:
-  skip: true
-changelog:
-  disable: true
-release:
-  disable: true
-
 checksum:
   name_template: checksums.txt
 snapshot:
@@ -24,7 +17,7 @@ builds:
     ldflags:
       - -X << $specifics.Module >>/internal/build.branch={{ .Branch }}
       - -X << $specifics.Module >>/internal/build.commit={{ .Commit }}
-      - -X << $specifics.Module >>/internal/build.date={{ .CommitDate }}
+      - -X << $specifics.Module >>/internal/build.date={{ .Date }}
       - -X << $specifics.Module >>/internal/build.version={{ .Env.VERSION }}
     goos:
       - linux

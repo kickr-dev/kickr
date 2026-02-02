@@ -94,14 +94,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: version
         run: |-
-          if [ -n "$SEMREL_INFO_NEXT_VERSION" ]; then
-            echo "version=v${SEMREL_INFO_NEXT_VERSION#v}" >> $GITHUB_OUTPUT
+          if [ -n "$VERSION" ]; then
+            echo "version=v${VERSION#v}" >> $GITHUB_OUTPUT
           else
             DESCRIBE=$(git describe --tags || echo "v0.0.0")
             echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
           fi
         env:
-          SEMREL_INFO_NEXT_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
       - run: echo ${VERSION}
         env:
           VERSION: ${{ steps.version.outputs.version }}
@@ -121,20 +121,14 @@ jobs:
       - if: ${{ hashFiles('.goreleaser.yml') != '' }}
         uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
         with:
-          args: release --clean --config .goreleaser.yml --skip=validate --skip=announce --skip=publish --snapshot
+          args: release --clean --config .goreleaser.yml --skip=announce --skip=publish --skip=validate
         env:
           VERSION: ${{ needs.version.outputs.version }}
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: build
           # order is important to filter unwanted globs after the filter or desired globs
-          path: |
-            checksums.txt
-            dist/*.apk
-            dist/*.deb
-            dist/*.rpm
-            dist/*.tar.gz
-            dist/*.zip
+          path: dist
           retention-days: 1
 
   release:

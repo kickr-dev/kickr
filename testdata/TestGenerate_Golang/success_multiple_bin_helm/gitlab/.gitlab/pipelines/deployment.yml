@@ -17,19 +17,19 @@ include:
 
 variables:
 
-  DOCKER_RELEASE_IMAGE: "registry.example.com/path/to/registry:$SEMREL_INFO_NEXT_VERSION"
-  DOCKER_SNAPSHOT_IMAGE: "registry.example.com/path/to/registry/snapshot:$SEMREL_INFO_NEXT_VERSION"
+  DOCKER_RELEASE_IMAGE: "registry.example.com/path/to/registry:$VERSION"
+  DOCKER_SNAPSHOT_IMAGE: "registry.example.com/path/to/registry/snapshot:$VERSION"
 
   DOCKER_BUILD_TOOL: buildah
   DOCKER_HEALTHCHECK_DISABLED: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
   DOCKER_BUILD_ARGS: |
     --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
     --build-arg GIT_COMMIT=$CI_COMMIT_SHA
-    --build-arg VERSION=$SEMREL_INFO_NEXT_VERSION
+    --build-arg VERSION=$VERSION
     --label org.opencontainers.image.created=$CI_JOB_STARTED_AT
     --label org.opencontainers.image.ref.name=$CI_COMMIT_REF_NAME
     --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-    --label org.opencontainers.image.version=$SEMREL_INFO_NEXT_VERSION
+    --label org.opencontainers.image.version=$VERSION
   DOCKER_RELEASE_EXTRA_TAGS: latest \\g<major>.\\g<minor> \\g<major
   DOCKER_SEMREL_RELEASE_DISABLED: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
   DOCKER_TRIVY_ARGS: --ignore-unfixed --exit-code 1 --exit-on-eol 1
@@ -40,7 +40,7 @@ variables:
   HELM_SEMREL_RELEASE_DISABLED: "true" # version is handled manually
   HELM_TEST_ENABLED: "false"
 
-  HELM_PACKAGE_ARGS: package --version "$SEMREL_INFO_NEXT_VERSION" --app-version "$SEMREL_INFO_NEXT_VERSION" --dependency-update
+  HELM_PACKAGE_ARGS: package --version "$VERSION" --app-version "$VERSION" --dependency-update
   HELM_PUBLISH_METHOD: push
   HELM_PUBLISH_ON: all
   HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
@@ -51,11 +51,11 @@ variables:
   HELM_INTEG_ENABLED: "false"
   HELM_STAGING_ENABLED: "true"
   HELM_PROD_ENABLED: "true"
-  HELM_DEPLOY_ARGS: upgrade --install --version "$SEMREL_INFO_NEXT_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$SEMREL_INFO_NEXT_VERSION"
+  HELM_DEPLOY_ARGS: upgrade --install --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION"
   HELM_PROD_DEPLOY_STRATEGY: manual
 
   HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
-  HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$SEMREL_INFO_NEXT_VERSION
+  HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$VERSION
   HELM_STAGING_APP_NAME: $HELM_BASE_APP_NAME
 
 # see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1224

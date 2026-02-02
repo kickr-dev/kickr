@@ -14,6 +14,24 @@ index 332d5ce..39af8aa 100644
 +
 \ No newline at end of file
 
+{{- if hasKey .Languages "node" }}
+{{- $nodes := get .Languages "node" }}
+{{- $manager := cutAfter (first $nodes).Specifics.PackageManager "@" }}
+{{- if eq $manager "bun" }}
+
+diff --git a/.gitignore b/.gitignore
+index 11bb2a7..d601cbd 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -64,2 +65,3 @@
+ # Optional npm cache directory
++.bun
+ .npm
+
+\ No newline at end of file
+{{- end }}
+{{- end }}
+
 {{- if .IsHosting "netlify" }}
 
 diff --git a/.gitignore b/.gitignore

@@ -82,8 +82,7 @@ plugins:
       successComment: 🎉 This issue has been resolved in version v${nextRelease.version} 🎉
       successCommentCondition: <% return true; %>
       assets:
-        - label: CHANGELOG.md
-          path: CHANGELOG.md
+        - path: ./CHANGELOG.md
   - - "@kilianpaquier/semantic-release-backmerge"
     - targets:
         - from: ^(main|master)$

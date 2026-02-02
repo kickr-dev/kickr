@@ -16,7 +16,7 @@ variables:
   HELM_SEMREL_RELEASE_DISABLED: "true" # version is handled manually
   HELM_TEST_ENABLED: "false"
 
-  HELM_PACKAGE_ARGS: package --version "$SEMREL_INFO_NEXT_VERSION" --app-version "$SEMREL_INFO_NEXT_VERSION" --dependency-update
+  HELM_PACKAGE_ARGS: package --version "$VERSION" --app-version "$VERSION" --dependency-update
   HELM_PUBLISH_METHOD: disabled
   HELM_PUBLISH_ON: none
   HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
@@ -26,8 +26,8 @@ variables:
   HELM_INTEG_ENABLED: "false"
   HELM_STAGING_ENABLED: "false"
   HELM_PROD_ENABLED: "false"
-  HELM_DEPLOY_ARGS: upgrade --install --version "$SEMREL_INFO_NEXT_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$SEMREL_INFO_NEXT_VERSION"
+  HELM_DEPLOY_ARGS: upgrade --install --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION"
 
   HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
-  HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$SEMREL_INFO_NEXT_VERSION
+  HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$VERSION
   HELM_STAGING_APP_NAME: $HELM_BASE_APP_NAME

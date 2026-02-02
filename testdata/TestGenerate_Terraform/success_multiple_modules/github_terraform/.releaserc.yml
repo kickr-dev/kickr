@@ -81,5 +81,4 @@ plugins:
       successComment: 🎉 This issue has been resolved in version v${nextRelease.version} 🎉
       successCommentCondition: <% return true; %>
       assets:
-        - label: CHANGELOG.md
-          path: CHANGELOG.md
+        - path: ./CHANGELOG.md

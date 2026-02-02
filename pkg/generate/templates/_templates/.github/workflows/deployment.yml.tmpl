@@ -197,14 +197,14 @@ jobs:
 <<- end >>
       - id: version
         run: |-
-          if [ -n "$SEMREL_INFO_NEXT_VERSION" ]; then
-            echo "version=v${SEMREL_INFO_NEXT_VERSION#v}" >> $GITHUB_OUTPUT
+          if [ -n "$VERSION" ]; then
+            echo "version=v${VERSION#v}" >> $GITHUB_OUTPUT
           else
             DESCRIBE=$(git describe --tags || echo "v0.0.0")
             echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
           fi
         env:
-          SEMREL_INFO_NEXT_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
 <<- else >>
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: version

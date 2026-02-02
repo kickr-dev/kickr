@@ -46,7 +46,6 @@ func TestGeneratorGitignore(t *testing.T) {
 			"go":        {"go"},
 			"helm":      {"helm"},
 			"hugo":      {"hugo"},
-			"node":      {"node"},
 			"shell":     nil,
 			"terraform": {"terraform"},
 		}

@@ -2,8 +2,9 @@
 
 // https://docs.renovatebot.com/configuration-options/
 
-{{- $gomod := (hasKey .Globs "gomod") }}
-{{- $tmpl := (hasKey .Globs "tmpl") }}
+{{- $gomod := hasKey .Globs "gomod" }}
+{{- $terraform := hasKey .Languages "terraform" }}
+{{- $tmpl := hasKey .Globs "tmpl" }}
 
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
@@ -14,7 +15,7 @@
         "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl (.IsCI "gitlab") }},
         "github>kickr-dev/renovate//configs/renovate/gitlab-ci.json"{{ end }}{{ if $gomod }},
         "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if or .HasKickr $tmpl }},
-        "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if and (hasKey .Languages "terraform") (or (not .Terraform) (not .Terraform.Engine) (eq .Terraform.Engine "opentofu")) }},
+        "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if and $terraform (or (not .Terraform) (not .Terraform.Engine) (eq .Terraform.Engine "opentofu")) }},
         "github>kickr-dev/renovate//configs/renovate/opentofu.json"{{ end }}{{ if not (has "pre-commit" .Exclude) }},
         "github>kickr-dev/renovate//configs/renovate/pre-commit.json"{{ end }}
     ]
