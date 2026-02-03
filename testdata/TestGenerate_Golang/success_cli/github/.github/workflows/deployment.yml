@@ -121,7 +121,7 @@ jobs:
       - if: ${{ hashFiles('.goreleaser.yml') != '' }}
         uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
         with:
-          args: release --clean --config .goreleaser.yml --skip=announce --skip=publish --skip=validate
+          args: release --clean --config .goreleaser.yml --snapshot
         env:
           VERSION: ${{ needs.version.outputs.version }}
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
