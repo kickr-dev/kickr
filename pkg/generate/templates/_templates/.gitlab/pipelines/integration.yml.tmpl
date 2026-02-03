@@ -88,6 +88,7 @@ variables:
 
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_LINT_ENABLED: "true"
+  NODE_LINT_ARGS: run lint -- --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
 {{- end }}
 
 {{- if has "sonarqube" .CI.Options }}
@@ -156,6 +157,7 @@ go-build:
     matrix:
 {{- range $nodes }}
       - NODE_PROJECT_DIR: {{ .Directory }}
+        JOB_MATRIX_NAMESPACE: /$NODE_PROJECT_DIR
         NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not .Specifics.Private) }}"
 {{- end }}
 {{- end }}
