@@ -20,14 +20,16 @@ variables:
   TF_STAGING_ENABLED: "false"
   TF_PROD_ENABLED: "true"
 
-.tf-workspace:
-  variables:
-    TF_BASE_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state
+.tf-base:
   parallel:
     matrix:
       - TF_PROJECT_DIR: modules/one
-        # see https://gitlab.com/to-be-continuous/terraform/-/blob/master/templates/gitlab-ci-terraform.yml?ref_type=heads#L774
-        TF_ADDRESS: ${TF_BASE_ADDRESS}/4f87104d.${CI_ENVIRONMENT_SLUG}
+        ENV_MATRIX_NAMESPACE: /$TF_PROJECT_DIR
       - TF_PROJECT_DIR: modules/two
-        # see https://gitlab.com/to-be-continuous/terraform/-/blob/master/templates/gitlab-ci-terraform.yml?ref_type=heads#L774
-        TF_ADDRESS: ${TF_BASE_ADDRESS}/046426cf.${CI_ENVIRONMENT_SLUG}
+        ENV_MATRIX_NAMESPACE: /$TF_PROJECT_DIR
+
+tf-tflint:
+  parallel: null
+
+tf-fmt:
+  parallel: null

@@ -19,3 +19,7 @@ variables:
   TF_INTEG_ENABLED: "false"
   TF_STAGING_ENABLED: "false"
   TF_PROD_ENABLED: "false"
+
+  TF_GITLAB_BACKEND_DISABLED: "true"
+  TF_PROJECT_DIR: .terraform
+  ENV_MATRIX_NAMESPACE: /$TF_PROJECT_DIR

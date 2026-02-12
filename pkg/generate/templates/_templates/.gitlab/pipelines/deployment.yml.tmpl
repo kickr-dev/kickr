@@ -92,6 +92,7 @@ variables:
 {{- end }}
 
 {{- if $terraform }}
+{{- $nodes := get .Languages "terraform" }}
 {{- $engine := "opentofu" }}
 {{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
 
@@ -106,6 +107,16 @@ variables:
   TF_INTEG_ENABLED: "{{ and .HasTerraformApply (has "integration" .Terraform.Environments) }}"
   TF_STAGING_ENABLED: "{{ and .HasTerraformApply (has "staging" .Terraform.Environments) }}"
   TF_PROD_ENABLED: "{{ and .HasTerraformApply (has "production" .Terraform.Environments) }}"
+
+{{- if eq (len $nodes) 1 }}
+{{- $firstnode := first $nodes }}
+
+  TF_GITLAB_BACKEND_DISABLED: "{{ ne $firstnode.Specifics.Backend "http" }}"
+{{- if ne $firstnode.Directory "." }}
+  TF_PROJECT_DIR: {{ $firstnode.Directory }}
+  ENV_MATRIX_NAMESPACE: /$TF_PROJECT_DIR
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -137,22 +148,9 @@ variables:
 
 {{- if and $terraform .HasTerraformApply }}
 {{- $nodes := get .Languages "terraform" }}
+{{- if ne (len $nodes) 1 }}
 
-.tf-workspace:
-  variables:
-    TF_BASE_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state
-{{- if eq (len $nodes) 1 }}
-{{- $firstnode := first $nodes }}
-    # see https://gitlab.com/to-be-continuous/terraform/-/blob/master/templates/gitlab-ci-terraform.yml?ref_type=heads#L774
-    TF_ADDRESS: ${TF_BASE_ADDRESS}/{{ sha256sum $firstnode.Directory | trunc 8 }}.${CI_ENVIRONMENT_SLUG}
-{{- if ne $firstnode.Directory "." }}
-    TF_PROJECT_DIR: {{ $firstnode.Directory }}
-{{- end }}
-{{- if ne $firstnode.Specifics.Backend "http" }}
-    TF_GITLAB_BACKEND_DISABLED: "true"
-{{- end }}
-{{- end }}
-{{- if gt (len $nodes) 1 }}
+.tf-base:
   parallel:
     matrix:
 {{- range $nodes }}
@@ -160,10 +158,16 @@ variables:
 {{- if ne .Specifics.Backend "http" }}
         TF_GITLAB_BACKEND_DISABLED: "true"
 {{- end }}
-{{- if ne .Directory "." }}
-        # see https://gitlab.com/to-be-continuous/terraform/-/blob/master/templates/gitlab-ci-terraform.yml?ref_type=heads#L774
-        TF_ADDRESS: ${TF_BASE_ADDRESS}/{{ sha256sum .Directory | trunc 8 }}.${CI_ENVIRONMENT_SLUG}
+        ENV_MATRIX_NAMESPACE: /$TF_PROJECT_DIR
 {{- end }}
 {{- end }}
+
+{{- if gt (len $nodes) 1 }}
+
+tf-tflint:
+  parallel: null
+
+tf-fmt:
+  parallel: null
 {{- end }}
 {{- end }}

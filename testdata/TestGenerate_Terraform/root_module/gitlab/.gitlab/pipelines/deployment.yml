@@ -20,9 +20,4 @@ variables:
   TF_STAGING_ENABLED: "false"
   TF_PROD_ENABLED: "true"
 
-.tf-workspace:
-  variables:
-    TF_BASE_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state
-    # see https://gitlab.com/to-be-continuous/terraform/-/blob/master/templates/gitlab-ci-terraform.yml?ref_type=heads#L774
-    TF_ADDRESS: ${TF_BASE_ADDRESS}/cdb4ee2a.${CI_ENVIRONMENT_SLUG}
-    TF_GITLAB_BACKEND_DISABLED: "true"
+  TF_GITLAB_BACKEND_DISABLED: "true"
