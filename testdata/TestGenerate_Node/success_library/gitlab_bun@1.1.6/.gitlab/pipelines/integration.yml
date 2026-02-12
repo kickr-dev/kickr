@@ -21,11 +21,7 @@ variables:
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_LINT_ENABLED: "true"
   NODE_LINT_ARGS: run lint -- --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
-
-.node-base:
-  variables:
-    NODE_PROJECT_DIR: .
-    NODE_PUBLISH_ENABLED: "false"
+  NODE_PUBLISH_ENABLED: "false"
 
 node-audit:
   allow_failure: true

@@ -85,10 +85,20 @@ variables:
 {{- end }}
 
 {{- if $node }}
+{{- $nodes := get .Languages "node" }}
 
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_LINT_ENABLED: "true"
   NODE_LINT_ARGS: run lint -- --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+
+{{- if eq (len $nodes) 1 }}
+{{- $firstnode := first $nodes }}
+{{- if ne $firstnode.Directory "." }}
+
+  NODE_PROJECT_DIR: {{ $firstnode.Directory }}
+{{- end }}
+  NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not $firstnode.Specifics.Private) }}"
+{{- end }}
 {{- end }}
 
 {{- if has "sonarqube" .CI.Options }}
@@ -145,14 +155,9 @@ go-build:
 
 {{- if $node }}
 {{- $nodes := get .Languages "node" }}
+{{- if ne (len $nodes) 1 }}
 
 .node-base:
-{{- if eq (len $nodes) 1 }}
-{{- $firstnode := first $nodes }}
-  variables:
-    NODE_PROJECT_DIR: {{ $firstnode.Directory }}
-    NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not $firstnode.Specifics.Private) }}"
-{{- else }}
   parallel:
     matrix:
 {{- range $nodes }}

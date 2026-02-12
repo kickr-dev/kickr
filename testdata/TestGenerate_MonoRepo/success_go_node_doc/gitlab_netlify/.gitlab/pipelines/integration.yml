@@ -27,10 +27,8 @@ variables:
   NODE_LINT_ENABLED: "true"
   NODE_LINT_ARGS: run lint -- --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
 
-.node-base:
-  variables:
-    NODE_PROJECT_DIR: docs
-    NODE_PUBLISH_ENABLED: "false"
+  NODE_PROJECT_DIR: docs
+  NODE_PUBLISH_ENABLED: "false"
 
 node-audit:
   allow_failure: true
