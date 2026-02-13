@@ -3,6 +3,8 @@
 {{- $golang := hasKey .Languages "go" }}
 {{- $gobuild := and $golang (gt .Binaries 0) }}
 
+{{- $node := hasKey .Languages "node" }}
+
 ---
 include:
   # semantic-release template
@@ -70,6 +72,17 @@ semantic-release-info:
   variables:
     GIT_DEPTH: "0"
     GITLAB_TOKEN: $RELEASE_TOKEN
+{{- if $node }}
+{{- $nodes := get .Languages "node" }}
+{{- $firstnode := first $nodes }}
+{{- if and (not $firstnode.Specifics.Private) (eq $firstnode.Specifics.PublishConfig.Registry "") }}
+  id_tokens:
+    NPM_ID_TOKEN:
+      aud: npm:registry.npmjs.org
+    SIGSTORE_ID_TOKEN:
+      aud: sigstore
+{{- end }}
+{{- end }}
 
 semantic-release-info:
   stage: build
@@ -102,12 +115,5 @@ semantic-release:
 {{- range $dependencies }}
     - {{ . }}
 {{- end }}
-{{- end }}
-{{- if and (hasKey .Languages "node") (not (first (get .Languages "node")).Specifics.Private) (eq (first (get .Languages "node")).Specifics.PublishConfig.Registry "") }}
-  id_tokens:
-    NPM_ID_TOKEN:
-      aud: npm:registry.npmjs.org
-    SIGSTORE_ID_TOKEN:
-      aud: sigstore
 {{- end }}
 {{- end }}
