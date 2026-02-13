@@ -45,7 +45,7 @@ include:
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
   - project: to-be-continuous/node
-    ref: 9cd9971a60e28c5c86486b5bc5c0a9af8ccc83d0 # 5.1.0
+    ref: 9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
     file: templates/gitlab-ci-node.yml
 {{- end }}
 
@@ -89,7 +89,7 @@ variables:
 
   NODE_BUILD_DIR: $BUILD_DIR
   NODE_LINT_ENABLED: "true"
-  NODE_LINT_ARGS: run lint -- --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+  NODE_LINT_ARGS: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
 
 {{- if eq (len $nodes) 1 }}
 {{- $firstnode := first $nodes }}
