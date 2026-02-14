@@ -64,6 +64,31 @@ func TestParserNode(t *testing.T) {
 		}
 	})
 
+	t.Run("error_consistencies", func(t *testing.T) {
+		// Arrange
+		destdir := t.TempDir()
+		require.NoError(t, os.WriteFile(
+			filepath.Join(destdir, parser.FilePackageJSON),
+			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "publishConfig": { "registry": "npm.example.com" } }`), files.RwRR))
+		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
+		require.NoError(t, os.WriteFile(
+			filepath.Join(filepath.Join(destdir, "docs"), parser.FilePackageJSON),
+			[]byte(`{ "name": "kickr", "packageManager": "pnpm@1.1.6", "publishConfig": { "registry": "npm.example.org" } }`), files.RwRR))
+
+		config := types.Repository{
+			Kickr: kickr.Kickr{
+				Website: &kickr.Website{Directory: "docs"},
+			},
+		}
+
+		// Act
+		err := generate.ParserNode(ctx, destdir, &config)
+
+		// Assert
+		assert.ErrorIs(t, err, generate.ErrMultipleManagers)
+		assert.ErrorIs(t, err, generate.ErrMultipleRegistries)
+	})
+
 	t.Run("success_no_nodejs", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()

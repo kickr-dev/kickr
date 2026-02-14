@@ -16,6 +16,20 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
+var (
+	// ErrMultipleManagers is returned when there's a monorepo involved for node language
+	// and multiple package managers are defined between parsed repositories.
+	//
+	// This error exists to ensure consistency for package managers inside one git repository, which shouldn't be that hard to aim.
+	ErrMultipleManagers = errors.New("multiple node package managers")
+
+	// ErrMultipleRegistries is returned when there's a monorepo involved for node language
+	// and multiple registries are defined between parsed repositories.
+	//
+	// This error exists to ensure consistency for registries inside one git repository, which shouldn't be that hard to aim.
+	ErrMultipleRegistries = errors.New("multiple node registries")
+)
+
 // MonoNodes is an alias of []types.Mono[parser.PackageJSON] adding various helper methods
 // around the functionality of monorepositories for node.
 type MonoNodes []types.Mono[parser.PackageJSON]
@@ -32,21 +46,33 @@ func (nodes MonoNodes) HasMain() bool {
 	return false
 }
 
-// HasMultipleManagers checks whether multiple package managers exist in the node monorepository.
-func (nodes MonoNodes) HasMultipleManagers() bool {
+// HasMultipleManagers returns an error in case multiple package managers exist in the node monorepository.
+func (nodes MonoNodes) HasMultipleManagers() error {
 	managers := make(map[string]struct{}, len(nodes))
 	for _, mono := range nodes {
 		manager, _, _ := strings.Cut(mono.Specifics.PackageManager, "@")
 		managers[manager] = struct{}{}
 	}
-	return len(managers) > 1
+	if len(managers) > 1 {
+		return ErrMultipleManagers
+	}
+	return nil
 }
 
-// ErrMultipleManagers is returned when there's a monorepo involved for node language
-// and multiple package managers are defined between parsed repositories.
-//
-// This error exists to ensure consistency for package managers inside one git repository, which shouldn't be that hard to aim.
-var ErrMultipleManagers = errors.New("multiple node package manager")
+// HasMultipleRegistries returns an error in case multiple registries exist in the node monorepository.
+func (nodes MonoNodes) HasMultipleRegistries() error {
+	registries := make(map[string]struct{}, len(nodes))
+	for _, mono := range nodes {
+		if mono.Specifics.Private {
+			continue
+		}
+		registries[mono.Specifics.PublishConfig.Registry] = struct{}{}
+	}
+	if len(registries) > 1 {
+		return ErrMultipleRegistries
+	}
+	return nil
+}
 
 // ParserNode detects the presence of a ParserNode.js project by looking for a package.json file.
 //
@@ -88,10 +114,11 @@ func ParserNode(_ context.Context, destdir string, config *types.Repository) err
 		}
 	}
 
-	// avoid handling multiple package managers with monorepository setup
-	if monos.HasMultipleManagers() {
-		return ErrMultipleManagers
+	// ensure basic rules for node monorepositories are respected
+	if err := errors.Join(monos.HasMultipleManagers(), monos.HasMultipleRegistries()); err != nil {
+		return err
 	}
+
 	if len(monos) > 0 {
 		config.SetLanguage("node", monos)
 	}
