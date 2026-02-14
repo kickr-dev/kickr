@@ -28,6 +28,13 @@ var (
 	//
 	// This error exists to ensure consistency for registries inside one git repository, which shouldn't be that hard to aim.
 	ErrMultipleRegistries = errors.New("multiple node registries")
+
+	// ErrWebsiteNoPublish is returned when a website is provided through kickr configuration
+	// and is a node repository but with publishing enabled.
+	//
+	// Due to limitations regarding semantic-release configuration (.releaserc, GitLab CICD setup),
+	// only the root node repository can be published.
+	ErrWebsiteNoPublish = errors.New("website node module should be private")
 )
 
 // MonoNodes is an alias of []types.Mono[parser.PackageJSON] adding various helper methods
@@ -104,7 +111,10 @@ func ParserNode(_ context.Context, destdir string, config *types.Repository) err
 		err := files.ReadJSON(filepath.Join(destdir, config.Website.Directory, parser.FilePackageJSON), &website, os.ReadFile)
 		if err == nil {
 			if err := website.Validate(); err != nil {
-				return fmt.Errorf("validate '%s': %w", parser.FilePackageJSON, err)
+				return fmt.Errorf("validate '%s': %w", filepath.Join(config.Website.Directory, parser.FilePackageJSON), err)
+			}
+			if !website.Private {
+				return ErrWebsiteNoPublish
 			}
 			engine.GetLogger().Infof("node detected in '%s', a '%s' is present and valid", config.Website.Directory, parser.FilePackageJSON)
 

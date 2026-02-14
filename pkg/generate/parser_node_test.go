@@ -73,7 +73,7 @@ func TestParserNode(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
 		require.NoError(t, os.WriteFile(
 			filepath.Join(filepath.Join(destdir, "docs"), parser.FilePackageJSON),
-			[]byte(`{ "name": "kickr", "packageManager": "pnpm@1.1.6", "publishConfig": { "registry": "npm.example.org" } }`), files.RwRR))
+			[]byte(`{ "name": "kickr", "packageManager": "pnpm@1.1.6", "private": true }`), files.RwRR))
 
 		config := types.Repository{
 			Kickr: kickr.Kickr{
@@ -86,7 +86,27 @@ func TestParserNode(t *testing.T) {
 
 		// Assert
 		assert.ErrorIs(t, err, generate.ErrMultipleManagers)
-		assert.ErrorIs(t, err, generate.ErrMultipleRegistries)
+	})
+
+	t.Run("error_sub_directory_published", func(t *testing.T) {
+		// Arrange
+		destdir := t.TempDir()
+		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
+		require.NoError(t, os.WriteFile(
+			filepath.Join(filepath.Join(destdir, "docs"), parser.FilePackageJSON),
+			[]byte(`{ "name": "kickr", "packageManager": "pnpm@1.1.6" }`), files.RwRR))
+
+		config := types.Repository{
+			Kickr: kickr.Kickr{
+				Website: &kickr.Website{Directory: "docs"},
+			},
+		}
+
+		// Act
+		err := generate.ParserNode(ctx, destdir, &config)
+
+		// Assert
+		assert.ErrorIs(t, err, generate.ErrWebsiteNoPublish)
 	})
 
 	t.Run("success_no_nodejs", func(t *testing.T) {
@@ -185,7 +205,7 @@ func TestParserNode(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
 		require.NoError(t, os.WriteFile(
 			filepath.Join(destdir, "docs", parser.FilePackageJSON),
-			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6" }`), files.RwRR))
+			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "private": true, "publishConfig": { "registry": "npm.example.org" } }`), files.RwRR))
 
 		expected := types.Repository{
 			Kickr: kickr.Kickr{
@@ -209,6 +229,15 @@ func TestParserNode(t *testing.T) {
 						Specifics: parser.PackageJSON{
 							Name:           "kickr",
 							PackageManager: "bun@1.1.6",
+							Private:        true,
+							PublishConfig: struct {
+								Access     string `json:"access,omitempty"`
+								Provenance bool   `json:"provenance,omitempty"`
+								Registry   string `json:"registry,omitempty"`
+								Tag        string `json:"tag,omitempty"`
+							}{
+								Registry: "npm.example.org",
+							},
 						},
 					},
 				},
@@ -234,7 +263,7 @@ func TestParserNode(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
 		require.NoError(t, os.WriteFile(
 			filepath.Join(destdir, "docs", parser.FilePackageJSON),
-			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`), files.RwRR))
+			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js", "private": true }`), files.RwRR))
 
 		expected := types.Repository{
 			Kickr: kickr.Kickr{
@@ -248,6 +277,7 @@ func TestParserNode(t *testing.T) {
 							Main:           func() *string { v := "index.js"; return &v }(),
 							Name:           "kickr",
 							PackageManager: "bun@1.1.6",
+							Private:        true,
 						},
 					},
 				},
