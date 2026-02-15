@@ -23,9 +23,9 @@ repos:
       - id: commitizen-branch
         args:
           - --rev-range
-{{- if .IsCI "github" }}
+{{- if .GitHub }}
           - ${GITHUB_BASE_REF:+origin/}${GITHUB_BASE_REF:-HEAD~1}..HEAD
-{{- else if .IsCI "gitlab" }}
+{{- else if .GitLab }}
           - ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:+origin/}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-HEAD~1}..HEAD
 {{- end }}
         stages: [pre-commit]
@@ -51,7 +51,7 @@ repos:
 {{- end }}
       - id: trailing-whitespace
 
-{{- if and (not .CI) $shell }}
+{{- if and (not .GitHub) (not .GitLab) $shell }}
 
   - repo: https://github.com/koalaman/shellcheck-precommit
     # renovate: datasource=github-tags packageName=koalaman/shellcheck-precommit depName=shellcheck-precommit
@@ -72,7 +72,7 @@ repos:
         language: system
 {{- end }}
 
-{{- if and $golang (or (not .CI) (has "golangci-lint" .PreCommit)) }}
+{{- if and $golang (or (and (not .GitHub) (not .GitLab)) (has "golangci-lint" .PreCommit)) }}
 
   - repo: https://github.com/golangci/golangci-lint
     # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
@@ -94,7 +94,7 @@ repos:
 {{- end }}
 {{- end }}
 
-{{- if or (not .CI) (has "terraform" .PreCommit) }}
+{{- if or (and (not .GitHub) (not .GitLab)) (has "terraform" .PreCommit) }}
 
 {{- $engine := "opentofu" }}
 {{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}

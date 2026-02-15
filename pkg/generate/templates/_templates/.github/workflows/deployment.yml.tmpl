@@ -53,7 +53,7 @@ on:
           - none
         default: << eq .Terraform.Apply "auto" | ternary "full" "none" >>
 <<- end >>
-<<- if .CI.Release >>
+<<- if .GitHub.Release >>
       release:
         description: Release job run mode.
         type: choice
@@ -61,7 +61,7 @@ on:
           - dry-run
           - none
           - release
-        default: << .CI.Release.Auto | ternary "release" "dry-run" >>
+        default: << .GitHub.Release.Auto | ternary "release" "dry-run" >>
 <<- end >>
 
 concurrency:
@@ -78,7 +78,7 @@ jobs:
     permissions:
       actions: read
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -121,9 +121,9 @@ jobs:
     environment: release
     outputs:
       version: ${{ steps.version.outputs.version }}
-<<- if .CI.Release >>
+<<- if .GitHub.Release >>
     permissions:
-<<- if eq .CI.Release.Auth "github-token" >>
+<<- if eq .GitHub.Release.Auth "github-token" >>
       contents: write
       issues: write
       pull-requests: write
@@ -131,7 +131,7 @@ jobs:
       id-token: << $node | ternary "write" "none" >>
 <<- end >>
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -139,8 +139,8 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-<<- if .CI.Release >>
-<<- if eq .CI.Release.Auth "github-app" >>
+<<- if .GitHub.Release >>
+<<- if eq .GitHub.Release.Auth "github-app" >>
       - id: app_token
         uses: actions/create-github-app-token@bf559f85448f9380bcfa2899dbdc01eb5b37be3a # v3.0.0-beta.2
         with:
@@ -150,10 +150,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-<<- if ne .CI.Release.Auth "github-token" >>
+<<- if ne .GitHub.Release.Auth "github-token" >>
           persist-credentials: false
 <<- end >>
-<<- if eq .CI.Release.Auth "github-app" >>
+<<- if eq .GitHub.Release.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
       # https://github.com/marketplace/actions/setup-node-js-environment
@@ -181,13 +181,13 @@ jobs:
 <<- if and .License (list "bsl-1.0" "mit" | has .License) >>
             semantic-release-license
 <<- end >>
-<<- if has "backmerge" .CI.Release.Options >>
+<<- if has "backmerge" .GitHub.Release.Options >>
             @kilianpaquier/semantic-release-backmerge
 <<- end >>
         env:
-<<- if eq .CI.Release.Auth "github-app" >>
+<<- if eq .GitHub.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-<<- else if eq .CI.Release.Auth "personal-token" >>
+<<- else if eq .GitHub.Release.Auth "personal-token" >>
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -229,7 +229,7 @@ jobs:
 <<- if .Website >><< template "static" . >><<- end >>
 <<- if .HasTerraformApply >><< template "terraform" . >><<- end >>
 
-<<- if .CI.Release >>
+<<- if .GitHub.Release >>
 
 <<- $needs := list >>
 <<- if .Docker >><<- $needs = append $needs "docker-build" >><<- end >>
@@ -260,14 +260,14 @@ jobs:
       name: release
       url: ${{ steps.environment_url.outputs.environment_url }}
     permissions:
-<<- if eq .CI.Release.Auth "github-token" >>
+<<- if eq .GitHub.Release.Auth "github-token" >>
       contents: write
       issues: write
       pull-requests: write
   <<- end >>
       id-token: << $node | ternary "write" "none" >>
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -275,7 +275,7 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-<<- if eq .CI.Release.Auth "github-app" >>
+<<- if eq .GitHub.Release.Auth "github-app" >>
       - id: app_token
         uses: actions/create-github-app-token@bf559f85448f9380bcfa2899dbdc01eb5b37be3a # v3.0.0-beta.2
         with:
@@ -285,10 +285,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-<<- if ne .CI.Release.Auth "github-token" >>
+<<- if ne .GitHub.Release.Auth "github-token" >>
           persist-credentials: false
 <<- end >>
-<<- if eq .CI.Release.Auth "github-app" >>
+<<- if eq .GitHub.Release.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
 <<- if gt .Binaries 0 >>
@@ -322,13 +322,13 @@ jobs:
 <<- if and .License (list "bsl-1.0" "mit" | has .License) >>
             semantic-release-license
 <<- end >>
-<<- if has "backmerge" .CI.Release.Options >>
+<<- if has "backmerge" .GitHub.Release.Options >>
             @kilianpaquier/semantic-release-backmerge
 <<- end >>
         env:
-<<- if eq .CI.Release.Auth "github-app" >>
+<<- if eq .GitHub.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-<<- else if eq .CI.Release.Auth "personal-token" >>
+<<- else if eq .GitHub.Release.Auth "personal-token" >>
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -25,6 +25,13 @@ repos:
         args: [--fix=lf]
       - id: trailing-whitespace
 
+  - repo: https://github.com/terraform-docs/terraform-docs
+    # renovate: datasource=github-tags packageName=terraform-docs/terraform-docs depName=terraform-docs
+    rev: v0.21.0
+    hooks:
+      - id: terraform-docs-go
+        args: ["markdown", "table", "--output-file", "README.md", "."]
+
   - repo: https://github.com/tofuutils/pre-commit-opentofu
     # renovate: datasource=github-tags packageName=tofuutils/pre-commit-opentofu depName=pre-commit-opentofu
     rev: v2.2.2

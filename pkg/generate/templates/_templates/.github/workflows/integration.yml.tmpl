@@ -48,7 +48,7 @@ jobs:
     permissions:
       pull-requests: read
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -88,7 +88,7 @@ jobs:
       contents: write
 <<- end >>
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -108,7 +108,7 @@ jobs:
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 <<- if has "auto-commit" .PreCommit >>
       - if: ${{ !cancelled() }}
-<<- if has "step-security-actions" .CI.Options >>
+<<- if has "step-security-actions" .GitHub.Options >>
         # https://app.stepsecurity.io/github-action-advisor/step-security/git-auto-commit-action
         uses: step-security/git-auto-commit-action@905c3cd6e9ed2b67b4d46ff401fdb6d745d0ff9d # v7.1.0
 <<- else >>
@@ -128,7 +128,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -154,7 +154,7 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -182,7 +182,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -222,7 +222,7 @@ jobs:
 <<- if $node >><< template "node" . >><<- end >>
 <<- if $terraform >><< template "terraform" . >><<- end >>
 
-<<- if has "sonarqube" .CI.Options >>
+<<- if has "sonarqube" .GitHub.Options >>
 
   sonar-analysis:
     name: Sonar Analysis
@@ -239,7 +239,7 @@ jobs:
     env:
       SONAR_USER_HOME: .sonar
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -325,11 +325,11 @@ jobs:
 <<- if $shell >>
       - shellcheck
 <<- end >>
-<<- if has "sonarqube" .CI.Options >>
+<<- if has "sonarqube" .GitHub.Options >>
       - sonar-analysis
 <<- end >>
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -341,7 +341,14 @@ jobs:
         run: echo "Some jobs didn't end with success status" && exit 1
       - run: echo "All jobs ended with success"
 
-<<- if or .HasAutoDeployment .IsReleaseAuto >>
+<<- $deploy := or
+  (and .Docker .Docker.Auto)
+  (and .Helm (or (eq .Helm.Deploy "auto") (eq .Helm.Publish "auto")))
+  (and .Terraform (eq .Terraform.Apply "auto"))
+  (and .Website .Website.Auto)
+>>
+<<- $release := and .GitHub.Release .GitHub.Release.Auto >>
+<<- if or $deploy $release >>
 
   notify-workflow:
     name: Notify Workflow
@@ -356,7 +363,7 @@ jobs:
         workflow:
           - deployment
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0

@@ -49,7 +49,7 @@ include:
     file: templates/gitlab-ci-node.yml
 {{- end }}
 
-{{- if has "sonarqube" .CI.Options }}
+{{- if has "sonarqube" .GitLab.Options }}
 
   # SonarQube template
   # https://gitlab.com/to-be-continuous/sonar
@@ -97,11 +97,11 @@ variables:
 
   NODE_PROJECT_DIR: {{ $firstnode.Directory }}
 {{- end }}
-  NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not $firstnode.Specifics.Private) }}"
+  NODE_PUBLISH_ENABLED: "{{ and (not .GitLab.Release) (not $firstnode.Specifics.Private) }}"
 {{- end }}
 {{- end }}
 
-{{- if has "sonarqube" .CI.Options }}
+{{- if has "sonarqube" .GitLab.Options }}
 
   SONAR_BASE_ARGS: |
     -Dsonar.properties=sonar.properties
@@ -163,7 +163,7 @@ go-build:
 {{- range $nodes }}
       - NODE_PROJECT_DIR: {{ .Directory }}
         JOB_MATRIX_NAMESPACE: /$NODE_PROJECT_DIR
-        NODE_PUBLISH_ENABLED: "{{ and (not .CI.Release) (not .Specifics.Private) }}"
+        NODE_PUBLISH_ENABLED: "{{ and (not .GitLab.Release) (not .Specifics.Private) }}"
 {{- end }}
 {{- end }}
 

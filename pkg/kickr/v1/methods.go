@@ -6,20 +6,7 @@ package kickr
 import (
 	"cmp"
 	"slices"
-	"strings"
 )
-
-// IsCI returns truthy in case the input provider is the one specified in configuration.
-//
-// It returns false if CI is disabled.
-func (k Kickr) IsCI(provider string) bool {
-	return k.CI != nil && k.CI.Provider == provider
-}
-
-// IsReleaseAuto returns truthy in case the configuration has CI enabled, release enabled and auto actived.
-func (k Kickr) IsReleaseAuto() bool {
-	return k.CI != nil && k.CI.Release != nil && k.CI.Release.Auto
-}
 
 // IsHelmPublishAuto returns truthy in case the configuration has CI enabled, helm publish enabled and auto actived.
 func (k Kickr) IsHelmPublishAuto() bool {
@@ -52,40 +39,20 @@ func (k Kickr) HasTerraformApply() bool {
 
 // HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
 func (k Kickr) HasKickr() bool {
-	return k.CI != nil && slices.ContainsFunc(k.CI.Options, func(o string) bool {
-		return strings.HasPrefix(o, "kickr")
-	})
-}
-
-// HasAutoDeployment returns truthy in case the configuration has CI enabled,
-// and at least one deployment section (docker, helm, netlify, pages, etc.) is in auto mode.
-func (k Kickr) HasAutoDeployment() bool {
-	if k.CI == nil {
-		return false
+	if k.GitHub != nil && slices.ContainsFunc(k.GitHub.Options, func(o string) bool {
+		return o == GitHubOptionsKickrGitHubApp || o == GitHubOptionsKickrPersonalToken
+	}) {
+		return true
 	}
 
-	docker := k.Docker != nil && k.Docker.Auto
-	helm := k.Helm != nil && (k.Helm.Deploy == HelmDeployAuto || k.Helm.Publish == HelmPublishAuto)
-	release := k.CI.Release != nil && k.CI.Release.Auto
-	terraform := k.Terraform != nil && k.Terraform.Apply == TerraformApplyAuto
-	website := k.Website != nil && k.Website.Auto
+	if k.GitLab != nil && slices.ContainsFunc(k.GitLab.Options, func(o string) bool {
+		return o == GitLabOptionsKickr
+	}) {
+		return true
+	}
 
-	return docker || helm || website || release || terraform
+	return false
 }
-
-// HasDeployment returns truthy in case the configuration has CI enabled and Deployment configuration.
-// func (k Kickr) HasDeployment() bool {
-// 	if k.CI == nil {
-// 		return false
-// 	}
-
-// 	docker := k.Docker != nil
-// 	helm := k.Helm != nil
-// 	terraform := k.Terraform != nil && k.Terraform.Apply != ""
-// 	website := k.Website != nil
-
-// 	return docker || helm || website || terraform
-// }
 
 // EnsureDefaults migrates old properties into new fields
 // and ensures default properties are always sets.
@@ -98,10 +65,17 @@ func (k *Kickr) EnsureDefaults() {
 		return cmp.Compare(a.Name, b.Name)
 	})
 
-	if k.CI != nil {
-		slices.Sort(k.CI.Options)
-		if k.CI.Release != nil {
-			slices.Sort(k.CI.Release.Options)
+	if k.GitHub != nil {
+		slices.Sort(k.GitHub.Options)
+		if k.GitHub.Release != nil {
+			slices.Sort(k.GitHub.Release.Options)
+		}
+	}
+
+	if k.GitLab != nil {
+		slices.Sort(k.GitLab.Options)
+		if k.GitLab.Release != nil {
+			slices.Sort(k.GitLab.Release.Options)
 		}
 	}
 

@@ -92,7 +92,7 @@ plugins:
         - package.json
 {{- end }}
       message: "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-{{- if eq .VCS.Platform "github" }}
+{{- if eq .Platform "github" }}
   - - "@semantic-release/github"
     - draftRelease: false
       failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
@@ -109,7 +109,7 @@ plugins:
         - path: dist/*.zip
 {{- end }}
 {{- end }}
-{{- if eq .VCS.Platform "gitlab" }}
+{{- if eq .Platform "gitlab" }}
   - - "@semantic-release/gitlab"
     - failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
       failCommentCondition: <% return false; %>
@@ -125,7 +125,7 @@ plugins:
         - path: dist/*.zip
 {{- end }}
 {{- end }}
-{{- if has "backmerge" .CI.Release.Options }}
+{{- if and .GitHub .GitHub.Release (has "backmerge" .GitHub.Release.Options) }}
   - - "@kilianpaquier/semantic-release-backmerge"
     - targets:
         - from: ^(main|master)$
@@ -134,11 +134,24 @@ plugins:
           to: ^(dev|develop)$
         - from: staging
           to: ^(dev|develop)$
-{{- if ne .CI.Provider .Platform }}
+{{- if ne .Platform "github" }}
       platform: {{ .Platform }}
 {{- end }}
 {{- end }}
-{{- if eq .CI.Provider "gitlab" }}
+{{- if and .GitLab .GitLab.Release (has "backmerge" .GitLab.Release.Options) }}
+  - - "@kilianpaquier/semantic-release-backmerge"
+    - targets:
+        - from: ^(main|master)$
+          to: staging
+        - from: ^(main|master)$
+          to: ^(dev|develop)$
+        - from: staging
+          to: ^(dev|develop)$
+{{- if ne .Platform "gitlab" }}
+      platform: {{ .Platform }}
+{{- end }}
+{{- end }}
+{{- if .GitLab }}
   - - "@semantic-release/exec"
     - analyzeCommitsCmd: echo "SEMREL_INFO_LAST_VERSION=${lastRelease.version}" > semrel.out.env
       verifyReleaseCmd: |

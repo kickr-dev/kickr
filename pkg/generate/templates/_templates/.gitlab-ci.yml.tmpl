@@ -7,7 +7,7 @@ include:
 # secret variables
 # (define the variables below in your GitLab group/project variables)
 
-{{- if .CI.Release }}
+{{- if .GitLab.Release }}
 
 # https://gitlab.com/to-be-continuous/semantic-release
 # RELEASE_TOKEN: A GitLab 'group access token' or 'project access token' or 'personal access token' with `api` and `write_repository` scopes and at least a `Developer` role.
@@ -53,7 +53,7 @@ include:
 {{- end }}
 {{- end }}
 
-{{- if has "renovate" .CI.Options }}
+{{- if has "renovate" .GitLab.Options }}
 
 # https://gitlab.com/to-be-continuous/renovate
 # Don't forget to setup a scheduled pipeline every once in a while to run Renovate updates checks.
@@ -67,7 +67,7 @@ include:
 # NETLIFY_AUTH_TOKEN: The netlify authentication token (it's a personal token) to use for deployments (once connected, can be retrieved here https://app.netlify.com/user/applications#content).
 {{- end }}
 
-{{- if has "sonarqube" .CI.Options }}
+{{- if has "sonarqube" .GitLab.Options }}
 
 # https://gitlab.com/to-be-continuous/sonar
 # SONAR_HOST_URL: SonarQube URL.
@@ -76,7 +76,7 @@ include:
 # SONAR_PASSWORD: SonarQube password (depends on your authentication method).
 {{- end }}
 
-{{- if has "kickr" .CI.Options }}
+{{- if has "kickr" .GitLab.Options }}
 
 # KICKR_TOKEN: A GitLab access token to allow kickr layout update (`write_repository` and `api` scopes with a `Developer` role).
 {{- end }}

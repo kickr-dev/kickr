@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
-	"strings"
 	"testing"
 
+	"dario.cat/mergo"
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/parser"
@@ -24,39 +24,49 @@ import (
 	"github.com/kickr-dev/kickr/testutils"
 )
 
+type testcase struct {
+	kickr.Kickr
+
+	Name string
+}
+
 func TestGenerate_NoLang(t *testing.T) {
 	ctx := t.Context()
 
-	t.Run("success_chart", func(t *testing.T) {
-		type testcase struct {
-			Helm     *kickr.Helm
-			Provider string
-		}
-
+	t.Run("chart", func(t *testing.T) {
 		cases := []testcase{
-			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmPublishManual, Registry: "chartmuseum.example.com"}},
-
-			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmPublishManual, Registry: "chartmuseum.example.com"}},
+			{
+				Name:  "github",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{}},
+			},
+			{
+				Name:  "github_publish_auto",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			},
+			{
+				Name:  "github_publish_manual",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmPublishManual, Registry: "chartmuseum.example.com"}},
+			},
+			{
+				Name:  "gitlab",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Helm: &kickr.Helm{}},
+			},
+			{
+				Name:  "gitlab_publish_auto",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			},
+			{
+				Name:  "gitlab_publish_manual",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Helm: &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmPublishManual, Registry: "chartmuseum.example.com"}},
+			},
 		}
 		for _, tc := range cases {
-			publish := "nil"
-			if tc.Helm.Publish != "" {
-				publish = tc.Helm.Publish
-			}
-			name := fmt.Sprint(tc.Provider, "_publish_", publish)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: tc.Provider},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-						Helm:     tc.Helm,
-						Platform: tc.Provider,
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -65,30 +75,28 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 	})
 
-	t.Run("success_kickr", func(t *testing.T) {
-		type testcase struct {
-			Option   string
-			Provider string
-		}
-
+	t.Run("kickr", func(t *testing.T) {
 		cases := []testcase{
-			{Option: kickr.OptionsKickrGitHubApp, Provider: parser.GitHub},
-			{Option: kickr.OptionsKickrPersonalToken, Provider: parser.GitHub},
-			{Option: kickr.OptionsKickr, Provider: parser.GitLab},
+			{
+				Name:  "github_github_app",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Options: []string{kickr.GitHubOptionsKickrGitHubApp}}},
+			},
+			{
+				Name:  "github_personal_token",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Options: []string{kickr.GitHubOptionsKickrPersonalToken}}},
+			},
+			{
+				Name:  "gitlab",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Options: []string{kickr.GitLabOptionsKickr}}},
+			},
 		}
 		for _, tc := range cases {
-			name := tc.Provider
-			if option := strings.Split(tc.Option, ":"); len(option) > 1 {
-				name += "_" + option[1]
-			}
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: tc.Provider, Options: []string{tc.Option}},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
-						Platform: tc.Provider,
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -97,38 +105,34 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 	})
 
-	t.Run("success_renovate", func(t *testing.T) {
-		t.Run("github", func(t *testing.T) {
-			for _, auth := range []string{kickr.OptionsRenovateGitHubApp, kickr.OptionsRenovatePersonalToken} {
-				t.Run(auth, func(t *testing.T) {
-					// Arrange
-					config := types.Repository{
-						Kickr: kickr.Kickr{
-							CI:       &kickr.CI{Provider: parser.GitHub, Options: []string{auth}},
-							Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
-							Platform: parser.GitHub,
-						},
-					}
+	t.Run("renovate", func(t *testing.T) {
+		cases := []testcase{
+			{
+				Name:  "github_github_app",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Options: []string{kickr.GitHubOptionsRenovateGitHubApp}}},
+			},
+			{
+				Name:  "github_personal_token",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Options: []string{kickr.GitHubOptionsRenovatePersonalToken}}},
+			},
+			{
+				Name:  "gitlab",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Options: []string{kickr.GitLabOptionsRenovate}}},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+					}, tc.Kickr),
+				}
 
-					// Act & Assert
-					test(ctx, t, config)
-				})
-			}
-		})
-
-		t.Run("gitlab", func(t *testing.T) {
-			// Arrange
-			config := types.Repository{
-				Kickr: kickr.Kickr{
-					CI:       &kickr.CI{Provider: parser.GitLab, Options: []string{kickr.OptionsRenovate}},
-					Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
-					Platform: parser.GitLab,
-				},
-			}
-
-			// Act & Assert
-			test(ctx, t, config)
-		})
+				// Act & Assert
+				test(ctx, t, config)
+			})
+		}
 
 		t.Run("templates", func(t *testing.T) {
 			// Arrange
@@ -149,82 +153,73 @@ func TestGenerate_NoLang(t *testing.T) {
 		})
 	})
 
-	t.Run("success_precommit", func(t *testing.T) {
-		t.Run("enabled", func(t *testing.T) {
-			for _, provider := range []string{parser.GitHub, parser.GitLab} {
-				t.Run(provider, func(t *testing.T) {
-					// Arrange
-					config := types.Repository{
-						Kickr: kickr.Kickr{
-							CI:        &kickr.CI{Provider: provider},
-							Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-							PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
-						},
-					}
-
-					// Act & Assert
-					test(ctx, t, config)
-				})
-			}
-		})
-
-		t.Run("disabled", func(t *testing.T) {
-			for _, provider := range []string{parser.GitHub, parser.GitLab} {
-				t.Run(provider, func(t *testing.T) {
-					// Arrange
-					config := types.Repository{
-						Kickr: kickr.Kickr{
-							CI:        &kickr.CI{Provider: provider},
-							Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-							PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
-						},
-					}
-
-					// Act & Assert
-					test(ctx, t, config)
-				})
-			}
-		})
-	})
-
-	t.Run("success_release", func(t *testing.T) {
-		type testcase struct {
-			Auth     string
-			Auto     bool
-			Provider string
-		}
-
+	t.Run("precommit", func(t *testing.T) {
 		cases := []testcase{
-			{Provider: parser.GitHub},
-			{Provider: parser.GitHub, Auto: true},
-
-			{Provider: parser.GitHub, Auth: kickr.ReleaseAuthGitHubApp},
-			{Provider: parser.GitHub, Auth: kickr.ReleaseAuthGitHubToken},
-			{Provider: parser.GitHub, Auth: kickr.ReleaseAuthPersonalToken},
-
-			{Provider: parser.GitLab},
-			{Provider: parser.GitLab, Auto: true},
+			{Name: "enabled_github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "enabled_gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+			{
+				Name:  "disabled_github",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Exclude: []string{kickr.ExcludePreCommit}},
+			},
+			{
+				Name:  "disabled_gitlab",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Exclude: []string{kickr.ExcludePreCommit}},
+			},
 		}
 		for _, tc := range cases {
-			name := tc.Provider
-			if tc.Auto {
-				name += "_auto"
-			}
-			if tc.Auth != "" {
-				name += "_auth_" + tc.Auth
-			}
-
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: tc.Provider,
-							Release:  &kickr.Release{Auto: tc.Auto, Auth: tc.Auth},
-						},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-						Platform: tc.Provider,
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
+					}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, config)
+			})
+		}
+	})
+
+	t.Run("release", func(t *testing.T) {
+		cases := []testcase{
+			{
+				Name:  "github",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}}}},
+			},
+			{
+				Name:  "github_auto",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{Auto: true}}},
+			},
+			{
+				Name:  "github_auth_github_app",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{Auth: kickr.ReleaseAuthGitHubApp}}},
+			},
+			{
+				Name:  "github_auth_github_token",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{Auth: kickr.ReleaseAuthGitHubToken}}},
+			},
+			{
+				Name:  "github_auth_personal_token",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{Auth: kickr.ReleaseAuthPersonalToken}}},
+			},
+			{
+				Name:  "gitlab",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}}}},
+			},
+			{
+				Name:  "gitlab_auto",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{Auto: true}}},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -241,30 +236,36 @@ func TestGenerate_Shell(t *testing.T) {
 		return os.WriteFile(filepath.Join(destdir, "script.sh"), []byte("#!/bin/sh\n"), files.RwxRxRxRx)
 	}
 
-	t.Run("success_ci", func(t *testing.T) {
-		for _, provider := range []string{parser.GitLab, parser.GitHub} {
-			t.Run(provider, func(t *testing.T) {
+	cases := []testcase{
+		{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+		{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.Name, func(t *testing.T) {
+			// Arrange
+			config := types.Repository{
+				Kickr: merge(t, kickr.Kickr{
+					Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+				}, tc.Kickr),
+			}
+
+			// Act & Assert
+			test(ctx, t, config, shell)
+		})
+	}
+
+	t.Run("precommit", func(t *testing.T) {
+		cases := []testcase{
+			{Name: "disabled", Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}},
+			{Name: "enabled", Kickr: kickr.Kickr{}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:      &kickr.CI{Provider: provider},
+					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-					},
-				}
-
-				// Act & Assert
-				test(ctx, t, config, shell)
-			})
-		}
-	})
-
-	t.Run("success_precommit", func(t *testing.T) {
-		for _, precommit := range []bool{true, false} {
-			t.Run(strconv.FormatBool(precommit), func(t *testing.T) {
-				// Arrange
-				config := types.Repository{Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate}}}
-				if !precommit {
-					config.Exclude = append(config.Exclude, kickr.ExcludePreCommit)
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -277,7 +278,7 @@ func TestGenerate_Shell(t *testing.T) {
 func TestGenerate_Golang(t *testing.T) {
 	ctx := t.Context()
 
-	t.Run("success_cli", func(t *testing.T) {
+	t.Run("cli", func(t *testing.T) {
 		// Arrange
 		golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -307,23 +308,22 @@ func TestGenerate_Golang(t *testing.T) {
 			}
 		}
 
-		for _, provider := range []string{parser.GitLab, parser.GitHub} {
-			t.Run(provider, func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{}}}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{}}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: provider, Release: &kickr.Release{}},
-						Platform: provider,
-					},
-				}
+				config := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
 
 				// Act & Assert
-				test(ctx, t, config, golang(provider))
+				test(ctx, t, config, golang(tc.Name))
 			})
 		}
 	})
 
-	t.Run("success_library", func(t *testing.T) {
+	t.Run("library", func(t *testing.T) {
 		// Arrange
 		golang := func(platform string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -352,7 +352,90 @@ func TestGenerate_Golang(t *testing.T) {
 		}
 	})
 
-	t.Run("success_multiple_libraries", func(t *testing.T) {
+	t.Run("multiple_bin_helm", func(t *testing.T) {
+		// Arrange
+		golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
+			return func(_ context.Context, destdir string, _ *types.Repository) error {
+				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
+				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
+					return fmt.Errorf("write file: %w", err)
+				}
+
+				cmd := filepath.Join(destdir, parser.FolderCMD)
+				if err := os.MkdirAll(cmd, files.RwxRxRxRx); err != nil {
+					return fmt.Errorf("mkdir all: %w", err)
+				}
+				for _, bin := range []string{"cron-name", "job-name", "worker-name"} {
+					if err := os.MkdirAll(filepath.Join(cmd, bin), files.RwxRxRxRx); err != nil {
+						return fmt.Errorf("mkdir all: %w", err)
+					}
+					file, err := os.Create(filepath.Join(cmd, bin, parser.FileMain))
+					if err != nil {
+						return fmt.Errorf("create: %w", err)
+					}
+					if err := file.Close(); err != nil {
+						return fmt.Errorf("close: %w", err)
+					}
+				}
+
+				return nil
+			}
+		}
+
+		cases := []testcase{
+			{
+				Name: "github",
+				Kickr: kickr.Kickr{
+					GitHub: &kickr.GitHub{
+						Options: []string{
+							kickr.GitHubOptionsCodecov,
+							kickr.GitHubOptionsCodeQL,
+							kickr.GitHubOptionsHardenRunner,
+							kickr.GitHubOptionsLabeler,
+							kickr.GitHubOptionsOSSFScorecard,
+							kickr.GitHubOptionsSonarQube,
+							kickr.GitHubOptionsStepSecurityActions,
+						},
+						Release: &kickr.Release{},
+					},
+				},
+			},
+			{
+				Name: "gitlab",
+				Kickr: kickr.Kickr{
+					GitLab: &kickr.GitLab{
+						Options: []string{kickr.GitLabOptionsSonarQube},
+						Release: &kickr.Release{},
+					},
+				},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: merge(t, kickr.Kickr{
+						Docker: &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
+						Helm: &kickr.Helm{
+							Deploy:       kickr.HelmDeployManual,
+							Environments: []string{kickr.EnvironmentStaging, kickr.EnvironmentProduction},
+							Path:         "path/to/repository",
+							Publish:      kickr.HelmPublishManual,
+							Registry:     "chartmuseum.example.com",
+						},
+						Description: "A useful project description",
+						Exclude:     []string{kickr.ExcludeRenovate, kickr.ExcludeShell},
+						PreCommit:   []string{kickr.PreCommitGolangciLint},
+					}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, config, golang(tc.Name))
+			})
+		}
+	})
+
+	t.Run("multiple_libraries", func(t *testing.T) {
 		// Arrange
 		golang := func(platform string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -389,75 +472,6 @@ func TestGenerate_Golang(t *testing.T) {
 			})
 		}
 	})
-
-	t.Run("success_multiple_bin_helm", func(t *testing.T) {
-		// Arrange
-		golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
-			return func(_ context.Context, destdir string, _ *types.Repository) error {
-				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
-				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
-					return fmt.Errorf("write file: %w", err)
-				}
-
-				cmd := filepath.Join(destdir, parser.FolderCMD)
-				if err := os.MkdirAll(cmd, files.RwxRxRxRx); err != nil {
-					return fmt.Errorf("mkdir all: %w", err)
-				}
-				for _, bin := range []string{"cron-name", "job-name", "worker-name"} {
-					if err := os.MkdirAll(filepath.Join(cmd, bin), files.RwxRxRxRx); err != nil {
-						return fmt.Errorf("mkdir all: %w", err)
-					}
-					file, err := os.Create(filepath.Join(cmd, bin, parser.FileMain))
-					if err != nil {
-						return fmt.Errorf("create: %w", err)
-					}
-					if err := file.Close(); err != nil {
-						return fmt.Errorf("close: %w", err)
-					}
-				}
-
-				return nil
-			}
-		}
-
-		for _, provider := range []string{parser.GitLab, parser.GitHub} {
-			t.Run(provider, func(t *testing.T) {
-				// Arrange
-				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: provider,
-							Options: []string{
-								kickr.OptionsCodecov,
-								kickr.OptionsCodeQL,
-								kickr.OptionsHardenRunner,
-								kickr.OptionsLabeler,
-								kickr.OptionsOSSFScorecard,
-								kickr.OptionsSonarQube,
-								kickr.OptionsStepSecurityActions,
-							},
-							Release: &kickr.Release{},
-						},
-						Docker: &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
-						Helm: &kickr.Helm{
-							Deploy:       kickr.HelmDeployManual,
-							Environments: []string{kickr.EnvironmentStaging, kickr.EnvironmentProduction},
-							Path:         "path/to/repository",
-							Publish:      kickr.HelmPublishManual,
-							Registry:     "chartmuseum.example.com",
-						},
-						Description: "A useful project description",
-						Exclude:     []string{kickr.ExcludeRenovate, kickr.ExcludeShell},
-						Platform:    provider,
-						PreCommit:   []string{kickr.PreCommitGolangciLint},
-					},
-				}
-
-				// Act & Assert
-				test(ctx, t, config, golang(provider))
-			})
-		}
-	})
 }
 
 func TestGenerate_Hugo(t *testing.T) {
@@ -471,16 +485,15 @@ func TestGenerate_Hugo(t *testing.T) {
 		return file.Close()
 	}
 
-	t.Run("success_no_website", func(t *testing.T) {
-		for _, provider := range []string{parser.GitHub, parser.GitLab} {
-			t.Run(provider, func(t *testing.T) {
+	t.Run("no_website", func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: provider},
-						Platform: provider,
-					},
-				}
+				config := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
 
 				// Act & Assert
 				test(ctx, t, config, hugo)
@@ -488,35 +501,47 @@ func TestGenerate_Hugo(t *testing.T) {
 		}
 	})
 
-	t.Run("success_hosting", func(t *testing.T) {
-		type testcase struct {
-			Provider string
-			Website  *kickr.Website
-		}
-
+	t.Run("hosting", func(t *testing.T) {
 		cases := []testcase{
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+			{
+				Name:  "github_netlify_auto",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			},
+			{
+				Name:  "github_netlify",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+			},
+			{
+				Name:  "gitlab_netlify_auto",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			},
+			{
+				Name:  "gitlab_netlify",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+			},
 
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
-
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
-
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+			{
+				Name:  "github_pages_auto",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			},
+			{
+				Name:  "github_pages",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+			},
+			{
+				Name:  "gitlab_pages_auto",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			},
+			{
+				Name:  "gitlab_pages",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+			},
 		}
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.Provider, "_", tc.Website.Hosting, "_auto_", tc.Website.Auto)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: tc.Provider},
-						Platform: tc.Provider,
-						Website:  tc.Website,
-					},
+					Kickr: merge(t, kickr.Kickr{}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -529,7 +554,7 @@ func TestGenerate_Hugo(t *testing.T) {
 func TestGenerate_Node(t *testing.T) {
 	ctx := t.Context()
 
-	t.Run("success_package_managers", func(t *testing.T) {
+	t.Run("package_managers", func(t *testing.T) {
 		// Arrange
 		node := func(tc string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -543,7 +568,7 @@ func TestGenerate_Node(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: parser.GitHub},
+						GitHub:   &kickr.GitHub{},
 						Platform: parser.GitHub,
 					},
 				}
@@ -554,52 +579,29 @@ func TestGenerate_Node(t *testing.T) {
 		}
 	})
 
-	t.Run("success_library", func(t *testing.T) {
-		type testcase struct {
-			Options        []string
-			PackageManager string
-			Provider       string
-		}
-
+	t.Run("library", func(t *testing.T) {
 		// Arrange
-		node := func(tc testcase) func(ctx context.Context, destdir string, config *types.Repository) error {
-			return func(_ context.Context, destdir string, _ *types.Repository) error {
-				content := fmt.Appendf(nil, `{ "name": "kickr", "packageManager": "%s" }`+"\n", tc.PackageManager)
-				return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON), content, files.RwRR)
-			}
+		node := func(ctx context.Context, destdir string, config *types.Repository) error {
+			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
+				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6" }`+"\n"), files.RwRR)
 		}
 
 		cases := []testcase{
-			{Provider: parser.GitHub, Options: []string{kickr.OptionsRenovatePersonalToken}, PackageManager: "bun@1.1.6"},
-			{Provider: parser.GitLab, Options: []string{kickr.OptionsRenovate}, PackageManager: "bun@1.1.6"},
+			{Name: "github_bun", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{}}}},
+			{Name: "gitlab_bun", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{}}}},
 		}
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.Provider, "_", tc.PackageManager)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Options:  tc.Options,
-							Provider: tc.Provider,
-							Release:  &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}},
-						},
-						Platform: tc.Provider,
-					},
-				}
+				config := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
 
 				// Act & Assert
-				test(ctx, t, config, node(tc))
+				test(ctx, t, config, node)
 			})
 		}
 	})
 
-	t.Run("success_hosting", func(t *testing.T) {
-		type testcase struct {
-			Provider string
-			Website  *kickr.Website
-		}
-
+	t.Run("hosting", func(t *testing.T) {
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -607,29 +609,48 @@ func TestGenerate_Node(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+			{
+				Name:  "github_netlify_auto",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			},
+			{
+				Name:  "github_netlify",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+			},
+			{
+				Name:  "gitlab_netlify_auto",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
+			},
+			{
+				Name:  "gitlab_netlify",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
+			},
 
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}},
-
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
-			{Provider: parser.GitHub, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
-
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
-			{Provider: parser.GitLab, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+			{
+				Name:  "github_pages_auto",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			},
+			{
+				Name:  "github_pages",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+			},
+			{
+				Name:  "gitlab_pages_auto",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages, Auto: true}},
+			},
+			{
+				Name:  "gitlab_pages",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Website: &kickr.Website{Hosting: kickr.WebsiteHostingPages}},
+			},
 		}
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.Provider, "_", tc.Website.Hosting, "_auto_", tc.Website.Auto)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: tc.Provider},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-						Platform: tc.Provider,
-						Website:  tc.Website,
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Website: tc.Website,
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -638,12 +659,7 @@ func TestGenerate_Node(t *testing.T) {
 		}
 	})
 
-	t.Run("success_helm", func(t *testing.T) {
-		type testcase struct {
-			Helm     *kickr.Helm
-			Provider string
-		}
-
+	t.Run("helm", func(t *testing.T) {
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -651,38 +667,67 @@ func TestGenerate_Node(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Provider: parser.GitHub, Helm: &kickr.Helm{}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmDeployAuto, Environments: []string{kickr.EnvironmentReview}}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Deploy: kickr.HelmDeployManual, Environments: []string{kickr.EnvironmentIntegration}}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
-			{Provider: parser.GitHub, Helm: &kickr.Helm{Publish: kickr.HelmPublishManual}},
+			{
+				Name:  "github",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{}},
+			},
+			{
+				Name: "github_deploy_auto",
+				Kickr: kickr.Kickr{
+					GitHub: &kickr.GitHub{},
+					Helm:   &kickr.Helm{Deploy: kickr.HelmDeployAuto, Environments: []string{kickr.EnvironmentReview}},
+				},
+			},
+			{
+				Name: "github_deploy_manual",
+				Kickr: kickr.Kickr{
+					GitHub: &kickr.GitHub{},
+					Helm:   &kickr.Helm{Deploy: kickr.HelmDeployManual, Environments: []string{kickr.EnvironmentIntegration}},
+				},
+			},
+			{
+				Name:  "github_publish_auto",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			},
+			{
+				Name:  "github_publish_manual",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishManual}},
+			},
 
-			{Provider: parser.GitLab, Helm: &kickr.Helm{}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmDeployAuto, Environments: []string{kickr.EnvironmentReview}}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Deploy: kickr.HelmDeployManual, Environments: []string{kickr.EnvironmentIntegration}}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
-			{Provider: parser.GitLab, Helm: &kickr.Helm{Publish: kickr.HelmPublishManual}},
+			{
+				Name:  "gitlab",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Helm: &kickr.Helm{}},
+			},
+			{
+				Name: "gitlab_deploy_auto",
+				Kickr: kickr.Kickr{
+					GitLab: &kickr.GitLab{},
+					Helm:   &kickr.Helm{Deploy: kickr.HelmDeployAuto, Environments: []string{kickr.EnvironmentReview}},
+				},
+			},
+			{
+				Name: "gitlab_deploy_manual",
+				Kickr: kickr.Kickr{
+					GitLab: &kickr.GitLab{},
+					Helm:   &kickr.Helm{Deploy: kickr.HelmDeployManual, Environments: []string{kickr.EnvironmentIntegration}},
+				},
+			},
+			{
+				Name:  "gitlab_publish_auto",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
+			},
+			{
+				Name:  "gitlab_publish_manual",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishManual}},
+			},
 		}
 		for _, tc := range cases {
-			publish := "none"
-			if tc.Helm.Publish != "" {
-				publish = tc.Helm.Publish
-			}
-			deploy := "none"
-			if tc.Helm.Deploy != "" {
-				deploy = tc.Helm.Deploy
-			}
-
-			name := fmt.Sprint(tc.Provider, "_deploy_", deploy, "_publish_", publish)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:       &kickr.CI{Provider: tc.Provider},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-						Helm:     tc.Helm,
-						Platform: tc.Provider,
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -695,13 +740,7 @@ func TestGenerate_Node(t *testing.T) {
 func TestGenerate_Terraform(t *testing.T) {
 	ctx := t.Context()
 
-	t.Run("success_multiple_modules", func(t *testing.T) {
-		type testcase struct {
-			Apply    string
-			Engine   string
-			Provider string
-		}
-
+	t.Run("multiple_modules", func(t *testing.T) {
 		// Arrange
 		terraform := func(subdir string) func(ctx context.Context, destdir string, config *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -717,29 +756,46 @@ func TestGenerate_Terraform(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Apply: kickr.TerraformApplyManual, Engine: kickr.TerraformEngineOpenTofu, Provider: parser.GitHub},
-			{Apply: kickr.TerraformApplyAuto, Engine: kickr.TerraformEngineTerraform, Provider: parser.GitHub},
+			{
+				Name: "github_opentofu_apply_manual",
+				Kickr: kickr.Kickr{
+					GitHub:    &kickr.GitHub{Release: &kickr.Release{}},
+					Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyManual, Engine: kickr.TerraformEngineOpenTofu},
+				},
+			},
+			{
+				Name: "github_terraform_apply_auto",
+				Kickr: kickr.Kickr{
+					GitHub:    &kickr.GitHub{Release: &kickr.Release{}},
+					Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto, Engine: kickr.TerraformEngineTerraform},
+				},
+			},
 
-			{Apply: kickr.TerraformApplyManual, Engine: kickr.TerraformEngineOpenTofu, Provider: parser.GitLab},
-			{Apply: kickr.TerraformApplyAuto, Engine: kickr.TerraformEngineTerraform, Provider: parser.GitLab},
+			{
+				Name: "gitlab_opentofu_apply_manual",
+				Kickr: kickr.Kickr{
+					GitLab:    &kickr.GitLab{Release: &kickr.Release{}},
+					Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyManual, Engine: kickr.TerraformEngineOpenTofu},
+				},
+			},
+			{
+				Name: "gitlab_terraform_apply_auto",
+				Kickr: kickr.Kickr{
+					GitLab:    &kickr.GitLab{Release: &kickr.Release{}},
+					Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto, Engine: kickr.TerraformEngineTerraform},
+				},
+			},
 		}
 		for _, tc := range cases {
-			t.Run(tc.Provider+"_"+tc.Engine, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: tc.Provider,
-							Release:  &kickr.Release{},
-						},
-						Platform: tc.Provider,
+					Kickr: merge(t, kickr.Kickr{
 						Terraform: &kickr.Terraform{
-							Apply:        tc.Apply,
-							Engine:       tc.Engine,
 							Environments: []string{kickr.EnvironmentProduction},
 							Modules:      []string{"modules/one", "modules/two"},
 						},
-					},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -754,21 +810,18 @@ func TestGenerate_Terraform(t *testing.T) {
 			return os.WriteFile(filepath.Join(destdir, "main.tf"), []byte(`terraform { backend "s3" {} }`+"\n"), files.RwRR)
 		}
 
-		for _, provider := range []string{parser.GitHub, parser.GitLab} {
-			t.Run(provider, func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: provider,
-						},
+					Kickr: merge(t, kickr.Kickr{
 						PreCommit: []string{kickr.PreCommitTerraform},
-						Platform:  provider,
-						Terraform: &kickr.Terraform{
-							Apply:        kickr.TerraformApplyAuto,
-							Environments: []string{kickr.EnvironmentProduction},
-						},
-					},
+						Terraform: &kickr.Terraform{Environments: []string{kickr.EnvironmentProduction}},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -781,14 +834,9 @@ func TestGenerate_Terraform(t *testing.T) {
 func TestGenerate_MonoRepo(t *testing.T) {
 	ctx := t.Context()
 
-	type testcase struct {
-		Provider string
-		Hosting  string
-	}
-
-	golang := func(tc testcase) func(ctx context.Context, destdir string, config *types.Repository) error {
+	golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
-			gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", tc.Provider)
+			gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
 			if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
 				return fmt.Errorf("write file: %w", err)
 			}
@@ -826,26 +874,50 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 	}
 
-	t.Run("success_node_hugo_doc", func(t *testing.T) {
-		cases := []testcase{
-			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingPages},
-			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingNetlify},
-			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingPages},
-			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingNetlify},
-		}
+	cases := []testcase{
+		{
+			Name: "github_netlify",
+			Kickr: kickr.Kickr{
+				GitHub:   &kickr.GitHub{},
+				Website:  &kickr.Website{Hosting: kickr.WebsiteHostingNetlify},
+				Platform: parser.GitHub,
+			},
+		},
+		{
+			Name: "github_pages",
+			Kickr: kickr.Kickr{
+				GitHub:   &kickr.GitHub{},
+				Website:  &kickr.Website{Hosting: kickr.WebsiteHostingPages},
+				Platform: parser.GitHub,
+			},
+		},
+		{
+			Name: "gitlab_netlify",
+			Kickr: kickr.Kickr{
+				GitLab:   &kickr.GitLab{},
+				Website:  &kickr.Website{Hosting: kickr.WebsiteHostingNetlify},
+				Platform: parser.GitLab,
+			},
+		},
+		{
+			Name: "gitlab_pages",
+			Kickr: kickr.Kickr{
+				GitLab:   &kickr.GitLab{},
+				Website:  &kickr.Website{Hosting: kickr.WebsiteHostingPages},
+				Platform: parser.GitLab,
+			},
+		},
+	}
+
+	t.Run("node_hugo_doc", func(t *testing.T) {
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: tc.Provider,
-						},
-						Exclude:  []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Platform: tc.Provider,
-						Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Website: &kickr.Website{Directory: "docs"},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
@@ -854,81 +926,97 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 	})
 
-	t.Run("success_go_hugo_doc", func(t *testing.T) {
-		cases := []testcase{
-			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingPages},
-			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingNetlify},
-			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingPages},
-			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingNetlify},
-		}
+	t.Run("go_hugo_doc", func(t *testing.T) {
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: tc.Provider,
-						},
-						Exclude:  []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Platform: tc.Provider,
-						Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Website: &kickr.Website{Directory: "docs"},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc), hugo)
+				test(ctx, t, config, golang(tc.Platform), hugo)
 			})
 		}
 	})
 
-	t.Run("success_go_node_doc", func(t *testing.T) {
-		cases := []testcase{
-			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingPages},
-			{Provider: parser.GitLab, Hosting: kickr.WebsiteHostingNetlify},
-			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingPages},
-			{Provider: parser.GitHub, Hosting: kickr.WebsiteHostingNetlify},
-		}
+	t.Run("go_node_doc", func(t *testing.T) {
 		for _, tc := range cases {
-			name := fmt.Sprint(tc.Provider, "_", tc.Hosting)
-			t.Run(name, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI: &kickr.CI{
-							Provider: tc.Provider,
-						},
-						Exclude:  []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Platform: tc.Provider,
-						Website:  &kickr.Website{Hosting: tc.Hosting, Directory: "docs"},
-					},
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Website: &kickr.Website{Directory: "docs"},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc), node("docs"))
+				test(ctx, t, config, golang(tc.Platform), node("docs"))
 			})
 		}
 	})
 
-	t.Run("success_go_self_terraform", func(t *testing.T) {
+	t.Run("go_self_terraform", func(t *testing.T) {
 		cases := []testcase{
-			{Provider: parser.GitLab},
-			{Provider: parser.GitHub},
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Platform: parser.GitHub}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Platform: parser.GitLab}},
 		}
 		for _, tc := range cases {
-			t.Run(tc.Provider, func(t *testing.T) {
+			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				config := types.Repository{
-					Kickr: kickr.Kickr{
-						CI:        &kickr.CI{Provider: tc.Provider},
+					Kickr: merge(t, kickr.Kickr{
 						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
-						Platform:  tc.Provider,
 						Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineOpenTofu, Modules: []string{".terraform"}},
-					},
+					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc), terraform(".terraform"))
+				test(ctx, t, config, golang(tc.Platform), terraform(".terraform"))
+			})
+		}
+	})
+}
+
+func TestGenerate_MultiPlatforms(t *testing.T) {
+	ctx := t.Context()
+
+	t.Run("multiple_ci", func(t *testing.T) {
+		cases := []testcase{
+			{
+				Name:  "github_release",
+				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{}}},
+			},
+			{
+				Name:  "gitlab_release",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{}}},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: merge(t, kickr.Kickr{
+						GitHub:  &kickr.GitHub{},
+						GitLab:  &kickr.GitLab{},
+						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+						PreCommit: []string{
+							kickr.PreCommitAutoCommit,
+							kickr.PreCommitConventionalCommits,
+							kickr.PreCommitGitflowBranches,
+							kickr.PreCommitGolangciLint,
+							kickr.PreCommitGomodTidy,
+							kickr.PreCommitTerraform,
+						},
+					}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, config)
 			})
 		}
 	})
@@ -942,6 +1030,23 @@ func ParserInfo(_ context.Context, _ string, config *types.Repository) error {
 		ProjectPath: "kickr-dev/kickr",
 	}
 	return nil
+}
+
+// merge combines the two input kickr configurations.
+//
+// Should only be used to avoid conditions between CICD provides
+// and not as a general use case.
+func merge(t testing.TB, base, complement kickr.Kickr) kickr.Kickr {
+	require.NoError(t, mergo.Merge(&base, complement, mergo.WithAppendSlice))
+	if base.Platform == "" {
+		if base.GitHub != nil {
+			base.Platform = parser.GitHub
+		}
+		if base.GitLab != nil {
+			base.Platform = parser.GitLab
+		}
+	}
+	return base
 }
 
 // test verifies every generation with provided config, parser and t.Name folder expected results.

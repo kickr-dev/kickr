@@ -3,7 +3,6 @@ package templates
 import (
 	"path"
 	"slices"
-	"strings"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
@@ -24,7 +23,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Globs:      []string{codeql + engine.TmplExtension},
 		Out:        codeql,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsCodeQL)
+			return config.GitHub == nil || !slices.Contains(config.GitHub.Options, kickr.GitHubOptionsCodeQL)
 		},
 	})
 
@@ -34,8 +33,8 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || //nolint:revive
-				(config.CI.Release == nil && config.Docker == nil && config.Helm == nil && config.Website == nil &&
+			return config.GitHub == nil || //nolint:revive
+				(config.GitHub.Release == nil && config.Docker == nil && config.Helm == nil && config.Website == nil &&
 					(config.Terraform == nil || config.Terraform.Apply == ""))
 		},
 	})
@@ -45,7 +44,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersChevron(),
 		Globs:      engine.GlobsWithPart(integration),
 		Out:        integration,
-		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitHub) },
+		Remove:     func(config types.Repository) bool { return config.GitHub == nil },
 	})
 
 	kickra := path.Join(".github", "workflows", "kickr.yml")
@@ -54,7 +53,9 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Globs:      []string{kickra + engine.TmplExtension},
 		Out:        kickra,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, "kickr:") })
+			return config.GitHub == nil || !slices.ContainsFunc(config.GitHub.Options, func(o string) bool {
+				return o == kickr.GitHubOptionsKickrGitHubApp || o == kickr.GitHubOptionsKickrPersonalToken
+			})
 		},
 	})
 
@@ -64,7 +65,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Globs:      []string{labeler + engine.TmplExtension},
 		Out:        labeler,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsLabeler)
+			return config.GitHub == nil || !slices.Contains(config.GitHub.Options, kickr.GitHubOptionsLabeler)
 		},
 	})
 
@@ -73,7 +74,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersChevron(),
 		Globs:      []string{review + engine.TmplExtension},
 		Out:        review,
-		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitHub) },
+		Remove:     func(config types.Repository) bool { return config.GitHub == nil },
 	})
 
 	scorecard := path.Join(".github", "workflows", "scorecard.yml")
@@ -82,7 +83,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Globs:      []string{scorecard + engine.TmplExtension},
 		Out:        scorecard,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsOSSFScorecard)
+			return config.GitHub == nil || !slices.Contains(config.GitHub.Options, kickr.GitHubOptionsOSSFScorecard)
 		},
 	})
 
@@ -93,7 +94,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Out:        submission,
 		Remove: func(config types.Repository) bool {
 			_, ok := config.Languages["go"]
-			return !ok || !config.IsCI(parser.GitHub)
+			return !ok || config.GitHub == nil
 		},
 	})
 
@@ -107,7 +108,7 @@ func githubConfig() (templates []engine.Template[types.Repository]) {
 		Globs:      []string{labeler + engine.TmplExtension},
 		Out:        labeler,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsLabeler)
+			return config.GitHub == nil || !slices.Contains(config.GitHub.Options, kickr.GitHubOptionsLabeler)
 		},
 	})
 

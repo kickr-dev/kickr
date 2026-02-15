@@ -5,7 +5,6 @@ import (
 	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	"github.com/kickr-dev/kickr/pkg/kickr/v1"
@@ -18,7 +17,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{gitlabci + engine.TmplExtension},
 		Out:        gitlabci,
-		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitLab) },
+		Remove:     func(config types.Repository) bool { return config.GitLab == nil },
 	})
 
 	semrel := path.Join(".gitlab", "pipelines", "semantic-release.yml")
@@ -26,7 +25,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{semrel + engine.TmplExtension},
 		Out:        semrel,
-		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitLab) },
+		Remove:     func(config types.Repository) bool { return config.GitLab == nil },
 	})
 
 	deployment := path.Join(".gitlab", "pipelines", "deployment.yml")
@@ -35,7 +34,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitLab) || //nolint:revive
+			return config.GitLab == nil || //nolint:revive
 				(config.Docker == nil && config.Helm == nil && config.Terraform == nil && config.Website == nil)
 		},
 	})
@@ -45,7 +44,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{integration + engine.TmplExtension},
 		Out:        integration,
-		Remove:     func(config types.Repository) bool { return !config.IsCI(parser.GitLab) },
+		Remove:     func(config types.Repository) bool { return config.GitLab == nil },
 	})
 
 	kickrp := path.Join(".gitlab", "pipelines", "kickr.yml")
@@ -54,7 +53,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Globs:      []string{kickrp + engine.TmplExtension},
 		Out:        kickrp,
 		Remove: func(config types.Repository) bool {
-			return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionsKickr)
+			return config.GitLab == nil || !slices.Contains(config.GitLab.Options, kickr.GitLabOptionsKickr)
 		},
 	})
 

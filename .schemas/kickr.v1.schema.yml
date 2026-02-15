@@ -21,76 +21,6 @@ properties:
     type: string
     description: A free-form text that may be used in various cases like in the Helm chart, the Dockerfile, etc.
 
-  ci:
-    type: object
-    description: |-
-      Enable Continuous Integration / Deployment / Delivery jobs and actions (GitLab CICD, GitHub Actions)
-      with the possibility to tune some behaviors.
-    additionalProperties: false
-    required:
-      - provider
-    properties:
-      provider:
-        type: string
-        description: Continuous Integration / Deployment / Delivery provider.
-        enum: [github, gitlab]
-      options:
-        description: Available options to tune CI/CD behaviors, available options depend on the CI/CD provider.
-      release:
-        $ref: "#/$defs/ci/release"
-    allOf:
-      # specific rules for GitLab CI/CD
-      - if:
-          properties:
-            provider:
-              const: gitlab
-        then:
-          properties:
-            # don't allow GitLab CI/CD to provide 'auth' in release section
-            release:
-              properties:
-                auth: false
-            # only allow specific options with GitLab CI/CD
-            options:
-              type: array
-              items:
-                type: string
-                enum: [kickr, renovate, sonarqube]
-      # specific rules for GitHub Actions
-      - if:
-          properties:
-            provider:
-              const: github
-        then:
-          properties:
-            # allow specific options with GitHub Actions
-            options:
-              type: array
-              items:
-                type: string
-                enum:
-                  - codecov
-                  - codeql
-                  - harden-runner
-                  - kickr:github-app
-                  - kickr:personal-token
-                  - labeler
-                  - ossf-scorecard
-                  - renovate:github-app
-                  - renovate:personal-token
-                  - sonarqube
-                  - step-security-actions
-      # force with GitHub the presence of 'release.auth' when 'release' is provided
-      - if:
-          properties:
-            provider:
-              const: github
-          required: [release]
-        then:
-          properties:
-            release:
-              required: [auth]
-
   docker:
     $ref: "#/$defs/docker"
 
@@ -100,6 +30,53 @@ properties:
     items:
       type: string
       enum: [goreleaser, makefile, pre-commit, renovate, shell]
+
+  github:
+    type: object
+    description: Enable GitLab Actions with options to tune behaviors.
+    additionalProperties: false
+    properties:
+      options:
+        description: Available options to tune GitHub Actions.
+        type: array
+        items:
+          type: string
+          enum:
+            - codecov
+            - codeql
+            - harden-runner
+            - kickr:github-app
+            - kickr:personal-token
+            - labeler
+            - ossf-scorecard
+            - renovate:github-app
+            - renovate:personal-token
+            - sonarqube
+            - step-security-actions
+      release:
+        unevaluatedProperties: false
+        properties:
+          auth:
+            type: string
+            enum: [github-app, github-token, personal-token]
+            description: Authentication method to create releases through the current VCS platform API.
+        allOf:
+          - $ref: "#/$defs/ci/release"
+
+  gitlab:
+    type: object
+    description: Enable GitLab CICD with options to tune behaviors.
+    additionalProperties: false
+    properties:
+      options:
+        description: Available options to GitLab CICD jobs.
+        type: array
+        items:
+          type: string
+          enum: [kickr, renovate, sonarqube]
+      release:
+        additionalProperties: false
+        $ref: "#/$defs/ci/release"
 
   helm:
     $ref: "#/$defs/helm"
@@ -174,7 +151,32 @@ properties:
 allOf:
   # Enrich multiple objects with their CI properties
   - if:
-      required: [ci]
+      required: [github]
+    then:
+      properties:
+        docker:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/docker"
+            - $ref: "#/$defs/ci/docker"
+        helm:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/helm"
+            - $ref: "#/$defs/ci/helm"
+        terraform:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/terraform"
+            - $ref: "#/$defs/ci/terraform"
+        website:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/website"
+            - $ref: "#/$defs/ci/website"
+  # Enrich multiple objects with their CI properties
+  - if:
+      required: [gitlab]
     then:
       properties:
         docker:
@@ -375,15 +377,10 @@ $defs:
 
     release:
       type: object
-      additionalProperties: false
       description: |-
         Tune various configuration on the releasing part.
         From automatic releasing to how the authentication should be made with which semantic-release plugins.
       properties:
-        auth:
-          type: string
-          enum: [github-app, github-token, personal-token]
-          description: Authentication method to create releases through the current VCS platform API.
         auto:
           type: boolean
           description: Whether the release job should be executed automatically (or not).

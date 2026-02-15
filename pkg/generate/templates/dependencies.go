@@ -3,10 +3,8 @@ package templates
 import (
 	"path"
 	"slices"
-	"strings"
 
 	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
@@ -28,7 +26,9 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".github", "workflows", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "workflows", "renovate.yml"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, kickr.OptionsRenovate+":") })
+				return config.GitHub == nil || !slices.ContainsFunc(config.GitHub.Options, func(o string) bool {
+					return o == kickr.GitHubOptionsRenovateGitHubApp || o == kickr.GitHubOptionsRenovatePersonalToken
+				})
 			},
 		},
 		{
@@ -36,7 +36,9 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".github", "renovate.json"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitHub) || !slices.ContainsFunc(config.CI.Options, func(v string) bool { return strings.HasPrefix(v, kickr.OptionsRenovate+":") })
+				return config.GitHub == nil || !slices.ContainsFunc(config.GitHub.Options, func(o string) bool {
+					return o == kickr.GitHubOptionsRenovateGitHubApp || o == kickr.GitHubOptionsRenovatePersonalToken
+				})
 			},
 		},
 		{
@@ -44,7 +46,7 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".gitlab", "pipelines", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "pipelines", "renovate.yml"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionsRenovate)
+				return config.GitLab == nil || !slices.Contains(config.GitLab.Options, kickr.GitLabOptionsRenovate)
 			},
 		},
 		{
@@ -52,7 +54,7 @@ func Renovate() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "renovate.json"),
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitLab) || !slices.Contains(config.CI.Options, kickr.OptionsRenovate)
+				return config.GitLab == nil || !slices.Contains(config.GitLab.Options, kickr.GitLabOptionsRenovate)
 			},
 		},
 	}

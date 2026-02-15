@@ -27,7 +27,7 @@ sonar.test.inclusions={{ join "," $inclusions }}
 
 {{- if hasKey .Languages "go" }}
 sonar.coverage.exclusions=cmd/**,testutils/**,**/cobra/**,**/tests/**,**/testutils/**
-{{- if eq .CI.Provider "gitlab" }}
+{{- if .GitLab }}
 
 sonar.go.tests.reportPaths=reports/go-test.native.json
 {{- end }}

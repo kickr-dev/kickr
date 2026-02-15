@@ -11,8 +11,8 @@
 
     "extends": [
         "github>kickr-dev/renovate//configs/renovate/default.json"{{ if or $tmpl .Docker }},
-        "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or $tmpl (.IsCI "github") }},
-        "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl (.IsCI "gitlab") }},
+        "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or $tmpl .GitHub }},
+        "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl .GitLab }},
         "github>kickr-dev/renovate//configs/renovate/gitlab-ci.json"{{ end }}{{ if $gomod }},
         "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if or .HasKickr $tmpl }},
         "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if and $terraform (or (not .Terraform) (not .Terraform.Engine) (eq .Terraform.Engine "opentofu")) }},

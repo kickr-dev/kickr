@@ -16,7 +16,7 @@ jobs:
       packages: << $ghcr | ternary "write" "none" >>
       security-events: write
     steps:
-<<- if has "harden-runner" .CI.Options >>
+<<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0

@@ -4,7 +4,6 @@ import (
 	"path"
 
 	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
@@ -17,7 +16,9 @@ func SemanticRelease() []engine.Template[types.Repository] {
 			Globs:      []string{".releaserc.yml" + engine.TmplExtension},
 			Out:        ".releaserc.yml",
 			Remove: func(config types.Repository) bool {
-				return config.CI == nil || config.CI.Release == nil
+				gitlab := config.GitLab != nil && config.GitLab.Release != nil
+				github := config.GitHub != nil && config.GitHub.Release != nil
+				return !github && !gitlab
 			},
 		},
 		{
@@ -26,7 +27,7 @@ func SemanticRelease() []engine.Template[types.Repository] {
 			Out:            path.Join(".gitlab", "semrel-plugins.txt"),
 			GeneratePolicy: engine.PolicyAlways, // always generate semrel-plugins.txt
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitLab) || config.CI.Release == nil //nolint:revive
+				return config.GitLab == nil || config.GitLab.Release == nil
 			},
 		},
 	}

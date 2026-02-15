@@ -21,14 +21,16 @@
 {{- end }}
 | Older   | ❌         |
 
-## Reporting a Vulnerability
+{{- if eq .Platform "github" }}
 
-{{- if eq .VCS.Platform "github" }}
+## Reporting a Vulnerability
 
 If you discover a security vulnerability, please report it through **GitHub**'s private vulnerability [reporting system](https://{{ .VCS.ProjectHost }}/{{ .VCS.ProjectPath }}/security/advisories/new).
 {{- end }}
 
-{{- if eq .VCS.Platform "gitlab" }}
+{{- if eq .Platform "gitlab" }}
+
+## Reporting a Vulnerability
 
 If you discover a security vulnerability, please report it through a **GitLab**'s [issue](https://{{ .VCS.ProjectHost }}/{{ .VCS.ProjectPath }}/issues)
 and make sure to tick checkbox `Turn on confidentiality: Limit visibility to project members with at least the Planner role.`.

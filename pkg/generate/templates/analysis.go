@@ -4,7 +4,6 @@ import (
 	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
@@ -19,7 +18,7 @@ func CodeCov() []engine.Template[types.Repository] {
 			Globs:      []string{name + engine.TmplExtension},
 			Out:        name,
 			Remove: func(config types.Repository) bool {
-				return !config.IsCI(parser.GitHub) || !slices.Contains(config.CI.Options, kickr.OptionsCodecov)
+				return config.GitHub == nil || !slices.Contains(config.GitHub.Options, kickr.GitHubOptionsCodecov)
 			},
 		},
 	}
@@ -34,7 +33,9 @@ func Sonar() []engine.Template[types.Repository] {
 			Globs:      []string{name + engine.TmplExtension},
 			Out:        name,
 			Remove: func(config types.Repository) bool {
-				return config.CI == nil || !slices.Contains(config.CI.Options, kickr.OptionsSonarQube)
+				gitlab := config.GitLab != nil && slices.Contains(config.GitLab.Options, kickr.GitLabOptionsSonarQube)
+				github := config.GitHub != nil && slices.Contains(config.GitHub.Options, kickr.GitHubOptionsSonarQube)
+				return !github && !gitlab
 			},
 		},
 	}

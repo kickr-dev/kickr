@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"slices"
+	"sync"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/generator"
@@ -42,10 +43,12 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 		}
 		query = append(query, "dotenv")
 
-		if config.CI != nil {
-			if slices.Contains(config.CI.Options, kickr.OptionsSonarQube) {
-				query = append(query, "sonar", "sonarqube")
-			}
+		one := sync.OnceFunc(func() { query = append(query, "sonar", "sonarqube") })
+		if config.GitHub != nil && slices.Contains(config.GitHub.Options, kickr.GitHubOptionsSonarQube) {
+			one()
+		}
+		if config.GitLab != nil && slices.Contains(config.GitLab.Options, kickr.GitLabOptionsSonarQube) {
+			one()
 		}
 
 		if err := generator.DownloadGitignore(ctx, httpClient, filepath.Join(destdir, generator.FileGitignore), query...); err != nil {
