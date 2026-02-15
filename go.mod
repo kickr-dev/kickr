@@ -9,7 +9,7 @@ toolchain go1.25.7
 require (
 	github.com/charmbracelet/huh v0.8.0
 	github.com/charmbracelet/log v0.4.2
-	github.com/go-git/go-git/v5 v5.16.4
+	github.com/go-git/go-git/v5 v5.16.5
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.1
@@ -18,7 +18,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
-	gitlab.com/gitlab-org/api/client-go v1.28.1
+	gitlab.com/gitlab-org/api/client-go v1.29.0
 	helm.sh/helm/v4 v4.1.1
 )
 
