@@ -36,6 +36,13 @@ properties:
     description: Enable GitLab Actions with options to tune behaviors.
     additionalProperties: false
     properties:
+      exclude:
+        description: Available options to remove from GitHub Actions generation.
+        type: array
+        items:
+          type: string
+          enum:
+            - pre-commit
       options:
         description: Available options to tune GitHub Actions.
         type: array
@@ -68,6 +75,13 @@ properties:
     description: Enable GitLab CICD with options to tune behaviors.
     additionalProperties: false
     properties:
+      exclude:
+        description: Available options to remove from GitLab CICD generation.
+        type: array
+        items:
+          type: string
+          enum:
+            - pre-commit
       options:
         description: Available options to GitLab CICD jobs.
         type: array

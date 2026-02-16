@@ -988,12 +988,26 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 	t.Run("multiple_ci", func(t *testing.T) {
 		cases := []testcase{
 			{
-				Name:  "github_release",
-				Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{}}},
+				Name: "github_primary",
+				Kickr: kickr.Kickr{
+					GitLab: &kickr.GitLab{
+						Exclude: []string{kickr.GitLabExcludePreCommit},
+					},
+					GitHub: &kickr.GitHub{
+						Release: &kickr.Release{},
+					},
+				},
 			},
 			{
-				Name:  "gitlab_release",
-				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{}}},
+				Name: "gitlab_primary",
+				Kickr: kickr.Kickr{
+					GitLab: &kickr.GitLab{
+						Release: &kickr.Release{},
+					},
+					GitHub: &kickr.GitHub{
+						Exclude: []string{kickr.GitHubExcludePreCommit},
+					},
+				},
 			},
 		}
 		for _, tc := range cases {
@@ -1001,9 +1015,8 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 				// Arrange
 				config := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
-						GitHub:  &kickr.GitHub{},
-						GitLab:  &kickr.GitLab{},
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+						GitHub: &kickr.GitHub{},
+						GitLab: &kickr.GitLab{},
 						PreCommit: []string{
 							kickr.PreCommitAutoCommit,
 							kickr.PreCommitConventionalCommits,

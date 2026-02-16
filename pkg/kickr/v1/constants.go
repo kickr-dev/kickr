@@ -17,6 +17,14 @@ const (
 )
 
 const (
+	GitHubExcludePreCommit = "pre-commit"
+)
+
+const (
+	GitLabExcludePreCommit = "pre-commit"
+)
+
+const (
 	GitHubOptionsCodecov               = "codecov"
 	GitHubOptionsCodeQL                = "codeql"
 	GitHubOptionsHardenRunner          = "harden-runner"

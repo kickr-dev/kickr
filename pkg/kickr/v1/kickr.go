@@ -13,10 +13,9 @@ type Kickr struct {
 	// Docker defines the general Docker configuration.
 	Docker *Docker `json:"docker,omitempty" yaml:"docker,omitempty"`
 
-	// Exclude defines the list of files to exclude from generation.
+	// Exclude defines the part of Kickr generation to exclude.
 	//
 	// Enums:
-	//  - goreleaser
 	//  - makefile
 	//  - pre-commit
 	//  - renovate
@@ -123,6 +122,12 @@ type Docker struct {
 
 // GitHub enables GitHub Actions with options to tune behaviors.
 type GitHub struct {
+	// Exclude defines available options to remove from GitHub Actions generation.
+	//
+	// Enums:
+	//  - pre-commit
+	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
+
 	// Options defines available options to tune GitHub Actions.
 	//
 	// Enums:
@@ -145,6 +150,12 @@ type GitHub struct {
 
 // GitLab enables GitLab CICD with options to tune behaviors.
 type GitLab struct {
+	// Exclude defines available options to remove from GitLab CICD generation.
+	//
+	// Enums:
+	//  - pre-commit
+	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
+
 	// Options defines available options to tune GitLab CICD jobs.
 	//
 	// Enums:
@@ -234,6 +245,7 @@ type Maintainer struct {
 }
 
 // Release tunes various configuration on the releasing part.
+//
 // From automatic releasing to how the authentication should be made with which semantic-release plugins.
 type Release struct {
 	// Auth defines the authentication method to create releases through the current VCS platform API.

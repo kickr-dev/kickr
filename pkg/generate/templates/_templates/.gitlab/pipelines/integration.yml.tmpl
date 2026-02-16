@@ -6,7 +6,7 @@
 {{- $node := hasKey .Languages "node" }}
 {{- $nodemain := and $node (get .Languages "node").HasMain }}
 
-{{- $precommit := not (has "pre-commit" .Exclude) }}
+{{- $precommit := and (not (has "pre-commit" .Exclude)) (not (has "pre-commit" .GitLab.Exclude)) }}
 {{- $shell := and (not (has "shell" .Exclude)) (hasKey .Globs "shell") }}
 
 ---
