@@ -22,8 +22,7 @@ jobs:
           go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
           token: ${{ secrets.GITHUB_TOKEN }}
       # https://github.com/marketplace/actions/goreleaser-action
-      - if: ${{ hashFiles('.goreleaser.yml') != '' }}
-        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
+      - uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
         with:
           args: release --clean --config .goreleaser.yml --snapshot
         env:

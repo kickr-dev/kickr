@@ -29,7 +29,7 @@ properties:
     description: Exclude part of Kickr generation.
     items:
       type: string
-      enum: [goreleaser, makefile, pre-commit, renovate, shell]
+      enum: [makefile, pre-commit, renovate, shell]
 
   github:
     type: object

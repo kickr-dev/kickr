@@ -2,12 +2,10 @@ package templates
 
 import (
 	"path"
-	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
-	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 // Golang returns the slice of templates related to Golang generation (golangci-lint, goreleaser, etc.).
@@ -30,7 +28,7 @@ func Golang() []engine.Template[types.Repository] {
 			Globs:      []string{".goreleaser.yml" + engine.TmplExtension},
 			Out:        ".goreleaser.yml",
 			Remove: func(config types.Repository) bool {
-				return slices.Contains(config.Exclude, kickr.ExcludeGoreleaser) || noGo(config) || len(config.Clis) == 0 //nolint:revive
+				return noGo(config) || len(config.Clis) == 0 //nolint:revive
 			},
 		},
 		{

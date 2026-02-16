@@ -4,7 +4,7 @@ name: Deployment
 run-name: Deployment
 
 <<- $golang := hasKey .Languages "go" >>
-<<- $gobuild := and $golang (gt .Binaries 0) >>
+<<- $gobuild := and $golang (gt (len .Clis) 0) >>
 
 <<- $hugo := hasKey .Languages "hugo" >>
 <<- $node := hasKey .Languages "node" >>

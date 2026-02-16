@@ -10,11 +10,10 @@ const (
 )
 
 const (
-	ExcludeGoreleaser = "goreleaser"
-	ExcludeMakefile   = "makefile"
-	ExcludePreCommit  = "pre-commit"
-	ExcludeRenovate   = "renovate"
-	ExcludeShell      = "shell"
+	ExcludeMakefile  = "makefile"
+	ExcludePreCommit = "pre-commit"
+	ExcludeRenovate  = "renovate"
+	ExcludeShell     = "shell"
 )
 
 const (
