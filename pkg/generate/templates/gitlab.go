@@ -34,8 +34,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(config types.Repository) bool {
-			return config.GitLab == nil || //nolint:revive
-				(config.Docker == nil && config.Helm == nil && config.Terraform == nil && config.Website == nil)
+			return config.GitLab == nil || (config.Docker == nil && config.Helm == nil && config.Terraform == nil && config.Website == nil)
 		},
 	})
 

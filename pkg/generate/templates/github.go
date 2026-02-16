@@ -16,7 +16,7 @@ func GitHub() []engine.Template[types.Repository] {
 	return slices.Concat(githubWorkflow(), githubConfig())
 }
 
-func githubWorkflow() (templates []engine.Template[types.Repository]) {
+func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint:funlen
 	codeql := path.Join(".github", "workflows", "codeql.yml")
 	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters: engine.DelimitersChevron(),
@@ -33,9 +33,8 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) {
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(config types.Repository) bool {
-			return config.GitHub == nil || //nolint:revive
-				(config.GitHub.Release == nil && config.Docker == nil && config.Helm == nil && config.Website == nil &&
-					(config.Terraform == nil || config.Terraform.Apply == ""))
+			return config.GitHub == nil ||
+				(config.GitHub.Release == nil && config.Docker == nil && config.Helm == nil && config.Website == nil && (config.Terraform == nil || config.Terraform.Apply == ""))
 		},
 	})
 

@@ -39,18 +39,18 @@ func (k Kickr) HasTerraformApply() bool {
 
 // HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
 func (k Kickr) HasKickr() bool {
-	if k.GitHub != nil && slices.ContainsFunc(k.GitHub.Options, func(o string) bool {
-		return o == GitHubOptionsKickrGitHubApp || o == GitHubOptionsKickrPersonalToken
-	}) {
-		return true
+	for _, cond := range []bool{
+		k.GitLab != nil && slices.ContainsFunc(k.GitLab.Options, func(o string) bool {
+			return o == GitLabOptionsKickr
+		}),
+		k.GitHub != nil && slices.ContainsFunc(k.GitHub.Options, func(o string) bool {
+			return o == GitHubOptionsKickrGitHubApp || o == GitHubOptionsKickrPersonalToken
+		}),
+	} {
+		if cond {
+			return true
+		}
 	}
-
-	if k.GitLab != nil && slices.ContainsFunc(k.GitLab.Options, func(o string) bool {
-		return o == GitLabOptionsKickr
-	}) {
-		return true
-	}
-
 	return false
 }
 

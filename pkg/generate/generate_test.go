@@ -581,7 +581,7 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("library", func(t *testing.T) {
 		// Arrange
-		node := func(ctx context.Context, destdir string, config *types.Repository) error {
+		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
 				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6" }`+"\n"), files.RwRR)
 		}
@@ -1037,6 +1037,8 @@ func ParserInfo(_ context.Context, _ string, config *types.Repository) error {
 // Should only be used to avoid conditions between CICD provides
 // and not as a general use case.
 func merge(t testing.TB, base, complement kickr.Kickr) kickr.Kickr {
+	t.Helper()
+
 	require.NoError(t, mergo.Merge(&base, complement, mergo.WithAppendSlice))
 	if base.Platform == "" {
 		if base.GitHub != nil {
