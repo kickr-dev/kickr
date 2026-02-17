@@ -26,9 +26,11 @@ const (
 )
 
 func generators() []engine.Generator[types.Repository] {
+	client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
+
 	return []engine.Generator[types.Repository]{
-		generate.GeneratorGitignore(http.DefaultClient), // gitignore
-		generate.GeneratorLicense(http.DefaultClient),   // license
+		generate.GeneratorGitignore(client), // gitignore
+		generate.GeneratorLicense(client),   // license
 
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
