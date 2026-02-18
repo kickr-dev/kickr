@@ -101,6 +101,7 @@ variables:
 {{- end }}
 
   TF_FMT_ENABLED: "true"
+  TF_TRIVY_ARGS: --disable-telemetry --skip-version-check . --ignorefile .trivyignore.yaml
   TF_VALIDATE_ENABLED: "true"
 
   TF_REVIEW_ENABLED: "{{ and .HasTerraformApply (has "review" .Terraform.Environments) }}"
