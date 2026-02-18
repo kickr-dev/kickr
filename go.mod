@@ -19,7 +19,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
-	gitlab.com/gitlab-org/api/client-go v1.30.0
+	gitlab.com/gitlab-org/api/client-go v1.33.0
 	helm.sh/helm/v4 v4.1.1
 )
 
