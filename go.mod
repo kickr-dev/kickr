@@ -14,7 +14,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.1
-	github.com/kickr-dev/engine v0.0.0-20260217192844-a23ec43e89f1
+	github.com/kickr-dev/engine v0.0.0-20260219175445-d94b320c999f
 	github.com/kilianpaquier/compare v1.1.1
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
