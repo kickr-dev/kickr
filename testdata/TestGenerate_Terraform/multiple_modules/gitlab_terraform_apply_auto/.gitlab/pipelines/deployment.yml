@@ -24,9 +24,9 @@ variables:
   parallel:
     matrix:
       - TF_PROJECT_DIR: modules/one
-        TF_ENV_NAMESPACE: /modules_one
+        TF_ENVIRONMENT_NAMESPACE: /modules_one
       - TF_PROJECT_DIR: modules/two
-        TF_ENV_NAMESPACE: /modules_two
+        TF_ENVIRONMENT_NAMESPACE: /modules_two
 
 tf-tflint:
   parallel: null

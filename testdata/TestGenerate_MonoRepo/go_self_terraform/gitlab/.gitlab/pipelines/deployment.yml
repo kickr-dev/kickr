@@ -23,4 +23,4 @@ variables:
 
   TF_GITLAB_BACKEND_DISABLED: "true"
   TF_PROJECT_DIR: .terraform
-  TF_ENV_NAMESPACE: /terraform
+  TF_ENVIRONMENT_NAMESPACE: /terraform
