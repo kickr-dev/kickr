@@ -115,7 +115,7 @@ variables:
   TF_GITLAB_BACKEND_DISABLED: "{{ ne $firstnode.Specifics.Backend "http" }}"
 {{- if ne $firstnode.Directory "." }}
   TF_PROJECT_DIR: {{ $firstnode.Directory }}
-  ENV_MATRIX_NAMESPACE: /{{ $firstnode.Directory | toSlug | snakecase }}
+  TF_ENV_NAMESPACE: /{{ $firstnode.Directory | toSlug | snakecase }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -159,7 +159,7 @@ variables:
 {{- if ne .Specifics.Backend "http" }}
         TF_GITLAB_BACKEND_DISABLED: "true"
 {{- end }}
-        ENV_MATRIX_NAMESPACE: /{{ .Directory | toSlug | snakecase }}
+        TF_ENV_NAMESPACE: /{{ .Directory | toSlug | snakecase }}
 {{- end }}
 {{- end }}
 
