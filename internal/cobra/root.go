@@ -22,9 +22,7 @@ func Execute() {
 	cmd := rootCmd(&wd)
 	cmd.AddCommand(initializeCmd(&wd))
 	cmd.AddCommand(version())
-
-	generate := generateCmd(&wd, generators()...)
-	cmd.AddCommand(generate)
+	cmd.AddCommand(generateCmd(&wd, generators()...))
 
 	if err := cmd.Execute(); err != nil {
 		subcmd, _, _ := cmd.Find(os.Args[1:])

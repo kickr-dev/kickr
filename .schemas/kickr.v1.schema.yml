@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://raw.githubusercontent.com/kickr-dev/kickr/beta/.schemas/kickr.v1.schema.yaml
+$id: https://raw.githubusercontent.com/kickr-dev/kickr/beta/.schemas/kickr.v1.schema.yml
 
 title: Kickr configuration
 description: Kickr configuration file (https://github.com/kickr-dev/kickr)
