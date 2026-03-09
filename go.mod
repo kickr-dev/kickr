@@ -8,7 +8,7 @@ toolchain go1.26.1
 
 require (
 	dario.cat/mergo v1.0.2
-	github.com/charmbracelet/huh v0.8.0
+	github.com/charmbracelet/huh v1.0.0
 	github.com/charmbracelet/log v0.4.2
 	github.com/go-git/go-git/v5 v5.17.0
 	github.com/goccy/go-yaml v1.19.2
