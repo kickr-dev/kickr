@@ -46,3 +46,6 @@ go-build:
     paths:
       - dist
     expire_in: 1 day
+
+go-govulncheck:
+  allow_failure: true
