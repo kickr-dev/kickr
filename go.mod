@@ -14,7 +14,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.1
-	github.com/kickr-dev/engine v0.0.0-20260219175445-d94b320c999f
+	github.com/kickr-dev/engine v0.0.0-20260312183937-904a6742f6e7
 	github.com/kilianpaquier/compare v1.1.1
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
@@ -140,7 +140,6 @@ require (
 	github.com/xlab/treeprint v1.2.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zclconf/go-cty v1.16.3 // indirect
-	gitlab.com/gitlab-org/api/client-go v1.34.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
