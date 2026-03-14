@@ -5,17 +5,18 @@ include:
 
   # Go template
   # https://gitlab.com/to-be-continuous/golang
-  - project: to-be-continuous/golang
-    ref: 473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
-    file: templates/gitlab-ci-golang.yml
+  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
+    inputs:
+      build-mode: modules
+      ci-lint-args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
+      sbom-opts: -licenses -assert-licenses
+      test-flags: -v -coverpkg=./... -covermode=count -timeout=30s
 
 variables:
   BUILD_DIR: dist
 
-  GO_BUILD_MODE: modules
-  GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_SBOM_OPTS: -licenses -assert-licenses
-  GO_TEST_FLAGS: -v -coverpkg=./... -covermode=count -timeout=30s
+go-govulncheck:
+  allow_failure: true
 
 hugo-build:
   image: docker.io/library/debian:trixie-slim

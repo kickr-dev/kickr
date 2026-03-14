@@ -5,12 +5,9 @@ include:
 
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
-  - project: to-be-continuous/pre-commit
-    ref: 781cb6e8a6a4009a4ca29357fd6aa1a81f9867cd # 1.4.2
-    file: templates/gitlab-ci-pre-commit.yml
-
-variables:
-  PRE_COMMIT_FILE: .pre-commit-config.yaml
+  - component: gitlab.com/to-be-continuous/pre-commit/gitlab-ci-pre-commit@781cb6e8a6a4009a4ca29357fd6aa1a81f9867cd # 1.4.2
+    inputs:
+      pre-commit-file: .pre-commit-config.yaml
 
 pre-commit:
   variables:

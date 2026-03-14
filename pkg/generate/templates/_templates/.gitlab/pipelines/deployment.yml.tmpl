@@ -6,88 +6,62 @@
 {{- if or .Docker .Helm $terraform }}
 include:
 {{- if .Docker }}
-
-  # Docker template
-  # https://gitlab.com/to-be-continuous/docker
-  - project: to-be-continuous/docker
-    ref: 75ad5eaf95593bdaf6c22825cb1e761d63a3a59d # 8.0.10
-    file: templates/gitlab-ci-docker.yml
-{{- end }}
-
-{{- if .Helm }}
-
-  # Helm template
-  # https://gitlab.com/to-be-continuous/helm
-  - project: to-be-continuous/helm
-    ref: db44543168fcb80284a8a00ee967ccecac46026e # 9.2.3
-    file: templates/gitlab-ci-helm.yml
-{{- end }}
-
-{{- if $terraform }}
-
-  # Terraform template
-  # https://gitlab.com/to-be-continuous/terraform
-  - project: to-be-continuous/terraform
-    ref: d58443583d11e1ef3ac279911501de126088caaa # 9.0.0
-    file: templates/gitlab-ci-terraform.yml
-{{- end }}
-
-variables:
-{{- if .Docker }}
 {{- $registry := .Docker.Registry | default "$CI_REGISTRY" }}
 {{- $path := .Docker.Path | default "$CI_PROJECT_PATH" }}
 
-  DOCKER_RELEASE_IMAGE: "{{ $registry }}/{{ $path }}:$VERSION"
-  DOCKER_SNAPSHOT_IMAGE: "{{ $registry }}/{{ $path }}/snapshot:$VERSION"
-
-  DOCKER_BUILD_TOOL: buildah
-  DOCKER_HEALTHCHECK_DISABLED: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
-  DOCKER_BUILD_ARGS: |
-    --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
-    --build-arg GIT_COMMIT=$CI_COMMIT_SHA
-    --build-arg VERSION=$VERSION
-    --label org.opencontainers.image.created=$CI_JOB_STARTED_AT
-    --label org.opencontainers.image.ref.name=$CI_COMMIT_REF_NAME
-    --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-    --label org.opencontainers.image.version=$VERSION
-  DOCKER_RELEASE_EXTRA_TAGS: latest \\g<major>.\\g<minor> \\g<major
-  DOCKER_SEMREL_RELEASE_DISABLED: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
-  DOCKER_TRIVY_ARGS: --ignore-unfixed --exit-code 1 --exit-on-eol 1
-  TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
+  # Docker template
+  # https://gitlab.com/to-be-continuous/docker
+  - component: gitlab.com/to-be-continuous/docker/gitlab-ci-docker@75ad5eaf95593bdaf6c22825cb1e761d63a3a59d # 8.0.10
+    inputs:
+      build-args: |
+        --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
+        --build-arg GIT_COMMIT=$CI_COMMIT_SHA
+        --build-arg VERSION=$VERSION
+        --label org.opencontainers.image.created=$CI_JOB_STARTED_AT
+        --label org.opencontainers.image.ref.name=$CI_COMMIT_REF_NAME
+        --label org.opencontainers.image.revision=$CI_COMMIT_SHA
+        --label org.opencontainers.image.version=$VERSION
+      build-tool: buildah
+      healthcheck-disabled: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
+      release-extra-tags: latest \\g<major>.\\g<minor> \\g<major
+      release-image: "{{ $registry }}/{{ $path }}:$VERSION"
+      semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
+      snapshot-image: "{{ $registry }}/{{ $path }}/snapshot:$VERSION"
+      trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 {{- end }}
 
 {{- if .Helm }}
 {{- $registry := .Helm.Registry | default "oci://$CI_REGISTRY" }}
 {{- $path := .Helm.Path | default "$CI_PROJECT_PATH/charts" }}
 
-  HELM_CHART_DIR: chart/
-  HELM_SCRIPTS_DIR: chart/hooks/
-  HELM_SEMREL_RELEASE_DISABLED: "true" # version is handled manually
-  HELM_TEST_ENABLED: "false"
-
-  HELM_PACKAGE_ARGS: package --version "$VERSION" --app-version "$VERSION" --dependency-update
-  HELM_PUBLISH_METHOD: {{ .HasHelmPublish | ternary "push" "disabled" }}
-  HELM_PUBLISH_ON: {{ .HasHelmPublish | ternary "all" "none" }}
-  HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
-  HELM_PUBLISH_STRATEGY: {{ .Helm.Publish | default "none" }}
+  # Helm template
+  # https://gitlab.com/to-be-continuous/helm
+  - component: gitlab.com/to-be-continuous/helm/gitlab-ci-helm@db44543168fcb80284a8a00ee967ccecac46026e # 9.2.3
+    inputs:
+      chart-dir: chart/
+      integ-enabled: "{{ and .HasHelmDeploy (has "integration" .Helm.Environments) }}"
+      package-args: package --version "$VERSION" --app-version "$VERSION" --dependency-update
+      prod-enabled: "{{ and .HasHelmDeploy (has "production" .Helm.Environments) }}"
+      publish-method: {{ .HasHelmPublish | ternary "push" "disabled" }}
+      publish-on: {{ .HasHelmPublish | ternary "all" "none" }}
+      publish-snapshot-enabled: "false"
+      publish-strategy: {{ .Helm.Publish | default "none" }}
 {{- if .HasHelmPublish }}
-  HELM_PUBLISH_URL: {{ $registry }}/{{ trimSuffix (print "/" .VCS.ProjectName) $path }}
+      publish-url: {{ $registry }}/{{ trimSuffix (print "/" .VCS.ProjectName) $path }}
 {{- end }}
-
-  HELM_REVIEW_ENABLED: "{{ and .HasHelmDeploy (has "review" .Helm.Environments) }}"
-  HELM_INTEG_ENABLED: "{{ and .HasHelmDeploy (has "integration" .Helm.Environments) }}"
-  HELM_STAGING_ENABLED: "{{ and .HasHelmDeploy (has "staging" .Helm.Environments) }}"
-  HELM_PROD_ENABLED: "{{ and .HasHelmDeploy (has "production" .Helm.Environments) }}"
-
+      review-enabled: "{{ and .HasHelmDeploy (has "review" .Helm.Environments) }}"
+      scripts-dir: chart/hooks/
+      semrel-release-disabled: "true" # version is handled manually
+      staging-enabled: "{{ and .HasHelmDeploy (has "staging" .Helm.Environments) }}"
+      test-enabled: "false"
 {{- if .HasHelmDeploy }}
-  HELM_DEPLOY_ARGS: upgrade --install --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION"
+      deploy-args: upgrade --install --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION"
+      integ-app-name: $HELM_BASE_APP_NAME
 {{- if has "production" .Helm.Environments }}
-  HELM_PROD_DEPLOY_STRATEGY: {{ .Helm.Deploy }}
+      prod-deploy-strategy: {{ .Helm.Deploy }}
 {{- end }}
-
-  HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
-  HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$VERSION
-  HELM_STAGING_APP_NAME: $HELM_BASE_APP_NAME
+      review-app-name: $HELM_BASE_APP_NAME-$VERSION
+      staging-app-name: $HELM_BASE_APP_NAME
 {{- end }}
 {{- end }}
 
@@ -96,26 +70,26 @@ variables:
 {{- $engine := "opentofu" }}
 {{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
 
+  # Terraform template
+  # https://gitlab.com/to-be-continuous/terraform
+  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@d58443583d11e1ef3ac279911501de126088caaa # 9.0.0
+    inputs:
+      fmt-enabled: "true"
 {{- if eq $engine "opentofu" }}
-  TF_IMAGE: ghcr.io/opentofu/opentofu:latest
+      image: ghcr.io/opentofu/opentofu:latest
 {{- end }}
-
-  TF_FMT_ENABLED: "true"
-  TF_TRIVY_ARGS: --disable-telemetry --skip-version-check . --ignorefile .trivyignore.yaml
-  TF_VALIDATE_ENABLED: "true"
-
-  TF_REVIEW_ENABLED: "{{ and .HasTerraformApply (has "review" .Terraform.Environments) }}"
-  TF_INTEG_ENABLED: "{{ and .HasTerraformApply (has "integration" .Terraform.Environments) }}"
-  TF_STAGING_ENABLED: "{{ and .HasTerraformApply (has "staging" .Terraform.Environments) }}"
-  TF_PROD_ENABLED: "{{ and .HasTerraformApply (has "production" .Terraform.Environments) }}"
-
+      integ-enabled: "{{ and .HasTerraformApply (has "integration" .Terraform.Environments) }}"
+      prod-enabled: "{{ and .HasTerraformApply (has "production" .Terraform.Environments) }}"
+      review-enabled: "{{ and .HasTerraformApply (has "review" .Terraform.Environments) }}"
+      staging-enabled: "{{ and .HasTerraformApply (has "staging" .Terraform.Environments) }}"
+      trivy-args: --disable-telemetry --skip-version-check . --ignorefile .trivyignore.yaml
+      validate-enabled: "true"
 {{- if eq (len $nodes) 1 }}
 {{- $firstnode := first $nodes }}
-
-  TF_GITLAB_BACKEND_DISABLED: "{{ ne $firstnode.Specifics.Backend "http" }}"
+      gitlab-backend-disabled: "{{ ne $firstnode.Specifics.Backend "http" }}"
 {{- if ne $firstnode.Directory "." }}
-  TF_PROJECT_DIR: {{ $firstnode.Directory }}
-  TF_ENVIRONMENT_NAMESPACE: /{{ $firstnode.Directory | toSlug | snakecase }}
+      environment-namespace: /{{ $firstnode.Directory | toSlug | snakecase }}
+      project-dir: {{ $firstnode.Directory }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -123,26 +97,8 @@ variables:
 
 {{- if .Docker }}
 
-# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1224
-.docker-buildah-build:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$DOCKER_BUILD_TOOL == "buildah" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "buildah")'
-
-# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1166
-.docker-dind-build:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$DOCKER_BUILD_TOOL == "dind" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "dind")'
-
-# see https://gitlab.com/to-be-continuous/docker/-/blob/master/templates/gitlab-ci-docker.yml?ref_type=heads#L1124
-.docker-kaniko-build:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
-    - if: '$DOCKER_BUILD_TOOL == "kaniko" || ($DOCKER_BUILD_TOOL == "default" && $TBC_DEFAULT_DOCKER_BUILD_TOOL == "kaniko")'
+variables:
+  TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 {{- end }}
 
 {{- if .Website }}{{ template "static" . }}{{- end }}

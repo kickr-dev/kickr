@@ -5,17 +5,15 @@ include:
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
-  - project: to-be-continuous/node
-    ref: 9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
-    file: templates/gitlab-ci-node.yml
+  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
+    inputs:
+      build-dir: $BUILD_DIR
+      lint-enabled: "true"
+      lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+      publish-enabled: "false"
 
 variables:
   BUILD_DIR: dist
-
-  NODE_BUILD_DIR: $BUILD_DIR
-  NODE_LINT_ENABLED: "true"
-  NODE_LINT_ARGS: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
-  NODE_PUBLISH_ENABLED: "false"
 
 node-audit:
   allow_failure: true

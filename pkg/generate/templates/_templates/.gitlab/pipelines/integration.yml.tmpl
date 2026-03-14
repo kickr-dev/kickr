@@ -15,98 +15,73 @@ include:
 
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
-  - project: to-be-continuous/pre-commit
-    ref: 781cb6e8a6a4009a4ca29357fd6aa1a81f9867cd # 1.4.2
-    file: templates/gitlab-ci-pre-commit.yml
+  - component: gitlab.com/to-be-continuous/pre-commit/gitlab-ci-pre-commit@781cb6e8a6a4009a4ca29357fd6aa1a81f9867cd # 1.4.2
+    inputs:
+      pre-commit-file: .pre-commit-config.yaml
 {{- end }}
 
 {{- if $shell }}
 
   # Bash template
   # https://gitlab.com/to-be-continuous/bash
-  - project: to-be-continuous/bash
-    ref: 1a8caffe3c41e11722b09db3cb694ea621ee5808 # 3.9.2
-    file: /templates/gitlab-ci-bash.yml
+  - component: gitlab.com/to-be-continuous/bash/gitlab-ci-bash@1a8caffe3c41e11722b09db3cb694ea621ee5808 # 3.9.2
+    inputs:
+      bats-enabled: "false"
+      shellcheck-files: "**/*.*sh"
 {{- end }}
 
 {{- if $golang }}
 
   # Go template
   # https://gitlab.com/to-be-continuous/golang
-  - project: to-be-continuous/golang
-    ref: 473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
-    file: templates/gitlab-ci-golang.yml
-{{- end }}
-
-{{- if $node }}
-
-  # Node.js template
-  # https://gitlab.com/to-be-continuous/node
-  - project: to-be-continuous/node
-    ref: 9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
-    file: templates/gitlab-ci-node.yml
-{{- end }}
-
-{{- if has "sonarqube" .GitLab.Options }}
-
-  # SonarQube template
-  # https://gitlab.com/to-be-continuous/sonar
-  - project: to-be-continuous/sonar
-    ref: d634d32af33537fd47106ada357051f1abb136ca # 5.0.2
-    file: "templates/gitlab-ci-sonar.yml"
-{{- end }}
-
-variables:
-{{- if or $hugo $nodemain }}
-  BUILD_DIR: dist
-{{- end }}
-
-{{- if $precommit }}
-  PRE_COMMIT_FILE: .pre-commit-config.yaml
-{{- end }}
-
-{{- if $shell }}
-  BASH_SHELLCHECK_FILES: "**/*.*sh"
-  BASH_BATS_ENABLED: "false"
-{{- end }}
-
-{{- if $golang }}
-{{- $specifics := get .Languages "go" }}
-
-  GO_BUILD_MODE: modules
-  GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_SBOM_OPTS: -licenses -assert-licenses
-  GO_TEST_FLAGS: -v -coverpkg=./... -covermode=count -timeout=30s
+  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
+    inputs:
+      build-mode: modules
+      ci-lint-args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
+      sbom-opts: -licenses -assert-licenses
+      test-flags: -v -coverpkg=./... -covermode=count -timeout=30s
 {{- if and $golang (gt .Binaries 0) }}
-  GO_TEST_IMAGE: $GO_IMAGE
+      test-image: $GO_IMAGE
 {{- end }}
 {{- end }}
 
 {{- if $node }}
 {{- $nodes := get .Languages "node" }}
 
-  NODE_BUILD_DIR: $BUILD_DIR
-  NODE_LINT_ENABLED: "true"
-  NODE_LINT_ARGS: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
-
+  # Node.js template
+  # https://gitlab.com/to-be-continuous/node
+  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
+    inputs:
+      build-dir: $BUILD_DIR
+      lint-enabled: "true"
+      lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
 {{- if eq (len $nodes) 1 }}
 {{- $firstnode := first $nodes }}
 {{- if ne $firstnode.Directory "." }}
-
-  NODE_PROJECT_DIR: {{ $firstnode.Directory }}
+      project-dir: {{ $firstnode.Directory }}
 {{- end }}
-  NODE_PUBLISH_ENABLED: "{{ and (not .GitLab.Release) (not $firstnode.Specifics.Private) }}"
+      publish-enabled: "{{ and (not .GitLab.Release) (not $firstnode.Specifics.Private) }}"
 {{- end }}
 {{- end }}
 
 {{- if has "sonarqube" .GitLab.Options }}
 
-  SONAR_BASE_ARGS: |
-    -Dsonar.properties=sonar.properties
-    -Dsonar.links.homepage=$CI_PROJECT_URL
-    -Dsonar.links.ci=$CI_PROJECT_URL/-/pipelines
-    -Dsonar.links.issue=$CI_PROJECT_URL/-/issues
-  SONAR_QUALITY_GATE_ENABLED: "true"
+  # SonarQube template
+  # https://gitlab.com/to-be-continuous/sonar
+  - component: gitlab.com/to-be-continuous/sonar/gitlab-ci-sonar@d634d32af33537fd47106ada357051f1abb136ca # 5.0.2
+    inputs:
+      base-args: |
+        -Dsonar.properties=sonar.properties
+        -Dsonar.links.homepage=$CI_PROJECT_URL
+        -Dsonar.links.ci=$CI_PROJECT_URL/-/pipelines
+        -Dsonar.links.issue=$CI_PROJECT_URL/-/issues
+      quality-gate-enabled: "true"
+{{- end }}
+
+{{- if or $hugo $nodemain }}
+
+variables:
+  BUILD_DIR: dist
 {{- end }}
 
 {{- if and $precommit (or (has "conventional-commits" .PreCommit) (has "gitflow-branches" .PreCommit)) }}
@@ -128,6 +103,10 @@ pre-commit:
 {{- end }}
 
 {{- if $golang }}
+
+go-govulncheck:
+  allow_failure: true
+
 {{- if gt (len .Clis) 0 }}
 
 go-build:
@@ -137,8 +116,6 @@ go-build:
   needs:
     - semantic-release-info
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
     # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
     - if: '$GO_TEST_IMAGE != ""'
   script:
@@ -151,8 +128,7 @@ go-build:
 {{- else if gt .Binaries 0 }}
 
 go-build:
-  rules:
-    - when: never
+  rules: [when: never]
 {{- end }}
 {{- end }}
 

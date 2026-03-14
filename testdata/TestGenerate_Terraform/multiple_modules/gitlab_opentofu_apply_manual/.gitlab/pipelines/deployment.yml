@@ -5,21 +5,16 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - project: to-be-continuous/terraform
-    ref: d58443583d11e1ef3ac279911501de126088caaa # 9.0.0
-    file: templates/gitlab-ci-terraform.yml
-
-variables:
-  TF_IMAGE: ghcr.io/opentofu/opentofu:latest
-
-  TF_FMT_ENABLED: "true"
-  TF_TRIVY_ARGS: --disable-telemetry --skip-version-check . --ignorefile .trivyignore.yaml
-  TF_VALIDATE_ENABLED: "true"
-
-  TF_REVIEW_ENABLED: "false"
-  TF_INTEG_ENABLED: "false"
-  TF_STAGING_ENABLED: "false"
-  TF_PROD_ENABLED: "true"
+  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@d58443583d11e1ef3ac279911501de126088caaa # 9.0.0
+    inputs:
+      fmt-enabled: "true"
+      image: ghcr.io/opentofu/opentofu:latest
+      integ-enabled: "false"
+      prod-enabled: "true"
+      review-enabled: "false"
+      staging-enabled: "false"
+      trivy-args: --disable-telemetry --skip-version-check . --ignorefile .trivyignore.yaml
+      validate-enabled: "true"
 
 .tf-base:
   parallel:

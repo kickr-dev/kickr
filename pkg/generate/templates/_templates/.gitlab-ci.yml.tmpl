@@ -2,7 +2,29 @@
 
 ---
 include:
-  - local: .gitlab/pipelines/*.yml
+  - local: .gitlab/pipelines/semantic-release.yml
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        when: never
+      - when: always
+  - local: .gitlab/pipelines/integration.yml
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        when: never
+      - when: always
+{{- if or .Docker .Helm .Terraform .Website }}
+  - local: .gitlab/pipelines/deployment.yml
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        when: never
+      - when: always
+{{- end }}
+{{- if has "kickr" .GitLab.Options }}
+  - local: .gitlab/pipelines/kickr.yml
+{{- end }}
+{{- if has "renovate" .GitLab.Options }}
+  - local: .gitlab/pipelines/renovate.yml
+{{- end }}
 
 # secret variables
 # (define the variables below in your GitLab group/project variables)

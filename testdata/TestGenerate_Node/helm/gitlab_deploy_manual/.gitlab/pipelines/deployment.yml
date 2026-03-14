@@ -5,29 +5,22 @@ include:
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - project: to-be-continuous/helm
-    ref: db44543168fcb80284a8a00ee967ccecac46026e # 9.2.3
-    file: templates/gitlab-ci-helm.yml
-
-variables:
-
-  HELM_CHART_DIR: chart/
-  HELM_SCRIPTS_DIR: chart/hooks/
-  HELM_SEMREL_RELEASE_DISABLED: "true" # version is handled manually
-  HELM_TEST_ENABLED: "false"
-
-  HELM_PACKAGE_ARGS: package --version "$VERSION" --app-version "$VERSION" --dependency-update
-  HELM_PUBLISH_METHOD: disabled
-  HELM_PUBLISH_ON: none
-  HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
-  HELM_PUBLISH_STRATEGY: none
-
-  HELM_REVIEW_ENABLED: "false"
-  HELM_INTEG_ENABLED: "true"
-  HELM_STAGING_ENABLED: "false"
-  HELM_PROD_ENABLED: "false"
-  HELM_DEPLOY_ARGS: upgrade --install --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION"
-
-  HELM_INTEG_APP_NAME: $HELM_BASE_APP_NAME
-  HELM_REVIEW_APP_NAME: $HELM_BASE_APP_NAME-$VERSION
-  HELM_STAGING_APP_NAME: $HELM_BASE_APP_NAME
+  - component: gitlab.com/to-be-continuous/helm/gitlab-ci-helm@db44543168fcb80284a8a00ee967ccecac46026e # 9.2.3
+    inputs:
+      chart-dir: chart/
+      integ-enabled: "true"
+      package-args: package --version "$VERSION" --app-version "$VERSION" --dependency-update
+      prod-enabled: "false"
+      publish-method: disabled
+      publish-on: none
+      publish-snapshot-enabled: "false"
+      publish-strategy: none
+      review-enabled: "false"
+      scripts-dir: chart/hooks/
+      semrel-release-disabled: "true" # version is handled manually
+      staging-enabled: "false"
+      test-enabled: "false"
+      deploy-args: upgrade --install --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION"
+      integ-app-name: $HELM_BASE_APP_NAME
+      review-app-name: $HELM_BASE_APP_NAME-$VERSION
+      staging-app-name: $HELM_BASE_APP_NAME

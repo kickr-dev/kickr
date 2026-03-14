@@ -5,25 +5,19 @@ include:
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - project: to-be-continuous/helm
-    ref: db44543168fcb80284a8a00ee967ccecac46026e # 9.2.3
-    file: templates/gitlab-ci-helm.yml
-
-variables:
-
-  HELM_CHART_DIR: chart/
-  HELM_SCRIPTS_DIR: chart/hooks/
-  HELM_SEMREL_RELEASE_DISABLED: "true" # version is handled manually
-  HELM_TEST_ENABLED: "false"
-
-  HELM_PACKAGE_ARGS: package --version "$VERSION" --app-version "$VERSION" --dependency-update
-  HELM_PUBLISH_METHOD: push
-  HELM_PUBLISH_ON: all
-  HELM_PUBLISH_SNAPSHOT_ENABLED: "false"
-  HELM_PUBLISH_STRATEGY: manual
-  HELM_PUBLISH_URL: oci://$CI_REGISTRY/$CI_PROJECT_PATH/charts
-
-  HELM_REVIEW_ENABLED: "false"
-  HELM_INTEG_ENABLED: "false"
-  HELM_STAGING_ENABLED: "false"
-  HELM_PROD_ENABLED: "false"
+  - component: gitlab.com/to-be-continuous/helm/gitlab-ci-helm@db44543168fcb80284a8a00ee967ccecac46026e # 9.2.3
+    inputs:
+      chart-dir: chart/
+      integ-enabled: "false"
+      package-args: package --version "$VERSION" --app-version "$VERSION" --dependency-update
+      prod-enabled: "false"
+      publish-method: push
+      publish-on: all
+      publish-snapshot-enabled: "false"
+      publish-strategy: manual
+      publish-url: oci://$CI_REGISTRY/$CI_PROJECT_PATH/charts
+      review-enabled: "false"
+      scripts-dir: chart/hooks/
+      semrel-release-disabled: "true" # version is handled manually
+      staging-enabled: "false"
+      test-enabled: "false"

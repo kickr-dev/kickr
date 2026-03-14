@@ -5,30 +5,28 @@ include:
 
   # Go template
   # https://gitlab.com/to-be-continuous/golang
-  - project: to-be-continuous/golang
-    ref: 473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
-    file: templates/gitlab-ci-golang.yml
+  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
+    inputs:
+      build-mode: modules
+      ci-lint-args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
+      sbom-opts: -licenses -assert-licenses
+      test-flags: -v -coverpkg=./... -covermode=count -timeout=30s
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
-  - project: to-be-continuous/node
-    ref: 9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
-    file: templates/gitlab-ci-node.yml
+  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
+    inputs:
+      build-dir: $BUILD_DIR
+      lint-enabled: "true"
+      lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+      project-dir: docs
+      publish-enabled: "false"
 
 variables:
   BUILD_DIR: dist
 
-  GO_BUILD_MODE: modules
-  GO_CI_LINT_ARGS: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
-  GO_SBOM_OPTS: -licenses -assert-licenses
-  GO_TEST_FLAGS: -v -coverpkg=./... -covermode=count -timeout=30s
-
-  NODE_BUILD_DIR: $BUILD_DIR
-  NODE_LINT_ENABLED: "true"
-  NODE_LINT_ARGS: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
-
-  NODE_PROJECT_DIR: docs
-  NODE_PUBLISH_ENABLED: "false"
+go-govulncheck:
+  allow_failure: true
 
 node-audit:
   allow_failure: true
