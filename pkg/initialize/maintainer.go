@@ -5,7 +5,7 @@ import (
 	"net/mail"
 	"net/url"
 
-	"github.com/charmbracelet/huh"
+	huh "charm.land/huh/v2"
 	engine "github.com/kickr-dev/engine/pkg"
 
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
