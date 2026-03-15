@@ -8,8 +8,8 @@ toolchain go1.26.1
 
 require (
 	charm.land/huh/v2 v2.0.1
+	charm.land/log/v2 v2.0.0
 	dario.cat/mergo v1.0.2
-	github.com/charmbracelet/log v1.0.0
 	github.com/go-git/go-git/v5 v5.17.0
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
@@ -40,16 +40,13 @@ require (
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
-	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/bluekeyes/go-gitdiff v0.8.1 // indirect
 	github.com/catppuccin/go v0.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
-	github.com/charmbracelet/lipgloss v1.1.0 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20260205113103-524a6607adb8 // indirect
 	github.com/charmbracelet/x/ansi v0.11.6 // indirect
-	github.com/charmbracelet/x/cellbuf v0.0.15 // indirect
 	github.com/charmbracelet/x/exp/ordered v0.1.0 // indirect
 	github.com/charmbracelet/x/exp/strings v0.0.0-20250814162307-57b675fecd71 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
@@ -119,7 +116,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
-	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect

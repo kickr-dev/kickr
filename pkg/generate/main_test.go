@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/charmbracelet/log"
+	log "charm.land/log/v2"
 	engine "github.com/kickr-dev/engine/pkg"
 )
 

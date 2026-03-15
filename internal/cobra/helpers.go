@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/log"
+	log "charm.land/log/v2"
 	"github.com/spf13/cobra"
 )
 
