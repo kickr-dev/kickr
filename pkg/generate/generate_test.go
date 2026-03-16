@@ -583,7 +583,7 @@ func TestGenerate_Node(t *testing.T) {
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
-				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6" }`+"\n"), files.RwRR)
+				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
 		}
 
 		cases := []testcase{

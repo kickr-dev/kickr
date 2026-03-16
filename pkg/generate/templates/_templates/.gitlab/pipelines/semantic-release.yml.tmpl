@@ -4,6 +4,7 @@
 {{- $gobuild := and $golang (gt .Binaries 0) }}
 
 {{- $node := hasKey .Languages "node" }}
+{{- $nodemain := and $node (get .Languages "node").HasMain }}
 
 ---
 include:
@@ -81,6 +82,7 @@ semantic-release-info:
 
 {{- $dependencies := list }}
 {{- if $gobuild }}{{- $dependencies = append $dependencies "go-build" }}{{- end }}
+{{- if $nodemain }}{{- $dependencies = append $dependencies "node-build" }}{{- end }}
 
 semantic-release:
   interruptible: false
@@ -91,3 +93,8 @@ semantic-release:
 {{- end }}
 {{- end }}
 {{- end }}
+
+semantic-release:dry-run:
+  extends: semantic-release
+  variables:
+    SEMREL_DRY_RUN: "true"

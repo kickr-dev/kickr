@@ -28,3 +28,8 @@ semantic-release-info:
     - echo "SEMREL_INFO_NEXT_VERSION=v${DESCRIBE#v}" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
     - echo "SEMREL_INFO_NEXT_VERSION_TYPE=build" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
     - cat "$SEMREL_CONFIG_DIR/semrel.out.env"
+
+semantic-release:dry-run:
+  extends: semantic-release
+  variables:
+    SEMREL_DRY_RUN: "true"

@@ -18,6 +18,9 @@ include:
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
       publish-enabled: "false"
 
+variables:
+  BUILD_DIR: dist
+
 node-audit:
   allow_failure: true
 
