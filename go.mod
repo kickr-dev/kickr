@@ -7,7 +7,7 @@ toolchain go1.26.1
 // replace github.com/kickr-dev/engine => ../engine
 
 require (
-	charm.land/huh/v2 v2.0.1
+	charm.land/huh/v2 v2.0.3
 	charm.land/log/v2 v2.0.0
 	dario.cat/mergo v1.0.2
 	github.com/go-git/go-git/v5 v5.17.0
