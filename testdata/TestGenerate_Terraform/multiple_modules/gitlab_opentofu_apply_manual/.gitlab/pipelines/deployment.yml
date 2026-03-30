@@ -5,7 +5,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@d58443583d11e1ef3ac279911501de126088caaa # 9.0.0
+  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
     inputs:
       fmt-enabled: "true"
       image: ghcr.io/opentofu/opentofu:latest
@@ -13,16 +13,16 @@ include:
       prod-enabled: "true"
       review-enabled: "false"
       staging-enabled: "false"
-      trivy-args: --disable-telemetry --skip-version-check . --ignorefile .trivyignore.yaml
+      trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
       validate-enabled: "true"
 
 .tf-base:
   parallel:
     matrix:
-      - TF_PROJECT_DIR: modules/one
-        TF_ENVIRONMENT_NAMESPACE: /modules_one
-      - TF_PROJECT_DIR: modules/two
-        TF_ENVIRONMENT_NAMESPACE: /modules_two
+      - TF_ENVIRONMENT_NAMESPACE: /modules-one
+        TF_PROJECT_DIR: modules/one
+      - TF_ENVIRONMENT_NAMESPACE: /modules-two
+        TF_PROJECT_DIR: modules/two
 
 tf-tflint:
   parallel: null

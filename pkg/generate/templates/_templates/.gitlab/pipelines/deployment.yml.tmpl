@@ -72,7 +72,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@d58443583d11e1ef3ac279911501de126088caaa # 9.0.0
+  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
     inputs:
       fmt-enabled: "true"
 {{- if eq $engine "opentofu" }}
@@ -82,13 +82,13 @@ include:
       prod-enabled: "{{ and .HasTerraformApply (has "production" .Terraform.Environments) }}"
       review-enabled: "{{ and .HasTerraformApply (has "review" .Terraform.Environments) }}"
       staging-enabled: "{{ and .HasTerraformApply (has "staging" .Terraform.Environments) }}"
-      trivy-args: --disable-telemetry --skip-version-check . --ignorefile .trivyignore.yaml
+      trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
       validate-enabled: "true"
 {{- if eq (len $nodes) 1 }}
 {{- $firstnode := first $nodes }}
       gitlab-backend-disabled: "{{ ne $firstnode.Specifics.Backend "http" }}"
 {{- if ne $firstnode.Directory "." }}
-      environment-namespace: /{{ $firstnode.Directory | toSlug | snakecase }}
+      environment-namespace: /{{ $firstnode.Directory | toSlug }}
       project-dir: {{ $firstnode.Directory }}
 {{- end }}
 {{- end }}
@@ -105,21 +105,18 @@ variables:
 
 {{- if and $terraform .HasTerraformApply }}
 {{- $nodes := get .Languages "terraform" }}
-{{- if ne (len $nodes) 1 }}
+{{- if gt (len $nodes) 1 }}
 
 .tf-base:
   parallel:
     matrix:
 {{- range $nodes }}
-      - TF_PROJECT_DIR: {{ .Directory }}
+      - TF_ENVIRONMENT_NAMESPACE: /{{ .Directory | toSlug }}
+        TF_PROJECT_DIR: {{ .Directory }}
 {{- if ne .Specifics.Backend "http" }}
         TF_GITLAB_BACKEND_DISABLED: "true"
 {{- end }}
-        TF_ENVIRONMENT_NAMESPACE: /{{ .Directory | toSlug | snakecase }}
 {{- end }}
-{{- end }}
-
-{{- if gt (len $nodes) 1 }}
 
 tf-tflint:
   parallel: null

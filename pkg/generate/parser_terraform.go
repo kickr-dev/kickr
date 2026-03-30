@@ -36,9 +36,9 @@ var backends = []string{"http", "s3"}
 func ParserTerraform(_ context.Context, destdir string, config *types.Repository) error {
 	// terraform module at root
 	if tfconfig.IsModuleDir(destdir) {
-		tfmodule, dErr := tfconfig.LoadModule(destdir)
-		if dErr != nil {
-			return fmt.Errorf("load module: %w", dErr)
+		tfmodule, diags := tfconfig.LoadModule(destdir)
+		if diags.HasErrors() {
+			return fmt.Errorf("load module: %w", diags)
 		}
 
 		backend, err := terraformBackend(destdir)
@@ -70,9 +70,9 @@ func ParserTerraform(_ context.Context, destdir string, config *types.Repository
 			continue
 		}
 
-		tfmodule, dErr := tfconfig.LoadModule(filepath.Join(destdir, module))
-		if dErr != nil {
-			errs = append(errs, fmt.Errorf("load module '%s': %w", module, dErr))
+		tfmodule, diags := tfconfig.LoadModule(filepath.Join(destdir, module))
+		if diags.HasErrors() {
+			errs = append(errs, fmt.Errorf("load module '%s': %w", module, diags))
 			continue
 		}
 
