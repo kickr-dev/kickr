@@ -14,5 +14,6 @@ include:
       review-enabled: "false"
       staging-enabled: "false"
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
+      trivy-disabled: "true"
       validate-enabled: "true"
       gitlab-backend-disabled: "true"

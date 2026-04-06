@@ -28,6 +28,7 @@ include:
       semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
       snapshot-image: "{{ $registry }}/{{ $path }}/snapshot:$VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
+      trivy-disabled: "true"
 {{- end }}
 
 {{- if .Helm }}
@@ -83,6 +84,7 @@ include:
       review-enabled: "{{ and .HasTerraformApply (has "review" .Terraform.Environments) }}"
       staging-enabled: "{{ and .HasTerraformApply (has "staging" .Terraform.Environments) }}"
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
+      trivy-disabled: "true"
       validate-enabled: "true"
 {{- if eq (len $nodes) 1 }}
 {{- $firstnode := first $nodes }}

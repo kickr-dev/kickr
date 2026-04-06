@@ -22,6 +22,7 @@ include:
       semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
       snapshot-image: "registry.example.com/path/to/registry/snapshot:$VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
+      trivy-disabled: "true"
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
