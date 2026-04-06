@@ -86,9 +86,11 @@ include:
       validate-enabled: "true"
 {{- if eq (len $nodes) 1 }}
 {{- $firstnode := first $nodes }}
-      gitlab-backend-disabled: "{{ ne $firstnode.Specifics.Backend "http" }}"
+      gitlab-backend-disabled: "{{ not $nodes.HasGitLabBackend }}"
+{{- if $nodes.HasGitLabBackend }}
+      environment-namespace: /{{ $firstnode.Directory | toSlug | default "root" }}
+{{- end }}
 {{- if ne $firstnode.Directory "." }}
-      environment-namespace: /{{ $firstnode.Directory | toSlug }}
       project-dir: {{ $firstnode.Directory }}
 {{- end }}
 {{- end }}
@@ -105,9 +107,13 @@ variables:
 
 {{- if and $terraform .HasTerraformApply }}
 {{- $nodes := get .Languages "terraform" }}
-{{- if gt (len $nodes) 1 }}
 
 .tf-base:
+{{- if $nodes.HasGitLabBackend }}
+  variables:
+    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state${TF_ENVIRONMENT_NAMESPACE}_${ENV_TYPE}
+{{- end }}
+{{- if gt (len $nodes) 1 }}
   parallel:
     matrix:
 {{- range $nodes }}

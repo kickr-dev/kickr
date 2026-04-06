@@ -25,6 +25,21 @@ type TerraformModule struct {
 	Backend string
 }
 
+// MonoTerraforms is an alias of ]types.Mono[TerraformModule] adding various helper methods
+// to work with multiple terraform modules in the same repository.
+type MonoTerraforms []types.Mono[TerraformModule]
+
+// HasGitLabBackend returns truthy in case at least one of the terraform modules
+// within the repository uses GitLab as its state backend.
+func (mt MonoTerraforms) HasGitLabBackend() bool {
+	for _, node := range mt {
+		if node.Specifics.Backend == "http" {
+			return true
+		}
+	}
+	return false
+}
+
 var backends = []string{"http", "s3"}
 
 // ParserTerraform detects the presence of a terraform module with its 'main.tf' at destdir base directory
@@ -49,7 +64,7 @@ func ParserTerraform(_ context.Context, destdir string, config *types.Repository
 			engine.GetLogger().Warnf("backend '%s' doesn't have an associated behavior", backend)
 		}
 
-		config.SetLanguage("terraform", []types.Mono[TerraformModule]{{
+		config.SetLanguage("terraform", MonoTerraforms{{
 			Directory: ".",
 			Specifics: TerraformModule{Module: tfmodule, Backend: backend},
 		}})
@@ -62,7 +77,7 @@ func ParserTerraform(_ context.Context, destdir string, config *types.Repository
 
 	var (
 		errs    = make([]error, 0, len(config.Terraform.Modules))
-		modules = make([]types.Mono[TerraformModule], 0, len(config.Terraform.Modules))
+		modules = make(MonoTerraforms, 0, len(config.Terraform.Modules))
 	)
 	for _, module := range config.Terraform.Modules {
 		if !tfconfig.IsModuleDir(filepath.Join(destdir, module)) {

@@ -44,8 +44,8 @@ type MonoNodes []types.Mono[parser.PackageJSON]
 // HasMain returns truthy in case at least one node repository in the monorepository has a 'main' property.
 //
 // This helps knowing whether a node build job shall be generated or not.
-func (nodes MonoNodes) HasMain() bool {
-	for _, node := range nodes {
+func (mn MonoNodes) HasMain() bool {
+	for _, node := range mn {
 		if node.Specifics.Main != nil {
 			return true
 		}
@@ -54,9 +54,9 @@ func (nodes MonoNodes) HasMain() bool {
 }
 
 // HasMultipleManagers returns an error in case multiple package managers exist in the node monorepository.
-func (nodes MonoNodes) HasMultipleManagers() error {
-	managers := make(map[string]struct{}, len(nodes))
-	for _, mono := range nodes {
+func (mn MonoNodes) HasMultipleManagers() error {
+	managers := make(map[string]struct{}, len(mn))
+	for _, mono := range mn {
 		manager, _, _ := strings.Cut(mono.Specifics.PackageManager, "@")
 		managers[manager] = struct{}{}
 	}
@@ -67,9 +67,9 @@ func (nodes MonoNodes) HasMultipleManagers() error {
 }
 
 // HasMultipleRegistries returns an error in case multiple registries exist in the node monorepository.
-func (nodes MonoNodes) HasMultipleRegistries() error {
-	registries := make(map[string]struct{}, len(nodes))
-	for _, mono := range nodes {
+func (mn MonoNodes) HasMultipleRegistries() error {
+	registries := make(map[string]struct{}, len(mn))
+	for _, mono := range mn {
 		if mono.Specifics.Private {
 			continue
 		}

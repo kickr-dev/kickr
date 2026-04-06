@@ -94,7 +94,7 @@ func TestParserTerraform(t *testing.T) {
 		config := types.Repository{}
 		expected := types.Repository{
 			Languages: map[string]any{
-				"terraform": []types.Mono[generate.TerraformModule]{
+				"terraform": generate.MonoTerraforms{
 					{
 						Directory: ".",
 						Specifics: generate.TerraformModule{
@@ -154,7 +154,7 @@ func TestParserTerraform(t *testing.T) {
 				Terraform: &kickr.Terraform{Modules: []string{"module", "another_module"}},
 			},
 			Languages: map[string]any{
-				"terraform": []types.Mono[generate.TerraformModule]{
+				"terraform": generate.MonoTerraforms{
 					{
 						Directory: "module",
 						Specifics: generate.TerraformModule{

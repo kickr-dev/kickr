@@ -16,6 +16,8 @@ include:
       validate-enabled: "true"
 
 .tf-base:
+  variables:
+    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state${TF_ENVIRONMENT_NAMESPACE}_${ENV_TYPE}
   parallel:
     matrix:
       - TF_ENVIRONMENT_NAMESPACE: /modules-one

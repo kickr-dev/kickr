@@ -16,5 +16,4 @@ include:
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
       validate-enabled: "true"
       gitlab-backend-disabled: "true"
-      environment-namespace: /terraform
       project-dir: .terraform
