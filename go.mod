@@ -10,7 +10,7 @@ require (
 	charm.land/huh/v2 v2.0.3
 	charm.land/log/v2 v2.0.0
 	dario.cat/mergo v1.0.2
-	github.com/go-git/go-git/v5 v5.17.2
+	github.com/go-git/go-git/v5 v5.18.0
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.1
@@ -19,8 +19,8 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.7.0
-	gitlab.com/gitlab-org/api/client-go/v2 v2.14.0
-	helm.sh/helm/v4 v4.1.3
+	gitlab.com/gitlab-org/api/client-go/v2 v2.20.0
+	helm.sh/helm/v4 v4.1.4
 )
 
 require (
@@ -148,7 +148,7 @@ require (
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
 	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/oauth2 v0.34.0 // indirect
+	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/term v0.41.0 // indirect
