@@ -32,7 +32,7 @@ jobs:
     environment: renovate
     steps:
       - id: app_token
-        uses: actions/create-github-app-token@bf559f85448f9380bcfa2899dbdc01eb5b37be3a # v3.0.0-beta.2
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         with:
           client-id: ${{ vars.RENOVATE_CLIENT_ID }}
           owner: ${{ github.repository_owner }}

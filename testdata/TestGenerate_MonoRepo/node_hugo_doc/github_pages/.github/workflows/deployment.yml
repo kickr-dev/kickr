@@ -92,19 +92,19 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
           submodules: true # fetch Hugo themes
-      - uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+      - uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
         with:
           # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-          version: v2026.1.6
+          version: v2026.5.4
           install: false
           cache: true
       - run: |-
           # renovate: datasource=golang-version packageName=golang/go depName=golang
-          - mise use -g golang@1.25.5
+          - mise use -g golang@1.26.3
           # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-          - mise use -g hugo-extended@0.153.2
+          - mise use -g hugo-extended@0.161.1
           # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-          - mise use -g github:sass/dart-sass@1.97.2
+          - mise use -g github:sass/dart-sass@1.99.0
       - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
@@ -138,7 +138,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       # https://github.com/marketplace/actions/setup-bun
-      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: package.json
       - run: |-

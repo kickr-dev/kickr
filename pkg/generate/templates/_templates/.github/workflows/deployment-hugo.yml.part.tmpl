@@ -29,7 +29,7 @@ jobs:
 <<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -38,19 +38,19 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
           submodules: true # fetch Hugo themes
-      - uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+      - uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
         with:
           # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-          version: v2026.1.6
+          version: v2026.5.4
           install: false
           cache: true
       - run: |-
           # renovate: datasource=golang-version packageName=golang/go depName=golang
-          - mise use -g golang@1.25.5
+          - mise use -g golang@1.26.3
           # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-          - mise use -g hugo-extended@0.153.2
+          - mise use -g hugo-extended@0.161.1
           # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-          - mise use -g github:sass/dart-sass@1.97.2
+          - mise use -g github:sass/dart-sass@1.99.0
       - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}

@@ -48,7 +48,7 @@ jobs:
     steps:
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -92,7 +92,7 @@ jobs:
     steps:
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -101,7 +101,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       # https://github.com/marketplace/actions/setup-node-js-environment
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: lts/*
       # https://github.com/marketplace/actions/action-for-semantic-release
@@ -110,7 +110,7 @@ jobs:
         with:
           dry_run: true
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
-          semantic_version: v25.0.2
+          semantic_version: v25.0.3
           extra_plugins: |-
             @semantic-release/changelog
             @semantic-release/commit-analyzer
@@ -145,7 +145,7 @@ jobs:
     steps:
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: false # docker use
           egress-policy: audit
@@ -181,12 +181,12 @@ jobs:
             type=semver,enable=${{ steps.image.outputs.stable }},pattern=v{{major}}.{{minor}},value=${{ needs.version.outputs.version }}
             type=semver,enable=${{ steps.image.outputs.stable }},pattern=v{{major}},value=${{ needs.version.outputs.version }}
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
-      - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: registry.example.com
           username: ${{ github.repository_owner }}
           password: ${{ secrets.REGISTRY_TOKEN }}
-      - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: .
           labels: ${{ steps.meta.outputs.labels }}
@@ -196,7 +196,7 @@ jobs:
             GIT_REF_NAME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.ref.name'] }}
             GIT_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-      - uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # 0.36.0
         with:
           exit-code: 0
           format: sarif
@@ -207,7 +207,7 @@ jobs:
         env:
           TRIVY_USERNAME: ${{ github.repository_owner }}
           TRIVY_PASSWORD: ${{ secrets.REGISTRY_TOKEN }}
-      - uses: github/codeql-action/upload-sarif@19b2f06db2b6f5108140aeb04014ef02b648f789 # v4.31.11
+      - uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
         with:
           category: docker-trivy
           sarif_file: trivy-results.sarif
@@ -224,7 +224,7 @@ jobs:
     steps:
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -233,7 +233,7 @@ jobs:
       - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.1.0
+          version: v4.1.4
       - run: helm package --version "$VERSION" --app-version "$VERSION" --dependency-update "$HELM_CHART_DIR"
         env:
           HELM_CHART_DIR: chart/
@@ -284,7 +284,7 @@ jobs:
     steps:
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -293,7 +293,7 @@ jobs:
       - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.1.0
+          version: v4.1.4
       - shell: bash
         run: |-
           args=(--install --kube-context "$ENVIRONMENT" --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION")
@@ -330,7 +330,7 @@ jobs:
     steps:
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+      - uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -343,7 +343,7 @@ jobs:
           name: build
           path: dist
       # https://github.com/marketplace/actions/setup-node-js-environment
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: lts/*
       # https://github.com/marketplace/actions/action-for-semantic-release
@@ -352,7 +352,7 @@ jobs:
         with:
           dry_run: ${{ inputs.release != 'release' }}
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
-          semantic_version: v25.0.2
+          semantic_version: v25.0.3
           extra_plugins: |-
             @semantic-release/changelog
             @semantic-release/commit-analyzer

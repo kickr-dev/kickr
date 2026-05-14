@@ -91,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       # https://github.com/marketplace/actions/setup-bun
-      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2.1.2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version-file: package.json
       - run: |-
@@ -139,7 +139,7 @@ jobs:
       - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.1.0
+          version: v4.1.4
       - shell: bash
         run: |-
           args=(--install --kube-context "$ENVIRONMENT" --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION")
