@@ -15,7 +15,7 @@ include:
 
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
-  - component: gitlab.com/to-be-continuous/pre-commit/gitlab-ci-pre-commit@781cb6e8a6a4009a4ca29357fd6aa1a81f9867cd # 1.4.2
+  - component: gitlab.com/to-be-continuous/pre-commit/gitlab-ci-pre-commit@805b30e6daceca57eae1296f7864bd65577c0b40 # 1.5.0
     inputs:
       pre-commit-file: .pre-commit-config.yaml
 {{- end }}
@@ -24,7 +24,7 @@ include:
 
   # Bash template
   # https://gitlab.com/to-be-continuous/bash
-  - component: gitlab.com/to-be-continuous/bash/gitlab-ci-bash@1a8caffe3c41e11722b09db3cb694ea621ee5808 # 3.9.2
+  - component: gitlab.com/to-be-continuous/bash/gitlab-ci-bash@25e0ab61ffadef08b7cda4032afbaa859aebc280 # 3.10.0
     inputs:
       bats-enabled: "false"
       shellcheck-files: "**/*.*sh"
@@ -34,7 +34,7 @@ include:
 
   # Go template
   # https://gitlab.com/to-be-continuous/golang
-  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
+  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@8a3028125ed0e16d9ad1be4fee6c2905e64915b0 # 4.16.0
     inputs:
       build-mode: modules
       ci-lint-args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
@@ -50,7 +50,7 @@ include:
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
-  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
+  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@f7977da89f556dc703580eb16412b1ec7e4f0ae9 # 5.3.0
     inputs:
       build-dir: $BUILD_DIR
       lint-enabled: "true"
@@ -68,7 +68,7 @@ include:
 
   # SonarQube template
   # https://gitlab.com/to-be-continuous/sonar
-  - component: gitlab.com/to-be-continuous/sonar/gitlab-ci-sonar@d634d32af33537fd47106ada357051f1abb136ca # 5.0.2
+  - component: gitlab.com/to-be-continuous/sonar/gitlab-ci-sonar@6f2eb1a3265e186575b49578b97832e0ca1c2ef6 # 5.2.2
     inputs:
       base-args: |
         -Dsonar.properties=sonar.properties
@@ -167,7 +167,7 @@ hugo-build:
     HUGO_PROJECT_DIR: {{ (first $nodes).Directory }}
 {{- end }}
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.1.6
+    MISE_VERSION: v2026.5.4
 {{- if gt (len $nodes) 1 }}
   parallel:
     matrix:
@@ -182,11 +182,11 @@ hugo-build:
     - apt-get update -yq && apt-get install -yq curl git
     - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
-    - mise use -g golang@1.25.5
+    - mise use -g golang@1.26.3
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-    - mise use -g hugo-extended@0.153.2
+    - mise use -g hugo-extended@0.161.1
     # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-    - mise use -g github:sass/dart-sass@1.97.2
+    - mise use -g github:sass/dart-sass@1.99.0
   script:
     - >
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"

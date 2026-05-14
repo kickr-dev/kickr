@@ -5,7 +5,7 @@ include:
 
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
-  - component: gitlab.com/to-be-continuous/docker/gitlab-ci-docker@75ad5eaf95593bdaf6c22825cb1e761d63a3a59d # 8.0.10
+  - component: gitlab.com/to-be-continuous/docker/gitlab-ci-docker@0faed9062d9ca61f65d7b21addc7d2363467331f # 8.3.0
     inputs:
       build-args: |
         --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
@@ -26,7 +26,7 @@ include:
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - component: gitlab.com/to-be-continuous/helm/gitlab-ci-helm@db44543168fcb80284a8a00ee967ccecac46026e # 9.2.3
+  - component: gitlab.com/to-be-continuous/helm/gitlab-ci-helm@37997f7d9481493a600b20cb8ee42f3f10583593 # 9.6.0
     inputs:
       chart-dir: chart/
       integ-enabled: "false"

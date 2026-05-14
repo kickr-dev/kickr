@@ -5,7 +5,7 @@ include:
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
-  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@9b3245cc40e8ed83ddf6a29bba80f5aa7e4e193b # 5.1.2
+  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@f7977da89f556dc703580eb16412b1ec7e4f0ae9 # 5.3.0
     inputs:
       build-dir: $BUILD_DIR
       lint-enabled: "true"
@@ -30,7 +30,7 @@ hugo-build:
   variables:
     HUGO_PROJECT_DIR: docs
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.1.6
+    MISE_VERSION: v2026.5.4
   rules:
     - !reference [.test-policy, rules]
   before_script:
@@ -38,11 +38,11 @@ hugo-build:
     - apt-get update -yq && apt-get install -yq curl git
     - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
-    - mise use -g golang@1.25.5
+    - mise use -g golang@1.26.3
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-    - mise use -g hugo-extended@0.153.2
+    - mise use -g hugo-extended@0.161.1
     # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-    - mise use -g github:sass/dart-sass@1.97.2
+    - mise use -g github:sass/dart-sass@1.99.0
   script:
     - >
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"

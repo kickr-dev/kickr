@@ -5,7 +5,7 @@ include:
 
   # Go template
   # https://gitlab.com/to-be-continuous/golang
-  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@473da325602b2a247fc6d880bc243cf6a42dbe0f # 4.15.3
+  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@8a3028125ed0e16d9ad1be4fee6c2905e64915b0 # 4.16.0
     inputs:
       build-mode: modules
       ci-lint-args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
@@ -26,7 +26,7 @@ hugo-build:
   variables:
     HUGO_PROJECT_DIR: docs
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.1.6
+    MISE_VERSION: v2026.5.4
   rules:
     - !reference [.test-policy, rules]
   before_script:
@@ -34,11 +34,11 @@ hugo-build:
     - apt-get update -yq && apt-get install -yq curl git
     - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
-    - mise use -g golang@1.25.5
+    - mise use -g golang@1.26.3
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-    - mise use -g hugo-extended@0.153.2
+    - mise use -g hugo-extended@0.161.1
     # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-    - mise use -g github:sass/dart-sass@1.97.2
+    - mise use -g github:sass/dart-sass@1.99.0
   script:
     - >
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"
