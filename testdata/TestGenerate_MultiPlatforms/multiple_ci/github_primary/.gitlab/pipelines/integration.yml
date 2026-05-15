@@ -2,3 +2,10 @@
 
 ---
 include:
+
+  # Bash template
+  # https://gitlab.com/to-be-continuous/bash
+  - component: gitlab.com/to-be-continuous/bash/gitlab-ci-bash@25e0ab61ffadef08b7cda4032afbaa859aebc280 # 3.10.0
+    inputs:
+      bats-enabled: "false"
+      shellcheck-files: "**/*.*sh"

@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"path"
 	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
@@ -32,6 +33,14 @@ func Misc() []engine.Template[types.Repository] {
 			Globs:      []string{".pre-commit-config.yaml" + engine.TmplExtension},
 			Out:        ".pre-commit-config.yaml",
 			Remove:     func(config types.Repository) bool { return slices.Contains(config.Exclude, kickr.ExcludePreCommit) },
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join("scripts", "sh", "conventionalcommits-branch.sh"+engine.TmplExtension)},
+			Out:        path.Join("scripts", "sh", "conventionalcommits-branch.sh"),
+			Remove: func(config types.Repository) bool {
+				return slices.Contains(config.Exclude, kickr.ExcludePreCommit) || !slices.Contains(config.PreCommit, kickr.PreCommitConventionalCommits)
+			},
 		},
 	}
 }

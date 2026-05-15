@@ -15,11 +15,15 @@ repos:
     rev: v4.15.1
     hooks:
       - id: commitizen
-      - id: commitizen-branch
-        args:
-          - --rev-range
-          - ${GITHUB_BASE_REF:-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:+origin/}}${GITHUB_BASE_REF:-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-HEAD~1}}..HEAD
+
+  - repo: local
+    hooks:
+      - id: conventionalcommits-branch
+        name: Validate commits specification with conventional commits
+        language: script
+        entry: scripts/sh/conventionalcommits-branch.sh
         stages: [pre-commit]
+        pass_filenames: false
 
   - repo: https://github.com/gitleaks/gitleaks
     # renovate: datasource=github-tags packageName=gitleaks/gitleaks depName=gitleaks

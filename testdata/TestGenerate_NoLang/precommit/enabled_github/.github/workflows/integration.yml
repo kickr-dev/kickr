@@ -82,12 +82,25 @@ jobs:
         with:
           commit_message: "fix(commit): pre-commit autofixes [skip ci]"
 
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    if: ${{ needs.run-workflow.outputs.skip == 'false' }}
+    needs: run-workflow
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      # https://github.com/marketplace/actions/shellcheck
+      - uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
+        with:
+          check_together: "yes"
+
   workflow-status:
     name: Status
     runs-on: ubuntu-latest
     if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     needs:
       - pre-commit
+      - shellcheck
     steps:
       - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}
         run: echo "Some jobs didn't end with success status" && exit 1
