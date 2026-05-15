@@ -90,7 +90,7 @@ jobs:
       - run: mkdir -p reports/
       - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
         with:
-          args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.sarif.path="reports/golangci-lint.sarif" --output.text.path=stdout
+          args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.sarif.path="reports/golangci-lint.sarif" --output.text.path=stdout
           problem-matchers: true
           # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
           version: v2.8.0

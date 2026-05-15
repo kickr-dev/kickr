@@ -14,7 +14,7 @@ include:
   - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@8a3028125ed0e16d9ad1be4fee6c2905e64915b0 # 4.16.0
     inputs:
       build-mode: modules
-      ci-lint-args: --config=.golangci.yml --timeout=240s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
+      ci-lint-args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
       sbom-opts: -licenses -assert-licenses
       test-flags: -v -coverpkg=./... -covermode=count -timeout=30s
       test-image: $GO_IMAGE
