@@ -43,7 +43,7 @@ jobs:
       - id: app_token
         uses: actions/create-github-app-token@bf559f85448f9380bcfa2899dbdc01eb5b37be3a # v3.0.0-beta.2
         with:
-          app-id: ${{ vars.RENOVATE_APP_ID }}
+          client-id: ${{ vars.RENOVATE_CLIENT_ID }}
 <<- if eq (len .Languages) 0 >>
           owner: ${{ github.repository_owner }}
 <<- end >>
