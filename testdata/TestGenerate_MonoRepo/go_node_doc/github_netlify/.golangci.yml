@@ -12,6 +12,7 @@ linters:
     - exhaustruct
     - gochecknoglobals
     - gochecknoinits
+    - gomodguard
     - ireturn
     - lll
     - mnd
