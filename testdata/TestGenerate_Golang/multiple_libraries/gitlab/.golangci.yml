@@ -18,6 +18,7 @@ linters:
     - mnd
     - nlreturn
     - noinlineerr
+    - nolintlint
     - nonamedreturns
     - paralleltest
     - recvcheck
