@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 <<- if eq $manager "pnpm" >>
       # https://github.com/marketplace/actions/setup-pnpm
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@91ab88e2619ed1f46221f0ba42d1492c02baf788 # v6.0.6
 <<- end >>
 <<- if eq $manager "bun" >>
 <<- if has "step-security-actions" .GitHub.Options >>
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 <<- if eq $manager "pnpm" >>
       # https://github.com/marketplace/actions/setup-pnpm
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@91ab88e2619ed1f46221f0ba42d1492c02baf788 # v6.0.6
 <<- end >>
 <<- if eq $manager "bun" >>
 <<- if has "step-security-actions" .GitHub.Options >>
@@ -161,7 +161,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 <<- if eq $manager "pnpm" >>
       # https://github.com/marketplace/actions/setup-pnpm
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: pnpm/action-setup@91ab88e2619ed1f46221f0ba42d1492c02baf788 # v6.0.6
 <<- end >>
 <<- if eq $manager "bun" >>
 <<- if has "step-security-actions" .GitHub.Options >>
@@ -201,7 +201,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           OS: ${{ matrix.os }}
-      - uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.5.4
+      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
