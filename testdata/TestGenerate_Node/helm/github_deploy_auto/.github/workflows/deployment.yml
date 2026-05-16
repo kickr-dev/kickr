@@ -100,7 +100,7 @@ jobs:
         env:
           VERSION: ${{ needs.version.outputs.version }}
       - if: ${{ endsWith(matrix.artifact, '-pages') }}
-        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.directory }}/dist
@@ -136,7 +136,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       # https://github.com/marketplace/actions/helm-tool-installer
-      - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
+      - uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
           version: v4.1.4
