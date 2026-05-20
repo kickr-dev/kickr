@@ -95,7 +95,7 @@ jobs:
       - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
         with:
           # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-          version: v2026.5.5
+          version: v2026.5.8
           install: false
           cache: true
       - run: |-
