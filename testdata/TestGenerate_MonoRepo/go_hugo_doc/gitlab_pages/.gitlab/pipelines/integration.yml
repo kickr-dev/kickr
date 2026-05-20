@@ -26,7 +26,7 @@ hugo-build:
   variables:
     HUGO_PROJECT_DIR: docs
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.5.5
+    MISE_VERSION: v2026.5.8
   rules:
     - !reference [.test-policy, rules]
   before_script:
