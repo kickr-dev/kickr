@@ -33,6 +33,7 @@ kickr:
     - go install github.com/kickr-dev/kickr/cmd/kickr@beta
   script:
     - kickr generate
+    - git status -s
     - |-
       set -o pipefail
 
