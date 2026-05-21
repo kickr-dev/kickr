@@ -48,6 +48,7 @@ kickr:
 
       # commit changes
       git checkout -b $MERGE_SOURCE_BRANCH
+      git add .
       git commit -am "$COMMIT_MESSAGE" --signoff || {
         echo "No changes detected with $MERGE_TARGET_BRANCH" && exit 0
       }
