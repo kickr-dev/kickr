@@ -25,7 +25,7 @@ kickr:
     - export GOBIN="$HOME/.cache/go/bin"
     - export PATH="$HOME/.local/share/mise/shims:$GOBIN:$PATH"
     - apk update -q && apk add -q curl git jq
-    - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
+    - curl -fsSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
     - mise use -g golang@1.26.3
     # renovate: datasource=gitlab-tags packageName=gitlab-org/cli depName=glab
