@@ -88,14 +88,14 @@ jobs:
           go-version: '1.23'
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: mkdir -p reports/
-      - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
+      - uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
         with:
           args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.sarif.path="reports/golangci-lint.sarif" --output.text.path=stdout
           problem-matchers: true
           # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
           version: v2.12.2
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
         with:
           sarif_file: reports/golangci-lint.sarif
           category: golangci-lint

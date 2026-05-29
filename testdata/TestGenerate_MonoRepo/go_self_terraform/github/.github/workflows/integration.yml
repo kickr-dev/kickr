@@ -88,14 +88,14 @@ jobs:
           go-version: '1.23'
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: mkdir -p reports/
-      - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
+      - uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
         with:
           args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.sarif.path="reports/golangci-lint.sarif" --output.text.path=stdout
           problem-matchers: true
           # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
           version: v2.12.2
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
         with:
           sarif_file: reports/golangci-lint.sarif
           category: golangci-lint
@@ -144,7 +144,7 @@ jobs:
         working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: opentofu/setup-opentofu@fc711fa910b93cba0f3fbecaafc9f42fd0c411cb # v2
+      - uses: opentofu/setup-opentofu@847eaa4afeb791b06daa46e8eafa8b1b68d7cfb4 # v2.0.1
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
           tofu_version: 1.12.0
@@ -172,7 +172,7 @@ jobs:
           mkdir -p reports/
           tflint --config "$GITHUB_WORKSPACE/.tflint.hcl" --recursive --format sarif | tee reports/tflint.sarif
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
         with:
           category: tflint
           sarif_file: reports/tflint.sarif

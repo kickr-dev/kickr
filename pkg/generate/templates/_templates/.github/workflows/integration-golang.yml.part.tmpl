@@ -11,7 +11,7 @@ jobs:
 <<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -34,7 +34,7 @@ jobs:
 <<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -46,14 +46,14 @@ jobs:
           go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: mkdir -p reports/
-      - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
+      - uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
         with:
           args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.sarif.path="reports/golangci-lint.sarif" --output.text.path=stdout
           problem-matchers: true
           # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
           version: v2.12.2
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
         with:
           sarif_file: reports/golangci-lint.sarif
           category: golangci-lint
@@ -80,7 +80,7 @@ jobs:
 <<- if has "harden-runner" .GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -114,7 +114,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           OS: ${{ matrix.os }}
-      - uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
+      - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
           codecov_yml_path: .codecov.yml
           disable_search: true
