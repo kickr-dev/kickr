@@ -19,10 +19,6 @@ include:
       test-flags: -v -coverpkg=./... -covermode=count -timeout=30s
       test-image: $GO_IMAGE
 
-pre-commit:
-  variables:
-    GIT_DEPTH: "0"
-
 go-govulncheck:
   allow_failure: true
 

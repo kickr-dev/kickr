@@ -9,22 +9,6 @@ default_stages:
 
 repos:
 
-  # see https://www.conventionalcommits.org/en/v1.0.0/#specification
-  - repo: https://github.com/commitizen-tools/commitizen
-    # renovate: datasource=github-tags packageName=commitizen-tools/commitizen depName=commitizen
-    rev: v4.16.2
-    hooks:
-      - id: commitizen
-
-  - repo: local
-    hooks:
-      - id: conventionalcommits-branch
-        name: Validate commits specification with conventional commits
-        language: script
-        entry: scripts/sh/conventionalcommits-branch.sh
-        stages: [pre-commit]
-        pass_filenames: false
-
   - repo: https://github.com/gitleaks/gitleaks
     # renovate: datasource=github-tags packageName=gitleaks/gitleaks depName=gitleaks
     rev: v8.30.1
