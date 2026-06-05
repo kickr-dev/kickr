@@ -26,7 +26,7 @@ hugo-build:
   variables:
     HUGO_PROJECT_DIR: docs
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.5.15
+    MISE_VERSION: v2026.5.16
   rules:
     - !reference [.test-policy, rules]
   before_script:
@@ -36,7 +36,7 @@ hugo-build:
     # renovate: datasource=golang-version packageName=golang/go depName=golang
     - mise use -g golang@1.26.3
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-    - mise use -g hugo-extended@0.161.1
+    - mise use -g hugo-extended@0.162.1
     # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
     - mise use -g github:sass/dart-sass@1.100.0
   script:
