@@ -17,7 +17,7 @@ repos:
   # see https://www.conventionalcommits.org/en/v1.0.0/#specification
   - repo: https://github.com/commitizen-tools/commitizen
     # renovate: datasource=github-tags packageName=commitizen-tools/commitizen depName=commitizen
-    rev: v4.16.2
+    rev: v4.16.3
     hooks:
       - id: commitizen
 
@@ -104,12 +104,12 @@ repos:
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     # renovate: datasource=github-tags packageName=antonbabenko/pre-commit-terraform depName=pre-commit-terraform
-    rev: v1.105.0
+    rev: v1.106.0
 {{- else }}
 
   - repo: https://github.com/tofuutils/pre-commit-opentofu
     # renovate: datasource=github-tags packageName=tofuutils/pre-commit-opentofu depName=pre-commit-opentofu
-    rev: v2.3.0
+    rev: v2.4.0
 {{- end }}
     hooks:
       - id: {{ $cmd }}_fmt
