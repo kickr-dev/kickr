@@ -105,6 +105,37 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 	})
 
+	t.Run("overrides", func(t *testing.T) {
+		cases := []testcase{
+			{
+				Name:  "deployment",
+				Kickr: kickr.Kickr{Docker: &kickr.Docker{}, GitLab: &kickr.GitLab{Options: []string{kickr.GitLabOptionsOverridesDeployment}}},
+			},
+			{
+				Name:  "integration",
+				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Options: []string{kickr.GitLabOptionsOverridesIntegration}}},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				config := types.Repository{
+					Kickr: merge(t, kickr.Kickr{
+						Exclude: []string{
+							kickr.ExcludeMakefile,
+							kickr.ExcludePreCommit,
+							kickr.ExcludeRenovate,
+							kickr.ExcludeShell,
+						},
+					}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, config)
+			})
+		}
+	})
+
 	t.Run("renovate", func(t *testing.T) {
 		cases := []testcase{
 			{

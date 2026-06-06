@@ -11,24 +11,23 @@ include:
 
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
-  - component: gitlab.com/to-be-continuous/docker/gitlab-ci-docker@0faed9062d9ca61f65d7b21addc7d2363467331f # 8.3.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@0faed9062d9ca61f65d7b21addc7d2363467331f # 8.3.0
     inputs:
       build-args: |
         --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
         --build-arg GIT_COMMIT=$CI_COMMIT_SHA
-        --build-arg VERSION=$VERSION
+        --build-arg APP_VERSION=$APP_VERSION
         --label org.opencontainers.image.created=$CI_JOB_STARTED_AT
         --label org.opencontainers.image.ref.name=$CI_COMMIT_REF_NAME
         --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-        --label org.opencontainers.image.version=$VERSION
+        --label org.opencontainers.image.version=$APP_VERSION
       build-tool: buildah
       healthcheck-disabled: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
       release-extra-tags: latest \\g<major>.\\g<minor> \\g<major
-      release-image: "{{ $registry }}/{{ $path }}:$VERSION"
+      release-image: "{{ $registry }}/{{ $path }}:$APP_VERSION"
       semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
-      snapshot-image: "{{ $registry }}/{{ $path }}/snapshot:$VERSION"
+      snapshot-image: "{{ $registry }}/{{ $path }}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
-      trivy-disabled: "true"
 {{- end }}
 
 {{- if .Helm }}
@@ -37,11 +36,11 @@ include:
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - component: gitlab.com/to-be-continuous/helm/gitlab-ci-helm@37997f7d9481493a600b20cb8ee42f3f10583593 # 9.6.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/helm/gitlab-ci-helm@37997f7d9481493a600b20cb8ee42f3f10583593 # 9.6.0
     inputs:
       chart-dir: chart/
       integ-enabled: "{{ and .HasHelmDeploy (has "integration" .Helm.Environments) }}"
-      package-args: package --version "$VERSION" --app-version "$VERSION" --dependency-update
+      package-args: package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update
       prod-enabled: "{{ and .HasHelmDeploy (has "production" .Helm.Environments) }}"
       publish-method: {{ .HasHelmPublish | ternary "push" "disabled" }}
       publish-on: {{ .HasHelmPublish | ternary "all" "none" }}
@@ -56,80 +55,66 @@ include:
       staging-enabled: "{{ and .HasHelmDeploy (has "staging" .Helm.Environments) }}"
       test-enabled: "false"
 {{- if .HasHelmDeploy }}
-      deploy-args: upgrade --install --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION"
+      deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION"
       integ-app-name: $HELM_BASE_APP_NAME
 {{- if has "production" .Helm.Environments }}
       prod-deploy-strategy: {{ .Helm.Deploy }}
 {{- end }}
-      review-app-name: $HELM_BASE_APP_NAME-$VERSION
+      review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       staging-app-name: $HELM_BASE_APP_NAME
 {{- end }}
 {{- end }}
 
 {{- if $terraform }}
-{{- $nodes := get .Languages "terraform" }}
-{{- $engine := "opentofu" }}
-{{- if and .Terraform .Terraform.Engine }}{{- $engine = .Terraform.Engine }}{{- end }}
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
+  - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
     inputs:
       fmt-enabled: "true"
-{{- if eq $engine "opentofu" }}
-      image: ghcr.io/opentofu/opentofu:latest
-{{- end }}
-      integ-enabled: "{{ and .HasTerraformApply (has "integration" .Terraform.Environments) }}"
-      prod-enabled: "{{ and .HasTerraformApply (has "production" .Terraform.Environments) }}"
-      review-enabled: "{{ and .HasTerraformApply (has "review" .Terraform.Environments) }}"
-      staging-enabled: "{{ and .HasTerraformApply (has "staging" .Terraform.Environments) }}"
+      gitlab-backend-disabled: "true"
+      integ-enabled: "false"
+      prod-enabled: "false"
+      review-enabled: "false"
+      staging-enabled: "false"
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
-      trivy-disabled: "true"
       validate-enabled: "true"
-{{- if eq (len $nodes) 1 }}
-{{- $firstnode := first $nodes }}
-      gitlab-backend-disabled: "{{ not $nodes.HasGitLabBackend }}"
-{{- if $nodes.HasGitLabBackend }}
-      environment-namespace: /{{ $firstnode.Directory | toSlug | default "root" }}
 {{- end }}
-{{- if ne $firstnode.Directory "." }}
-      project-dir: {{ $firstnode.Directory }}
+{{- if has "overrides:deployment" .GitLab.Options }}
+  - local: .gitlab/deployment.overrides.yml
 {{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{- if .Docker }}
-
-variables:
-  TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 {{- end }}
 
 {{- if .Website }}{{ template "static" . }}{{- end }}
 
 {{- if and $terraform .HasTerraformApply }}
 {{- $nodes := get .Languages "terraform" }}
-
-.tf-base:
-{{- if $nodes.HasGitLabBackend }}
-  variables:
-    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state${TF_ENVIRONMENT_NAMESPACE}_${ENV_TYPE}
-{{- end }}
-{{- if gt (len $nodes) 1 }}
-  parallel:
-    matrix:
 {{- range $nodes }}
-      - TF_ENVIRONMENT_NAMESPACE: /{{ .Directory | toSlug }}
-        TF_PROJECT_DIR: {{ .Directory }}
-{{- if ne .Specifics.Backend "http" }}
-        TF_GITLAB_BACKEND_DISABLED: "true"
-{{- end }}
-{{- end }}
 
-tf-tflint:
-  parallel: null
-
-tf-fmt:
-  parallel: null
+tf-deploy-{{ .Directory | toSlug }}:
+  stage: infra-prod
+  trigger:
+    strategy: mirror
+    forward:
+      yaml_variables: false
+      pipeline_variables: false
+    include:
+      # Terraform template
+      # https://gitlab.com/to-be-continuous/terraform
+      - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
+        inputs:
+          environment-namespace: /{{ .Directory | toSlug | default "root" }}
+          gitlab-backend-disabled: "{{ ne .Specifics.Backend "http" }}"
+          integ-enabled: "{{ has "integration" $.Terraform.Environments }}"
+          prod-enabled: "{{ has "production" $.Terraform.Environments }}"
+          project-dir: {{ .Directory }}
+          review-enabled: "{{ has "review" $.Terraform.Environments }}"
+          staging-enabled: "{{ has "staging" $.Terraform.Environments }}"
+          tflint-disabled: "true"
+          trivy-disabled: "true"
+{{- if has "overrides:deployment" $.GitLab.Options }}
+      - local: .gitlab/deployment.overrides.yml
+{{- end }}
+      - local: .gitlab/variables.yml
 {{- end }}
 {{- end }}

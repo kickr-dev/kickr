@@ -5,7 +5,7 @@
 
 ---
 kickr:
-  image: docker.io/library/alpine:latest
+  image: $KICKR_IMAGE
   stage: test
   needs: []
   rules:
@@ -28,7 +28,7 @@ kickr:
     - export GOBIN="$HOME/.cache/go/bin"
     - export PATH="$HOME/.local/share/mise/shims:$GOBIN:$PATH"
     - apk update -q && apk add -q curl git jq
-    - curl -fsSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
+    - curl -fSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
     - mise use -g golang@1.26.3
     # renovate: datasource=gitlab-tags packageName=gitlab-org/cli depName=glab
@@ -37,7 +37,7 @@ kickr:
   script:
     - kickr generate
     - git status -s
-    - |-
+    - >
       set -o pipefail
 
       glab auth login --token $GITLAB_TOKEN
@@ -53,7 +53,9 @@ kickr:
       git checkout -b $MERGE_SOURCE_BRANCH
       git add .
       git commit -am "$COMMIT_MESSAGE" --signoff || {
-        echo "No changes detected with $MERGE_TARGET_BRANCH" && exit 0
+        echo "No changes detected with $MERGE_TARGET_BRANCH"
+        glab mr close $MERGE_SOURCE_BRANCH || true
+        exit 0
       }
       git push https://oauth2:$GITLAB_TOKEN@$CI_SERVER_FQDN/$CI_PROJECT_PATH.git $MERGE_SOURCE_BRANCH --force
 

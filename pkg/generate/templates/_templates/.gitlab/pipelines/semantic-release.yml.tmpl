@@ -10,7 +10,7 @@
 include:
   # semantic-release template
   # https://gitlab.com/to-be-continuous/semantic-release
-  - component: gitlab.com/to-be-continuous/semantic-release/gitlab-ci-semrel@f7c8ec592083596d1b392778582f160c1a2a0379 # 4.3.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/semantic-release/gitlab-ci-semrel@f7c8ec592083596d1b392778582f160c1a2a0379 # 4.3.0
     inputs:
 {{- if and .GitLab.Release .GitLab.Release.Auto }}
       auto-release-enabled: $CI_COMMIT_REF_PROTECTED
@@ -21,11 +21,10 @@ include:
       hooks-dir: scripts
       info-on: all
       release-disabled: "{{ not .GitLab.Release }}"
+{{- if .GitLab.Release }}
       required-plugins-file: .gitlab/semrel-plugins.txt
+{{- end }}
       tag-format: v$${version}
-
-variables:
-  VERSION: $SEMREL_INFO_NEXT_VERSION
 
 {{- if not .GitLab.Release }}
 
@@ -65,7 +64,11 @@ semantic-release-info:
     SEMREL_DRY_RUN: "true"
   script:
     - !reference [semantic-release, script]
-    - source "$SEMREL_CONFIG_DIR/semrel.out.env" && rm "$SEMREL_CONFIG_DIR/semrel.out.env"
+    - >
+      if [ -f "$SEMREL_CONFIG_DIR/semrel.out.env" ]; then
+        source "$SEMREL_CONFIG_DIR/semrel.out.env"
+        rm "$SEMREL_CONFIG_DIR/semrel.out.env"
+      fi
     - >
       echo "BRANCH_SHA=$(echo "$CI_COMMIT_REF_NAME" | sha256sum | cut -c -8)" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
 

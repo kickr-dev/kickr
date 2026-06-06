@@ -87,7 +87,7 @@ properties:
         type: array
         items:
           type: string
-          enum: [kickr, renovate, sonarqube]
+          enum: [kickr, overrides:deployment, overrides:integration, renovate, sonarqube]
       release:
         additionalProperties: false
         $ref: "#/$defs/ci/release"

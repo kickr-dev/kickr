@@ -201,14 +201,14 @@ jobs:
 <<- end >>
       - id: version
         run: |-
-          if [ -n "$VERSION" ]; then
-            echo "version=v${VERSION#v}" >> $GITHUB_OUTPUT
+          if [ -n "$APP_VERSION" ]; then
+            echo "version=v${APP_VERSION#v}" >> $GITHUB_OUTPUT
           else
             DESCRIBE=$(git describe --tags || echo "v0.0.0")
             echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
           fi
         env:
-          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+          APP_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
 <<- else >>
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: version
@@ -216,9 +216,9 @@ jobs:
           DESCRIBE=$(git describe --tags || echo "v0.0.0")
           echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
 <<- end >>
-      - run: echo ${VERSION}
+      - run: echo ${APP_VERSION}
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          APP_VERSION: ${{ steps.version.outputs.version }}
 
 <<- if $gobuild >><< template "golang" . >><<- end >>
 <<- if $hugo >><< template "hugo" . >><<- end >>
@@ -343,7 +343,7 @@ jobs:
       - id: environment_url
         if: ${{ inputs.release == 'release' && steps.semrel_version.outputs.new_release_published == 'true' }}
         run: |-
-          [ -z "$VERSION" ] || echo "environment_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${VERSION#v}" >> $GITHUB_OUTPUT
+          [ -z "$APP_VERSION" ] || echo "environment_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${APP_VERSION#v}" >> $GITHUB_OUTPUT
         env:
-          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+          APP_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
 <<- end >>

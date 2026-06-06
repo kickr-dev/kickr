@@ -94,17 +94,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: version
         run: |-
-          if [ -n "$VERSION" ]; then
-            echo "version=v${VERSION#v}" >> $GITHUB_OUTPUT
+          if [ -n "$APP_VERSION" ]; then
+            echo "version=v${APP_VERSION#v}" >> $GITHUB_OUTPUT
           else
             DESCRIBE=$(git describe --tags || echo "v0.0.0")
             echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
           fi
         env:
-          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
-      - run: echo ${VERSION}
+          APP_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+      - run: echo ${APP_VERSION}
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          APP_VERSION: ${{ steps.version.outputs.version }}
 
   go-build:
     name: Go Build
@@ -122,7 +122,7 @@ jobs:
         with:
           args: release --clean --config .goreleaser.yml --snapshot
         env:
-          VERSION: ${{ needs.version.outputs.version }}
+          APP_VERSION: ${{ needs.version.outputs.version }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build
@@ -174,6 +174,6 @@ jobs:
       - id: environment_url
         if: ${{ inputs.release == 'release' && steps.semrel_version.outputs.new_release_published == 'true' }}
         run: |-
-          [ -z "$VERSION" ] || echo "environment_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${VERSION#v}" >> $GITHUB_OUTPUT
+          [ -z "$APP_VERSION" ] || echo "environment_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${APP_VERSION#v}" >> $GITHUB_OUTPUT
         env:
-          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+          APP_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}

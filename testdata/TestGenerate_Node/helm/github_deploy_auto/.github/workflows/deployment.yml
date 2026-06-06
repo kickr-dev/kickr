@@ -71,9 +71,9 @@ jobs:
         run: |-
           DESCRIBE=$(git describe --tags || echo "v0.0.0")
           echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
-      - run: echo ${VERSION}
+      - run: echo ${APP_VERSION}
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          APP_VERSION: ${{ steps.version.outputs.version }}
 
   node-build:
     name: Node Build ${{ matrix.name }}
@@ -98,7 +98,7 @@ jobs:
           bun install --frozen-lockfile
           bun run build
         env:
-          VERSION: ${{ needs.version.outputs.version }}
+          APP_VERSION: ${{ needs.version.outputs.version }}
       - if: ${{ endsWith(matrix.artifact, '-pages') }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
@@ -142,11 +142,11 @@ jobs:
           version: v4.2.0
       - shell: bash
         run: |-
-          args=(--install --kube-context "$ENVIRONMENT" --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION")
+          args=(--install --kube-context "$ENVIRONMENT" --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION")
           [ -z "$HELM_ARGS" ] || args+=("$HELM_ARGS")
           [ -z "$HELM_DRY_RUN" ] || args+=("$HELM_DRY_RUN")
 
-          name="$GITHUB_REPOSITORY_NAME-$VERSION"
+          name="$GITHUB_REPOSITORY_NAME-$APP_VERSION"
           [ "$ENVIRONMENT" = "review" ] || name="$GITHUB_REPOSITORY_NAME"
 
           echo "Running helm upgrade with args '${args[@]}'"
@@ -157,4 +157,4 @@ jobs:
           HELM_ARGS: ${{ vars.HELM_ARGS }}
           HELM_CHART_DIR: chart/
           HELM_DRY_RUN: ${{ inputs.helm_deploy }}
-          VERSION: ${{ needs.version.outputs.version }}
+          APP_VERSION: ${{ needs.version.outputs.version }}

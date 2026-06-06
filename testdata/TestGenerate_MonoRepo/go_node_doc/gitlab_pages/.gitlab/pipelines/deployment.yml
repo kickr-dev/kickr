@@ -2,6 +2,7 @@
 
 ---
 pages:
+  image: $PAGES_IMAGE
   stage: deploy
   environment:
     name: $ENV

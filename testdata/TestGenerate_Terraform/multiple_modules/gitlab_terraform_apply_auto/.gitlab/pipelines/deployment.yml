@@ -5,29 +5,59 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - component: gitlab.com/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
+  - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
     inputs:
       fmt-enabled: "true"
+      gitlab-backend-disabled: "true"
       integ-enabled: "false"
-      prod-enabled: "true"
+      prod-enabled: "false"
       review-enabled: "false"
       staging-enabled: "false"
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
-      trivy-disabled: "true"
       validate-enabled: "true"
 
-.tf-base:
-  variables:
-    TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state${TF_ENVIRONMENT_NAMESPACE}_${ENV_TYPE}
-  parallel:
-    matrix:
-      - TF_ENVIRONMENT_NAMESPACE: /modules-one
-        TF_PROJECT_DIR: modules/one
-      - TF_ENVIRONMENT_NAMESPACE: /modules-two
-        TF_PROJECT_DIR: modules/two
+tf-deploy-modules-one:
+  stage: infra-prod
+  trigger:
+    strategy: mirror
+    forward:
+      yaml_variables: false
+      pipeline_variables: false
+    include:
+      # Terraform template
+      # https://gitlab.com/to-be-continuous/terraform
+      - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
+        inputs:
+          environment-namespace: /modules-one
+          gitlab-backend-disabled: "false"
+          integ-enabled: "false"
+          prod-enabled: "true"
+          project-dir: modules/one
+          review-enabled: "false"
+          staging-enabled: "false"
+          tflint-disabled: "true"
+          trivy-disabled: "true"
+      - local: .gitlab/variables.yml
 
-tf-tflint:
-  parallel: null
-
-tf-fmt:
-  parallel: null
+tf-deploy-modules-two:
+  stage: infra-prod
+  trigger:
+    strategy: mirror
+    forward:
+      yaml_variables: false
+      pipeline_variables: false
+    include:
+      # Terraform template
+      # https://gitlab.com/to-be-continuous/terraform
+      - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
+        inputs:
+          environment-namespace: /modules-two
+          gitlab-backend-disabled: "false"
+          integ-enabled: "false"
+          prod-enabled: "true"
+          project-dir: modules/two
+          review-enabled: "false"
+          staging-enabled: "false"
+          tflint-disabled: "true"
+          trivy-disabled: "true"
+      - local: .gitlab/variables.yml

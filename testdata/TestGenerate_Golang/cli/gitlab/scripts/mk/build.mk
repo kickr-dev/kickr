@@ -6,7 +6,7 @@ clean:
 	@git clean -dfX
 
 GOCI_LINT_PATH  ?= .golangci.yml
-VERSION         ?= v0.0.0
+APP_VERSION     ?= v0.0.0
 
 .PHONY: lint
 lint:
@@ -37,6 +37,6 @@ build:
 			-X 'gitlab.com/kickr-dev/kickr/internal/build.branch=$(shell git rev-parse --abbrev-ref HEAD)' \
 			-X 'gitlab.com/kickr-dev/kickr/internal/build.commit=$(shell git rev-parse HEAD)' \
 			-X 'gitlab.com/kickr-dev/kickr/internal/build.date=$(shell TZ="UTC" date '+%Y-%m-%dT%TZ')' \
-			-X 'gitlab.com/kickr-dev/kickr/internal/build.version=${VERSION}' \
+			-X 'gitlab.com/kickr-dev/kickr/internal/build.version=${APP_VERSION}' \
 		" \
 		-o name ./cmd/name

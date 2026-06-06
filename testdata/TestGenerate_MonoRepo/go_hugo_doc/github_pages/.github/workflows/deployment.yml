@@ -69,9 +69,9 @@ jobs:
         run: |-
           DESCRIBE=$(git describe --tags || echo "v0.0.0")
           echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
-      - run: echo ${VERSION}
+      - run: echo ${APP_VERSION}
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          APP_VERSION: ${{ steps.version.outputs.version }}
 
   hugo-build:
     name: Hugo Build ${{ matrix.name }}
@@ -108,7 +108,7 @@ jobs:
       - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
-          VERSION: ${{ needs.version.outputs.version }}
+          APP_VERSION: ${{ needs.version.outputs.version }}
       - if: ${{ endsWith(matrix.artifact, '-pages') }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:

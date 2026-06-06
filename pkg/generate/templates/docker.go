@@ -14,7 +14,7 @@ func Docker() []engine.Template[types.Repository] {
 			Globs:      engine.GlobsWithPart("Dockerfile"),
 			Out:        "Dockerfile",
 			Remove: func(config types.Repository) bool {
-				return config.Docker == nil || config.Binaries() == 0
+				return config.Docker == nil
 			},
 		},
 		{
@@ -22,7 +22,7 @@ func Docker() []engine.Template[types.Repository] {
 			Globs:      []string{".dockerignore" + engine.TmplExtension},
 			Out:        ".dockerignore",
 			Remove: func(config types.Repository) bool {
-				return config.Docker == nil || config.Binaries() == 0
+				return config.Docker == nil
 			},
 		},
 		{

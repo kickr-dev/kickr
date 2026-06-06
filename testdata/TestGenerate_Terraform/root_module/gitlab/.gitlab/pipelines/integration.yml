@@ -5,6 +5,6 @@ include:
 
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
-  - component: gitlab.com/to-be-continuous/pre-commit/gitlab-ci-pre-commit@805b30e6daceca57eae1296f7864bd65577c0b40 # 1.5.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/pre-commit/gitlab-ci-pre-commit@805b30e6daceca57eae1296f7864bd65577c0b40 # 1.5.0
     inputs:
       pre-commit-file: .pre-commit-config.yaml

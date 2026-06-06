@@ -15,7 +15,7 @@ include:
 
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
-  - component: gitlab.com/to-be-continuous/pre-commit/gitlab-ci-pre-commit@805b30e6daceca57eae1296f7864bd65577c0b40 # 1.5.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/pre-commit/gitlab-ci-pre-commit@805b30e6daceca57eae1296f7864bd65577c0b40 # 1.5.0
     inputs:
       pre-commit-file: .pre-commit-config.yaml
 {{- end }}
@@ -24,7 +24,7 @@ include:
 
   # Bash template
   # https://gitlab.com/to-be-continuous/bash
-  - component: gitlab.com/to-be-continuous/bash/gitlab-ci-bash@25e0ab61ffadef08b7cda4032afbaa859aebc280 # 3.10.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/bash/gitlab-ci-bash@25e0ab61ffadef08b7cda4032afbaa859aebc280 # 3.10.0
     inputs:
       bats-enabled: "false"
       shellcheck-files: "**/*.*sh"
@@ -34,7 +34,7 @@ include:
 
   # Go template
   # https://gitlab.com/to-be-continuous/golang
-  - component: gitlab.com/to-be-continuous/golang/gitlab-ci-golang@8a3028125ed0e16d9ad1be4fee6c2905e64915b0 # 4.16.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/golang/gitlab-ci-golang@8a3028125ed0e16d9ad1be4fee6c2905e64915b0 # 4.16.0
     inputs:
       build-mode: modules
       ci-lint-args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
@@ -50,7 +50,7 @@ include:
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
-  - component: gitlab.com/to-be-continuous/node/gitlab-ci-node@f7977da89f556dc703580eb16412b1ec7e4f0ae9 # 5.3.0
+  - component: $CI_SERVER_FQDN/to-be-continuous/node/gitlab-ci-node@f7977da89f556dc703580eb16412b1ec7e4f0ae9 # 5.3.0
     inputs:
       build-dir: $BUILD_DIR
       lint-enabled: "true"
@@ -68,7 +68,7 @@ include:
 
   # SonarQube template
   # https://gitlab.com/to-be-continuous/sonar
-  - component: gitlab.com/to-be-continuous/sonar/gitlab-ci-sonar@6f2eb1a3265e186575b49578b97832e0ca1c2ef6 # 5.2.2
+  - component: $CI_SERVER_FQDN/to-be-continuous/sonar/gitlab-ci-sonar@6f2eb1a3265e186575b49578b97832e0ca1c2ef6 # 5.2.2
     inputs:
       base-args: |
         -Dsonar.properties=sonar.properties
@@ -78,10 +78,8 @@ include:
       quality-gate-enabled: "true"
 {{- end }}
 
-{{- if or $hugo $nodemain }}
-
-variables:
-  BUILD_DIR: dist
+{{- if has "overrides:integration" .GitLab.Options }}
+  - local: .gitlab/integration.overrides.yml
 {{- end }}
 
 {{- if and $precommit (or (has "conventional-commits" .PreCommit) (has "gitflow-branches" .PreCommit)) }}
@@ -111,7 +109,7 @@ go-govulncheck:
 
 go-build:
   image:
-    name: ghcr.io/goreleaser/goreleaser:latest
+    name: $GO_GORELEASER_IMAGE
     entrypoint: [""]
   needs:
     - semantic-release-info
@@ -158,7 +156,7 @@ node-build:
 {{- $nodes := get .Languages "hugo" }}
 
 hugo-build:
-  image: docker.io/library/debian:trixie-slim
+  image: $HUGO_IMAGE
   stage: build
   needs:
     - semantic-release-info

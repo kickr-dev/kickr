@@ -123,17 +123,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: version
         run: |-
-          if [ -n "$VERSION" ]; then
-            echo "version=v${VERSION#v}" >> $GITHUB_OUTPUT
+          if [ -n "$APP_VERSION" ]; then
+            echo "version=v${APP_VERSION#v}" >> $GITHUB_OUTPUT
           else
             DESCRIBE=$(git describe --tags || echo "v0.0.0")
             echo "version=v${DESCRIBE#v}" >> $GITHUB_OUTPUT
           fi
         env:
-          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
-      - run: echo ${VERSION}
+          APP_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+      - run: echo ${APP_VERSION}
         env:
-          VERSION: ${{ steps.version.outputs.version }}
+          APP_VERSION: ${{ steps.version.outputs.version }}
 
   docker-build:
     name: Docker Build
@@ -153,7 +153,7 @@ jobs:
       - id: image
         run: |-
           image_name="path/to/registry"
-          if [[ "${VERSION#v}" =~ ^[0-9]+(\.[0-9]+){2}$ ]]; then
+          if [[ "${APP_VERSION#v}" =~ ^[0-9]+(\.[0-9]+){2}$ ]]; then
             echo "stable=true" >> $GITHUB_OUTPUT
           else
             echo "stable=false" >> $GITHUB_OUTPUT
@@ -164,9 +164,9 @@ jobs:
           echo "Building docker image with full name '$image'"
           echo "image=$image" >> $GITHUB_OUTPUT
 
-          echo "full_image=$image:$VERSION" >> $GITHUB_OUTPUT
+          echo "full_image=$image:$APP_VERSION" >> $GITHUB_OUTPUT
         env:
-          VERSION: ${{ needs.version.outputs.version }}
+          APP_VERSION: ${{ needs.version.outputs.version }}
       - id: meta
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
@@ -195,7 +195,7 @@ jobs:
           build-args: |
             GIT_REF_NAME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.ref.name'] }}
             GIT_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            APP_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
       - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # 0.36.0
         with:
           exit-code: 0
@@ -234,10 +234,10 @@ jobs:
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
           version: v4.2.0
-      - run: helm package --version "$VERSION" --app-version "$VERSION" --dependency-update "$HELM_CHART_DIR"
+      - run: helm package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update "$HELM_CHART_DIR"
         env:
           HELM_CHART_DIR: chart/
-          VERSION: ${{ needs.version.outputs.version }}
+          APP_VERSION: ${{ needs.version.outputs.version }}
       - run: |-
           helm plugin install https://github.com/chartmuseum/helm-push
           helm registry login "$HELM_REGISTRY" -u "$HELM_REPO_USERNAME" -p "$HELM_REPO_ACCESS_TOKEN"
@@ -296,11 +296,11 @@ jobs:
           version: v4.2.0
       - shell: bash
         run: |-
-          args=(--install --kube-context "$ENVIRONMENT" --version "$VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$VERSION")
+          args=(--install --kube-context "$ENVIRONMENT" --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION")
           [ -z "$HELM_ARGS" ] || args+=("$HELM_ARGS")
           [ -z "$HELM_DRY_RUN" ] || args+=("$HELM_DRY_RUN")
 
-          name="$GITHUB_REPOSITORY_NAME-$VERSION"
+          name="$GITHUB_REPOSITORY_NAME-$APP_VERSION"
           [ "$ENVIRONMENT" = "review" ] || name="$GITHUB_REPOSITORY_NAME"
 
           echo "Running helm upgrade with args '${args[@]}'"
@@ -312,7 +312,7 @@ jobs:
           HELM_CHART_DIR: chart/
           HELM_CHART_URL: chartmuseum.example.com/path/to/repository
           HELM_DRY_RUN: ${{ inputs.helm_deploy }}
-          VERSION: ${{ needs.version.outputs.version }}
+          APP_VERSION: ${{ needs.version.outputs.version }}
 
   release:
     name: Release
@@ -366,6 +366,6 @@ jobs:
       - id: environment_url
         if: ${{ inputs.release == 'release' && steps.semrel_version.outputs.new_release_published == 'true' }}
         run: |-
-          [ -z "$VERSION" ] || echo "environment_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${VERSION#v}" >> $GITHUB_OUTPUT
+          [ -z "$APP_VERSION" ] || echo "environment_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${APP_VERSION#v}" >> $GITHUB_OUTPUT
         env:
-          VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
+          APP_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}

@@ -8,7 +8,7 @@ FROM golang:1.23 AS build
 ARG CGO_ENABLED=0
 ARG GIT_REF_NAME
 ARG GIT_COMMIT
-ARG VERSION=v0.0.0
+ARG APP_VERSION=v0.0.0
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN go mod download && \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.branch=$GIT_REF_NAME' \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.commit=$GIT_COMMIT' \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.date=$(TZ="UTC" date '+%Y-%m-%dT%TZ')' \
-            -X 'gitlab.com/kickr-dev/kickr/internal/build.version=$VERSION' \
+            -X 'gitlab.com/kickr-dev/kickr/internal/build.version=$APP_VERSION' \
         " \
         -o cron-name ./cmd/cron-name && \
     CGO_ENABLED=$CGO_ENABLED go build \
@@ -28,7 +28,7 @@ RUN go mod download && \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.branch=$GIT_REF_NAME' \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.commit=$GIT_COMMIT' \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.date=$(TZ="UTC" date '+%Y-%m-%dT%TZ')' \
-            -X 'gitlab.com/kickr-dev/kickr/internal/build.version=$VERSION' \
+            -X 'gitlab.com/kickr-dev/kickr/internal/build.version=$APP_VERSION' \
         " \
         -o job-name ./cmd/job-name && \
     CGO_ENABLED=$CGO_ENABLED go build \
@@ -36,7 +36,7 @@ RUN go mod download && \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.branch=$GIT_REF_NAME' \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.commit=$GIT_COMMIT' \
             -X 'gitlab.com/kickr-dev/kickr/internal/build.date=$(TZ="UTC" date '+%Y-%m-%dT%TZ')' \
-            -X 'gitlab.com/kickr-dev/kickr/internal/build.version=$VERSION' \
+            -X 'gitlab.com/kickr-dev/kickr/internal/build.version=$APP_VERSION' \
         " \
         -o worker-name ./cmd/worker-name
 
