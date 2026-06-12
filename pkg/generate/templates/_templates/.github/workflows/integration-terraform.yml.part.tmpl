@@ -33,7 +33,7 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 <<- if eq $engine "terraform" >>
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
@@ -65,11 +65,11 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6.2.2
         with:
           # renovate: datasource=github-tags packageName=terraform-linters/tflint depName=tflint
-          tflint_version: v0.62.1
+          tflint_version: v0.63.1
       - run: tflint --init
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,7 +77,7 @@ jobs:
           mkdir -p reports/
           tflint --config "$GITHUB_WORKSPACE/.tflint.hcl" --recursive --format sarif | tee reports/tflint.sarif
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
         with:
           category: tflint
           sarif_file: reports/tflint.sarif
@@ -111,7 +111,7 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 <<- if eq $engine "terraform" >>
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
