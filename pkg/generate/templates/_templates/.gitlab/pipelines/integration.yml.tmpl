@@ -68,7 +68,7 @@ include:
 
   # SonarQube template
   # https://gitlab.com/to-be-continuous/sonar
-  - component: $CI_SERVER_FQDN/to-be-continuous/sonar/gitlab-ci-sonar@6f2eb1a3265e186575b49578b97832e0ca1c2ef6 # 5.2.2
+  - component: $CI_SERVER_FQDN/to-be-continuous/sonar/gitlab-ci-sonar@d16bfcfcc371ba44a90fff516282b21b4aefac8f # 5.2.3
     inputs:
       base-args: |
         -Dsonar.properties=sonar.properties
@@ -165,7 +165,7 @@ hugo-build:
     HUGO_PROJECT_DIR: {{ (first $nodes).Directory }}
 {{- end }}
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.5.16
+    MISE_VERSION: v2026.6.1
 {{- if gt (len $nodes) 1 }}
   parallel:
     matrix:
@@ -180,7 +180,7 @@ hugo-build:
     - apt-get update -yq && apt-get install -yq curl git
     - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
-    - mise use -g golang@1.26.3
+    - mise use -g golang@1.26.4
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
     - mise use -g hugo-extended@0.162.1
     # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass

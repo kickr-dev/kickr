@@ -21,7 +21,7 @@ include:
 
   # SonarQube template
   # https://gitlab.com/to-be-continuous/sonar
-  - component: $CI_SERVER_FQDN/to-be-continuous/sonar/gitlab-ci-sonar@6f2eb1a3265e186575b49578b97832e0ca1c2ef6 # 5.2.2
+  - component: $CI_SERVER_FQDN/to-be-continuous/sonar/gitlab-ci-sonar@d16bfcfcc371ba44a90fff516282b21b4aefac8f # 5.2.3
     inputs:
       base-args: |
         -Dsonar.properties=sonar.properties

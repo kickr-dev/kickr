@@ -27,7 +27,7 @@ hugo-build:
   variables:
     HUGO_PROJECT_DIR: docs
     # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.5.16
+    MISE_VERSION: v2026.6.1
   rules:
     - !reference [.test-policy, rules]
   before_script:
@@ -35,7 +35,7 @@ hugo-build:
     - apt-get update -yq && apt-get install -yq curl git
     - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
     # renovate: datasource=golang-version packageName=golang/go depName=golang
-    - mise use -g golang@1.26.3
+    - mise use -g golang@1.26.4
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
     - mise use -g hugo-extended@0.162.1
     # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
