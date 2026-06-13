@@ -41,7 +41,7 @@ hugo-build:
     # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
     - mise use -g github:sass/dart-sass@1.100.0
   script:
-    - >
+    - |
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"
     - hugo --gc --minify --destination "$CI_PROJECT_DIR/$BUILD_DIR" --logLevel "${LOG_LEVEL:-info}"
   artifacts:

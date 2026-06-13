@@ -15,7 +15,6 @@ kickr:
     GLAB_CHECK_UPDATE: "false"
     GLAB_SHOW_WHATS_NEW: "false"
     GIT_STRATEGY: clone
-    GITLAB_TOKEN: $KICKR_TOKEN
     MERGE_BODY: Automated kickr layout generation
     MERGE_LABELS: dependencies,kickr
     MERGE_SOURCE_BRANCH: kickr/layout
@@ -36,10 +35,10 @@ kickr:
   script:
     - kickr generate
     - git status -s
-    - >
+    - |
       set -o pipefail
 
-      glab auth login --token $GITLAB_TOKEN
+      glab auth login --hostname $CI_SERVER_FQDN --token $KICKR_TOKEN --api-protocol $CI_SERVER_PROTOCOL
 
       # setup git user
       user=$(glab api /user) || {

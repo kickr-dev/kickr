@@ -57,7 +57,7 @@ pages:
       when: manual
 {{- end }}
   script:
-    - >
+    - |
       if [ "$BUILD_DIR" != "public" ]; then
         mkdir -p public
         mv "$BUILD_DIR"/* public
