@@ -95,16 +95,16 @@ jobs:
       - uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
         with:
           # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-          version: v2026.6.1
+          version: v2026.6.7
           install: false
           cache: true
       - run: |-
           # renovate: datasource=golang-version packageName=golang/go depName=golang
           - mise use -g golang@1.26.4
           # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-          - mise use -g hugo-extended@0.162.1
+          - mise use -g hugo-extended@0.163.1
           # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-          - mise use -g github:sass/dart-sass@1.100.0
+          - mise use -g github:sass/dart-sass@1.101.0
       - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}

@@ -195,7 +195,7 @@ jobs:
       - uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.2.0
+          version: v4.2.1
       # https://github.com/marketplace/actions/setup-python
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -263,7 +263,7 @@ jobs:
           path: ${{ env.SONAR_USER_HOME }}
           key: sonar-cache
       - if: ${{ github.event_name == 'pull_request' }}
-        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2
         with:
           args: |
             -Dproject.settings=sonar.properties
@@ -274,7 +274,7 @@ jobs:
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - if: ${{ github.event_name == 'push' }}
-        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2
         with:
           args: |
             -Dproject.settings=sonar.properties
