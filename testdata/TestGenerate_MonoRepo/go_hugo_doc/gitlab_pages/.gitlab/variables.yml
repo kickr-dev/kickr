@@ -9,10 +9,10 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
-  SEMREL_IMAGE: docker.io/library/node:26.2.0-alpine3.23@sha256:7c6af15abe4e3de859690e7db171d0d711bf37d27528eddfe625b2fe89e097f8
-  HUGO_IMAGE: ghcr.io/jdx/mise:2026.6.7@sha256:48985ff32d528e9dc19233ac8fc5c99442d9972343435dac4edd2418d2ffae03
+  SEMREL_IMAGE: docker.io/library/node:26.3.0-alpine3.23@sha256:144769ec3f32e8ee36b3cfde91e82bee25d9367b20f31a151f3f7eea3a2a8541
+  HUGO_IMAGE: ghcr.io/jdx/mise:2026.6.10@sha256:f57ac375a262f52f8ac3f9101348dbff2187d5e4b59612154f2f2808dbe46ef6
   PAGES_IMAGE: docker.io/library/debian:trixie-slim@sha256:b6e2a152f22a40ff69d92cb397223c906017e1391a73c952b588e51af8883bf8
 
   GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.12.2-alpine@sha256:91b27804074a0bacea298707f016911e60cf0cdbc6c7bf5ccacb5f0606d18d60
-  GO_IMAGE: docker.io/library/golang:1.26.3-trixie@sha256:0f6b034c99663ea8957e7dae99124e37374cbe7fcb5b5646f19b185f8f976279
-  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.163.0@sha256:7cad2bc2d1e44f87f0bf4be6d1fa23aa90fb72015bebc89fb91385d813987a03
+  GO_IMAGE: docker.io/library/golang:1.26.4-trixie@sha256:bbf22ddccb3205344f2755ea8fa4fe39f7a8b2b77b9f7b764ec2aad31406f6fc
+  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.166.0@sha256:c180f0c93a17b420c0af5006214a29d3c747c5459c732b740191adf657dd0068

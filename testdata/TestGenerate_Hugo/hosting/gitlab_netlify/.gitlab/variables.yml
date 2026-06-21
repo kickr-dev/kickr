@@ -9,7 +9,7 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
-  SEMREL_IMAGE: docker.io/library/node:26.2.0-alpine3.23@sha256:7c6af15abe4e3de859690e7db171d0d711bf37d27528eddfe625b2fe89e097f8
-  HUGO_IMAGE: ghcr.io/jdx/mise:2026.6.7@sha256:48985ff32d528e9dc19233ac8fc5c99442d9972343435dac4edd2418d2ffae03
-  NETLIFY_IMAGE: docker.io/library/node:26.2.0-alpine3.23@sha256:7c6af15abe4e3de859690e7db171d0d711bf37d27528eddfe625b2fe89e097f8
-  PRE_COMMIT_IMAGE: docker.io/library/python:3.14.5-alpine3.23@sha256:5a824eb82cc75361f98611f3cfc5091ea33f10a6ccea4d4ebdabbc523b9a1614
+  SEMREL_IMAGE: docker.io/library/node:26.3.0-alpine3.23@sha256:144769ec3f32e8ee36b3cfde91e82bee25d9367b20f31a151f3f7eea3a2a8541
+  HUGO_IMAGE: ghcr.io/jdx/mise:2026.6.10@sha256:f57ac375a262f52f8ac3f9101348dbff2187d5e4b59612154f2f2808dbe46ef6
+  NETLIFY_IMAGE: docker.io/library/node:26.3.0-alpine3.23@sha256:144769ec3f32e8ee36b3cfde91e82bee25d9367b20f31a151f3f7eea3a2a8541
+  PRE_COMMIT_IMAGE: docker.io/library/python:3.14.6-alpine3.23@sha256:02da11a8d221ca167aa07de20b3cd7104c1f01227f4b02b1fa13cf6517280a81

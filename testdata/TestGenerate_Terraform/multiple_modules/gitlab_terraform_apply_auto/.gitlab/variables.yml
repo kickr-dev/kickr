@@ -11,7 +11,7 @@ variables:
 
   TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state${TF_ENVIRONMENT_NAMESPACE}_${ENV_TYPE}
 
-  SEMREL_IMAGE: docker.io/library/node:26.2.0-alpine3.23@sha256:7c6af15abe4e3de859690e7db171d0d711bf37d27528eddfe625b2fe89e097f8
-  PRE_COMMIT_IMAGE: docker.io/library/python:3.14.5-alpine3.23@sha256:5a824eb82cc75361f98611f3cfc5091ea33f10a6ccea4d4ebdabbc523b9a1614
-  TF_IMAGE: docker.io/hashicorp/terraform:1.15.4@sha256:bf33ffa0dc4777e911f6ab96feafd79be58036b2f74a9772d649818a780c3a13
-  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.70.0@sha256:be1190afcb28352bfddc4ddeb71470835d16462af68d310f9f4bca710961a41e
+  SEMREL_IMAGE: docker.io/library/node:26.3.0-alpine3.23@sha256:144769ec3f32e8ee36b3cfde91e82bee25d9367b20f31a151f3f7eea3a2a8541
+  PRE_COMMIT_IMAGE: docker.io/library/python:3.14.6-alpine3.23@sha256:02da11a8d221ca167aa07de20b3cd7104c1f01227f4b02b1fa13cf6517280a81
+  TF_IMAGE: docker.io/hashicorp/terraform:1.15.6@sha256:adae45661e45d3c88beef071ee1277b4621cea73517aae7f0844657c8e85f641
+  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.71.1@sha256:53570e6911c2361ebe7995228088cf83a6b9b73e7f3cdca44bd8f8f425e80fa7

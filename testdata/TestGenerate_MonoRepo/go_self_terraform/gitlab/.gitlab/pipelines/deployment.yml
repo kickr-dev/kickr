@@ -5,7 +5,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@389159323d3d41b648d516828d9422e6c98fd661 # 9.2.1
+  - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@0408f6e06721e84c915e1ca2e854eeb7cec25450 # 9.2.2
     inputs:
       fmt-enabled: "true"
       gitlab-backend-disabled: "true"

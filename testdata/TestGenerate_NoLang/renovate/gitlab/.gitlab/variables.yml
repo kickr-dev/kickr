@@ -9,6 +9,6 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
-  SEMREL_IMAGE: docker.io/library/node:26.2.0-alpine3.23@sha256:7c6af15abe4e3de859690e7db171d0d711bf37d27528eddfe625b2fe89e097f8
-  PRE_COMMIT_IMAGE: docker.io/library/python:3.14.5-alpine3.23@sha256:5a824eb82cc75361f98611f3cfc5091ea33f10a6ccea4d4ebdabbc523b9a1614
-  RENOVATE_IMAGE: docker.io/renovate/renovate:43.205.0@sha256:90fa4f314be425066775a92402f183805134d9c8acd52bcfd120eb7dbe71dd41
+  SEMREL_IMAGE: docker.io/library/node:26.3.0-alpine3.23@sha256:144769ec3f32e8ee36b3cfde91e82bee25d9367b20f31a151f3f7eea3a2a8541
+  PRE_COMMIT_IMAGE: docker.io/library/python:3.14.6-alpine3.23@sha256:02da11a8d221ca167aa07de20b3cd7104c1f01227f4b02b1fa13cf6517280a81
+  RENOVATE_IMAGE: docker.io/renovate/renovate:43.227.0@sha256:47831f7e188622346ab29716a01b03b7c178d46febc5bedd283d40a86732c5b8
