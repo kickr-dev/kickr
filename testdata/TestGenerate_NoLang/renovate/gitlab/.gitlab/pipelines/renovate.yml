@@ -14,6 +14,7 @@ renovate-validator:
   rules: [when: never] # validates projects configurations and not server configurations
 
 renovate-depcheck:
+  timeout: 30 minutes
   needs: []
   rules:
     - if: $RENOVATE_DISABLED == 'true'
