@@ -16,6 +16,8 @@ renovate-validator:
 renovate-depcheck:
   needs: []
   rules:
+    - if: $RENOVATE_DISABLED == 'true'
+      when: never
     # see https://gitlab.com/to-be-continuous/renovate/-/blob/master/templates/gitlab-ci-renovate.yml?ref_type=heads#L348
     # update mode only with schedule triggering
     - if: $CI_PIPELINE_SOURCE == 'schedule'
