@@ -16,20 +16,19 @@ go-govulncheck:
   allow_failure: true
 
 hugo-build:
-  image: $HUGO_IMAGE
+  image:
+    name: $HUGO_IMAGE
+    entrypoint: [""]
   stage: build
   needs:
     - semantic-release-info
   variables:
     HUGO_PROJECT_DIR: docs
-    # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.6.7
   rules:
     - !reference [.test-policy, rules]
   before_script:
     - export PATH="$HOME/.local/share/mise/shims:$PATH"
-    - apt-get update -yq && apt-get install -yq curl git
-    - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
+    - apt-get update -yq && apt-get install -yq git
     # renovate: datasource=golang-version packageName=golang/go depName=golang
     - mise use -g golang@1.26.4
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo

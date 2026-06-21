@@ -156,16 +156,16 @@ node-build:
 {{- $nodes := get .Languages "hugo" }}
 
 hugo-build:
-  image: $HUGO_IMAGE
+  image:
+    name: $HUGO_IMAGE
+    entrypoint: [""]
   stage: build
   needs:
     - semantic-release-info
-  variables:
 {{- if and (eq (len $nodes) 1) (ne (first $nodes).Directory ".") }}
+  variables:
     HUGO_PROJECT_DIR: {{ (first $nodes).Directory }}
 {{- end }}
-    # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-    MISE_VERSION: v2026.6.7
 {{- if gt (len $nodes) 1 }}
   parallel:
     matrix:
@@ -177,8 +177,7 @@ hugo-build:
     - !reference [.test-policy, rules]
   before_script:
     - export PATH="$HOME/.local/share/mise/shims:$PATH"
-    - apt-get update -yq && apt-get install -yq curl git
-    - curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise MISE_VERSION=$MISE_VERSION sh
+    - apt-get update -yq && apt-get install -yq git
     # renovate: datasource=golang-version packageName=golang/go depName=golang
     - mise use -g golang@1.26.4
     # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo

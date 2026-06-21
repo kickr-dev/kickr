@@ -33,11 +33,11 @@ variables:
 {{- end }}
 
 {{- if $hugo }}
-  HUGO_IMAGE: docker.io/library/debian:trixie-slim@sha256:b6e2a152f22a40ff69d92cb397223c906017e1391a73c952b588e51af8883bf8
+  HUGO_IMAGE: ghcr.io/jdx/mise:2026.6.7@sha256:48985ff32d528e9dc19233ac8fc5c99442d9972343435dac4edd2418d2ffae03
 {{- end }}
 
 {{- if .HasKickr }}
-  KICKR_IMAGE: docker.io/library/alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+  KICKR_IMAGE: ghcr.io/jdx/mise:2026.6.7@sha256:48985ff32d528e9dc19233ac8fc5c99442d9972343435dac4edd2418d2ffae03
 {{- end }}
 
 {{- if and .Website (eq .Website.Hosting "netlify") }}
