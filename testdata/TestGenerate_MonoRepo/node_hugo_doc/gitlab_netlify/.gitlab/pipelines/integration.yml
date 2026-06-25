@@ -30,15 +30,6 @@ hugo-build:
     HUGO_PROJECT_DIR: docs
   rules:
     - !reference [.test-policy, rules]
-  before_script:
-    - export PATH="$HOME/.local/share/mise/shims:$PATH"
-    - apt-get update -yq && apt-get install -yq git
-    # renovate: datasource=golang-version packageName=golang/go depName=golang
-    - mise use -g golang@1.26.4
-    # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
-    - mise use -g hugo-extended@0.163.2
-    # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-    - mise use -g github:sass/dart-sass@1.101.0
   script:
     - |
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"
