@@ -5,7 +5,7 @@ include:
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
-  - component: $CI_SERVER_FQDN/to-be-continuous/node/gitlab-ci-node@f7977da89f556dc703580eb16412b1ec7e4f0ae9 # 5.3.0
+  - remote: https://gitlab.com/to-be-continuous/node/-/raw/f7977da89f556dc703580eb16412b1ec7e4f0ae9/templates/gitlab-ci-node.yml # 5.3.0
     inputs:
       build-dir: $BUILD_DIR
       lint-enabled: "true"

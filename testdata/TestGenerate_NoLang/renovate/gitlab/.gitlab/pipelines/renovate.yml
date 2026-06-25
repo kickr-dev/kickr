@@ -4,7 +4,7 @@
 include:
   # Renovate template
   # https://gitlab.com/to-be-continuous/renovate
-  - component: $CI_SERVER_FQDN/to-be-continuous/renovate/gitlab-ci-renovate@c41f236b1aa907de3131469a6cf9c5db4d413d5c # 1.14.0
+  - remote: https://gitlab.com/to-be-continuous/renovate/-/raw/c41f236b1aa907de3131469a6cf9c5db4d413d5c/templates/gitlab-ci-renovate.yml # 1.14.0
 
 variables:
   RENOVATE_CONFIG_FILE: .gitlab/renovate.json

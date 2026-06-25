@@ -5,7 +5,7 @@ include:
 
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
-  - component: $CI_SERVER_FQDN/to-be-continuous/docker/gitlab-ci-docker@7340c5a0e54d70337c48cb523e9c9b37ba6da939 # 8.4.0
+  - remote: https://gitlab.com/to-be-continuous/docker/-/raw/7340c5a0e54d70337c48cb523e9c9b37ba6da939/templates/gitlab-ci-docker.yml # 8.4.0
     inputs:
       build-args: |
         --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
@@ -25,7 +25,7 @@ include:
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - component: $CI_SERVER_FQDN/to-be-continuous/helm/gitlab-ci-helm@23c38509c1fc93c7862349a688d5dcacd8e28d8e # 9.6.1
+  - remote: https://gitlab.com/to-be-continuous/helm/-/raw/23c38509c1fc93c7862349a688d5dcacd8e28d8e/templates/gitlab-ci-helm.yml # 9.6.1
     inputs:
       chart-dir: chart/
       integ-enabled: "false"

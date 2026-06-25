@@ -10,7 +10,7 @@
 include:
   # semantic-release template
   # https://gitlab.com/to-be-continuous/semantic-release
-  - component: $CI_SERVER_FQDN/to-be-continuous/semantic-release/gitlab-ci-semrel@f7c8ec592083596d1b392778582f160c1a2a0379 # 4.3.0
+  - remote: https://gitlab.com/to-be-continuous/semantic-release/-/raw/f7c8ec592083596d1b392778582f160c1a2a0379/templates/gitlab-ci-semrel.yml # 4.3.0
     inputs:
 {{- if and .GitLab.Release .GitLab.Release.Auto }}
       auto-release-enabled: $CI_COMMIT_REF_PROTECTED

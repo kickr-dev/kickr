@@ -5,7 +5,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@0408f6e06721e84c915e1ca2e854eeb7cec25450 # 9.2.2
+  - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/0408f6e06721e84c915e1ca2e854eeb7cec25450/templates/gitlab-ci-terraform.yml # 9.2.2
     inputs:
       fmt-enabled: "true"
       gitlab-backend-disabled: "true"
@@ -26,7 +26,7 @@ tf-deploy-modules-one:
     include:
       # Terraform template
       # https://gitlab.com/to-be-continuous/terraform
-      - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@0408f6e06721e84c915e1ca2e854eeb7cec25450 # 9.2.2
+      - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/0408f6e06721e84c915e1ca2e854eeb7cec25450/templates/gitlab-ci-terraform.yml # 9.2.2
         inputs:
           environment-namespace: /modules-one
           gitlab-backend-disabled: "false"
@@ -49,7 +49,7 @@ tf-deploy-modules-two:
     include:
       # Terraform template
       # https://gitlab.com/to-be-continuous/terraform
-      - component: $CI_SERVER_FQDN/to-be-continuous/terraform/gitlab-ci-terraform@0408f6e06721e84c915e1ca2e854eeb7cec25450 # 9.2.2
+      - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/0408f6e06721e84c915e1ca2e854eeb7cec25450/templates/gitlab-ci-terraform.yml # 9.2.2
         inputs:
           environment-namespace: /modules-two
           gitlab-backend-disabled: "false"
