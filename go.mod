@@ -15,12 +15,12 @@ require (
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/kickr-dev/engine v0.0.0-20260516084308-f013781ebd47
-	github.com/kilianpaquier/compare v1.1.1
+	github.com/kilianpaquier/compare v1.1.2
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.8.0
-	gitlab.com/gitlab-org/api/client-go/v2 v2.39.0
-	helm.sh/helm/v4 v4.2.1
+	gitlab.com/gitlab-org/api/client-go/v2 v2.40.0
+	helm.sh/helm/v4 v4.2.2
 )
 
 require (
@@ -134,7 +134,7 @@ require (
 	github.com/pjbgf/sha1cd v0.6.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
+	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/rubenv/sql-migrate v1.8.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
