@@ -125,7 +125,7 @@ jobs:
       - uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.2.1
+          version: v4.2.2
       - run: helm package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update "$HELM_CHART_DIR"
         env:
           HELM_CHART_DIR: chart/
