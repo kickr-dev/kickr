@@ -18,6 +18,8 @@ hugo-build:
     - semantic-release-info
   rules:
     - !reference [.test-policy, rules]
+  before_script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
   script:
     - |
       [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"
