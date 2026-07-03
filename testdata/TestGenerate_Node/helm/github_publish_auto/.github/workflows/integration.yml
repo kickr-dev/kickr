@@ -67,7 +67,7 @@ jobs:
     needs: run-workflow
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           # renovate: datasource=github-tags packageName=actions/python-versions
           python-version: 3.13.7
@@ -81,12 +81,12 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       # https://github.com/marketplace/actions/helm-tool-installer
-      - uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
           version: v4.2.2
       # https://github.com/marketplace/actions/setup-python
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           check-latest: true
           # renovate: datasource=github-tags packageName=actions/python-versions

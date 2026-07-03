@@ -101,7 +101,7 @@ jobs:
         with:
           fetch-depth: 0
 <<- end >>
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           # renovate: datasource=github-tags packageName=actions/python-versions
           python-version: 3.13.7
@@ -113,7 +113,7 @@ jobs:
         uses: step-security/git-auto-commit-action@749bc1cc775376092cc4227ba537137f445ca7c3 # v7.1.1
 <<- else >>
         # https://github.com/marketplace/actions/git-auto-commit
-        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
 <<- end >>
         with:
           commit_message: "fix(commit): pre-commit autofixes [skip ci]"
@@ -192,12 +192,12 @@ jobs:
 <<- end >>
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       # https://github.com/marketplace/actions/helm-tool-installer
-      - uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
           version: v4.2.2
       # https://github.com/marketplace/actions/setup-python
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           check-latest: true
           # renovate: datasource=github-tags packageName=actions/python-versions
@@ -258,7 +258,7 @@ jobs:
         with:
           pattern: lint*
           path: reports
-      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ${{ env.SONAR_USER_HOME }}
           key: sonar-cache
