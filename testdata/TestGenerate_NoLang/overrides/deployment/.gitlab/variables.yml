@@ -14,4 +14,4 @@ variables:
   DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.43.1@sha256:20f35270faaf63d90d80cb54bf48740f428141d5e5914438e9d49896b3919af6
   DOCKER_HADOLINT_IMAGE: docker.io/hadolint/hadolint:v2.14.0-alpine@sha256:7aba693c1442eb31c0b015c129697cb3b6cb7da589d85c7562f9deb435a6657c
   DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.46.0-debug@sha256:66c14aabb8ca7eb50141368cb52652c4148e6896f86c038640e321cb329b7117
-  DOCKER_TRIVY_IMAGE: docker.io/aquasec/trivy:0.71.2@sha256:f5d0e600ecda7449e2a9b272805aef698631d3bb3f3a739a750de2c6819acdc9
+  DOCKER_TRIVY_IMAGE: docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f

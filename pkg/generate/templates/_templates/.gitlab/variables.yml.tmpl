@@ -33,11 +33,11 @@ variables:
 {{- end }}
 
 {{- if $hugo }}
-  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.163.3@sha256:89154b89cf899b1d26672a6ea911d88ed661720723c55e17cef3ad098ebdfada
+  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.164.0@sha256:f8671f2299e60154536c158bff8ce27f6eef4dddbbfc73bcce66263276ae0f80
 {{- end }}
 
 {{- if .HasKickr }}
-  KICKR_IMAGE: ghcr.io/jdx/mise:2026.6.14@sha256:b8f8c20fc3308f8b1d00ccca2bc968e4e208af1c5c1069e1ad9753baa099acff
+  KICKR_IMAGE: ghcr.io/jdx/mise:2026.7.5@sha256:3511d21606638b7285e545f83756e993bfaa67cbe7d9b4eeeec8ad87230a0eff
 {{- end }}
 
 {{- if and .Website (eq .Website.Hosting "netlify") }}
@@ -53,7 +53,7 @@ variables:
 {{- end }}
 
 {{- if has "renovate" .GitLab.Options }}
-  RENOVATE_IMAGE: docker.io/renovate/renovate:43.246.0@sha256:13818241ac09e9dcc33576f49a10367e9162e0c3d9341a23b3343ddeb4873164
+  RENOVATE_IMAGE: docker.io/renovate/renovate:43.252.0@sha256:62cb57d121eeea44595e628770d7f9cb2db57932306a3656f949b4331cec5878
 {{- end }}
 
 {{- if has "sonarqube" .GitLab.Options }}
@@ -65,7 +65,7 @@ variables:
   DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.43.1@sha256:20f35270faaf63d90d80cb54bf48740f428141d5e5914438e9d49896b3919af6
   DOCKER_HADOLINT_IMAGE: docker.io/hadolint/hadolint:v2.14.0-alpine@sha256:7aba693c1442eb31c0b015c129697cb3b6cb7da589d85c7562f9deb435a6657c
   DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.46.0-debug@sha256:66c14aabb8ca7eb50141368cb52652c4148e6896f86c038640e321cb329b7117
-  DOCKER_TRIVY_IMAGE: docker.io/aquasec/trivy:0.71.2@sha256:f5d0e600ecda7449e2a9b272805aef698631d3bb3f3a739a750de2c6819acdc9
+  DOCKER_TRIVY_IMAGE: docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f
 {{- end }}
 
 {{- if $golang }}
@@ -74,7 +74,7 @@ variables:
   GO_IMAGE: docker.io/library/golang:1.26.4-trixie@sha256:bbf22ddccb3205344f2755ea8fa4fe39f7a8b2b77b9f7b764ec2aad31406f6fc
   GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.168.0@sha256:59fbed6127ea7c5dde3ba6a85142733bb20ea9aaa36120c953904f1539aaf66e
 {{- if gt (len .Clis) 0 }}
-  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.16.0@sha256:f5ce92e9a38fb9406ccd638b95e43402cd3f4c567cb677eb06af9fd161278c12
+  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.17.0@sha256:054eefd282c02233a2556ce2d1a60cd2f51dc565ffc2520dc38b5deb4dd1ad30
 {{- end }}
 {{- end }}
 
@@ -97,5 +97,5 @@ variables:
 {{- else }}
   TF_IMAGE: docker.io/hashicorp/terraform:1.15.7@sha256:40e61a86763083ea987ded0ffa15f6d75e0df48ed16275811f949b3ecbcd8aae
 {{- end }}
-  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.71.2@sha256:f5d0e600ecda7449e2a9b272805aef698631d3bb3f3a739a750de2c6819acdc9
+  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f
 {{- end }}
