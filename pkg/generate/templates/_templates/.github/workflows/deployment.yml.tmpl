@@ -160,6 +160,8 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: lts/*
+      - id: plugins
+        run: echo "list=$(paste -sd' ' .github/semrel-plugins.txt)" >> "$GITHUB_OUTPUT"
       # https://github.com/marketplace/actions/action-for-semantic-release
       - id: semrel_version
         uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
@@ -167,23 +169,7 @@ jobs:
           dry_run: true
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
           semantic_version: v25.0.5
-          extra_plugins: |-
-            @semantic-release/changelog@6.0.3
-            @semantic-release/commit-analyzer@13.0.1
-            @semantic-release/exec@7.1.0
-            @semantic-release/git@10.0.1
-            @semantic-release/github@12.0.9
-            @semantic-release/release-notes-generator@14.1.1
-            conventional-changelog-conventionalcommits@9.3.1
-<<- if $node >>
-            @semantic-release/npm@13.1.5
-<<- end >>
-<<- if and .License (list "bsl-1.0" "mit" | has .License) >>
-            semantic-release-license@1.0.3
-<<- end >>
-<<- if has "backmerge" .GitHub.Release.Options >>
-            @kilianpaquier/semantic-release-backmerge@1.8.0
-<<- end >>
+          extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
 <<- if eq .GitHub.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
@@ -301,6 +287,8 @@ jobs:
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: lts/*
+      - id: plugins
+        run: echo "list=$(paste -sd' ' .github/semrel-plugins.txt)" >> "$GITHUB_OUTPUT"
       # https://github.com/marketplace/actions/action-for-semantic-release
       - id: semrel_version
         uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
@@ -308,23 +296,7 @@ jobs:
           dry_run: ${{ inputs.release != 'release' }}
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
           semantic_version: v25.0.5
-          extra_plugins: |-
-            @semantic-release/changelog@6.0.3
-            @semantic-release/commit-analyzer@13.0.1
-            @semantic-release/exec@7.1.0
-            @semantic-release/git@10.0.1
-            @semantic-release/github@12.0.9
-            @semantic-release/release-notes-generator@14.1.1
-            conventional-changelog-conventionalcommits@9.3.1
-<<- if $node >>
-            @semantic-release/npm@13.1.5
-<<- end >>
-<<- if and .License (list "bsl-1.0" "mit" | has .License) >>
-            semantic-release-license@1.0.3
-<<- end >>
-<<- if has "backmerge" .GitHub.Release.Options >>
-            @kilianpaquier/semantic-release-backmerge@1.8.0
-<<- end >>
+          extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
 <<- if eq .GitHub.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}

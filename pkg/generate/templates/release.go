@@ -23,6 +23,15 @@ func SemanticRelease() []engine.Template[types.Repository] {
 		},
 		{
 			Delimiters:     engine.DelimitersBracket(),
+			Globs:          []string{path.Join(".github", "semrel-plugins.txt"+engine.TmplExtension)},
+			Out:            path.Join(".github", "semrel-plugins.txt"),
+			GeneratePolicy: engine.PolicyAlways, // always generate semrel-plugins.txt
+			Remove: func(config types.Repository) bool {
+				return config.GitHub == nil || config.GitHub.Release == nil
+			},
+		},
+		{
+			Delimiters:     engine.DelimitersBracket(),
 			Globs:          []string{path.Join(".gitlab", "semrel-plugins.txt"+engine.TmplExtension)},
 			Out:            path.Join(".gitlab", "semrel-plugins.txt"),
 			GeneratePolicy: engine.PolicyAlways, // always generate semrel-plugins.txt
