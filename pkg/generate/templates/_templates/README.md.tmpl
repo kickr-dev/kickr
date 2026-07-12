@@ -41,10 +41,6 @@
   <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 
-{{- if hasKey .Languages "go" }}
-  <img alt="Go Report Card" src="https://goreportcard.com/badge/{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}?style={{ $style }}">
-{{- end }}
-
 {{- if hasKey .Languages "node" }}
 {{- range get .Languages "node" }}
 {{- if and (not .Specifics.Private) (eq .Specifics.PublishConfig.Registry "") }}
