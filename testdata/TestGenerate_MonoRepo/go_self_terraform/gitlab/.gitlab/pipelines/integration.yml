@@ -5,7 +5,7 @@ include:
 
   # Go template
   # https://gitlab.com/to-be-continuous/golang
-  - remote: https://gitlab.com/to-be-continuous/golang/-/raw/8a3028125ed0e16d9ad1be4fee6c2905e64915b0/templates/gitlab-ci-golang.yml # 4.16.0
+  - remote: https://gitlab.com/to-be-continuous/golang/-/raw/6198ec5ccac22639a2e739437f0e922cd3f9f178/templates/gitlab-ci-golang.yml # 4.17.2
     inputs:
       build-mode: modules
       ci-lint-args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.checkstyle.path="reports/go-ci-lint.checkstyle.xml" --output.text.path=stdout
