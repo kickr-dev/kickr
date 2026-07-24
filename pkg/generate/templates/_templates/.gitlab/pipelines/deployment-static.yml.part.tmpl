@@ -49,6 +49,7 @@ netlify-deploy:
 netlify-cleanup:
   image: $NETLIFY_IMAGE
   stage: deploy
+  dependencies: []
   environment:
     name: $ENV
     action: stop
