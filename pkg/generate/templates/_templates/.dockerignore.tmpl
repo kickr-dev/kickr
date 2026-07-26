@@ -31,7 +31,7 @@ vendor/
 {{- if hasKey .Languages "go" }}
 
 # binaries
-{{- range $name, $config := .Clis }}
+{{- range $name, $_ := .Clis }}
 {{ $name }}
 {{ printf "!%s/" $name }}
 {{- end }}

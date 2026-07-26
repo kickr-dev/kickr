@@ -50,7 +50,7 @@ index 332d5ce..39af8aa 100644
 {{- $lines := list }}
 {{- if hasKey .Languages "go" }}
 
-{{- range $name, $config := .Clis }}
+{{- range $name, $_ := .Clis }}
 {{- $lines = append $lines $name }}
 {{- $lines = append $lines (printf "!%s/" $name) }}
 {{- end }}

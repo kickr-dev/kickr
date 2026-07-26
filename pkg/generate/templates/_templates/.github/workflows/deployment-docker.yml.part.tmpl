@@ -1,9 +1,6 @@
 jobs:
 <<- define "docker" >>
 
-<<- $golang := hasKey .Languages "go" >>
-<<- $node := hasKey .Languages "node" >>
-
 <<- $registry := .Docker.Registry | default "ghcr.io" >>
 <<- $path := .Docker.Path | default .VCS.ProjectPath >>
 <<- $ghcr := and (eq $registry "ghcr.io") (eq $path .VCS.ProjectPath) >>

@@ -6,7 +6,7 @@ case $BINARY_NAME in
 {{- $binaries := dict }}
 {{- $_ := map $binaries .Clis .Crons .Jobs .Workers }}
 
-{{- range $name, $config := $binaries }}
+{{- range $name, $_ := $binaries }}
     {{ $name }}) /app/{{ $name }};;
 {{- end }}
     *) echo "invalid binary '$BINARY_NAME'" && exit 1;;

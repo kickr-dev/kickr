@@ -5,7 +5,6 @@
 {{- $golang := hasKey .Languages "go" }}
 {{- $gobuild := and $golang (gt .Binaries 0) }}
 
-{{- $hugo := hasKey .Languages "hugo" }}
 {{- $node := hasKey .Languages "node" }}
 
 branches:

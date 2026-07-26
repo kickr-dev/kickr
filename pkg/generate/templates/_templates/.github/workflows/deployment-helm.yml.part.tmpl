@@ -1,9 +1,6 @@
 jobs:
 <<- define "helm" >>
 
-<<- $golang := hasKey .Languages "go" >>
-<<- $node := hasKey .Languages "node" >>
-
 <<- $registry := .Helm.Registry | default "oci://ghcr.io" >>
 <<- $path := .Helm.Path | default .VCS.ProjectPath >>
 <<- $ghcr := and (eq $registry "oci://ghcr.io") (eq $path .VCS.ProjectPath) >>

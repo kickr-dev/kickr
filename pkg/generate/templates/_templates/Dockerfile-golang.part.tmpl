@@ -21,7 +21,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN go mod download{{ range $name, $config := $binaries }} && \
+RUN go mod download{{ range $name, $_ := $binaries }} && \
     CGO_ENABLED=$CGO_ENABLED go build \
         -ldflags "\
             -X '{{ $specifics.Module }}/internal/build.branch=$GIT_REF_NAME' \
@@ -54,7 +54,7 @@ LABEL org.opencontainers.image.documentation="{{ print .VCS.ProjectHost "/" .VCS
 WORKDIR /app
 
 COPY --from=build \
-{{- range $name, $config := $binaries }}
+{{- range $name, $_ := $binaries }}
     /app/{{ $name }} \
 {{- end }}
     ./
@@ -64,7 +64,7 @@ COPY --from=build \
 {{- if eq .Binaries 1 }}
 
 {{- /* directly use the only binary */ -}}
-{{- range $name, $config := $binaries }}
+{{- range $name, $_ := $binaries }}
 {{- $entrypoint = $name }}
 {{- end }}
 

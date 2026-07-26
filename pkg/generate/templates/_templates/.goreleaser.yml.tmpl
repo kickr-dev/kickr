@@ -10,7 +10,7 @@ snapshot:
   version_template: "{{ .Env.APP_VERSION }}"
 
 builds:
-<<- range $name, $config := .Clis >>
+<<- range $name, $_ := .Clis >>
   - main: ./cmd/<< $name >>
     env:
       - CGO_ENABLED=0

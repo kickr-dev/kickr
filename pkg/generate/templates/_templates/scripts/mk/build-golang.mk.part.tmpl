@@ -37,7 +37,7 @@ test-cover:
 
 {{- if eq .Binaries 1 }}
 {{- $binary := "" }}
-{{- range $name, $config := $binaries }}{{ $binary = $name }}{{ end }}
+{{- range $name, $_ := $binaries }}{{ $binary = $name }}{{ end }}
 
 .PHONY: build
 build:
@@ -54,9 +54,9 @@ build:
 {{- if gt .Binaries 1 }}
 
 .PHONY: buildall
-buildall:{{ range $name, $config := $binaries }} build-{{ $name }}{{ end }}
+buildall:{{ range $name, $_ := $binaries }} build-{{ $name }}{{ end }}
 
-.PHONY:{{ range $name, $config := $binaries }} {{ $name }}{{ end }}
+.PHONY:{{ range $name, $_ := $binaries }} {{ $name }}{{ end }}
 build-%:
 	@CGO_ENABLED=0 go build \
 		-ldflags "\
@@ -67,7 +67,7 @@ build-%:
 		" \
 		-o $* ./cmd/$*
 
-.PHONY:{{ range $name, $config := $binaries }} {{ $name }}{{ end }}
+.PHONY:{{ range $name, $_ := $binaries }} {{ $name }}{{ end }}
 local-%:
 	@go run ./cmd/$*
 {{- end }}
