@@ -17,7 +17,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{gitlabci + engine.TmplExtension},
 		Out:        gitlabci,
-		Remove:     func(config types.Repository) bool { return config.GitLab == nil },
+		Remove:     func(repo types.Repository) bool { return repo.GitLab == nil },
 	})
 
 	semrel := path.Join(".gitlab", "pipelines", "semantic-release.yml")
@@ -25,7 +25,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{semrel + engine.TmplExtension},
 		Out:        semrel,
-		Remove:     func(config types.Repository) bool { return config.GitLab == nil },
+		Remove:     func(repo types.Repository) bool { return repo.GitLab == nil },
 	})
 
 	deployment := path.Join(".gitlab", "pipelines", "deployment.yml")
@@ -33,8 +33,11 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
-		Remove: func(config types.Repository) bool {
-			return config.GitLab == nil || (config.Docker == nil && config.Helm == nil && config.Terraform == nil && config.Website == nil)
+		Remove: func(repo types.Repository) bool {
+			if repo.GitLab == nil {
+				return true
+			}
+			return !repo.HasDocker() && repo.Helm == nil && !repo.HasLanguage(types.LanguageTerraform) && repo.Website == nil //nolint:revive
 		},
 	})
 
@@ -43,10 +46,11 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{deploymentOverrides + engine.TmplExtension},
 		Out:        deploymentOverrides,
-		Remove: func(config types.Repository) bool {
-			return config.GitLab == nil ||
-				(config.Docker == nil && config.Helm == nil && config.Terraform == nil && config.Website == nil) ||
-				!slices.Contains(config.GitLab.Options, kickr.GitLabOptionsOverridesDeployment)
+		Remove: func(repo types.Repository) bool {
+			if repo.GitLab == nil || !slices.Contains(repo.GitLab.Options, kickr.GitLabOptionsOverridesDeployment) {
+				return true
+			}
+			return !repo.HasDocker() && repo.Helm == nil && !repo.HasLanguage(types.LanguageTerraform) && repo.Website == nil //nolint:revive
 		},
 	})
 
@@ -55,7 +59,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{integration + engine.TmplExtension},
 		Out:        integration,
-		Remove:     func(config types.Repository) bool { return config.GitLab == nil },
+		Remove:     func(repo types.Repository) bool { return repo.GitLab == nil },
 	})
 
 	integrationOverrides := path.Join(".gitlab", "integration.overrides.yml")
@@ -63,8 +67,8 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{integrationOverrides + engine.TmplExtension},
 		Out:        integrationOverrides,
-		Remove: func(config types.Repository) bool {
-			return config.GitLab == nil || !slices.Contains(config.GitLab.Options, kickr.GitLabOptionsOverridesIntegration)
+		Remove: func(repo types.Repository) bool {
+			return repo.GitLab == nil || !slices.Contains(repo.GitLab.Options, kickr.GitLabOptionsOverridesIntegration)
 		},
 	})
 
@@ -73,8 +77,8 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{kickrp + engine.TmplExtension},
 		Out:        kickrp,
-		Remove: func(config types.Repository) bool {
-			return config.GitLab == nil || !slices.Contains(config.GitLab.Options, kickr.GitLabOptionsKickr)
+		Remove: func(repo types.Repository) bool {
+			return repo.GitLab == nil || !slices.Contains(repo.GitLab.Options, kickr.GitLabOptionsKickr)
 		},
 	})
 
@@ -83,7 +87,7 @@ func GitLab() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{variables + engine.TmplExtension},
 		Out:        variables,
-		Remove:     func(config types.Repository) bool { return config.GitLab == nil },
+		Remove:     func(repo types.Repository) bool { return repo.GitLab == nil },
 	})
 
 	return templates

@@ -3,7 +3,7 @@
 name: Go Dependency Submission
 run-name: Go Dependency Submission
 
-<<- $specifics := get .Languages "go" >>
+<<- $specifics := get (first (.ModulesWith "go")).Languages "go" >>
 
 on:
   push:

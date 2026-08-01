@@ -25,14 +25,14 @@ func TestParserNode(t *testing.T) {
 				destdir := t.TempDir()
 				require.NoError(t, os.MkdirAll(filepath.Join(destdir, dir, parser.FilePackageJSON), files.RwxRxRxRx))
 
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: kickr.Kickr{
 						Website: &kickr.Website{Directory: dir},
 					},
 				}
 
 				// Act
-				err := generate.ParserNode(ctx, destdir, &config)
+				err := generate.ParserNode(ctx, destdir, &repo)
 
 				// Assert
 				assert.ErrorContains(t, err, "read json")
@@ -48,14 +48,14 @@ func TestParserNode(t *testing.T) {
 				require.NoError(t, os.MkdirAll(filepath.Join(destdir, dir), files.RwxRxRxRx))
 				require.NoError(t, os.WriteFile(filepath.Join(destdir, dir, parser.FilePackageJSON), []byte("{}"), files.RwRR))
 
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: kickr.Kickr{
 						Website: &kickr.Website{Directory: dir},
 					},
 				}
 
 				// Act
-				err := generate.ParserNode(ctx, destdir, &config)
+				err := generate.ParserNode(ctx, destdir, &repo)
 
 				// Assert
 				assert.ErrorIs(t, err, parser.ErrMissingPackageName)
@@ -75,14 +75,14 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(filepath.Join(destdir, "docs"), parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "pnpm@1.1.6", "private": true }`), files.RwRR))
 
-		config := types.Repository{
+		repo := types.Repository{
 			Kickr: kickr.Kickr{
 				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &config)
+		err := generate.ParserNode(ctx, destdir, &repo)
 
 		// Assert
 		assert.ErrorIs(t, err, generate.ErrMultipleManagers)
@@ -96,14 +96,14 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(filepath.Join(destdir, "docs"), parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "pnpm@1.1.6" }`), files.RwRR))
 
-		config := types.Repository{
+		repo := types.Repository{
 			Kickr: kickr.Kickr{
 				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &config)
+		err := generate.ParserNode(ctx, destdir, &repo)
 
 		// Assert
 		assert.ErrorIs(t, err, generate.ErrWebsiteNoPublish)
@@ -118,18 +118,18 @@ func TestParserNode(t *testing.T) {
 				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
-		config := types.Repository{
+		repo := types.Repository{
 			Kickr: kickr.Kickr{
 				Website: &kickr.Website{Directory: "docs"},
 			},
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &config)
+		err := generate.ParserNode(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_no_main", func(t *testing.T) {
@@ -139,27 +139,19 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(destdir, parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6" }`), files.RwRR))
 
-		expected := types.Repository{
-			Languages: map[string]any{
-				"node": generate.MonoNodes{
-					{
-						Directory: ".",
-						Specifics: parser.PackageJSON{
-							Name:           "kickr",
-							PackageManager: "bun@1.1.6",
-						},
-					},
-				},
-			},
-		}
-		config := types.Repository{}
+		expected := types.Repository{}
+		expected.Module(types.RootModule).SetLanguage(types.LanguageNode, parser.PackageJSON{
+			Name:           "kickr",
+			PackageManager: "bun@1.1.6",
+		})
+		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &config)
+		err := generate.ParserNode(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_main", func(t *testing.T) {
@@ -169,31 +161,24 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(destdir, parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`), files.RwRR))
 
-		expected := types.Repository{
-			Executables: parser.Executables{
-				Workers: map[string]any{"main": struct{}{}},
-			},
-			Languages: map[string]any{
-				"node": generate.MonoNodes{
-					{
-						Directory: ".",
-						Specifics: parser.PackageJSON{
-							Main:           func() *string { v := "index.js"; return &v }(),
-							Name:           "kickr",
-							PackageManager: "bun@1.1.6",
-						},
-					},
-				},
-			},
+		expected := types.Repository{}
+		module := expected.Module(types.RootModule)
+		module.Executables = parser.Executables{
+			Workers: map[string]any{"main": struct{}{}},
 		}
-		config := types.Repository{}
+		module.SetLanguage(types.LanguageNode, parser.PackageJSON{
+			Main:           func() *string { v := "index.js"; return &v }(),
+			Name:           "kickr",
+			PackageManager: "bun@1.1.6",
+		})
+		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &config)
+		err := generate.ParserNode(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_root_and_sub_directory", func(t *testing.T) {
@@ -207,54 +192,38 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(destdir, "docs", parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "private": true, "publishConfig": { "registry": "npm.example.org" } }`), files.RwRR))
 
-		expected := types.Repository{
-			Kickr: kickr.Kickr{
-				Website: &kickr.Website{Directory: "docs"},
-			},
-			Executables: parser.Executables{
-				Workers: map[string]any{"main": struct{}{}},
-			},
-			Languages: map[string]any{
-				"node": generate.MonoNodes{
-					{
-						Directory: ".",
-						Specifics: parser.PackageJSON{
-							Main:           func() *string { v := "index.js"; return &v }(),
-							Name:           "kickr",
-							PackageManager: "bun@1.1.6",
-						},
-					},
-					{
-						Directory: "docs",
-						Specifics: parser.PackageJSON{
-							Name:           "kickr",
-							PackageManager: "bun@1.1.6",
-							Private:        true,
-							PublishConfig: struct {
-								Access     string `json:"access,omitempty"`
-								Provenance bool   `json:"provenance,omitempty"`
-								Registry   string `json:"registry,omitempty"`
-								Tag        string `json:"tag,omitempty"`
-							}{
-								Registry: "npm.example.org",
-							},
-						},
-					},
-				},
-			},
+		conf := kickr.Kickr{Website: &kickr.Website{Directory: "docs"}}
+		expected := types.Repository{Kickr: conf}
+		root := expected.Module(types.RootModule)
+		root.Executables = parser.Executables{
+			Workers: map[string]any{"main": struct{}{}},
 		}
-		config := types.Repository{
-			Kickr: kickr.Kickr{
-				Website: &kickr.Website{Directory: "docs"},
+		root.SetLanguage(types.LanguageNode, parser.PackageJSON{
+			Main:           func() *string { v := "index.js"; return &v }(),
+			Name:           "kickr",
+			PackageManager: "bun@1.1.6",
+		})
+		expected.Module("docs").SetLanguage(types.LanguageNode, parser.PackageJSON{
+			Name:           "kickr",
+			PackageManager: "bun@1.1.6",
+			Private:        true,
+			PublishConfig: struct {
+				Access     string `json:"access,omitempty"`
+				Provenance bool   `json:"provenance,omitempty"`
+				Registry   string `json:"registry,omitempty"`
+				Tag        string `json:"tag,omitempty"`
+			}{
+				Registry: "npm.example.org",
 			},
-		}
+		})
+		repo := types.Repository{Kickr: conf}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &config)
+		err := generate.ParserNode(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_sub_directory", func(t *testing.T) {
@@ -265,35 +234,21 @@ func TestParserNode(t *testing.T) {
 			filepath.Join(destdir, "docs", parser.FilePackageJSON),
 			[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js", "private": true }`), files.RwRR))
 
-		expected := types.Repository{
-			Kickr: kickr.Kickr{
-				Website: &kickr.Website{Directory: "docs"},
-			},
-			Languages: map[string]any{
-				"node": generate.MonoNodes{
-					{
-						Directory: "docs",
-						Specifics: parser.PackageJSON{
-							Main:           func() *string { v := "index.js"; return &v }(),
-							Name:           "kickr",
-							PackageManager: "bun@1.1.6",
-							Private:        true,
-						},
-					},
-				},
-			},
-		}
-		config := types.Repository{
-			Kickr: kickr.Kickr{
-				Website: &kickr.Website{Directory: "docs"},
-			},
-		}
+		conf := kickr.Kickr{Website: &kickr.Website{Directory: "docs"}}
+		expected := types.Repository{Kickr: conf}
+		expected.Module("docs").SetLanguage(types.LanguageNode, parser.PackageJSON{
+			Main:           func() *string { v := "index.js"; return &v }(),
+			Name:           "kickr",
+			PackageManager: "bun@1.1.6",
+			Private:        true,
+		})
+		repo := types.Repository{Kickr: conf}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &config)
+		err := generate.ParserNode(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 }

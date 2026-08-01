@@ -5,10 +5,11 @@ jobs:
 <<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
 <<- $cmd := eq $engine "opentofu" | ternary "tofu" "terraform" >>
 
-<<- range $node := get .Languages "terraform" >>
+<<- range $node := .ModulesWith "terraform" >>
+<<- $specifics := get $node.Languages "terraform" >>
 
-  terraform-apply<< ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "" >>:
-    name: Terraform Apply<< ne $node.Directory "." | ternary (printf " (%s)" $node.Directory) "" >>
+  terraform-apply<< with $node.Slug >>-<< . >><< end >>:
+    name: Terraform Apply<< ne $node.Dir "." | ternary (printf " (%s)" $node.Dir) "" >>
     runs-on: ubuntu-latest
     if: ${{ inputs.<< $engine >>_apply != 'none' }}
     needs: version
@@ -43,10 +44,10 @@ jobs:
           - environment: production # enabled on production branches
             production: true
 <<- end >>
-<<- if ne $node.Directory "." >>
+<<- if ne $node.Dir "." >>
     defaults:
       run:
-        working-directory: << $node.Directory >>
+        working-directory: << $node.Dir >>
 <<- end >>
     steps:
 <<- if has "harden-runner" $.GitHub.Options >>
@@ -72,13 +73,13 @@ jobs:
       - run: |-
           << $cmd >> init
           << $cmd >> apply -no-color -auto-approve
-<<- if or (gt (len $node.Specifics.Variables) 0) (eq $node.Specifics.Backend "s3") >>
+<<- if or (gt (len $specifics.Variables) 0) (eq $specifics.Backend "s3") >>
         env:
-<<- if eq $node.Specifics.Backend "s3" >>
+<<- if eq $specifics.Backend "s3" >>
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
 <<- end >>
-<<- range $name, $var := $node.Specifics.Variables >>
+<<- range $name, $var := $specifics.Variables >>
 <<- $source := $var.Sensitive | ternary "secrets" "vars" >>
 <<- if and (hasPrefix "github_" $name) (ne "github_token" $name) >>
           TF_VAR_<< $name >>: ${{ << print "github." (trimPrefix "github_" $name) >> }}

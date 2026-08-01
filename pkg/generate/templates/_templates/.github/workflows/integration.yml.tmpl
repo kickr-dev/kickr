@@ -3,11 +3,12 @@
 name: Integration
 run-name: Integration
 
-<<- $golang := hasKey .Languages "go" >>
-<<- $node := hasKey .Languages "node" >>
-<<- $shell := and (not (has "shell" .Exclude)) (hasKey .Globs "shell") >>
+<<- $golang := .HasLanguage "go" >>
+<<- $node := .HasLanguage "node" >>
+<<- $docker := .HasDocker >>
+<<- $shell := and (not (has "shell" .Exclude)) (.HasGlob "shell") >>
 
-<<- $terraform := hasKey .Languages "terraform" >>
+<<- $terraform := .HasLanguage "terraform" >>
 <<- $engine := "opentofu" >>
 <<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
 
@@ -143,13 +144,25 @@ jobs:
           check_together: "yes"
 <<- end >>
 
-<<- if .Docker >>
+<<- if $docker >>
 
   docker-hadolint:
-    name: Docker Hadolint
+    name: Docker Hadolint ${{ matrix.name }}
     runs-on: ubuntu-latest
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+<<- range .Modules >>
+<<- if .HasDocker >>
+          - directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
+<<- end >>
+<<- end >>
+<<- end >>
     permissions:
       pull-requests: write
       security-events: write
@@ -165,13 +178,14 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
         with:
+          dockerfile: ${{ matrix.directory }}/Dockerfile
           format: sarif
           output-file: hadolint-results.sarif
       - if: ${{ !cancelled() }}
         uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a # v4.37.1
         with:
           sarif_file: hadolint-results.sarif
-          category: docker-hadolint
+          category: docker-hadolint/${{ matrix.directory }}
 <<- end >>
 
 <<- if .Helm >>
@@ -289,7 +303,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     needs:
-<<- if .Docker >>
+<<- if $docker >>
       - docker-hadolint
 <<- end >>
 <<- if $golang >>
@@ -305,8 +319,8 @@ jobs:
       - opentofu-check
       - opentofu-lint
 <<- if .HasTerraformApply >>
-<<- range $node := get .Languages "terraform" >>
-      - opentofu-plan<< ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "" >>
+<<- range $node := .ModulesWith "terraform" >>
+      - opentofu-plan<< with $node.Slug >>-<< . >><< end >>
 <<- end >>
 <<- end >>
 <<- end >>
@@ -317,8 +331,8 @@ jobs:
       - terraform-check
       - terraform-lint
 <<- if .HasTerraformApply >>
-<<- range $node := get .Languages "terraform" >>
-      - terraform-plan<< ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "" >>
+<<- range $node := .ModulesWith "terraform" >>
+      - terraform-plan<< with $node.Slug >>-<< . >><< end >>
 <<- end >>
 <<- end >>
 <<- end >>
@@ -342,7 +356,7 @@ jobs:
       - run: echo "All jobs ended with success"
 
 <<- $deploy := or
-  (and .Docker .Docker.Auto)
+  (and $docker .Docker.Auto)
   (and .Helm (or (eq .Helm.Deploy "auto") (eq .Helm.Publish "auto")))
   (and .Terraform (eq .Terraform.Apply "auto"))
   (and .Website .Website.Auto)

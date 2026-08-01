@@ -8,7 +8,8 @@ snapshot:
   version_template: "{{ .Env.APP_VERSION }}"
 
 builds:
-  - main: ./cmd/name
+  - id: name
+    main: ./cmd/name
     env:
       - CGO_ENABLED=0
     ldflags:

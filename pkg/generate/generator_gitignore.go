@@ -2,68 +2,85 @@ package generate
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
 	"slices"
-	"sync"
+	"strings"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/generator"
 
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
-	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-// GeneratorGitignore downloads and writes .gitignore file in its right path.
+// GeneratorGitignore fetches the languages related exclusions from https://docs.gitignore.io/use/api
+// and writes a .gitignore file in every module of the repository.
 //
-// It patches it alongside with custom kickr patches as some exclusion
-// may be missing depending on kickr layout generation.
-func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, config types.Repository) error {
+// Each module only gets the exclusions of the languages it's made of,
+// so a hugo module in a subdirectory gets the hugo exclusions in its own .gitignore, not the repository root one.
+//
+// The fetched content is appended to the kickr specific exclusions,
+// as some of them may be missing depending on kickr layout generation.
+func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, repo types.Repository) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
-	return func(ctx context.Context, destdir string, config types.Repository) error {
-		mapping := map[string][]string{
-			"go":        {"go"},
-			"helm":      {"helm"},
-			"hugo":      {"hugo"},
-			"node":      {"node"},
-			"shell":     nil,
-			"terraform": {"terraform"},
+
+	type data struct {
+		types.Module //nolint:embeddedstructfieldcheck
+		Downloaded   string
+	}
+
+	parameters := map[string][]string{
+		types.LanguageGo:        {"go"},
+		types.LanguageHelm:      {"helm"},
+		types.LanguageHugo:      {"hugo"},
+		types.LanguageNode:      {"node"},
+		types.LanguageTerraform: {"terraform"},
+	}
+
+	return func(ctx context.Context, destdir string, repo types.Repository) error {
+		modules := repo.Modules()
+
+		template := engine.Template[data]{
+			Delimiters:     engine.DelimitersBracket(),
+			GeneratePolicy: engine.PolicyAlways,
+			Globs:          []string{generator.FileGitignore + engine.TmplExtension},
+			Out:            generator.FileGitignore,
 		}
 
-		query := make([]string, 0, len(config.Languages)+3)
-		for lang := range config.Languages {
-			s, ok := mapping[lang]
-			if ok {
-				query = append(query, s...)
+		// modules sharing the same languages share the same payload, no need to fetch it twice
+		ignores := make(map[string]string, len(modules))
+		errs := make([]error, 0, len(modules))
+		for _, module := range modules {
+			query := make([]string, 0, len(module.Languages)+3)
+			for language := range module.Languages {
+				query = append(query, parameters[language]...)
+			}
+			query = append(query, "dotenv")
+			if module.Dir() == types.RootModule && repo.HasSonarQube() { // sonar analyzes the whole repository from its root, wherever the analyzed code lives
+				query = append(query, "sonar", "sonarqube")
+			}
+
+			slices.Sort(query) // languages come from a map, the query must stay stable across runs
+			key := strings.Join(query, ":")
+			if _, ok := ignores[key]; !ok {
+				body, err := generator.FetchGitignore(ctx, httpClient, query...)
+				if err != nil {
+					errs = append(errs, fmt.Errorf("download gitignore for '%s': %w", module.Dir(), err))
+					continue
+				}
+				ignores[key] = string(body)
+			}
+
+			if err := engine.ApplyTemplate(templates.FS(), filepath.Join(destdir, module.Dir()), template, data{Module: module, Downloaded: ignores[key]}); err != nil {
+				errs = append(errs, fmt.Errorf("apply template in '%s': %w", module.Dir(), err))
 			}
 		}
-		query = append(query, "dotenv")
-
-		one := sync.OnceFunc(func() { query = append(query, "sonar", "sonarqube") })
-		if config.GitHub != nil && slices.Contains(config.GitHub.Options, kickr.GitHubOptionsSonarQube) {
-			one()
-		}
-		if config.GitLab != nil && slices.Contains(config.GitLab.Options, kickr.GitLabOptionsSonarQube) {
-			one()
-		}
-
-		if err := generator.DownloadGitignore(ctx, httpClient, filepath.Join(destdir, generator.FileGitignore), query...); err != nil {
-			return fmt.Errorf("download gitignore: %w", err)
-		}
-
-		template := engine.Template[types.Repository]{
-			Delimiters: engine.DelimitersBracket(),
-			Patches:    []string{".gitignore" + engine.PatchExtension + engine.TmplExtension},
-			Out:        ".gitignore",
-		}
-		if err := engine.ApplyTemplate(templates.FS(), destdir, template, config); err != nil {
-			return fmt.Errorf("apply template: %w", err)
-		}
-		return nil
+		return errors.Join(errs...)
 	}
 }
 

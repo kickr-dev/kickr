@@ -19,37 +19,57 @@ import (
 // Note, since it does marshal input configuration in JSON
 // and merges it with <destdir>/chart/.kickr, this parser should be the last one called
 // to ensure the configuration is in a final state.
-func ParserHelm(_ context.Context, destdir string, config *types.Repository) error {
-	if config.Helm == nil {
+func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error {
+	if repo.Helm == nil {
 		return nil
 	}
 	engine.GetLogger().Infof("deployment with helm detected, configuration has 'helm' key in 'deployment' section")
 
+	modules := repo.Modules()
+
+	path := repo.VCS.ProjectPath
+	if repo.Docker != nil && repo.Docker.Path != "" {
+		path = repo.Docker.Path
+	}
+
+	executables := func(get func(types.Module) map[string]any) map[string]any {
+		result := map[string]any{}
+		for _, module := range modules {
+			repository := path
+			if slug := module.Slug(); slug != "" {
+				repository += "/" + slug
+			}
+			for name := range get(module) {
+				result[name] = map[string]any{"image": map[string]any{"repository": repository}}
+			}
+		}
+		return result
+	}
+
 	base := map[string]any{
-		"description": config.Description,
+		"description": repo.Description,
 		"docker": func() kickr.Docker {
-			if config.Docker != nil {
-				return *config.Docker
+			if repo.Docker != nil {
+				return *repo.Docker
 			}
 			return kickr.Docker{}
 		}(),
 
-		"clis":    config.Clis,
-		"crons":   config.Crons,
-		"jobs":    config.Jobs,
-		"workers": config.Workers,
+		"clis":    executables(func(m types.Module) map[string]any { return m.Clis }),
+		"crons":   executables(func(m types.Module) map[string]any { return m.Crons }),
+		"jobs":    executables(func(m types.Module) map[string]any { return m.Jobs }),
+		"workers": executables(func(m types.Module) map[string]any { return m.Workers }),
 
-		"maintainers": config.Maintainers,
-		"projectName": config.VCS.ProjectName,
-		"projectPath": config.VCS.ProjectPath,
+		"maintainers": repo.Maintainers,
+		"projectName": repo.VCS.ProjectName,
+		"projectPath": repo.VCS.ProjectPath,
 	}
 
 	values, err := parser.MergeValues(base, filepath.Join(destdir, "chart", kickr.CustomValues))
 	if err != nil {
 		return fmt.Errorf("merge values: %w", err)
 	}
-	config.SetLanguage("helm", values)
-
+	repo.Module(types.RootModule).SetLanguage(types.LanguageHelm, values)
 	return nil
 }
 

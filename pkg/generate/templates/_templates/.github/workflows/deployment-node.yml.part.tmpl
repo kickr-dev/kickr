@@ -1,8 +1,8 @@
 jobs:
 <<- define "node" >>
 
-<<- $nodes := get .Languages "node" >>
-<<- $manager := cutAfter (first $nodes).Specifics.PackageManager "@" >>
+<<- $nodes := .ModulesWith "node" >>
+<<- $manager := cutAfter (get (first $nodes).Languages "node").PackageManager "@" >>
 
 <<- $websiteDirectory := "." >>
 <<- if .Website >><<- $websiteDirectory = .Website.Directory | default "." >><<- end >>
@@ -17,12 +17,12 @@ jobs:
         include:
 <<- range $nodes >>
 <<- $artifact := "build" >>
-<<- if ne .Directory "." >><<- $artifact = print $artifact "-" .Directory >><<- end >>
-<<- if and ($.IsHosting "pages") (eq $websiteDirectory .Directory) >><<- $artifact = print $artifact "-pages" >><<- end >>
+<<- if ne .Dir "." >><<- $artifact = print $artifact "-" .Dir >><<- end >>
+<<- if and ($.IsHosting "pages") (eq $websiteDirectory .Dir) >><<- $artifact = print $artifact "-pages" >><<- end >>
           - artifact: << $artifact >>
-            directory: << .Directory >>
-<<- if ne .Directory "." >>
-            name: << printf "(%s)" .Directory >>
+            directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
 <<- end >>
 <<- end >>
     defaults:

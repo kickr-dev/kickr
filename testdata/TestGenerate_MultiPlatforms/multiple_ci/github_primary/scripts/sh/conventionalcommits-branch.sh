@@ -12,21 +12,24 @@ fi
 
 type="(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)"
 scope="(\(.+\))?"
-conventionalcommit="^${type}${scope}(!)?:\s.+$"
+conventionalcommit="^${type}${scope}(!)?:[[:space:]].+$"
 
-echo "validating commits againts $base_branch"
+echo "validating commits against $base_branch"
 
+commits=$(git log --pretty=format:%s "${base_branch}..HEAD")
 errors=0
-# shellcheck disable=SC2066
-for commit in "$(git log --pretty=format:%s "${base_branch}..HEAD")"; do
+while IFS= read -r commit; do
   echo "validating '$commit' with conventional commits specification"
-  if ! echo "$commit" | grep -qP "$conventionalcommit"; then
+  if ! echo "$commit" | grep -qE "$conventionalcommit"; then
     errors=$((errors+1))
   fi
-done
+done <<EOF
+$commits
+EOF
 
 if [ "$errors" -ne 0 ]; then
   echo "invalid commits present between $base_branch and HEAD"
+  exit 1
 else
   echo "all commits are valid"
 fi

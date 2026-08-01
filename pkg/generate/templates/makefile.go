@@ -2,33 +2,78 @@ package templates
 
 import (
 	"path"
-	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
-	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-// Makefile returns the slice of templates related to make configuration (build, test, docker make tasks).
-func Makefile() []engine.Template[types.Repository] {
-	return []engine.Template[types.Repository]{
+// Makefile returns the slice of templates related to make configuration for a given module (build, test, docker make tasks).
+func Makefile() []engine.Template[types.Module] {
+	return []engine.Template[types.Module]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"Makefile" + engine.TmplExtension},
 			Out:        "Makefile",
-			Remove: func(config types.Repository) bool {
-				_, ok := config.Languages["node"] // don't generate makefiles when there's only node language
-				return (ok && len(config.Languages) == 1) || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
+			Remove: func(module types.Module) bool {
+				return !module.HasMakefile()
 			},
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart(path.Join("scripts", "mk", "build.mk")),
 			Out:        path.Join("scripts", "mk", "build.mk"),
-			Remove: func(config types.Repository) bool {
-				_, ok := config.Languages["node"] // don't generate makefiles when there's only node language
-				return (ok && len(config.Languages) == 1) || slices.Contains(config.Exclude, kickr.ExcludeMakefile)
+			Remove: func(module types.Module) bool {
+				return !module.HasMakefile()
+			},
+		},
+	}
+}
+
+// RepositoryMakefile returns the slice of templates related to make configuration for the repository's root:
+//
+//   - build, test, docker make tasks
+//   - modules Makefiles aggregation
+func RepositoryMakefile() []engine.Template[types.Repository] {
+	return []engine.Template[types.Repository]{
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{"Makefile" + engine.TmplExtension},
+			Out:        "Makefile",
+			Remove: func(repo types.Repository) bool {
+				return !repo.HasMakefile()
+			},
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join("scripts", "mk", "modules.mk") + engine.TmplExtension},
+			Out:        path.Join("scripts", "mk", "modules.mk"),
+			Remove: func(repo types.Repository) bool {
+				for _, module := range repo.Modules() {
+					if module.Dir() != types.RootModule && module.HasMakefile() {
+						return false
+					}
+				}
+				return true
+			},
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join("scripts", "mk", "clean.mk") + engine.TmplExtension},
+			Out:        path.Join("scripts", "mk", "clean.mk"),
+			Remove: func(repo types.Repository) bool {
+				return !repo.HasMakefile()
+			},
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join("scripts", "mk", "lint.mk") + engine.TmplExtension},
+			Out:        path.Join("scripts", "mk", "lint.mk"),
+			Remove: func(repo types.Repository) bool {
+				if !repo.HasLanguage(types.LanguageGo) && !repo.HasLanguage(types.LanguageTerraform) {
+					return true
+				}
+				return !repo.HasMakefile()
 			},
 		},
 	}

@@ -7,22 +7,22 @@ import (
 )
 
 // Docker returns the slice of templates related to Docker generation (Dockerfile, .dockerignore, etc.).
-func Docker() []engine.Template[types.Repository] {
-	return []engine.Template[types.Repository]{
+func Docker() []engine.Template[types.Module] {
+	return []engine.Template[types.Module]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart("Dockerfile"),
 			Out:        "Dockerfile",
-			Remove: func(config types.Repository) bool {
-				return config.Docker == nil
+			Remove: func(module types.Module) bool {
+				return !module.HasDocker()
 			},
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".dockerignore" + engine.TmplExtension},
 			Out:        ".dockerignore",
-			Remove: func(config types.Repository) bool {
-				return config.Docker == nil
+			Remove: func(module types.Module) bool {
+				return !module.HasDocker()
 			},
 		},
 		{
@@ -31,9 +31,9 @@ func Docker() []engine.Template[types.Repository] {
 			Out:        "launcher.sh",
 			// launcher.sh is a specific thing to golang being able to have multiple binaries inside a simple project (cmd folder)
 			// however, it may change in the future with python (or rust or others ?) depending on flexibility in repositories layout
-			Remove: func(config types.Repository) bool {
-				_, ok := config.Languages["go"]
-				return !ok || config.Docker == nil || config.Binaries() <= 1
+			Remove: func(module types.Module) bool {
+				_, ok := module.Languages[types.LanguageGo]
+				return !ok || !module.HasDocker() || module.Binaries() <= 1
 			},
 		},
 	}

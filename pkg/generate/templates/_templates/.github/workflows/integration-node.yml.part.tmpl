@@ -1,8 +1,8 @@
 jobs:
 <<- define "node" >>
 
-<<- $nodes := get .Languages "node" >>
-<<- $manager := cutAfter (first $nodes).Specifics.PackageManager "@" >>
+<<- $nodes := .ModulesWith "node" >>
+<<- $manager := cutAfter (get (first $nodes).Languages "node").PackageManager "@" >>
 
   node-audit:
     name: Node Audit ${{ matrix.name }}
@@ -14,9 +14,9 @@ jobs:
       matrix:
         include:
 <<- range $nodes >>
-          - directory: << .Directory >>
-<<- if ne .Directory "." >>
-            name: << printf "(%s)" .Directory >>
+          - directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
 <<- end >>
 <<- end >>
     defaults:
@@ -66,10 +66,10 @@ jobs:
       matrix:
         include:
 <<- range $nodes >>
-          - artifact: << ne .Directory "." | ternary (print "lint-" .Directory) "lint" >>
-            directory: << .Directory >>
-<<- if ne .Directory "." >>
-            name: << printf "(%s)" .Directory >>
+          - artifact: << ne .Dir "." | ternary (print "lint-" .Dir) "lint" >>
+            directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
 <<- end >>
 <<- end >>
     defaults:
@@ -127,22 +127,22 @@ jobs:
       matrix:
         include:
 <<- range $nodes >>
-          - artifact: << ne .Directory "." | ternary (print "coverage-" .Directory) "coverage" >>
-            directory: << .Directory >>
-<<- if ne .Directory "." >>
-            name: << printf "(%s)" .Directory >>
+          - artifact: << ne .Dir "." | ternary (print "coverage-" .Dir) "coverage" >>
+            directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
 <<- end >>
             os: macos-latest
-          - artifact: << ne .Directory "." | ternary (print "coverage-" .Directory) "coverage" >>
-            directory: << .Directory >>
-<<- if ne .Directory "." >>
-            name: << printf "(%s)" .Directory >>
+          - artifact: << ne .Dir "." | ternary (print "coverage-" .Dir) "coverage" >>
+            directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
 <<- end >>
             os: ubuntu-latest
-          - artifact: << ne .Directory "." | ternary (print "coverage-" .Directory) "coverage" >>
-            directory: << .Directory >>
-<<- if ne .Directory "." >>
-            name: << printf "(%s)" .Directory >>
+          - artifact: << ne .Dir "." | ternary (print "coverage-" .Dir) "coverage" >>
+            directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
 <<- end >>
             os: windows-latest
 <<- end >>

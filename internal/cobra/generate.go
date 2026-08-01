@@ -32,15 +32,19 @@ func generators() []engine.Generator[types.Repository] {
 		generate.GeneratorGitignore(client), // gitignore
 		generate.GeneratorLicense(client),   // license
 
+		engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Docker()),   // module docker
+		engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Golang()),   // module golang
+		engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Makefile()), // module makefile
+
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
-		engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
-		engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
-		engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
+		engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
+		engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
 		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
 		engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
 		engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
+
 	}
 }
 
@@ -104,13 +108,12 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 				generate.ParserHelm,
 			}
 
-			result, err := engine.Generate(cmd.Context(), *wd, types.Repository{Kickr: config}, parsers, generators)
-			if err != nil {
+			if err := engine.Generate(cmd.Context(), *wd, types.Repository{Kickr: config}, parsers, generators); err != nil {
 				return err
 			}
 
 			// save configuration again in case it was modified during generation
-			return files.WriteYAML(dest, result.Kickr, kickr.EncodeOpts()...)
+			return files.WriteYAML(dest, config, kickr.EncodeOpts()...)
 		},
 	}
 

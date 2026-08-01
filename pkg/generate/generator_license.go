@@ -18,11 +18,11 @@ import (
 )
 
 // GeneratorLicense generates the license file for the project.
-func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir string, config types.Repository) error {
+func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir string, repo types.Repository) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
-	return func(ctx context.Context, destdir string, config types.Repository) error {
+	return func(ctx context.Context, destdir string, repo types.Repository) error {
 		client, err := gitlab.NewClient(os.Getenv("GITLAB_TOKEN"),
 			gitlab.WithBaseURL(generator.GitLabURL),
 			gitlab.WithHTTPClient(httpClient),
@@ -38,7 +38,7 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 		}
 
 		dest := filepath.Join(destdir, generator.FileLicense)
-		if config.License == "" {
+		if repo.License == "" {
 			engine.GetLogger().Infof("skipping license generation, configuration doesn't have 'license' key")
 			if err := os.Remove(dest); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf("remove '%s': %w", generator.FileLicense, err)
@@ -54,18 +54,18 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 
 		opts := generator.LicenseOptions{
 			Client:  client,
-			License: config.License,
+			License: repo.License,
 			Maintainer: func() *string {
 				var zero string
-				if len(config.Maintainers) == 0 {
+				if len(repo.Maintainers) == 0 {
 					return &zero
 				}
-				if config.Maintainers[0] == nil {
+				if repo.Maintainers[0] == nil {
 					return &zero
 				}
-				return &config.Maintainers[0].Name
+				return &repo.Maintainers[0].Name
 			}(),
-			Project: &config.VCS.ProjectName,
+			Project: &repo.VCS.ProjectName,
 		}
 		if err := generator.DownloadLicense(dest, opts); err != nil {
 			return fmt.Errorf("download license: %w", err)

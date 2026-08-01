@@ -47,14 +47,14 @@ func TestParserGlob(t *testing.T) {
 				}
 
 				expected := map[string]any{tc.GlobName: tc.Files}
-				config := types.Repository{}
+				repo := types.Repository{}
 
 				// Act
-				err := generate.ParserGlob(t.Context(), destdir, &config)
+				err := generate.ParserGlob(t.Context(), destdir, &repo)
 
 				// Assert
 				require.NoError(t, err)
-				assert.Equal(t, expected, config.Globs)
+				assert.Equal(t, expected, repo.Module(types.RootModule).Globs)
 			})
 		}
 	})

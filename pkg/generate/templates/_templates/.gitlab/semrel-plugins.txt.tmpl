@@ -6,7 +6,7 @@
 @semantic-release/release-notes-generator@14.1.1
 conventional-changelog-conventionalcommits@9.3.1
 
-{{- if hasKey .Languages "node" }}
+{{- if .HasLanguage "node" }}
 @semantic-release/npm@13.1.5
 {{- end }}
 

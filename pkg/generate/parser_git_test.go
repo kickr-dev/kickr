@@ -20,14 +20,14 @@ func TestParserGit(t *testing.T) {
 	t.Run("success_no_vcs", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		config := types.Repository{}
+		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserGit(ctx, destdir, &config)
+		err := generate.ParserGit(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Zero(t, config)
+		assert.Zero(t, repo)
 	})
 
 	t.Run("success_vcs", func(t *testing.T) {
@@ -41,20 +41,20 @@ func TestParserGit(t *testing.T) {
 				ProjectPath: "kickr-dev/kickr",
 			},
 		}
-		config := types.Repository{}
+		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &config)
+		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &repo)
 
 		// Assert
 		require.NoError(t, err)
 		assert.Equal(t, expected, types.Repository{
-			Kickr: config.Kickr,
+			Kickr: repo.Kickr,
 			VCS: parser.VCS{
-				Platform:    config.VCS.Platform,
-				ProjectHost: config.VCS.ProjectHost,
-				ProjectName: config.VCS.ProjectName,
-				ProjectPath: config.VCS.ProjectPath,
+				Platform:    repo.VCS.Platform,
+				ProjectHost: repo.VCS.ProjectHost,
+				ProjectName: repo.VCS.ProjectName,
+				ProjectPath: repo.VCS.ProjectPath,
 				// ignore tags
 			},
 		})
@@ -71,22 +71,22 @@ func TestParserGit(t *testing.T) {
 				ProjectPath: "kickr-dev/kickr",
 			},
 		}
-		config := types.Repository{
+		repo := types.Repository{
 			Kickr: kickr.Kickr{Platform: parser.GitHub},
 		}
 
 		// Act
-		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &config)
+		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &repo)
 
 		// Assert
 		require.NoError(t, err)
 		assert.Equal(t, expected, types.Repository{
-			Kickr: config.Kickr,
+			Kickr: repo.Kickr,
 			VCS: parser.VCS{
-				Platform:    config.VCS.Platform,
-				ProjectHost: config.VCS.ProjectHost,
-				ProjectName: config.VCS.ProjectName,
-				ProjectPath: config.VCS.ProjectPath,
+				Platform:    repo.VCS.Platform,
+				ProjectHost: repo.VCS.ProjectHost,
+				ProjectName: repo.VCS.ProjectName,
+				ProjectPath: repo.VCS.ProjectPath,
 				// ignore tags
 			},
 		})

@@ -1,6 +1,6 @@
 jobs:
 <<- define "golang" >>
-<<- $specifics := get .Languages "go" >>
+<<- $specifics := get (first (.ModulesWith "go")).Languages "go" >>
 
   go-vulncheck:
     name: Go Vulnerability Check

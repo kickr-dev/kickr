@@ -14,7 +14,7 @@ coverage:
         threshold: 2.5%
 
 ignore:
-{{- if hasKey .Languages "go" }}
+{{- if .HasLanguage "go" }}
   - "cmd"
   - "examples"
   - "testdata"
@@ -25,7 +25,7 @@ ignore:
   - "**/testdata/**"
   - "**/testutils/**"
 {{- end }}
-{{- if hasKey .Languages "node" }}
+{{- if .HasLanguage "node" }}
   - "dist"
   - "node_modules"
   - "**/*.spec.js"

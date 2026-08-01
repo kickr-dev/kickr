@@ -2,10 +2,10 @@
 
 # https://semantic-release.gitbook.io/semantic-release/usage/configuration
 
-{{- $golang := hasKey .Languages "go" }}
-{{- $gobuild := and $golang (gt .Binaries 0) }}
+{{- $golang := .HasLanguage "go" }}
+{{- $gobuild := and $golang (gt .Executables.Binaries 0) }}
 
-{{- $node := hasKey .Languages "node" }}
+{{- $node := .HasLanguage "node" }}
 
 branches:
   - (main|master)

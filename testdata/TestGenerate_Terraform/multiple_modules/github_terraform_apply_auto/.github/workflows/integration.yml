@@ -123,7 +123,7 @@ jobs:
           category: tflint
           sarif_file: reports/tflint.sarif
 
-  terraform-plan-4f87104d:
+  terraform-plan-modules-one:
     name: Terraform Plan (modules/one)
     runs-on: ubuntu-latest
     needs: terraform-check
@@ -150,7 +150,7 @@ jobs:
           TF_VAR_my_secret: ${{ vars.MY_SECRET }}
           TF_VAR_my_var: ${{ vars.MY_VAR }}
 
-  terraform-plan-046426cf:
+  terraform-plan-modules-two:
     name: Terraform Plan (modules/two)
     runs-on: ubuntu-latest
     needs: terraform-check
@@ -185,8 +185,8 @@ jobs:
       - pre-commit
       - terraform-check
       - terraform-lint
-      - terraform-plan-4f87104d
-      - terraform-plan-046426cf
+      - terraform-plan-modules-one
+      - terraform-plan-modules-two
     steps:
       - if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'skipped') || contains(needs.*.result, 'cancelled') }}
         run: echo "Some jobs didn't end with success status" && exit 1

@@ -6,7 +6,7 @@
     "$schema": "https://docs.renovatebot.com/renovate-global-schema.json",
 
     "autodiscover": true,
-{{- if eq (len .Languages) 0 }}
+{{- if not .HasLanguages }}
     "autodiscoverNamespaces": ["{{ trimSuffix (print "/" .VCS.ProjectName) .VCS.ProjectPath }}"],
 {{- else }}
     "autodiscoverFilter": ["{{ .VCS.ProjectPath }}"],

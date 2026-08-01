@@ -9,9 +9,8 @@ import (
 // Terraform returns the slice of templates related to Terraform / OpenTofu generation (tflint).
 func Terraform() []engine.Template[types.Repository] {
 	// Terraform wasn't parsed during parsers processing
-	noTerraform := func(config types.Repository) bool {
-		_, ok := config.Languages["terraform"]
-		return !ok
+	noTerraform := func(repo types.Repository) bool {
+		return !repo.HasLanguage(types.LanguageTerraform)
 	}
 
 	return []engine.Template[types.Repository]{

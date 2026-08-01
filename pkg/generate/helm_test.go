@@ -58,10 +58,9 @@ func TestHelmTemplate(t *testing.T) {
 
 			// generate chart files
 			destdir := t.TempDir()
-			require.NoError(t, generate(ctx, destdir, types.Repository{
-				Kickr:     kickr.Kickr{Helm: &kickr.Helm{}},
-				Languages: map[string]any{"helm": map[string]any{"projectName": "kickr"}},
-			}))
+			repo := types.Repository{Kickr: kickr.Kickr{Helm: &kickr.Helm{}}}
+			repo.Module(types.RootModule).SetLanguage(types.LanguageHelm, map[string]any{"projectName": "kickr"})
+			require.NoError(t, generate(ctx, destdir, repo))
 			chartdir := filepath.Join(destdir, "chart")
 
 			// remove default values since we use custom ones

@@ -26,8 +26,8 @@ func Chart() (templates []engine.Template[types.Repository]) {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
-			Remove: func(config types.Repository) bool {
-				return config.Helm == nil
+			Remove: func(repo types.Repository) bool {
+				return repo.Helm == nil
 			},
 		})
 	}
@@ -43,8 +43,8 @@ func Chart() (templates []engine.Template[types.Repository]) {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
-			Remove: func(config types.Repository) bool {
-				return config.Helm == nil
+			Remove: func(repo types.Repository) bool {
+				return repo.Helm == nil
 			},
 		})
 	}
@@ -53,8 +53,8 @@ func Chart() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      engine.GlobsWithPart(path.Join("chart", "values.yaml")),
 		Out:        path.Join("chart", "values.yaml"),
-		Remove: func(config types.Repository) bool {
-			return config.Helm == nil
+		Remove: func(repo types.Repository) bool {
+			return repo.Helm == nil
 		},
 	})
 

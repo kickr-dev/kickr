@@ -2,9 +2,9 @@
 
 // https://docs.renovatebot.com/configuration-options/
 
-{{- $gomod := hasKey .Globs "gomod" }}
-{{- $terraform := hasKey .Languages "terraform" }}
-{{- $tmpl := hasKey .Globs "tmpl" }}
+{{- $gomod := .HasGlob "gomod" }}
+{{- $terraform := .HasLanguage "terraform" }}
+{{- $tmpl := .HasGlob "tmpl" }}
 
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",

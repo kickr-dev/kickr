@@ -13,7 +13,7 @@ import (
 
 // ParserGit adds git configuration (if the current repository is a git repository)
 // to the configuration.
-func ParserGit(_ context.Context, destdir string, config *types.Repository) error {
+func ParserGit(_ context.Context, destdir string, repo *types.Repository) error {
 	vcs, err := parser.Git(destdir)
 	if err != nil {
 		for _, is := range []error{git.ErrRepositoryNotExists, git.ErrRemoteNotFound} {
@@ -26,11 +26,11 @@ func ParserGit(_ context.Context, destdir string, config *types.Repository) erro
 	}
 	engine.GetLogger().Infof("git repository detected")
 
-	config.VCS = vcs
-	if config.Platform != "" {
-		config.VCS.Platform = config.Platform
+	repo.VCS = vcs
+	if repo.Platform != "" {
+		repo.VCS.Platform = repo.Platform
 	} else {
-		config.Platform = config.VCS.Platform
+		repo.Platform = repo.VCS.Platform
 	}
 	return nil
 }

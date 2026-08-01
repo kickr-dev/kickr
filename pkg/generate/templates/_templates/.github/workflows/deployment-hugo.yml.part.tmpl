@@ -12,14 +12,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-<<- range get .Languages "hugo" >>
+<<- range .ModulesWith "hugo" >>
 <<- $artifact := "build" >>
-<<- if ne .Directory "." >><<- $artifact = print $artifact "-" .Directory >><<- end >>
-<<- if and ($.IsHosting "pages") (eq $websiteDirectory .Directory) >><<- $artifact = print $artifact "-pages" >><<- end >>
+<<- if ne .Dir "." >><<- $artifact = print $artifact "-" .Dir >><<- end >>
+<<- if and ($.IsHosting "pages") (eq $websiteDirectory .Dir) >><<- $artifact = print $artifact "-pages" >><<- end >>
           - artifact: << $artifact >>
-            directory: << .Directory >>
-<<- if ne .Directory "." >>
-            name: << printf "(%s)" .Directory >>
+            directory: << .Dir >>
+<<- if ne .Dir "." >>
+            name: << printf "(%s)" .Dir >>
 <<- end >>
 <<- end >>
     defaults:

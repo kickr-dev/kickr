@@ -121,7 +121,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			map[string]string{"fullname": "name", "project": "kickr"},
 			httpmock.NewJsonResponderOrPanic(http.StatusOK, gitlab.LicenseTemplate{Content: "some content"}))
 
-		config := types.Repository{
+		repo := types.Repository{
 			Kickr: kickr.Kickr{
 				License:     "mit",
 				Maintainers: []*kickr.Maintainer{{Name: "name"}},
@@ -130,7 +130,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		}
 
 		// Act
-		err := gen(ctx, destdir, config)
+		err := gen(ctx, destdir, repo)
 
 		// Assert
 		require.NoError(t, err)

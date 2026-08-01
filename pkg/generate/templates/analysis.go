@@ -17,8 +17,8 @@ func CodeCov() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{name + engine.TmplExtension},
 			Out:        name,
-			Remove: func(config types.Repository) bool {
-				return config.GitHub == nil || !slices.Contains(config.GitHub.Options, kickr.GitHubOptionsCodecov)
+			Remove: func(repo types.Repository) bool {
+				return repo.GitHub == nil || !slices.Contains(repo.GitHub.Options, kickr.GitHubOptionsCodecov)
 			},
 		},
 	}
@@ -32,9 +32,9 @@ func Sonar() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{name + engine.TmplExtension},
 			Out:        name,
-			Remove: func(config types.Repository) bool {
-				gitlab := config.GitLab != nil && slices.Contains(config.GitLab.Options, kickr.GitLabOptionsSonarQube)
-				github := config.GitHub != nil && slices.Contains(config.GitHub.Options, kickr.GitHubOptionsSonarQube)
+			Remove: func(repo types.Repository) bool {
+				gitlab := repo.GitLab != nil && slices.Contains(repo.GitLab.Options, kickr.GitLabOptionsSonarQube)
+				github := repo.GitHub != nil && slices.Contains(repo.GitHub.Options, kickr.GitHubOptionsSonarQube)
 				return !github && !gitlab
 			},
 		},

@@ -37,19 +37,24 @@ func (k Kickr) HasTerraformApply() bool {
 	return k.Terraform != nil && k.Terraform.Apply != ""
 }
 
+// HasSonarQube returns truthy in case SonarQube analysis is enabled on either platform.
+func (k Kickr) HasSonarQube() bool {
+	if k.GitHub != nil && slices.Contains(k.GitHub.Options, GitHubOptionsSonarQube) {
+		return true
+	}
+	if k.GitLab != nil && slices.Contains(k.GitLab.Options, GitLabOptionsSonarQube) {
+		return true
+	}
+	return false
+}
+
 // HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
 func (k Kickr) HasKickr() bool {
-	for _, cond := range []bool{
-		k.GitLab != nil && slices.ContainsFunc(k.GitLab.Options, func(o string) bool {
-			return o == GitLabOptionsKickr
-		}),
-		k.GitHub != nil && slices.ContainsFunc(k.GitHub.Options, func(o string) bool {
-			return o == GitHubOptionsKickrGitHubApp || o == GitHubOptionsKickrPersonalToken
-		}),
-	} {
-		if cond {
-			return true
-		}
+	if k.GitHub != nil && slices.ContainsFunc(k.GitHub.Options, func(o string) bool { return o == GitHubOptionsKickrGitHubApp || o == GitHubOptionsKickrPersonalToken }) {
+		return true
+	}
+	if k.GitLab != nil && slices.ContainsFunc(k.GitLab.Options, func(o string) bool { return o == GitLabOptionsKickr }) {
+		return true
 	}
 	return false
 }

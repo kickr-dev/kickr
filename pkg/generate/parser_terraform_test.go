@@ -1,6 +1,7 @@
 package generate_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -21,7 +22,7 @@ func TestParserTerraform(t *testing.T) {
 	t.Run("error_invalid_module", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		config := types.Repository{
+		repo := types.Repository{
 			Kickr: kickr.Kickr{
 				Terraform: &kickr.Terraform{
 					Modules: []string{"path"},
@@ -30,7 +31,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &config)
+		err := generate.ParserTerraform(ctx, destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "module 'path' isn't a terraform module")
@@ -45,7 +46,7 @@ func TestParserTerraform(t *testing.T) {
 		err := generate.ParserTerraform(ctx, destdir, &types.Repository{})
 
 		// Assert
-		assert.ErrorContains(t, err, "load module:")
+		assert.ErrorContains(t, err, fmt.Sprintf("load module '%s':", filepath.Base(destdir)))
 	})
 
 	t.Run("error_invalid_submodules_file", func(t *testing.T) {
@@ -58,14 +59,14 @@ func TestParserTerraform(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "another_module"), files.RwxRxRxRx))
 		require.NoError(t, os.WriteFile(filepath.Join(destdir, "another_module", "main.tf"), []byte("invalid file"), files.RwRR))
 
-		config := types.Repository{
+		repo := types.Repository{
 			Kickr: kickr.Kickr{
 				Terraform: &kickr.Terraform{Modules: []string{"module", "another_module"}},
 			},
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &config)
+		err := generate.ParserTerraform(ctx, destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "load module 'module':")
@@ -75,14 +76,14 @@ func TestParserTerraform(t *testing.T) {
 	t.Run("success_no_terraform", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		config := types.Repository{}
+		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &config)
+		err := generate.ParserTerraform(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Zero(t, config)
+		assert.Zero(t, repo)
 	})
 
 	t.Run("success_root", func(t *testing.T) {
@@ -91,45 +92,72 @@ func TestParserTerraform(t *testing.T) {
 		require.NoError(t, os.WriteFile(filepath.Join(destdir, "main.tf"), []byte(`variable "my_var" {}`), files.RwRR))
 		require.NoError(t, os.WriteFile(filepath.Join(destdir, "state.tf"), []byte(`terraform { backend "local" {} }`), files.RwRR))
 
-		config := types.Repository{}
-		expected := types.Repository{
-			Languages: map[string]any{
-				"terraform": generate.MonoTerraforms{
-					{
-						Directory: ".",
-						Specifics: generate.TerraformModule{
-							Backend: "local",
-							Module: &tfconfig.Module{
-								Path: destdir,
-								Variables: map[string]*tfconfig.Variable{
-									"my_var": {
-										Name:     "my_var",
-										Required: true,
-										Pos: tfconfig.SourcePos{
-											Filename: filepath.Join(destdir, "main.tf"),
-											Line:     1,
-										},
-									},
-								},
-								Outputs:           map[string]*tfconfig.Output{},
-								RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
-								ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
-								ManagedResources:  map[string]*tfconfig.Resource{},
-								DataResources:     map[string]*tfconfig.Resource{},
-								ModuleCalls:       map[string]*tfconfig.ModuleCall{},
-							},
+		repo := types.Repository{}
+		expected := types.Repository{}
+		expected.Module(types.RootModule).SetLanguage(types.LanguageTerraform, generate.TerraformModule{
+			Backend: "local",
+			Module: &tfconfig.Module{
+				Path: destdir,
+				Variables: map[string]*tfconfig.Variable{
+					"my_var": {
+						Name:     "my_var",
+						Required: true,
+						Pos: tfconfig.SourcePos{
+							Filename: filepath.Join(destdir, "main.tf"),
+							Line:     1,
 						},
 					},
 				},
+				Outputs:           map[string]*tfconfig.Output{},
+				RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
+				ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
+				ManagedResources:  map[string]*tfconfig.Resource{},
+				DataResources:     map[string]*tfconfig.Resource{},
+				ModuleCalls:       map[string]*tfconfig.ModuleCall{},
 			},
-		}
+		})
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &config)
+		err := generate.ParserTerraform(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
+	})
+
+	t.Run("success_root_and_subdirectories", func(t *testing.T) {
+		// Arrange
+		destdir := t.TempDir()
+		require.NoError(t, os.WriteFile(filepath.Join(destdir, "main.tf"), []byte(`terraform { backend "s3" {} }`), files.RwRR))
+
+		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "module"), files.RwxRxRxRx))
+		require.NoError(t, os.WriteFile(filepath.Join(destdir, "module", "main.tf"), []byte(`terraform { backend "http" {} }`), files.RwRR))
+
+		conf := kickr.Kickr{Terraform: &kickr.Terraform{Modules: []string{"module"}}}
+		repo := types.Repository{Kickr: conf}
+
+		tfmodule := func(dir string) *tfconfig.Module {
+			return &tfconfig.Module{
+				Path:              filepath.Join(destdir, dir),
+				Variables:         map[string]*tfconfig.Variable{},
+				Outputs:           map[string]*tfconfig.Output{},
+				RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
+				ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
+				ManagedResources:  map[string]*tfconfig.Resource{},
+				DataResources:     map[string]*tfconfig.Resource{},
+				ModuleCalls:       map[string]*tfconfig.ModuleCall{},
+			}
+		}
+		expected := types.Repository{Kickr: conf}
+		expected.Module(types.RootModule).SetLanguage(types.LanguageTerraform, generate.TerraformModule{Backend: "s3", Module: tfmodule("")})
+		expected.Module("module").SetLanguage(types.LanguageTerraform, generate.TerraformModule{Backend: "http", Module: tfmodule("module")})
+
+		// Act
+		err := generate.ParserTerraform(ctx, destdir, &repo)
+
+		// Assert
+		require.NoError(t, err)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_subdirectories", func(t *testing.T) {
@@ -144,76 +172,59 @@ func TestParserTerraform(t *testing.T) {
 		require.NoError(t, os.WriteFile(filepath.Join(destdir, "another_module", "main.tf"), []byte(`variable "another_module_var" {}`), files.RwRR))
 		require.NoError(t, os.WriteFile(filepath.Join(destdir, "another_module", "backend.tf"), []byte(`terraform { backend "http" {} }`), files.RwRR))
 
-		config := types.Repository{
-			Kickr: kickr.Kickr{
-				Terraform: &kickr.Terraform{Modules: []string{"module", "another_module"}},
-			},
-		}
-		expected := types.Repository{
-			Kickr: kickr.Kickr{
-				Terraform: &kickr.Terraform{Modules: []string{"module", "another_module"}},
-			},
-			Languages: map[string]any{
-				"terraform": generate.MonoTerraforms{
-					{
-						Directory: "module",
-						Specifics: generate.TerraformModule{
-							Backend: "s3",
-							Module: &tfconfig.Module{
-								Path: filepath.Join(destdir, "module"),
-								Variables: map[string]*tfconfig.Variable{
-									"module_var": {
-										Name:     "module_var",
-										Required: true,
-										Pos: tfconfig.SourcePos{
-											Filename: filepath.Join(destdir, "module", "main.tf"),
-											Line:     1,
-										},
-									},
-								},
-								Outputs:           map[string]*tfconfig.Output{},
-								RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
-								ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
-								ManagedResources:  map[string]*tfconfig.Resource{},
-								DataResources:     map[string]*tfconfig.Resource{},
-								ModuleCalls:       map[string]*tfconfig.ModuleCall{},
-							},
-						},
-					},
-					{
-						Directory: "another_module",
-						Specifics: generate.TerraformModule{
-							Backend: "http",
-							Module: &tfconfig.Module{
-								Path: filepath.Join(destdir, "another_module"),
-								Variables: map[string]*tfconfig.Variable{
-									"another_module_var": {
-										Name:     "another_module_var",
-										Required: true,
-										Pos: tfconfig.SourcePos{
-											Filename: filepath.Join(destdir, "another_module", "main.tf"),
-											Line:     1,
-										},
-									},
-								},
-								Outputs:           map[string]*tfconfig.Output{},
-								RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
-								ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
-								ManagedResources:  map[string]*tfconfig.Resource{},
-								DataResources:     map[string]*tfconfig.Resource{},
-								ModuleCalls:       map[string]*tfconfig.ModuleCall{},
-							},
+		conf := kickr.Kickr{Terraform: &kickr.Terraform{Modules: []string{"module", "another_module"}}}
+		repo := types.Repository{Kickr: conf}
+		expected := types.Repository{Kickr: conf}
+		expected.Module("another_module").SetLanguage(types.LanguageTerraform, generate.TerraformModule{
+			Backend: "http",
+			Module: &tfconfig.Module{
+				Path: filepath.Join(destdir, "another_module"),
+				Variables: map[string]*tfconfig.Variable{
+					"another_module_var": {
+						Name:     "another_module_var",
+						Required: true,
+						Pos: tfconfig.SourcePos{
+							Filename: filepath.Join(destdir, "another_module", "main.tf"),
+							Line:     1,
 						},
 					},
 				},
+				Outputs:           map[string]*tfconfig.Output{},
+				RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
+				ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
+				ManagedResources:  map[string]*tfconfig.Resource{},
+				DataResources:     map[string]*tfconfig.Resource{},
+				ModuleCalls:       map[string]*tfconfig.ModuleCall{},
 			},
-		}
+		})
+		expected.Module("module").SetLanguage(types.LanguageTerraform, generate.TerraformModule{
+			Backend: "s3",
+			Module: &tfconfig.Module{
+				Path: filepath.Join(destdir, "module"),
+				Variables: map[string]*tfconfig.Variable{
+					"module_var": {
+						Name:     "module_var",
+						Required: true,
+						Pos: tfconfig.SourcePos{
+							Filename: filepath.Join(destdir, "module", "main.tf"),
+							Line:     1,
+						},
+					},
+				},
+				Outputs:           map[string]*tfconfig.Output{},
+				RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
+				ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
+				ManagedResources:  map[string]*tfconfig.Resource{},
+				DataResources:     map[string]*tfconfig.Resource{},
+				ModuleCalls:       map[string]*tfconfig.ModuleCall{},
+			},
+		})
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &config)
+		err := generate.ParserTerraform(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 }

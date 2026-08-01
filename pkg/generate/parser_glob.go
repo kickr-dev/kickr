@@ -13,7 +13,7 @@ import (
 // ParserGlob is a simple parser checking whether specific globs exist within the destdir project.
 //
 // It adds any matches into config Globs property.
-func ParserGlob(_ context.Context, destdir string, config *types.Repository) error {
+func ParserGlob(_ context.Context, destdir string, repo *types.Repository) error {
 	checks := []struct {
 		Glob string
 		Name string
@@ -40,7 +40,7 @@ func ParserGlob(_ context.Context, destdir string, config *types.Repository) err
 			}
 			paths = append(paths, filepath.ToSlash(path))
 		}
-		config.SetGlob(check.Name, paths)
+		repo.Module(types.RootModule).SetGlob(check.Name, paths)
 	}
 	return nil
 }

@@ -1,24 +1,7 @@
 {{- define "golang" }}
 {{- $specifics := get .Languages "go" }}
 
-{{- if gt .Binaries 0 }}
-
-GOCI_LINT_PATH  ?= .golangci.yml
-APP_VERSION     ?= v0.0.0
-{{- else }}
-
-GOCI_LINT_PATH ?= .golangci.yml
-{{- end }}
-
-.PHONY: lint
-lint:
-	@golangci-lint run --config=${GOCI_LINT_PATH} --timeout=300s --allow-parallel-runners \
-		--output.text.path=stdout $(ARGS) || \
-		echo "golangci-lint failed, running 'make lint-fix' may fix some issues"
-
-.PHONY: lint-fix
-lint-fix:
-	@ARGS="--fix" make -s lint
+APP_VERSION ?= v0.0.0
 
 .PHONY: test
 test:
@@ -70,17 +53,5 @@ build-%:
 .PHONY:{{ range $name, $_ := $binaries }} {{ $name }}{{ end }}
 local-%:
 	@go run ./cmd/$*
-{{- end }}
-
-{{- if .Docker }}
-
-.PHONY: docker
-docker:
-	@docker build . \
-		-f Dockerfile \
-		-t {{ .VCS.ProjectName }}:${APP_VERSION} \
-		--build-arg GIT_REF_NAME=$(shell git rev-parse --abbrev-ref HEAD) \
-		--build-arg GIT_COMMIT=$(shell git rev-parse HEAD) \
-		--build-arg APP_VERSION=${APP_VERSION}
 {{- end }}
 {{- end }}

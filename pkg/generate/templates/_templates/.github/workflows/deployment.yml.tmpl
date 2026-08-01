@@ -3,11 +3,22 @@
 name: Deployment
 run-name: Deployment
 
-<<- $golang := hasKey .Languages "go" >>
-<<- $gobuild := and $golang (gt (len .Clis) 0) >>
+<<- $golang := .HasLanguage "go" >>
+<<- $gobuild := and $golang (gt (len .Executables.Clis) 0) >>
 
-<<- $hugo := hasKey .Languages "hugo" >>
-<<- $node := hasKey .Languages "node" >>
+<<- $hugo := .HasLanguage "hugo" >>
+<<- $node := .HasLanguage "node" >>
+<<- $docker := .HasDocker >>
+
+<<- $tfapply := and (.HasLanguage "terraform") .HasTerraformApply >>
+
+<<- $nodemain := false >>
+<<- $nodepublish := false >>
+<<- range .ModulesWith "node" >>
+<<- $specifics := get .Languages "node" >>
+<<- if $specifics.Main >><<- $nodemain = true >><<- end >>
+<<- if and (not $nodepublish) (not $specifics.Private) (ne $specifics.PublishConfig.Registry "") >><<- $nodepublish = true >><<- end >>
+<<- end >>
 
 on:
   workflow_dispatch:
@@ -42,7 +53,7 @@ on:
           - none
         default: << .Website.Auto | ternary "full" "none" >>
 <<- end >>
-<<- if .HasTerraformApply >>
+<<- if $tfapply >>
 <<- $engine := "opentofu" >>
 <<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
       << $engine >>_apply:
@@ -178,12 +189,8 @@ jobs:
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 <<- end >>
-<<- if $node >>
-<<- $nodes := get .Languages "node" >>
-<<- $firstnode := first $nodes >>
-<<- if and (not $firstnode.Specifics.Private) (ne $firstnode.Specifics.PublishConfig.Registry "") >>
+<<- if $nodepublish >>
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-<<- end >>
 <<- end >>
       - id: version
         run: |-
@@ -208,27 +215,27 @@ jobs:
 
 <<- if $gobuild >><< template "golang" . >><<- end >>
 <<- if $hugo >><< template "hugo" . >><<- end >>
-<<- if and $node (get .Languages "node").HasMain >><< template "node" . >><<- end >>
+<<- if $nodemain >><< template "node" . >><<- end >>
 
-<<- if .Docker >><< template "docker" . >><<- end >>
+<<- if $docker >><< template "docker" . >><<- end >>
 <<- if .Helm >><< template "helm" . >><<- end >>
 <<- if .Website >><< template "static" . >><<- end >>
-<<- if .HasTerraformApply >><< template "terraform" . >><<- end >>
+<<- if $tfapply >><< template "terraform" . >><<- end >>
 
 <<- if .GitHub.Release >>
 
 <<- $needs := list >>
-<<- if .Docker >><<- $needs = append $needs "docker-build" >><<- end >>
+<<- if $docker >><<- $needs = append $needs "docker-build" >><<- end >>
 <<- if $gobuild >><<- $needs = append $needs "go-build" >><<- end >>
 <<- if .HasHelmPublish >><<- $needs = append $needs "helm-push" >><<- end >>
 <<- if .HasHelmDeploy >><<- $needs = append $needs "helm-deploy" >><<- end >>
 <<- if $hugo >><<- $needs = append $needs "hugo-build" >><<- end >>
 <<- if .IsHosting "netlify" >><<- $needs = append $needs "netlify" >><<- end >>
-<<- if and $node (hasKey .Workers "main") >><<- $needs = append $needs "node-build" >><<- end >>
+<<- if and $node (hasKey .Executables.Workers "main") >><<- $needs = append $needs "node-build" >><<- end >>
 <<- if .IsHosting "pages" >><<- $needs = append $needs "pages" >><<- end >>
-<<- if .HasTerraformApply >>
-<<- range $node := get .Languages "terraform" >>
-<<- $needs = append $needs (print "terraform-apply" (ne $node.Directory "." | ternary (print "-" (sha256sum $node.Directory | trunc 8)) "")) >>
+<<- if $tfapply >>
+<<- range $node := .ModulesWith "terraform" >>
+<<- $needs = append $needs (print "terraform-apply" (ne $node.Slug "" | ternary (print "-" $node.Slug) "")) >>
 <<- end >>
 <<- end >>
 
@@ -277,7 +284,7 @@ jobs:
 <<- if eq .GitHub.Release.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
-<<- if gt .Binaries 0 >>
+<<- if gt .Executables.Binaries 0 >>
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: build
@@ -305,12 +312,8 @@ jobs:
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 <<- end >>
-<<- if $node >>
-<<- $nodes := get .Languages "node" >>
-<<- $firstnode := first $nodes >>
-<<- if and (not $firstnode.Specifics.Private) (ne $firstnode.Specifics.PublishConfig.Registry "") >>
+<<- if $nodepublish >>
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-<<- end >>
 <<- end >>
       - id: environment_url
         if: ${{ inputs.release == 'release' && steps.semrel_version.outputs.new_release_published == 'true' }}

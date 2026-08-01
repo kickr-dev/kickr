@@ -63,14 +63,14 @@ func TestGenerate_NoLang(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config)
+				test(ctx, t, repo)
 			})
 		}
 	})
@@ -93,45 +93,14 @@ func TestGenerate_NoLang(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config)
-			})
-		}
-	})
-
-	t.Run("overrides", func(t *testing.T) {
-		cases := []testcase{
-			{
-				Name:  "deployment",
-				Kickr: kickr.Kickr{Docker: &kickr.Docker{}, GitLab: &kickr.GitLab{Options: []string{kickr.GitLabOptionsOverridesDeployment}}},
-			},
-			{
-				Name:  "integration",
-				Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Options: []string{kickr.GitLabOptionsOverridesIntegration}}},
-			},
-		}
-		for _, tc := range cases {
-			t.Run(tc.Name, func(t *testing.T) {
-				// Arrange
-				config := types.Repository{
-					Kickr: merge(t, kickr.Kickr{
-						Exclude: []string{
-							kickr.ExcludeMakefile,
-							kickr.ExcludePreCommit,
-							kickr.ExcludeRenovate,
-							kickr.ExcludeShell,
-						},
-					}, tc.Kickr),
-				}
-
-				// Act & Assert
-				test(ctx, t, config)
+				test(ctx, t, repo)
 			})
 		}
 	})
@@ -154,14 +123,14 @@ func TestGenerate_NoLang(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config)
+				test(ctx, t, repo)
 			})
 		}
 
@@ -175,12 +144,12 @@ func TestGenerate_NoLang(t *testing.T) {
 				return file.Close()
 			}
 
-			config := types.Repository{
+			repo := types.Repository{
 				Kickr: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile}},
 			}
 
 			// Act & Assert
-			test(ctx, t, config, tmpl)
+			test(ctx, t, repo, tmpl)
 		})
 	})
 
@@ -200,7 +169,7 @@ func TestGenerate_NoLang(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
@@ -208,7 +177,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config)
+				test(ctx, t, repo)
 			})
 		}
 	})
@@ -247,14 +216,14 @@ func TestGenerate_NoLang(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config)
+				test(ctx, t, repo)
 			})
 		}
 	})
@@ -274,14 +243,14 @@ func TestGenerate_Shell(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.Name, func(t *testing.T) {
 			// Arrange
-			config := types.Repository{
+			repo := types.Repository{
 				Kickr: merge(t, kickr.Kickr{
 					Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 				}, tc.Kickr),
 			}
 
 			// Act & Assert
-			test(ctx, t, config, shell)
+			test(ctx, t, repo, shell)
 		})
 	}
 
@@ -293,14 +262,14 @@ func TestGenerate_Shell(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config, shell)
+				test(ctx, t, repo, shell)
 			})
 		}
 	})
@@ -311,7 +280,7 @@ func TestGenerate_Golang(t *testing.T) {
 
 	t.Run("cli", func(t *testing.T) {
 		// Arrange
-		golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		golang := func(provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
@@ -346,17 +315,17 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
+				repo := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc.Name))
+				test(ctx, t, repo, golang(tc.Name))
 			})
 		}
 	})
 
 	t.Run("library", func(t *testing.T) {
 		// Arrange
-		golang := func(platform string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		golang := func(platform string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", platform)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
@@ -369,7 +338,7 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, platform := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(platform, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: kickr.Kickr{
 						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitGomodTidy},
@@ -378,14 +347,14 @@ func TestGenerate_Golang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(platform))
+				test(ctx, t, repo, golang(platform))
 			})
 		}
 	})
 
 	t.Run("multiple_bin_helm", func(t *testing.T) {
 		// Arrange
-		golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		golang := func(provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
@@ -435,7 +404,11 @@ func TestGenerate_Golang(t *testing.T) {
 				Name: "gitlab",
 				Kickr: kickr.Kickr{
 					GitLab: &kickr.GitLab{
-						Options: []string{kickr.GitLabOptionsSonarQube},
+						Options: []string{
+							kickr.GitLabOptionsSonarQube,
+							kickr.GitLabOptionsOverridesIntegration,
+							kickr.GitLabOptionsOverridesDeployment,
+						},
 						Release: &kickr.Release{},
 					},
 				},
@@ -444,9 +417,9 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
-						Docker: &kickr.Docker{Path: "path/to/registry", Registry: "registry.example.com"},
+						Docker: &kickr.Docker{Path: "path/to/image", Registry: "registry.example.com"},
 						Helm: &kickr.Helm{
 							Deploy:       kickr.HelmDeployManual,
 							Environments: []string{kickr.EnvironmentStaging, kickr.EnvironmentProduction},
@@ -461,14 +434,14 @@ func TestGenerate_Golang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc.Name))
+				test(ctx, t, repo, golang(tc.Name))
 			})
 		}
 	})
 
 	t.Run("multiple_libraries", func(t *testing.T) {
 		// Arrange
-		golang := func(platform string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		golang := func(platform string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				if err := os.WriteFile(filepath.Join(destdir, parser.FileGowork), []byte("go 1.23\n\nuse (\n\t./kickr\n\t./engine\n)\n"), files.RwRR); err != nil {
 					return fmt.Errorf("write file: %w", err)
@@ -490,7 +463,7 @@ func TestGenerate_Golang(t *testing.T) {
 		for _, platform := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(platform, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: kickr.Kickr{
 						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitGomodTidy},
@@ -499,7 +472,7 @@ func TestGenerate_Golang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(platform))
+				test(ctx, t, repo, golang(platform))
 			})
 		}
 	})
@@ -524,10 +497,10 @@ func TestGenerate_Hugo(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
+				repo := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
 
 				// Act & Assert
-				test(ctx, t, config, hugo)
+				test(ctx, t, repo, hugo)
 			})
 		}
 	})
@@ -571,12 +544,12 @@ func TestGenerate_Hugo(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config, hugo)
+				test(ctx, t, repo, hugo)
 			})
 		}
 	})
@@ -587,7 +560,7 @@ func TestGenerate_Node(t *testing.T) {
 
 	t.Run("package_managers", func(t *testing.T) {
 		// Arrange
-		node := func(tc string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		node := func(tc string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				content := fmt.Appendf(nil, `{ "name": "kickr", "packageManager": "%s" }`+"\n", tc)
 				return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON), content, files.RwRR)
@@ -597,7 +570,7 @@ func TestGenerate_Node(t *testing.T) {
 		for _, tc := range []string{"bun@1.1.6", "npm@7.0.0", "pnpm@9.0.0", "yarn@1.22.10"} {
 			t.Run(tc, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: kickr.Kickr{
 						GitHub:   &kickr.GitHub{},
 						Platform: parser.GitHub,
@@ -605,7 +578,7 @@ func TestGenerate_Node(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, node(tc))
+				test(ctx, t, repo, node(tc))
 			})
 		}
 	})
@@ -624,10 +597,10 @@ func TestGenerate_Node(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
+				repo := types.Repository{Kickr: merge(t, kickr.Kickr{}, tc.Kickr)}
 
 				// Act & Assert
-				test(ctx, t, config, node)
+				test(ctx, t, repo, node)
 			})
 		}
 	})
@@ -677,7 +650,7 @@ func TestGenerate_Node(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 						Website: tc.Website,
@@ -685,7 +658,7 @@ func TestGenerate_Node(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, node)
+				test(ctx, t, repo, node)
 			})
 		}
 	})
@@ -755,14 +728,14 @@ func TestGenerate_Node(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, config, node)
+				test(ctx, t, repo, node)
 			})
 		}
 	})
@@ -773,7 +746,7 @@ func TestGenerate_Terraform(t *testing.T) {
 
 	t.Run("multiple_modules", func(t *testing.T) {
 		// Arrange
-		terraform := func(subdir string) func(ctx context.Context, destdir string, config *types.Repository) error {
+		terraform := func(subdir string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
 				if err := os.MkdirAll(filepath.Join(destdir, subdir), files.RwxRxRxRx); err != nil {
 					return fmt.Errorf("mkdir all: %w", err)
@@ -820,7 +793,7 @@ func TestGenerate_Terraform(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Terraform: &kickr.Terraform{
 							Environments: []string{kickr.EnvironmentProduction},
@@ -830,7 +803,7 @@ func TestGenerate_Terraform(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, terraform(filepath.Join("modules", "one")), terraform(filepath.Join("modules", "two")))
+				test(ctx, t, repo, terraform(filepath.Join("modules", "one")), terraform(filepath.Join("modules", "two")))
 			})
 		}
 	})
@@ -848,7 +821,7 @@ func TestGenerate_Terraform(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						PreCommit: []string{kickr.PreCommitTerraform},
 						Terraform: &kickr.Terraform{Environments: []string{kickr.EnvironmentProduction}},
@@ -856,7 +829,7 @@ func TestGenerate_Terraform(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, terraform)
+				test(ctx, t, repo, terraform)
 			})
 		}
 	})
@@ -865,7 +838,7 @@ func TestGenerate_Terraform(t *testing.T) {
 func TestGenerate_MonoRepo(t *testing.T) {
 	ctx := t.Context()
 
-	golang := func(provider string) func(ctx context.Context, destdir string, config *types.Repository) error {
+	golang := func(provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
 			gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
 			if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
@@ -896,7 +869,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 	}
 
-	terraform := func(subdir string) func(ctx context.Context, destdir string, config *types.Repository) error {
+	terraform := func(subdir string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
 			if err := os.MkdirAll(filepath.Join(destdir, subdir), files.RwxRxRxRx); err != nil {
 				return fmt.Errorf("mkdir all: %w", err)
@@ -944,7 +917,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Website: &kickr.Website{Directory: "docs"},
@@ -952,7 +925,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, node(""), hugo)
+				test(ctx, t, repo, node(""), hugo)
 			})
 		}
 	})
@@ -961,7 +934,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Website: &kickr.Website{Directory: "docs"},
@@ -969,7 +942,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc.Platform), hugo)
+				test(ctx, t, repo, golang(tc.Platform), hugo)
 			})
 		}
 	})
@@ -978,7 +951,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Website: &kickr.Website{Directory: "docs"},
@@ -986,7 +959,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc.Platform), node("docs"))
+				test(ctx, t, repo, golang(tc.Platform), node("docs"))
 			})
 		}
 	})
@@ -999,7 +972,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
 						Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineOpenTofu, Modules: []string{".terraform"}},
@@ -1007,7 +980,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config, golang(tc.Platform), terraform(".terraform"))
+				test(ctx, t, repo, golang(tc.Platform), terraform(".terraform"))
 			})
 		}
 	})
@@ -1044,7 +1017,7 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
 						GitHub: &kickr.GitHub{},
 						GitLab: &kickr.GitLab{},
@@ -1060,16 +1033,16 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, config)
+				test(ctx, t, repo)
 			})
 		}
 	})
 }
 
-func ParserInfo(_ context.Context, _ string, config *types.Repository) error {
-	config.VCS = parser.VCS{
-		Platform:    config.Platform,
-		ProjectHost: config.Platform + ".com",
+func ParserInfo(_ context.Context, _ string, repo *types.Repository) error {
+	repo.VCS = parser.VCS{
+		Platform:    repo.Platform,
+		ProjectHost: repo.Platform + ".com",
 		ProjectName: "kickr",
 		ProjectPath: "kickr-dev/kickr",
 	}
@@ -1095,12 +1068,12 @@ func merge(t testing.TB, base, complement kickr.Kickr) kickr.Kickr {
 	return base
 }
 
-// test verifies every generation with provided config, parser and t.Name folder expected results.
-func test(ctx context.Context, t *testing.T, config types.Repository, parsers ...engine.Parser[types.Repository]) {
+// test verifies every generation with provided repo, parser and t.Name folder expected results.
+func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...engine.Parser[types.Repository]) {
 	t.Helper()
 
 	// Arrange
-	config.Maintainers = append(config.Maintainers, &kickr.Maintainer{Name: "kilianpaquier"})
+	repo.Maintainers = append(repo.Maintainers, &kickr.Maintainer{Name: "kilianpaquier"})
 	assertdir := filepath.Join(testutils.Testdata(t), t.Name())
 	require.NoError(t, os.MkdirAll(assertdir, files.RwxRxRxRx))
 
@@ -1110,7 +1083,7 @@ func test(ctx context.Context, t *testing.T, config types.Repository, parsers ..
 	}
 
 	// Act
-	_, err := engine.Generate(ctx, destdir, config,
+	err := engine.Generate(ctx, destdir, repo,
 		slices.Concat(parsers, []engine.Parser[types.Repository]{
 			// must be kept first since it parses Git informations (useful for next parsers)
 			// generate.ParserGit,
@@ -1121,16 +1094,19 @@ func test(ctx context.Context, t *testing.T, config types.Repository, parsers ..
 			generate.ParserNode,
 			generate.ParserTerraform,
 
-			// must be kept last since it marshals config and merges it with chart overrides
+			// must be kept last since it marshals repo and merges it with chart overrides
 			generate.ParserHelm,
 		}),
 		[]engine.Generator[types.Repository]{
+			engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Docker()),   // module docker
+			engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Golang()),   // module golang
+			engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Makefile()), // module makefile
+
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
-			engine.GeneratorTemplates(templates.FS(), templates.Docker()),                                                                 // docker
-			engine.GeneratorTemplates(templates.FS(), templates.Golang()),                                                                 // golang
-			engine.GeneratorTemplates(templates.FS(), templates.Makefile()),                                                               // makefile
+			engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
+			engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
 			engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
 			engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
 			engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform

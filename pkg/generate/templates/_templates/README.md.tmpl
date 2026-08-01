@@ -37,14 +37,15 @@
   <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .VCS.ProjectPath | replace "/" "_" }}?server={{ toQuery "https://sonarsource.com" }}&style={{ $style }}">
 {{- end }}
 
-{{- if or (hasKey .Languages "go") (hasKey .Languages "hugo") }}
+{{- if or (.HasLanguage "go") (.HasLanguage "hugo") }}
   <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 
-{{- if hasKey .Languages "node" }}
-{{- range get .Languages "node" }}
-{{- if and (not .Specifics.Private) (eq .Specifics.PublishConfig.Registry "") }}
-  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/{{ toQuery .Specifics.Name }}?style={{ $style }}">
+{{- if .HasLanguage "node" }}
+{{- range .ModulesWith "node" }}
+{{- $node := get .Languages "node" }}
+{{- if and (not $node.Private) (eq $node.PublishConfig.Registry "") }}
+  <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/{{ toQuery $node.Name }}?style={{ $style }}">
 {{- end }}
 {{- end }}
 {{- end }}

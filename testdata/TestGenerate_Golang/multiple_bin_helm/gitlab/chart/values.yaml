@@ -28,7 +28,7 @@ crons:
     parallelism: 1
     image:
       registry: registry.example.com
-      repository: path/to/registry
+      repository: path/to/image
       pullPolicy: ""
       # Overrides the image tag whose default is the chart appVersion.
       tag: ""
@@ -129,7 +129,7 @@ jobs:
     parallelism: 1
     image:
       registry: registry.example.com
-      repository: path/to/registry
+      repository: path/to/image
       pullPolicy: ""
       # Overrides the image tag whose default is the chart appVersion.
       tag: ""
@@ -226,7 +226,7 @@ workers:
     replicaCount: 1
     image:
       registry: registry.example.com
-      repository: path/to/registry
+      repository: path/to/image
       pullPolicy: ""
       # Overrides the image tag whose default is the chart appVersion.
       tag: ""

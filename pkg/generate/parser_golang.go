@@ -21,8 +21,8 @@ import (
 //
 // If a hugo config or theme file is present, it will be detected
 // and 'hugo' will be set as the language ('go' will not in that case).
-func ParserGolang(ctx context.Context, destdir string, config *types.Repository) error {
-	root, err := parserHugo(ctx, destdir, config)
+func ParserGolang(ctx context.Context, destdir string, repo *types.Repository) error {
+	root, err := parserHugo(ctx, destdir, repo)
 	if err != nil {
 		return fmt.Errorf("parse hugo: %w", err)
 	}
@@ -36,7 +36,16 @@ func ParserGolang(ctx context.Context, destdir string, config *types.Repository)
 	gowork, err := parser.ReadGowork(destdir)
 	if err == nil {
 		engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGowork)
-		config.SetLanguage("go", gowork)
+		repo.Module(types.RootModule).SetLanguage(types.LanguageGo, gowork)
+
+		// each 'use' directive declares a go module, it's the only way for kickr to know about them
+		for _, use := range gowork.Uses {
+			executables, err := parser.ReadGoCmd(filepath.Join(destdir, use.Use))
+			if err != nil && !errors.Is(err, fs.ErrNotExist) {
+				return fmt.Errorf("read '%s' in '%s': %w", parser.FolderCMD, use.Use, err)
+			}
+			repo.Module(use.Use).SetLanguage(types.LanguageGo, use.Gomod).SetExecutables(executables)
+		}
 	} else if !errors.Is(err, parser.ErrNoGowork) {
 		return fmt.Errorf("read '%s': %w", parser.FileGowork, err)
 	}
@@ -50,49 +59,42 @@ func ParserGolang(ctx context.Context, destdir string, config *types.Repository)
 		return fmt.Errorf("read '%s': %w", parser.FileGomod, err)
 	}
 	engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGomod)
-	config.SetLanguage("go", gomod)
+	repo.Module(types.RootModule).SetLanguage(types.LanguageGo, gomod)
 
 	// parse cmd directory only if there's a go.mod for base directory
 	executables, err := parser.ReadGoCmd(destdir)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return nil
-		}
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return fmt.Errorf("read '%s': %w", parser.FolderCMD, err)
 	}
-	config.Executables = executables
+	repo.Module(types.RootModule).SetExecutables(executables)
 	return nil
 }
 
 var _ engine.Parser[types.Repository] = ParserGolang // ensure interface is implemented
 
-func parserHugo(_ context.Context, destdir string, config *types.Repository) (bool, error) {
+func parserHugo(_ context.Context, destdir string, repo *types.Repository) (bool, error) {
 	var root bool
-	monos := make([]types.Mono[parser.HugoCompose], 0, 2)
 
 	// try to parse destdir for hugo
 	hugoc, err := parser.ReadHugo(destdir)
 	if err == nil {
 		engine.GetLogger().Infof("hugo detected, theme or hugo files are present")
 		root = true
-		monos = append(monos, types.Mono[parser.HugoCompose]{Directory: ".", Specifics: hugoc})
+		repo.Module(types.RootModule).SetLanguage(types.LanguageHugo, hugoc)
 	} else if !errors.Is(err, parser.ErrNoHugo) {
 		return false, fmt.Errorf("read hugo: %w", err)
 	}
 
 	// try to parse website directory for hugo
-	if config.Website != nil && config.Website.Directory != "" {
-		hugoc, err := parser.ReadHugo(filepath.Join(destdir, config.Website.Directory))
+	if repo.Website != nil && repo.Website.Directory != "" {
+		hugoc, err := parser.ReadHugo(filepath.Join(destdir, repo.Website.Directory))
 		if err == nil {
-			engine.GetLogger().Infof("hugo detected in '%s', theme or hugo files are present", config.Website.Directory)
-			monos = append(monos, types.Mono[parser.HugoCompose]{Directory: config.Website.Directory, Specifics: hugoc})
+			engine.GetLogger().Infof("hugo detected in '%s', theme or hugo files are present", repo.Website.Directory)
+			repo.Module(repo.Website.Directory).SetLanguage(types.LanguageHugo, hugoc)
 		} else if !errors.Is(err, parser.ErrNoHugo) {
-			return false, fmt.Errorf("read hugo in '%s': %w", config.Website.Directory, err)
+			return false, fmt.Errorf("read hugo in '%s': %w", repo.Website.Directory, err)
 		}
 	}
 
-	if len(monos) > 0 {
-		config.SetLanguage("hugo", monos)
-	}
 	return root, nil
 }

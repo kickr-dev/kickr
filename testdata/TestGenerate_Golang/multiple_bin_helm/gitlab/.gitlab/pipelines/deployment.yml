@@ -17,10 +17,10 @@ include:
         --label org.opencontainers.image.version=$APP_VERSION
       build-tool: buildah
       healthcheck-disabled: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
-      release-extra-tags: latest \\g<major>.\\g<minor> \\g<major
-      release-image: "registry.example.com/path/to/registry:$APP_VERSION"
+      release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>
+      release-image: "registry.example.com/path/to/image:$APP_VERSION"
       semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
-      snapshot-image: "registry.example.com/path/to/registry/snapshot:$APP_VERSION"
+      snapshot-image: "registry.example.com/path/to/image/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 
   # Helm template
@@ -46,3 +46,4 @@ include:
       prod-deploy-strategy: manual
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       staging-app-name: $HELM_BASE_APP_NAME
+  - local: .gitlab/deployment.overrides.yml

@@ -41,14 +41,14 @@ func TestParserGolang(t *testing.T) {
 				err := os.WriteFile(filepath.Join(destdir, dir, "hugo.toml"), []byte("{ invalid toml }"), files.RwRR)
 				require.NoError(t, err)
 
-				config := types.Repository{
+				repo := types.Repository{
 					Kickr: kickr.Kickr{
 						Website: &kickr.Website{Directory: dir},
 					},
 				}
 
 				// Act
-				err = generate.ParserGolang(ctx, destdir, &config)
+				err = generate.ParserGolang(ctx, destdir, &repo)
 
 				// Assert
 				require.NotErrorIs(t, err, parser.ErrNoHugo)
@@ -70,10 +70,10 @@ func TestParserGolang(t *testing.T) {
 		), files.RwRR)
 		require.NoError(t, err)
 
-		config := types.Repository{}
+		repo := types.Repository{}
 
 		// Act
-		err = generate.ParserGolang(ctx, destdir, &config)
+		err = generate.ParserGolang(ctx, destdir, &repo)
 
 		// Assert
 		require.NotErrorIs(t, err, parser.ErrNoGowork)
@@ -83,14 +83,14 @@ func TestParserGolang(t *testing.T) {
 	t.Run("success_no_gowork_gomod", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
-		config := types.Repository{}
+		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserGolang(ctx, destdir, &config)
+		err := generate.ParserGolang(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Zero(t, config)
+		assert.Zero(t, repo)
 	})
 
 	t.Run("success_hugo", func(t *testing.T) {
@@ -101,21 +101,16 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, hugoconfig.Close())
 
-		expected := types.Repository{
-			Languages: map[string]any{
-				"hugo": []types.Mono[parser.HugoCompose]{
-					{Directory: ".", Specifics: parser.HugoCompose{HugoConfig: &parser.HugoConfig{}}},
-				},
-			},
-		}
-		config := types.Repository{}
+		expected := types.Repository{}
+		expected.Module(types.RootModule).SetLanguage(types.LanguageHugo, parser.HugoCompose{HugoConfig: &parser.HugoConfig{}})
+		repo := types.Repository{}
 
 		// Act
-		err = generate.ParserGolang(ctx, destdir, &config)
+		err = generate.ParserGolang(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_gomod_hugo_doc", func(t *testing.T) {
@@ -134,33 +129,22 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, hugoconfig.Close())
 
-		expected := types.Repository{
-			Kickr: kickr.Kickr{
-				Website: &kickr.Website{Directory: "docs"},
-			},
-			Languages: map[string]any{
-				"go": parser.Gomod{
-					Module: "github.com/kickr-dev/kickr",
-					Go:     "1.22",
-					Tools:  []string{},
-				},
-				"hugo": []types.Mono[parser.HugoCompose]{
-					{Directory: "docs", Specifics: parser.HugoCompose{HugoConfig: &parser.HugoConfig{}}},
-				},
-			},
-		}
-		config := types.Repository{
-			Kickr: kickr.Kickr{
-				Website: &kickr.Website{Directory: "docs"},
-			},
-		}
+		conf := kickr.Kickr{Website: &kickr.Website{Directory: "docs"}}
+		expected := types.Repository{Kickr: conf}
+		expected.Module(types.RootModule).SetLanguage(types.LanguageGo, parser.Gomod{
+			Module: "github.com/kickr-dev/kickr",
+			Go:     "1.22",
+			Tools:  []string{},
+		})
+		expected.Module("docs").SetLanguage(types.LanguageHugo, parser.HugoCompose{HugoConfig: &parser.HugoConfig{}})
+		repo := types.Repository{Kickr: conf}
 
 		// Act
-		err = generate.ParserGolang(ctx, destdir, &config)
+		err = generate.ParserGolang(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_gomod", func(t *testing.T) {
@@ -178,23 +162,20 @@ func TestParserGolang(t *testing.T) {
 		), files.RwRR)
 		require.NoError(t, err)
 
-		expected := types.Repository{
-			Languages: map[string]any{
-				"go": parser.Gomod{
-					Module: "github.com/kickr-dev/kickr",
-					Go:     "1.22",
-					Tools:  []string{"example.com/tool-example"},
-				},
-			},
-		}
-		config := types.Repository{}
+		expected := types.Repository{}
+		expected.Module(types.RootModule).SetLanguage(types.LanguageGo, parser.Gomod{
+			Module: "github.com/kickr-dev/kickr",
+			Go:     "1.22",
+			Tools:  []string{"example.com/tool-example"},
+		})
+		repo := types.Repository{}
 
 		// Act
-		err = generate.ParserGolang(ctx, destdir, &config)
+		err = generate.ParserGolang(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_gowork", func(t *testing.T) {
@@ -214,31 +195,25 @@ func TestParserGolang(t *testing.T) {
 		err = os.WriteFile(filepath.Join(destdir, "lib1", parser.FileGomod), []byte("module github.com/kickr-dev/kickr\ngo 1.22"), files.RwRR)
 		require.NoError(t, err)
 
-		expected := types.Repository{
-			Languages: map[string]any{
-				"go": parser.Gowork{
-					Go: "1.22",
-					Uses: []parser.GoworkUse{
-						{
-							Gomod: parser.Gomod{
-								Go:     "1.22",
-								Module: "github.com/kickr-dev/kickr",
-								Tools:  []string{},
-							},
-							Use: "./lib1",
-						},
-					},
-				},
-			},
+		expected := types.Repository{}
+		libmod := parser.Gomod{
+			Go:     "1.22",
+			Module: "github.com/kickr-dev/kickr",
+			Tools:  []string{},
 		}
-		config := types.Repository{}
+		expected.Module(types.RootModule).SetLanguage(types.LanguageGo, parser.Gowork{
+			Go:   "1.22",
+			Uses: []parser.GoworkUse{{Gomod: libmod, Use: "./lib1"}},
+		})
+		expected.Module("lib1").SetLanguage(types.LanguageGo, libmod)
+		repo := types.Repository{}
 
 		// Act
-		err = generate.ParserGolang(ctx, destdir, &config)
+		err = generate.ParserGolang(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 
 	t.Run("success_gomod_cmd", func(t *testing.T) {
@@ -260,25 +235,22 @@ func TestParserGolang(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, main.Close())
 
-		expected := types.Repository{
-			Executables: parser.Executables{
-				Clis: map[string]any{"name": struct{}{}},
-			},
-			Languages: map[string]any{
-				"go": parser.Gomod{
-					Module: "github.com/kickr-dev/kickr",
-					Go:     "1.22",
-					Tools:  []string{},
-				},
-			},
-		}
-		config := types.Repository{}
+		executables := parser.Executables{Clis: map[string]any{"name": struct{}{}}}
+		expected := types.Repository{}
+		module := expected.Module(types.RootModule)
+		module.Executables = executables
+		module.SetLanguage(types.LanguageGo, parser.Gomod{
+			Module: "github.com/kickr-dev/kickr",
+			Go:     "1.22",
+			Tools:  []string{},
+		})
+		repo := types.Repository{}
 
 		// Act
-		err = generate.ParserGolang(ctx, destdir, &config)
+		err = generate.ParserGolang(ctx, destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
-		assert.Equal(t, expected, config)
+		assert.Equal(t, expected, repo)
 	})
 }

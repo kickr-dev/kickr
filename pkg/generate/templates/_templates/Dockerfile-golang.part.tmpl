@@ -5,7 +5,7 @@
 {{- $binaries := dict }}
 {{- $_ := map $binaries .Clis .Crons .Jobs .Workers }}
 
-{{- $maintainer := index .Maintainers 0 }}
+{{- $maintainer := index .Repository.Maintainers 0 }}
 
 #############################
 #        STAGE BUILD        #
@@ -40,16 +40,16 @@ FROM gcr.io/distroless/static-debian12:nonroot
 LABEL org.opencontainers.image.authors="{{ $maintainer.Name }}{{ if $maintainer.Email }} <{{ $maintainer.Email }}>{{ end }}"
 LABEL org.opencontainers.image.vendor="{{ $maintainer.Name }}"
 
-LABEL org.opencontainers.image.title="{{ .VCS.ProjectName }}"
-{{- if .Description }}
-LABEL org.opencontainers.image.description="{{ .Description }}"
+LABEL org.opencontainers.image.title="{{ .Repository.VCS.ProjectName }}{{ with .Slug }}/{{ . }}{{ end }}"
+{{- if .Repository.Description }}
+LABEL org.opencontainers.image.description="{{ .Repository.Description }}"
 {{- end }}
-{{- if .License }}
-LABEL org.opencontainers.image.licenses="{{ upper .License }}"
+{{- if .Repository.License }}
+LABEL org.opencontainers.image.licenses="{{ upper .Repository.License }}"
 {{- end }}
-LABEL org.opencontainers.image.url="{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}"
-LABEL org.opencontainers.image.source="{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}"
-LABEL org.opencontainers.image.documentation="{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}"
+LABEL org.opencontainers.image.url="{{ print .Repository.VCS.ProjectHost "/" .Repository.VCS.ProjectPath }}"
+LABEL org.opencontainers.image.source="{{ print .Repository.VCS.ProjectHost "/" .Repository.VCS.ProjectPath }}"
+LABEL org.opencontainers.image.documentation="{{ print .Repository.VCS.ProjectHost "/" .Repository.VCS.ProjectPath }}"
 
 WORKDIR /app
 
@@ -75,7 +75,7 @@ COPY --from=build \
 COPY launcher.sh launcher.sh
 {{- end }}
 
-EXPOSE {{ .Docker.Port | default 3000 }}
+EXPOSE {{ .Repository.Docker.Port | default 3000 }}
 
 ENTRYPOINT [ "/app/{{ $entrypoint }}" ]
 {{- end }}
