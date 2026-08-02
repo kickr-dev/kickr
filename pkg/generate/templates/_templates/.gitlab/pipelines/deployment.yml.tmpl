@@ -6,13 +6,15 @@
 ---
 {{- if or $docker .Helm $terraform }}
 include:
+{{- end }}
+
 {{- if $docker }}
 {{- $nodes := list }}
 {{- range .Modules }}{{- if .HasDocker }}{{- $nodes = append $nodes . }}{{- end }}{{- end }}
 {{- $firstnode := first $nodes }}
 
-{{- $registry := .Docker.Registry | default "$CI_REGISTRY" }}
-{{- $path := .Docker.Path | default "$CI_PROJECT_PATH" }}
+{{- $registry := .Docker.Registry | default "${CI_REGISTRY}" }}
+{{- $path := .Docker.Path | default "${CI_PROJECT_PATH}" }}
 
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
@@ -32,9 +34,9 @@ include:
 {{- end }}
       healthcheck-disabled: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
       release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>
-      release-image: "{{ $registry }}/{{ $path }}{{ if gt (len $nodes) 1 }}$DOCKER_IMAGE_NAME{{ end }}:$APP_VERSION"
+      release-image: "{{ $registry }}/{{ $path }}{{ if gt (len $nodes) 1 }}/${DOCKER_IMAGE_NAME}{{ end }}:$APP_VERSION"
       semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
-      snapshot-image: "{{ $registry }}/{{ $path }}{{ if gt (len $nodes) 1 }}$DOCKER_IMAGE_NAME{{ end }}/snapshot:$APP_VERSION"
+      snapshot-image: "{{ $registry }}/{{ $path }}{{ if gt (len $nodes) 1 }}/${DOCKER_IMAGE_NAME}{{ end }}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 {{- end }}
 
@@ -91,8 +93,8 @@ include:
 {{- if has "overrides:deployment" .GitLab.Options }}
   - local: .gitlab/deployment.overrides.yml
 {{- end }}
-{{- end }}
 
+{{- if and .Website .Website.Hosting (or $docker .Helm $terraform) }}{{ print "\n" }}{{- end }}{{/* simple ugly pretty print */}}
 {{- if .Website }}{{ template "static" . }}{{- end }}
 
 {{- if $docker }}
@@ -104,7 +106,7 @@ include:
   parallel:
     matrix:
 {{- range $nodes }}
-      - DOCKER_IMAGE_NAME: {{ ne .Slug "" | ternary (print "/" .Slug) ("" | quote) }}
+      - DOCKER_IMAGE_NAME: {{ .Slug | default ("" | quote) }}
         DOCKER_FILE: {{ .Dir }}/Dockerfile
 {{- end }}
 {{- end }}

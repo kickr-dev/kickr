@@ -3,6 +3,10 @@
 package kickr
 
 const (
+	DockerExcludeWebsite = "website"
+)
+
+const (
 	EnvironmentIntegration = "integration"
 	EnvironmentProduction  = "production"
 	EnvironmentReview      = "review"

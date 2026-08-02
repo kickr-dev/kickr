@@ -2,10 +2,9 @@ jobs:
 <<- define "static" >>
 
 <<- $needs := list >>
-<<- $websiteDirectory := .Website.Directory | default "." >>
 
-<<- range .ModulesWith "node" >><<- if eq .Dir $websiteDirectory >><<- $needs = append $needs "node-build" >><<- end >><<- end >>
-<<- range .ModulesWith "hugo" >><<- if eq .Dir $websiteDirectory >><<- $needs = append $needs "hugo-build" >><<- end >><<- end >>
+<<- range .ModulesWith "node" >><<- if .IsWebsite >><<- $needs = append $needs "node-build" >><<- end >><<- end >>
+<<- range .ModulesWith "hugo" >><<- if .IsWebsite >><<- $needs = append $needs "hugo-build" >><<- end >><<- end >>
 
 <<- if eq .Website.Hosting "netlify" >>
 

@@ -60,6 +60,32 @@ jobs:
           echo "Running workflow"
           echo "skip=false" >> $GITHUB_OUTPUT
 
+  docker-hadolint:
+    name: Docker Hadolint ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    if: ${{ needs.run-workflow.outputs.skip == 'false' }}
+    needs: run-workflow
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - directory: .
+    permissions:
+      pull-requests: write
+      security-events: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
+        with:
+          dockerfile: ${{ matrix.directory }}/Dockerfile
+          format: sarif
+          output-file: hadolint-results.sarif
+      - if: ${{ !cancelled() }}
+        uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a # v4.37.1
+        with:
+          sarif_file: hadolint-results.sarif
+          category: docker-hadolint/${{ matrix.directory }}
+
   go-vulncheck:
     name: Go Vulnerability Check
     runs-on: ubuntu-latest
@@ -217,6 +243,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     needs:
+      - docker-hadolint
       - go-test
       - node-test
     steps:

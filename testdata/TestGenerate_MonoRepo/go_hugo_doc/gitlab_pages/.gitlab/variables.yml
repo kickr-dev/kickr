@@ -13,6 +13,12 @@ variables:
   HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.164.0@sha256:f8671f2299e60154536c158bff8ce27f6eef4dddbbfc73bcce66263276ae0f80
   PAGES_IMAGE: docker.io/library/debian:trixie-slim@sha256:b6e2a152f22a40ff69d92cb397223c906017e1391a73c952b588e51af8883bf8
 
+  DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.43.1@sha256:20f35270faaf63d90d80cb54bf48740f428141d5e5914438e9d49896b3919af6
+  DOCKER_HADOLINT_IMAGE: docker.io/hadolint/hadolint:v2.14.0-alpine@sha256:7aba693c1442eb31c0b015c129697cb3b6cb7da589d85c7562f9deb435a6657c
+  DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.48.0-debug@sha256:610f2bf3d45f1cc4b7b4fdbc42c61497b6e103480dffc1e865d05ea8905a4ae9
+  DOCKER_TRIVY_IMAGE: docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f
+
   GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.12.2-alpine@sha256:91b27804074a0bacea298707f016911e60cf0cdbc6c7bf5ccacb5f0606d18d60
   GO_IMAGE: docker.io/library/golang:1.26.4-trixie@sha256:bbf22ddccb3205344f2755ea8fa4fe39f7a8b2b77b9f7b764ec2aad31406f6fc
   GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.170.0@sha256:c98f8829eea377274ee4b10656458b078b88232469b2ff913f091c2317347c9d
+  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.17.0@sha256:054eefd282c02233a2556ce2d1a60cd2f51dc565ffc2520dc38b5deb4dd1ad30

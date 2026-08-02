@@ -6,7 +6,9 @@ run-name: Deployment
 <<- $golang := .HasLanguage "go" >>
 <<- $gobuild := and $golang (gt (len .Executables.Clis) 0) >>
 
-<<- $hugo := .HasLanguage "hugo" >>
+<<- $hugo := false >>
+<<- range .ModulesWith "hugo" >><<- if not .HasDocker >><<- $hugo = true >><<- end >><<- end >>
+
 <<- $node := .HasLanguage "node" >>
 <<- $docker := .HasDocker >>
 
@@ -16,13 +18,18 @@ run-name: Deployment
 <<- $nodepublish := false >>
 <<- range .ModulesWith "node" >>
 <<- $specifics := get .Languages "node" >>
-<<- if $specifics.Main >><<- $nodemain = true >><<- end >>
-<<- if and (not $nodepublish) (not $specifics.Private) (ne $specifics.PublishConfig.Registry "") >><<- $nodepublish = true >><<- end >>
+<<- $publish := and (not $specifics.Private) (ne $specifics.PublishConfig.Registry "") >>
+<<- if and $specifics.Main (or (not .HasDocker) $publish) >><<- $nodemain = true >><<- end >>
+<<- if and (not $nodepublish) $publish >><<- $nodepublish = true >><<- end >>
 <<- end >>
+
+<<- $inputs := or .HasHelmDeploy .HasHelmPublish (and .Website .Website.Hosting) $tfapply .GitHub.Release >>
 
 on:
   workflow_dispatch:
+<<- if $inputs >>
     inputs:
+<<- end >>
 <<- if .HasHelmDeploy >>
       helm_deploy:
         description: Helm deployment mode.
@@ -44,7 +51,7 @@ on:
           - full
         default: << eq .Helm.Publish "auto" | ternary "full" "dry-run" >>
 <<- end >>
-<<- if .Website >>
+<<- if and .Website .Website.Hosting >>
       << .Website.Hosting >>:
         description: Website deployment mode.
         type: choice
@@ -231,7 +238,7 @@ jobs:
 <<- if .HasHelmDeploy >><<- $needs = append $needs "helm-deploy" >><<- end >>
 <<- if $hugo >><<- $needs = append $needs "hugo-build" >><<- end >>
 <<- if .IsHosting "netlify" >><<- $needs = append $needs "netlify" >><<- end >>
-<<- if and $node (hasKey .Executables.Workers "main") >><<- $needs = append $needs "node-build" >><<- end >>
+<<- if $nodemain >><<- $needs = append $needs "node-build" >><<- end >>
 <<- if .IsHosting "pages" >><<- $needs = append $needs "pages" >><<- end >>
 <<- if $tfapply >>
 <<- range $node := .ModulesWith "terraform" >>

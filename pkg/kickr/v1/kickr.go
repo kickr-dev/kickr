@@ -96,6 +96,12 @@ type Docker struct {
 	// Auto defines the Docker push strategy (automatic or not).
 	Auto bool `json:"auto,omitempty" yaml:"auto,omitempty"`
 
+	// Exclude defines available options to remove from Docker generation.
+	//
+	// 'website' skips the Dockerfile for the module configured as the static website (see 'website.hosting'),
+	// which otherwise still gets one whenever 'docker' is set.
+	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
+
 	// Path defines the Docker image path inside the registry (default is the path on VCS remote URL).
 	//
 	// Examples:

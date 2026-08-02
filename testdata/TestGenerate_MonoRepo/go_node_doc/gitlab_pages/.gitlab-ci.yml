@@ -22,5 +22,10 @@ include:
 # secret variables
 # (define the variables below in your GitLab group/project variables)
 
+# https://gitlab.com/to-be-continuous/docker
+# DOCKER_REGISTRY_MIRROR: The mirror registry URL (optional).
+# DOCKER_REGISTRY_MIRROR_USER: The username with read access to registry mirror (optional).
+# DOCKER_REGISTRY_MIRROR_PASSWORD: The user password / token with read access to registry mirror (optional).
+
 default:
   interruptible: true

@@ -14,6 +14,7 @@ include:
   - remote: https://gitlab.com/to-be-continuous/node/-/raw/1fdebb262a573058989e3a4fc3fd47899edd9b4c/templates/gitlab-ci-node.yml # 5.4.0
     inputs:
       build-dir: $BUILD_DIR
+      build-disabled: "false"
       lint-enabled: "true"
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
       publish-enabled: "true"

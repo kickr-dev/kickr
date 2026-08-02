@@ -10,8 +10,7 @@ build:
 serve:
 	@hugo server --disableFastRender --destination dist --logLevel debug
 
-{{- $netlify := false }}
-{{- if .Repository.IsHosting "netlify" }}{{ $netlify = eq (.Repository.Website.Directory | default ".") .Dir }}{{ end }}
+{{- $netlify := and (.Repository.IsHosting "netlify") .IsWebsite }}
 
 .PHONY: production
 {{- if $netlify }}

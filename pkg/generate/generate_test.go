@@ -553,6 +553,24 @@ func TestGenerate_Hugo(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("docker", func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				repo := types.Repository{
+					Kickr: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo, hugo)
+			})
+		}
+	})
 }
 
 func TestGenerate_Node(t *testing.T) {
@@ -739,6 +757,59 @@ func TestGenerate_Node(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("docker_only", func(t *testing.T) {
+		// Arrange
+		node := func(_ context.Context, destdir string, _ *types.Repository) error {
+			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
+				[]byte(`{ "name": "kickr", "packageManager": "bun@1.1.6", "main": "index.js" }`+"\n"), files.RwRR)
+		}
+
+		cases := []testcase{
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				repo := types.Repository{
+					Kickr: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo, node)
+			})
+		}
+	})
+
+	t.Run("docker_and_publish", func(t *testing.T) {
+		// Arrange
+		node := func(_ context.Context, destdir string, _ *types.Repository) error {
+			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
+				[]byte(`{
+					"name": "kickr",
+					"packageManager": "bun@1.1.6",
+					"main": "index.js",
+					"publishConfig": { "registry": "https://registry.npmjs.org" }
+				}`+"\n"), files.RwRR)
+		}
+
+		cases := []testcase{
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{}}}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{}}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				repo := types.Repository{
+					Kickr: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo, node)
+			})
+		}
+	})
 }
 
 func TestGenerate_Terraform(t *testing.T) {
@@ -838,13 +909,26 @@ func TestGenerate_Terraform(t *testing.T) {
 func TestGenerate_MonoRepo(t *testing.T) {
 	ctx := t.Context()
 
-	golang := func(provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
+	golang := func(godir, provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
+			if err := os.MkdirAll(filepath.Join(destdir, godir), files.RwxRxRxRx); err != nil {
+				return fmt.Errorf("mkdir all: %w", err)
+			}
+
 			gomod := fmt.Appendf(nil, "module %s.com/kickr-dev/kickr\n\ngo 1.23\n", provider)
-			if err := os.WriteFile(filepath.Join(destdir, parser.FileGomod), gomod, files.RwRR); err != nil {
+			if err := os.WriteFile(filepath.Join(destdir, godir, parser.FileGomod), gomod, files.RwRR); err != nil {
 				return fmt.Errorf("write file: %w", err)
 			}
-			return nil
+
+			cmd := filepath.Join(destdir, godir, parser.FolderCMD, "api")
+			if err := os.MkdirAll(cmd, files.RwxRxRxRx); err != nil {
+				return fmt.Errorf("mkdir all: %w", err)
+			}
+			file, err := os.Create(filepath.Join(cmd, parser.FileMain))
+			if err != nil {
+				return fmt.Errorf("create: %w", err)
+			}
+			return file.Close()
 		}
 	}
 
@@ -936,13 +1020,14 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
+						Docker:  &kickr.Docker{Exclude: []string{kickr.DockerExcludeWebsite}},
 						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Website: &kickr.Website{Directory: "docs"},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(tc.Platform), hugo)
+				test(ctx, t, repo, golang(types.RootModule, tc.Platform), hugo)
 			})
 		}
 	})
@@ -953,13 +1038,49 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Kickr: merge(t, kickr.Kickr{
+						Docker:  &kickr.Docker{Exclude: []string{kickr.DockerExcludeWebsite}},
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Website: &kickr.Website{Directory: "docs"},
 					}, tc.Kickr),
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(tc.Platform), node("docs"))
+				test(ctx, t, repo, golang(types.RootModule, tc.Platform), node("docs"))
+			})
+		}
+	})
+
+	t.Run("frontend_backend_docker", func(t *testing.T) {
+		// node module must be at Website.Directory: ParserNode doesn't scan arbitrary subdirs.
+		gowork := func(_ context.Context, destdir string, _ *types.Repository) error {
+			gowork := []byte(`
+				go 1.23
+				use (
+					./backend
+				)` + "\n")
+			if err := os.WriteFile(filepath.Join(destdir, parser.FileGowork), gowork, files.RwRR); err != nil {
+				return fmt.Errorf("write file: %w", err)
+			}
+			return nil
+		}
+
+		cases := []testcase{
+			{Name: "github", Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Platform: parser.GitHub}},
+			{Name: "gitlab", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Platform: parser.GitLab}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				repo := types.Repository{
+					Kickr: merge(t, kickr.Kickr{
+						Docker:  &kickr.Docker{},
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Website: &kickr.Website{Directory: "frontend"},
+					}, tc.Kickr),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo, gowork, golang("backend", tc.Platform), node("frontend"))
 			})
 		}
 	})
@@ -980,7 +1101,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(tc.Platform), terraform(".terraform"))
+				test(ctx, t, repo, golang(types.RootModule, tc.Platform), terraform(".terraform"))
 			})
 		}
 	})

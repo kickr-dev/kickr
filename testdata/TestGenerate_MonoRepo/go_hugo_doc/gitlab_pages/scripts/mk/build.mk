@@ -13,3 +13,23 @@ test-race:
 .PHONY: test-cover
 test-cover:
 	@go test ./... -v -coverpkg="./..." -covermode="count" -timeout=30s
+
+.PHONY: build
+build:
+	@CGO_ENABLED=0 go build \
+		-ldflags "\
+			-X 'gitlab.com/kickr-dev/kickr/internal/build.branch=$(shell git rev-parse --abbrev-ref HEAD)' \
+			-X 'gitlab.com/kickr-dev/kickr/internal/build.commit=$(shell git rev-parse HEAD)' \
+			-X 'gitlab.com/kickr-dev/kickr/internal/build.date=$(shell TZ="UTC" date '+%Y-%m-%dT%TZ')' \
+			-X 'gitlab.com/kickr-dev/kickr/internal/build.version=${APP_VERSION}' \
+		" \
+		-o api ./cmd/api
+
+.PHONY: docker
+docker:
+	@docker build . \
+		-f Dockerfile \
+		-t kickr:${APP_VERSION} \
+		--build-arg GIT_REF_NAME=$(shell git rev-parse --abbrev-ref HEAD) \
+		--build-arg GIT_COMMIT=$(shell git rev-parse HEAD) \
+		--build-arg APP_VERSION=${APP_VERSION}

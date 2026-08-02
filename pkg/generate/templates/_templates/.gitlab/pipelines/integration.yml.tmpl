@@ -4,8 +4,13 @@
 {{- $hugo := .HasLanguage "hugo" }}
 
 {{- $node := .HasLanguage "node" }}
-{{- $nodemain := false }}
-{{- range .ModulesWith "node" }}{{- if (get .Languages "node").Main }}{{- $nodemain = true }}{{- end }}{{- end }}
+
+{{- $buildable := list }}
+{{- range .ModulesWith "node" }}
+{{- $specifics := get .Languages "node" }}
+{{- $publish := and (not $specifics.Private) (ne $specifics.PublishConfig.Registry "") }}
+{{- if or (not .HasDocker) $publish }}{{- $buildable = append $buildable . }}{{- end }}
+{{- end }}
 
 {{- $precommit := and (not (has "pre-commit" .Exclude)) (not (has "pre-commit" .GitLab.Exclude)) }}
 {{- $shell := and (not (has "shell" .Exclude)) (.HasGlob "shell") }}
@@ -47,17 +52,17 @@ include:
 {{- end }}
 
 {{- if $node }}
-{{- $nodes := .ModulesWith "node" }}
 
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
   - remote: https://gitlab.com/to-be-continuous/node/-/raw/1fdebb262a573058989e3a4fc3fd47899edd9b4c/templates/gitlab-ci-node.yml # 5.4.0
     inputs:
       build-dir: $BUILD_DIR
+      build-disabled: "{{ eq (len $buildable) 0 }}"
       lint-enabled: "true"
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
-{{- if eq (len $nodes) 1 }}
-{{- $firstnode := first $nodes }}
+{{- if eq (len $buildable) 1 }}
+{{- $firstnode := first $buildable }}
 {{- if ne $firstnode.Dir "." }}
       project-dir: {{ $firstnode.Dir }}
 {{- end }}
@@ -132,13 +137,12 @@ go-build:
 {{- end }}
 
 {{- if $node }}
-{{- $nodes := .ModulesWith "node" }}
-{{- if gt (len $nodes) 1 }}
+{{- if gt (len $buildable) 1 }}
 
 .node-base:
   parallel:
     matrix:
-{{- range $nodes }}
+{{- range $buildable }}
       - NODE_PROJECT_DIR: {{ .Dir }}
         NODE_PUBLISH_ENABLED: "{{ and (not $.GitLab.Release) (not (get .Languages "node").Private) }}"
 {{- end }}
@@ -152,8 +156,11 @@ node-build:
     - semantic-release-info
 {{- end }}
 
-{{- if $hugo }}
-{{- $nodes := .ModulesWith "hugo" }}
+{{- $buildable = list }}
+{{- range .ModulesWith "hugo" }}{{- if not .HasDocker }}{{- $buildable = append $buildable . }}{{- end }}{{- end }}
+
+{{- if gt (len $buildable) 0 }}
+{{- $firstnode := first $buildable }}
 
 hugo-build:
   image:
@@ -162,14 +169,14 @@ hugo-build:
   stage: build
   needs:
     - semantic-release-info
-{{- if and (eq (len $nodes) 1) (ne (first $nodes).Dir ".") }}
+{{- if and (eq (len $buildable) 1) (ne $firstnode.Dir ".") }}
   variables:
-    HUGO_PROJECT_DIR: {{ (first $nodes).Dir }}
+    HUGO_PROJECT_DIR: {{ $firstnode.Dir }}
 {{- end }}
-{{- if gt (len $nodes) 1 }}
+{{- if gt (len $buildable) 1 }}
   parallel:
     matrix:
-{{- range $nodes }}
+{{- range $buildable }}
       - HUGO_PROJECT_DIR: {{ .Dir }}
 {{- end }}
 {{- end }}

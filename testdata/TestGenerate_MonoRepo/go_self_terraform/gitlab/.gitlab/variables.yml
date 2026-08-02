@@ -14,5 +14,6 @@ variables:
   GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.12.2-alpine@sha256:91b27804074a0bacea298707f016911e60cf0cdbc6c7bf5ccacb5f0606d18d60
   GO_IMAGE: docker.io/library/golang:1.26.4-trixie@sha256:bbf22ddccb3205344f2755ea8fa4fe39f7a8b2b77b9f7b764ec2aad31406f6fc
   GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.170.0@sha256:c98f8829eea377274ee4b10656458b078b88232469b2ff913f091c2317347c9d
+  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.17.0@sha256:054eefd282c02233a2556ce2d1a60cd2f51dc565ffc2520dc38b5deb4dd1ad30
   TF_IMAGE: ghcr.io/opentofu/opentofu:1.12.5@sha256:ba827d1af675c3f522eb78e2b8098cc87daefb9ceb9d3c4b69d0a1bb6d272463
   TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f

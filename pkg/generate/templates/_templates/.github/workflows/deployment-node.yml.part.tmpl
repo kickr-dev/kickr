@@ -2,10 +2,16 @@ jobs:
 <<- define "node" >>
 
 <<- $nodes := .ModulesWith "node" >>
-<<- $manager := cutAfter (get (first $nodes).Languages "node").PackageManager "@" >>
 
-<<- $websiteDirectory := "." >>
-<<- if .Website >><<- $websiteDirectory = .Website.Directory | default "." >><<- end >>
+<<- $buildable := list >>
+<<- range $nodes >>
+<<- $specifics := get .Languages "node" >>
+<<- $publish := and (not $specifics.Private) (ne $specifics.PublishConfig.Registry "") >>
+<<- if or (not .HasDocker) $publish >><<- $buildable = append $buildable . >><<- end >>
+<<- end >>
+
+<<- if gt (len $buildable) 0 >>
+<<- $manager := cutAfter (get (first $nodes).Languages "node").PackageManager "@" >>
 
   node-build:
     name: Node Build ${{ matrix.name }}
@@ -15,10 +21,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-<<- range $nodes >>
+<<- range $buildable >>
 <<- $artifact := "build" >>
 <<- if ne .Dir "." >><<- $artifact = print $artifact "-" .Dir >><<- end >>
-<<- if and ($.IsHosting "pages") (eq $websiteDirectory .Dir) >><<- $artifact = print $artifact "-pages" >><<- end >>
+<<- if and ($.IsHosting "pages") .IsWebsite >><<- $artifact = print $artifact "-pages" >><<- end >>
           - artifact: << $artifact >>
             directory: << .Dir >>
 <<- if ne .Dir "." >>
@@ -76,4 +82,5 @@ jobs:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.directory }}/dist
           retention-days: 1
+<<- end >>
 <<- end >>

@@ -82,7 +82,7 @@ func ParserNode(_ context.Context, destdir string, repo *types.Repository) error
 
 		repo.Module(types.RootModule).SetLanguage(types.LanguageNode, root)
 		if root.Main != nil {
-			repo.Module(types.RootModule).AddWorker("main") // a worker can only affected with base directory package.json
+			repo.Module(types.RootModule).AddWorker("main") // a worker can only be present in root directory
 		}
 		nodes = append(nodes, root)
 	} else if !errors.Is(err, fs.ErrNotExist) {

@@ -77,13 +77,31 @@ func (m Module) HasDocker() bool {
 	if m.repo.Docker == nil {
 		return false
 	}
-	languages := []string{LanguageGo, LanguageHugo, LanguageNode}
+	if _, ok := m.Languages[LanguageGo]; ok {
+		return m.Binaries() > 0
+	}
+	if m.IsWebsite() && slices.Contains(m.repo.Docker.Exclude, kickr.DockerExcludeWebsite) {
+		return false
+	}
+	languages := []string{LanguageHugo, LanguageNode}
 	for _, language := range languages {
 		if _, ok := m.Languages[language]; ok {
 			return true
 		}
 	}
 	return false
+}
+
+// IsWebsite returns truthy when this module is the repository's configured website directory.
+func (m Module) IsWebsite() bool {
+	if m.repo.Website == nil {
+		return false
+	}
+	directory := m.repo.Website.Directory
+	if directory == "" {
+		directory = RootModule
+	}
+	return directory == m.directory
 }
 
 // HasMakefile returns truthy when the module should have a Makefile.

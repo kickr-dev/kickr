@@ -227,6 +227,16 @@ $defs:
 
       With 'ci' enabled, control where (registry and path) shall the built Docker image be pushed and when (automatically or not).
     properties:
+      exclude:
+        type: array
+        description: |-
+          Available options to remove from Docker generation.
+
+          'website' skips the Dockerfile for the module configured as the static website (see 'website.hosting'),
+          which otherwise still gets one whenever 'docker' is set.
+        items:
+          type: string
+          enum: [website]
       port:
         type: integer
         description: Port to expose in the Dockerfile.

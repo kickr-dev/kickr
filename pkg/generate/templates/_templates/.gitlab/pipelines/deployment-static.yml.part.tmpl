@@ -3,10 +3,13 @@
 {{- $websiteDirectory := .Website.Directory | default "." }}
 
 {{- $needs := "" }}
-{{- range .ModulesWith "node" }}{{- if eq .Dir $websiteDirectory }}{{- $needs = "node-build" }}{{- end }}{{- end }}
-{{- range .ModulesWith "hugo" }}{{- if eq .Dir $websiteDirectory }}{{- $needs = "hugo-build" }}{{- end }}{{- end }}
+{{- range .ModulesWith "node" }}{{- if .IsWebsite }}{{- $needs = "node-build" }}{{- end }}{{- end }}
+{{- range .ModulesWith "hugo" }}{{- if .IsWebsite }}{{- $needs = "hugo-build" }}{{- end }}{{- end }}
 
-{{- $matrix := or (and (eq $needs "node-build") (gt (len (.ModulesWith "node")) 1)) (and (eq $needs "hugo-build") (gt (len (.ModulesWith "hugo")) 1)) }}
+{{- $matrix := or
+  (and (eq $needs "node-build") (gt (len (.ModulesWith "node")) 1))
+  (and (eq $needs "hugo-build") (gt (len (.ModulesWith "hugo")) 1))
+-}}
 
 {{- if eq .Website.Hosting "netlify" }}
 netlify-deploy:
