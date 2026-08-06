@@ -27,10 +27,10 @@ func ParserGit(_ context.Context, destdir string, repo *types.Repository) error 
 	engine.GetLogger().Infof("git repository detected")
 
 	repo.VCS = vcs
-	if repo.Platform != "" {
-		repo.VCS.Platform = repo.Platform
+	if repo.Config.Platform != "" {
+		repo.VCS.Platform = repo.Config.Platform
 	} else {
-		repo.Platform = repo.VCS.Platform
+		repo.Config.Platform = repo.VCS.Platform
 	}
 	return nil
 }

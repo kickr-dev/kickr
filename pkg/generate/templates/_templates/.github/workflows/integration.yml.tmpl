@@ -3,14 +3,14 @@
 name: Integration
 run-name: Integration
 
-<<- $golang := .HasLanguage "go" >>
-<<- $node := .HasLanguage "node" >>
-<<- $docker := .HasDocker >>
-<<- $shell := and (not (has "shell" .Exclude)) (.HasGlob "shell") >>
+<<- $go_modules := .ModulesWith "go" >>
+<<- $node_modules := .ModulesWith "node" >>
+<<- $has_docker := .HasDocker >>
+<<- $shell := and (not (has "shell" .Config.Exclude)) (.HasGlob "shell") >>
 
-<<- $terraform := .HasLanguage "terraform" >>
-<<- $engine := "opentofu" >>
-<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
+<<- $terraform_modules := .ModulesWith "terraform" >>
+<<- $terraform_apply_modules := .ModulesWithTerraformApply >>
+<<- $terraform_cmd := .Config.TerraformEngine >>
 
 on:
   pull_request:
@@ -49,7 +49,7 @@ jobs:
     permissions:
       pull-requests: read
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -77,19 +77,19 @@ jobs:
           echo "Running workflow"
           echo "skip=false" >> $GITHUB_OUTPUT
 
-<<- if and (not (has "pre-commit" .Exclude)) (not (has "pre-commit" .GitHub.Exclude)) >>
+<<- if and (not (has "pre-commit" .Config.Exclude)) (not (has "pre-commit" .Config.GitHub.Exclude)) >>
 
   pre-commit:
     name: Pre-Commit
     runs-on: ubuntu-latest
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
-<<- if has "auto-commit" .PreCommit >>
+<<- if has "auto-commit" .Config.PreCommit >>
     permissions:
       contents: write
 <<- end >>
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -98,7 +98,7 @@ jobs:
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-<<- if has "conventional-commits" .PreCommit >>
+<<- if has "conventional-commits" .Config.PreCommit >>
         with:
           fetch-depth: 0
 <<- end >>
@@ -107,9 +107,9 @@ jobs:
           # renovate: datasource=github-tags packageName=actions/python-versions
           python-version: 3.13.7
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-<<- if has "auto-commit" .PreCommit >>
+<<- if has "auto-commit" .Config.PreCommit >>
       - if: ${{ !cancelled() }}
-<<- if has "step-security-actions" .GitHub.Options >>
+<<- if has "step-security-actions" .Config.GitHub.Options >>
         # https://app.stepsecurity.io/github-action-advisor/step-security/git-auto-commit-action
         uses: step-security/git-auto-commit-action@749bc1cc775376092cc4227ba537137f445ca7c3 # v7.1.1
 <<- else >>
@@ -129,7 +129,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -144,7 +144,7 @@ jobs:
           check_together: "yes"
 <<- end >>
 
-<<- if $docker >>
+<<- if $has_docker >>
 
   docker-hadolint:
     name: Docker Hadolint ${{ matrix.name }}
@@ -167,7 +167,7 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -188,7 +188,7 @@ jobs:
           category: docker-hadolint/${{ matrix.directory }}
 <<- end >>
 
-<<- if .Helm >>
+<<- if .Config.Helm >>
 
   helm-lint-test:
     name: Helm Lint & Test
@@ -196,7 +196,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -232,28 +232,28 @@ jobs:
           TARGET_BRANCH: ${{ github.event.pull_request.base_ref || github.event.repository.default_branch }}
 <<- end >>
 
-<<- if $golang >><< template "golang" . >><<- end >>
-<<- if $node >><< template "node" . >><<- end >>
-<<- if $terraform >><< template "terraform" . >><<- end >>
+<<- if gt (len $go_modules) 0 >><< template "golang" . >><<- end >>
+<<- if gt (len $node_modules) 0 >><< template "node" . >><<- end >>
+<<- if gt (len $terraform_modules) 0 >><< template "terraform" . >><<- end >>
 
-<<- if has "sonarqube" .GitHub.Options >>
+<<- if has "sonarqube" .Config.GitHub.Options >>
 
   sonar-analysis:
     name: Sonar Analysis
     runs-on: ubuntu-latest
     needs:
-<<- if $golang >>
+<<- if gt (len $go_modules) 0 >>
       - go-lint
       - go-test
 <<- end >>
-<<- if $node >>
+<<- if gt (len $node_modules) 0 >>
       - node-lint
       - node-test
 <<- end >>
     env:
       SONAR_USER_HOME: .sonar
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -303,47 +303,43 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     needs:
-<<- if $docker >>
+<<- if $has_docker >>
       - docker-hadolint
 <<- end >>
-<<- if $golang >>
+<<- if gt (len $go_modules) 0 >>
       - go-test
 <<- end >>
-<<- if .Helm >>
+<<- if .Config.Helm >>
       - helm-lint-test
 <<- end >>
-<<- if $node >>
+<<- if gt (len $node_modules) 0 >>
       - node-test
 <<- end >>
-<<- if and $terraform (eq $engine "opentofu") >>
+<<- if and (gt (len $terraform_modules) 0) (eq $terraform_cmd "tofu") >>
       - opentofu-check
       - opentofu-lint
-<<- if .HasTerraformApply >>
-<<- range $node := .ModulesWith "terraform" >>
-      - opentofu-plan<< with $node.Slug >>-<< . >><< end >>
+<<- range $terraform_apply_modules >>
+      - opentofu-plan<< with .Slug >>-<< . >><< end >>
 <<- end >>
 <<- end >>
-<<- end >>
-<<- if not (has "pre-commit" .Exclude) >>
+<<- if not (has "pre-commit" .Config.Exclude) >>
       - pre-commit
 <<- end >>
-<<- if and $terraform (eq $engine "terraform") >>
+<<- if and (gt (len $terraform_modules) 0) (eq $terraform_cmd "terraform") >>
       - terraform-check
       - terraform-lint
-<<- if .HasTerraformApply >>
-<<- range $node := .ModulesWith "terraform" >>
-      - terraform-plan<< with $node.Slug >>-<< . >><< end >>
-<<- end >>
+<<- range $terraform_apply_modules >>
+      - terraform-plan<< with .Slug >>-<< . >><< end >>
 <<- end >>
 <<- end >>
 <<- if $shell >>
       - shellcheck
 <<- end >>
-<<- if has "sonarqube" .GitHub.Options >>
+<<- if has "sonarqube" .Config.GitHub.Options >>
       - sonar-analysis
 <<- end >>
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -356,12 +352,12 @@ jobs:
       - run: echo "All jobs ended with success"
 
 <<- $deploy := or
-  (and $docker .Docker.Auto)
-  (and .Helm (or (eq .Helm.Deploy "auto") (eq .Helm.Publish "auto")))
-  (and .Terraform (eq .Terraform.Apply "auto"))
-  (and .Website .Website.Auto)
+  (and $has_docker .Config.Docker.Auto)
+  (and .Config.Helm (or (eq .Config.Helm.Deploy "auto") (eq .Config.Helm.Publish "auto")))
+  .Config.HasTerraformAutoApply
+  .Config.HasDeploymentAuto
 >>
-<<- $release := and .GitHub.Release .GitHub.Release.Auto >>
+<<- $release := and .Config.GitHub.Release .Config.GitHub.Release.Auto >>
 <<- if or $deploy $release >>
 
   notify-workflow:
@@ -377,7 +373,7 @@ jobs:
         workflow:
           - deployment
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0

@@ -229,7 +229,7 @@ jobs:
     needs:
       - hugo-build
     environment:
-      name: github-pages
+      name: pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       id-token: write

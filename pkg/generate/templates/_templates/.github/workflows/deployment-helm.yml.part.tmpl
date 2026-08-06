@@ -1,27 +1,27 @@
 jobs:
 <<- define "helm" >>
 
-<<- $registry := .Helm.Registry | default "oci://ghcr.io" >>
-<<- $path := .Helm.Path | default .VCS.ProjectPath >>
+<<- $registry := .Config.Helm.Registry | default "oci://ghcr.io" >>
+<<- $path := .Config.Helm.Path | default .VCS.ProjectPath >>
 <<- $ghcr := and (eq $registry "oci://ghcr.io") (eq $path .VCS.ProjectPath) >>
 
-<<- $docker := .HasDocker >>
+<<- $has_docker := .HasDocker >>
 
-<<- if .HasHelmPublish >>
+<<- if .Config.HasHelmPublish >>
 
   helm-push:
     name: Helm Push
     runs-on: ubuntu-latest
     if: ${{ inputs.helm_push != 'none' }}
     needs:
-<<- if $docker >>
+<<- if $has_docker >>
       - docker-build
 <<- end >>
       - version
     permissions:
       packages: << $ghcr | ternary "write" "none" >>
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -65,16 +65,16 @@ jobs:
 <<- end >>
 <<- end >>
 
-<<- if .HasHelmDeploy >>
+<<- if .Config.HasHelmDeploy >>
 
   helm-deploy:
     name: Helm Deploy (${{ matrix.environment }})
     runs-on: ubuntu-latest
     if: ${{ inputs.helm_deploy != 'none' }}
     needs:
-<<- if .HasHelmPublish >>
+<<- if .Config.HasHelmPublish >>
       - helm-push
-<<- else if $docker >>
+<<- else if $has_docker >>
       - docker-build
 <<- end >>
       - version
@@ -83,7 +83,7 @@ jobs:
       fail-fast: false
       matrix:
         environment:
-<<- range .Helm.Environments >>
+<<- range .Config.Helm.Environments >>
           - << . >>
 <<- end >>
         production:
@@ -93,24 +93,24 @@ jobs:
         # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
         # for more information about how to include environments depending on branches
         include:
-<<- if has "review" .Helm.Environments >>
+<<- if has "review" .Config.Helm.Environments >>
           - environment: review # enabled on non-protected branches
             protected: false
 <<- end >>
-<<- if has "integration" .Helm.Environments >>
+<<- if has "integration" .Config.Helm.Environments >>
           - environment: integration # enabled on protected branches
             protected: true
 <<- end >>
-<<- if has "staging" .Helm.Environments >>
+<<- if has "staging" .Config.Helm.Environments >>
           - environment: staging # enabled on production branches
             production: true
 <<- end >>
-<<- if has "production" .Helm.Environments >>
+<<- if has "production" .Config.Helm.Environments >>
           - environment: production # enabled on production branches
             production: true
 <<- end >>
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -140,7 +140,7 @@ jobs:
           GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
           HELM_ARGS: ${{ vars.HELM_ARGS }}
           HELM_CHART_DIR: chart/
-<<- if .HasHelmPublish >>
+<<- if .Config.HasHelmPublish >>
           HELM_CHART_URL: << $registry >>/<< $path >>
 <<- end >>
           HELM_DRY_RUN: ${{ inputs.helm_deploy }}

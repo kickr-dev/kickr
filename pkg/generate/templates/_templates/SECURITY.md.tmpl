@@ -21,14 +21,14 @@
 {{- end }}
 | Older   | ❌         |
 
-{{- if eq .Platform "github" }}
+{{- if eq .Config.Platform "github" }}
 
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability, please report it through **GitHub**'s private vulnerability [reporting system](https://{{ .VCS.ProjectHost }}/{{ .VCS.ProjectPath }}/security/advisories/new).
 {{- end }}
 
-{{- if eq .Platform "gitlab" }}
+{{- if eq .Config.Platform "gitlab" }}
 
 ## Reporting a Vulnerability
 

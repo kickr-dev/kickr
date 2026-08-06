@@ -3,46 +3,50 @@
 <div align="center">
 {{- $style := "for-the-badge" }}
 
-{{- if eq .Platform "github" }}
+{{- if eq .Config.Platform "github" }}
   <img alt="GitHub Release" src="https://img.shields.io/github/v/release/{{ .VCS.ProjectPath }}?include_prereleases&sort=semver&style={{ $style }}">
   <img alt="GitHub Issues" src="https://img.shields.io/github/issues-raw/{{ .VCS.ProjectPath }}?style={{ $style }}">
-{{- if .License }}
+{{- if .Config.License }}
   <img alt="GitHub License" src="https://img.shields.io/github/license/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 {{- end }}
-{{- if .GitHub }}
+{{- if .Config.GitHub }}
   <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/{{ .VCS.ProjectPath }}/integration.yml?style={{ $style }}">
 {{- end }}
 
 {{- $url := toQuery (print "https://" .VCS.ProjectHost) }}
-{{- if eq .Platform "gitlab" }}
+{{- if eq .Config.Platform "gitlab" }}
   <img alt="GitLab Release" src="https://img.shields.io/gitlab/v/release/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&include_prereleases&sort=semver&style={{ $style }}">
   <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
-{{- if .License }}
+{{- if .Config.License }}
   <img alt="GitLab License" src="https://img.shields.io/gitlab/license/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
 {{- end }}
 {{- end }}
-{{- if .GitLab }}
+{{- if .Config.GitLab }}
   <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&branch=main&style={{ $style }}">
 {{- end }}
 
-{{- if and .GitHub (has "codecov" .GitHub.Options) }}
+{{- if and .Config.GitHub (has "codecov" .Config.GitHub.Options) }}
   <img alt="Coverage" src="https://img.shields.io/codecov/c/github/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
-{{- if and .GitLab (has "codecov" .GitLab.Options) }}
+{{- if and .Config.GitLab (has "codecov" .Config.GitLab.Options) }}
   <img alt="Coverage" src="https://img.shields.io/codecov/c/gitlab/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 
-{{- if or (and .GitHub (has "sonarqube" .GitHub.Options)) (and .GitLab (has "sonarqube" .GitLab.Options)) }}
+{{- if or (and .Config.GitHub (has "sonarqube" .Config.GitHub.Options)) (and .Config.GitLab (has "sonarqube" .Config.GitLab.Options)) }}
   <img alt="Coverage" src="https://img.shields.io/sonar/coverage/{{ .VCS.ProjectPath | replace "/" "_" }}?server={{ toQuery "https://sonarsource.com" }}&style={{ $style }}">
 {{- end }}
 
-{{- if or (.HasLanguage "go") (.HasLanguage "hugo") }}
-  <img alt="Go Version" src="https://img.shields.io/{{ .Platform }}/go-mod/go-version/{{ .VCS.ProjectPath }}?style={{ $style }}">
+{{- $go_modules := .ModulesWith "go" }}
+{{- $hugo_modules := .ModulesWith "hugo" }}
+{{- $node_modules := .ModulesWith "node" }}
+
+{{- if or (gt (len $go_modules) 0) (gt (len $hugo_modules) 0) }}
+  <img alt="Go Version" src="https://img.shields.io/{{ .Config.Platform }}/go-mod/go-version/{{ .VCS.ProjectPath }}?style={{ $style }}">
 {{- end }}
 
-{{- if .HasLanguage "node" }}
-{{- range .ModulesWith "node" }}
+{{- if gt (len $node_modules) 0 }}
+{{- range $node_modules }}
 {{- $node := get .Languages "node" }}
 {{- if and (not $node.Private) (eq $node.PublishConfig.Registry "") }}
   <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/{{ toQuery $node.Name }}?style={{ $style }}">
@@ -50,7 +54,7 @@
 {{- end }}
 {{- end }}
 
-{{- if and .GitHub (has "ossf-scorecard" .GitHub.Options) }}
+{{- if and .Config.GitHub (has "ossf-scorecard" .Config.GitHub.Options) }}
   <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}?label={{ toQuery "OpenSSF Scorecard" }}&style={{ $style }}">
 {{- end }}
 </div>

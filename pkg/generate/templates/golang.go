@@ -31,7 +31,7 @@ func RepositoryGolang() []engine.Template[types.Repository] {
 			Globs:      []string{".golangci.yml" + engine.TmplExtension},
 			Out:        ".golangci.yml",
 			Remove: func(repo types.Repository) bool {
-				return !repo.HasLanguage(types.LanguageGo)
+				return len(repo.ModulesWith(types.LanguageGo)) == 0
 			},
 		},
 		{

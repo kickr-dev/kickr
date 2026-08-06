@@ -13,8 +13,11 @@ coverage:
       default:
         threshold: 2.5%
 
+{{- $go_modules := .ModulesWith "go" }}
+{{- $node_modules := .ModulesWith "node" }}
+
 ignore:
-{{- if .HasLanguage "go" }}
+{{- if gt (len $go_modules) 0 }}
   - "cmd"
   - "examples"
   - "testdata"
@@ -25,7 +28,7 @@ ignore:
   - "**/testdata/**"
   - "**/testutils/**"
 {{- end }}
-{{- if .HasLanguage "node" }}
+{{- if gt (len $node_modules) 0 }}
   - "dist"
   - "node_modules"
   - "**/*.spec.js"

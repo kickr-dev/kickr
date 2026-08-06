@@ -8,7 +8,7 @@ jobs:
     if: ${{ needs.run-workflow.outputs.skip == 'false' }}
     needs: run-workflow
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -31,7 +31,7 @@ jobs:
       pull-requests: write
       security-events: write
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -57,7 +57,7 @@ jobs:
         with:
           sarif_file: reports/golangci-lint.sarif
           category: golangci-lint
-<<- if has "sonarqube" .GitHub.Options >>
+<<- if has "sonarqube" .Config.GitHub.Options >>
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: lint
@@ -77,7 +77,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -101,7 +101,7 @@ jobs:
         run: |-
           go run github.com/jstemmer/go-junit-report/v2@latest -in "reports/tests.log" -out "reports/go-test.xunit.xml"
           go tool test2json < "reports/tests.log" > "reports/go-test.native.json"
-<<- if has "codecov" .GitHub.Options >>
+<<- if has "codecov" .Config.GitHub.Options >>
       - uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
         with:
           codecov_yml_path: .codecov.yml
@@ -127,7 +127,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
 <<- end >>
-<<- if has "sonarqube" .GitHub.Options >>
+<<- if has "sonarqube" .Config.GitHub.Options >>
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage

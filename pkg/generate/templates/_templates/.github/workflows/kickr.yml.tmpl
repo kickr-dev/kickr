@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: kickr
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -29,7 +29,7 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-<<- if has "kickr:github-app" .GitHub.Options >>
+<<- if has "kickr:github-app" .Config.GitHub.Options >>
       - id: app_token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
-<<- if has "kickr:github-app" .GitHub.Options >>
+<<- if has "kickr:github-app" .Config.GitHub.Options >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
@@ -59,7 +59,7 @@ jobs:
           sign-commits: true
           signoff: true
           title: "ci(layout): regenerate kickr layout"
-<<- if has "kickr:github-app" .GitHub.Options >>
+<<- if has "kickr:github-app" .Config.GitHub.Options >>
           token: ${{ steps.app_token.outputs.token }}
 <<- else >>
           token: ${{ secrets.KICKR_TOKEN }}

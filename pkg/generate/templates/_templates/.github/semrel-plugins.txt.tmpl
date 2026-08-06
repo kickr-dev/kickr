@@ -6,14 +6,16 @@
 @semantic-release/release-notes-generator@14.1.1
 conventional-changelog-conventionalcommits@9.3.1
 
-{{- if .HasLanguage "node" }}
+{{- $node_modules := .ModulesWith "node" }}
+
+{{- if gt (len $node_modules) 0 }}
 @semantic-release/npm@13.1.5
 {{- end }}
 
-{{- if and .License (list "bsl-1.0" "mit" | has .License) }}
+{{- if and .Config.License (list "bsl-1.0" "mit" | has .Config.License) }}
 semantic-release-license@1.0.3
 {{- end }}
 
-{{- if has "backmerge" .GitHub.Release.Options }}
+{{- if has "backmerge" .Config.GitHub.Release.Options }}
 @kilianpaquier/semantic-release-backmerge@1.8.0
 {{- end }}

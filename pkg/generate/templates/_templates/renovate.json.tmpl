@@ -3,20 +3,19 @@
 // https://docs.renovatebot.com/configuration-options/
 
 {{- $gomod := .HasGlob "gomod" }}
-{{- $terraform := .HasLanguage "terraform" }}
 {{- $tmpl := .HasGlob "tmpl" }}
 
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
 
     "extends": [
-        "github>kickr-dev/renovate//configs/renovate/default.json"{{ if or $tmpl .Docker }},
-        "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or $tmpl .GitHub }},
-        "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl .GitLab }},
+        "github>kickr-dev/renovate//configs/renovate/default.json"{{ if or $tmpl .Config.Docker }},
+        "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or $tmpl .Config.GitHub }},
+        "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl .Config.GitLab }},
         "github>kickr-dev/renovate//configs/renovate/gitlab-ci.json"{{ end }}{{ if $gomod }},
-        "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if or .HasKickr $tmpl }},
-        "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if and $terraform (or (not .Terraform) (not .Terraform.Engine) (eq .Terraform.Engine "opentofu")) }},
-        "github>kickr-dev/renovate//configs/renovate/opentofu.json"{{ end }}{{ if not (has "pre-commit" .Exclude) }},
+        "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if or .Config.HasKickr $tmpl }},
+        "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if eq .Config.TerraformEngine "tofu" }},
+        "github>kickr-dev/renovate//configs/renovate/opentofu.json"{{ end }}{{ if not (has "pre-commit" .Config.Exclude) }},
         "github>kickr-dev/renovate//configs/renovate/pre-commit.json"{{ end }}
     ]
 }

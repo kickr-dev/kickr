@@ -1,7 +1,6 @@
 package types //nolint:revive
 
 import (
-	"cmp"
 	"maps"
 	"path/filepath"
 	"slices"
@@ -18,15 +17,19 @@ const RootModule = "."
 //
 // A repository contains its kickr configuration and additional properties from languages parsing, files globing, etc.
 type Repository struct {
-	kickr.Kickr
-
+	Config  kickr.Kickr
+	Modules []Module
 	VCS     parser.VCS
-	modules map[string]*Module
+}
+
+// RepositoryModules returns all modules of the given repository.
+func RepositoryModules(repo Repository) []Module {
+	return repo.Modules
 }
 
 // HasLanguages returns truthy when at least one repository module contains a language.
 func (r Repository) HasLanguages() bool {
-	for _, module := range r.modules {
+	for _, module := range r.Modules {
 		if len(module.Languages) > 0 {
 			return true
 		}
@@ -36,7 +39,7 @@ func (r Repository) HasLanguages() bool {
 
 // HasDocker returns truthy when at least one repository module gets a Dockerfile.
 func (r Repository) HasDocker() bool {
-	for _, module := range r.modules {
+	for _, module := range r.Modules {
 		if module.HasDocker() {
 			return true
 		}
@@ -46,7 +49,7 @@ func (r Repository) HasDocker() bool {
 
 // HasMakefile returns truthy when at least one repository module gets a Makefile.
 func (r Repository) HasMakefile() bool {
-	for _, module := range r.modules {
+	for _, module := range r.Modules {
 		if module.HasMakefile() {
 			return true
 		}
@@ -54,41 +57,65 @@ func (r Repository) HasMakefile() bool {
 	return false
 }
 
-// Modules returns the repository modules, sorted alphabetically.
-func (r Repository) Modules() []Module {
-	modules := make([]Module, 0, len(r.modules))
-	for _, module := range r.modules {
-		modules = append(modules, *module)
-	}
-	slices.SortFunc(modules, func(a, b Module) int {
-		return cmp.Compare(a.directory, b.directory)
-	})
-	return modules
-}
-
-// ModulesWith returns the repository modules containing the provided language, sorted alphabetically.
-func (r Repository) ModulesWith(language string) []Module {
-	modules := make([]Module, 0, len(r.modules))
-	for _, module := range r.Modules() {
-		if _, ok := module.Languages[language]; ok {
-			modules = append(modules, module)
+// FilterModules returns the repository modules matching the given predicate.
+func (r Repository) FilterModules(predicate func(Module) bool) []Module {
+	filtered := make([]Module, 0, len(r.Modules))
+	for _, module := range r.Modules {
+		if predicate(module) {
+			filtered = append(filtered, module)
 		}
 	}
-	return modules
+	return filtered
 }
 
-// HasLanguage returns truthy when at least one repository module contains the input language.
-func (r Repository) HasLanguage(language string) bool {
-	return len(r.ModulesWith(language)) > 0
+// ModulesWith returns the repository modules containing the provided language.
+func (r Repository) ModulesWith(language string) []Module {
+	return r.FilterModules(func(m Module) bool {
+		_, ok := m.Languages[language]
+		return ok
+	})
+}
+
+// ModulesWithTerraformApply returns the repository modules with an apply strategy configured.
+func (r Repository) ModulesWithTerraformApply() []Module {
+	return r.FilterModules(func(m Module) bool { return m.Config.HasTerraformApply() })
+}
+
+// ModulesWithTerraformDocs returns the repository modules with terraform documentation needed.
+func (r Repository) ModulesWithTerraformDocs() []Module {
+	return r.FilterModules(func(m Module) bool { return m.Config.HasTerraformDocs() })
+}
+
+// ModuleIndexOf returns the index of the module matching the given directory,
+// or -1 if not found.
+func (r Repository) ModuleIndexOf(directory string) int {
+	clean := filepath.Clean(directory)
+	return slices.IndexFunc(r.Modules, func(m Module) bool {
+		return m.Dir() == clean
+	})
+}
+
+// ModulesWithDeployment returns the repository modules deployed on the input target.
+//
+// For static targets (netlify, pages), only hugo or node modules are returned
+// since those are the only languages supporting static deployment.
+func (r Repository) ModulesWithDeployment(target string) []Module {
+	return r.FilterModules(func(m Module) bool {
+		if !slices.Contains([]string{kickr.DeploymentTargetNetlify, kickr.DeploymentTargetPages}, target) {
+			return m.Config.HasDeployment(target)
+		}
+		_, hugo := m.Languages[LanguageHugo]
+		_, node := m.Languages[LanguageNode]
+		return (hugo || node) && m.Config.HasDeployment(target)
+	})
 }
 
 // HasGlob returns truthy when the root module matched the input glob name.
 func (r Repository) HasGlob(name string) bool {
-	module, ok := r.modules[RootModule]
-	if !ok {
+	if len(r.Modules) == 0 {
 		return false
 	}
-	_, ok = module.Globs[name]
+	_, ok := r.Modules[0].Globs[name]
 	return ok
 }
 
@@ -100,27 +127,11 @@ func (r Repository) Executables() parser.Executables {
 		Jobs:    map[string]any{},
 		Workers: map[string]any{},
 	}
-	for _, module := range r.modules {
+	for _, module := range r.Modules {
 		maps.Copy(executables.Clis, module.Clis)
 		maps.Copy(executables.Crons, module.Crons)
 		maps.Copy(executables.Jobs, module.Jobs)
 		maps.Copy(executables.Workers, module.Workers)
 	}
 	return executables
-}
-
-// Module creates or retrieves the module associated with the input directory.
-//
-// Return element is a pointer to allow chained modification of it.
-func (r *Repository) Module(directory string) *Module {
-	clean := filepath.Clean(directory)
-	if r.modules == nil {
-		r.modules = map[string]*Module{}
-	}
-	module, ok := r.modules[clean]
-	if !ok {
-		module = &Module{directory: clean, repo: r}
-		r.modules[clean] = module
-	}
-	return module
 }

@@ -24,7 +24,7 @@ import (
 
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
-	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
+	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 	"github.com/kickr-dev/kickr/testutils"
 )
 
@@ -58,8 +58,17 @@ func TestHelmTemplate(t *testing.T) {
 
 			// generate chart files
 			destdir := t.TempDir()
-			repo := types.Repository{Kickr: kickr.Kickr{Helm: &kickr.Helm{}}}
-			repo.Module(types.RootModule).SetLanguage(types.LanguageHelm, map[string]any{"projectName": "kickr"})
+			repo := types.Repository{
+				Config: kickr.Kickr{Helm: &kickr.Helm{}},
+				Modules: []types.Module{
+					{
+						Directory: types.RootModule,
+						Languages: map[string]any{
+							types.LanguageHelm: map[string]any{"projectName": "kickr"},
+						},
+					},
+				},
+			}
 			require.NoError(t, generate(ctx, destdir, repo))
 			chartdir := filepath.Join(destdir, "chart")
 

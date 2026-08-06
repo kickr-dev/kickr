@@ -23,7 +23,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Globs:      []string{codeql + engine.TmplExtension},
 		Out:        codeql,
 		Remove: func(repo types.Repository) bool {
-			return repo.GitHub == nil || !slices.Contains(repo.GitHub.Options, kickr.GitHubOptionsCodeQL)
+			return repo.Config.GitHub == nil || !slices.Contains(repo.Config.GitHub.Options, kickr.GitHubOptionsCodeQL)
 		},
 	})
 
@@ -33,11 +33,14 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Globs:      engine.GlobsWithPart(deployment),
 		Out:        deployment,
 		Remove: func(repo types.Repository) bool {
-			if repo.GitHub == nil {
+			if repo.Config.GitHub == nil {
 				return true
 			}
-			tf := repo.HasLanguage(types.LanguageTerraform) && repo.Terraform.Apply != ""                            //nolint:revive
-			return repo.GitHub.Release == nil && !repo.HasDocker() && repo.Helm == nil && !tf && repo.Website == nil //nolint:revive
+			hasApply := slices.ContainsFunc(repo.Config.Modules, func(m kickr.Module) bool {
+				return m.Terraform != nil && m.Terraform.Apply != ""
+			})
+			hasDeployment := len(repo.ModulesWithDeployment(kickr.DeploymentTargetNetlify)) > 0 || len(repo.ModulesWithDeployment(kickr.DeploymentTargetPages)) > 0
+			return repo.Config.GitHub.Release == nil && !repo.HasDocker() && repo.Config.Helm == nil && !hasApply && !hasDeployment //nolint:revive
 		},
 	})
 
@@ -46,7 +49,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Delimiters: engine.DelimitersChevron(),
 		Globs:      engine.GlobsWithPart(integration),
 		Out:        integration,
-		Remove:     func(repo types.Repository) bool { return repo.GitHub == nil },
+		Remove:     func(repo types.Repository) bool { return repo.Config.GitHub == nil },
 	})
 
 	kickra := path.Join(".github", "workflows", "kickr.yml")
@@ -55,7 +58,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Globs:      []string{kickra + engine.TmplExtension},
 		Out:        kickra,
 		Remove: func(repo types.Repository) bool {
-			return repo.GitHub == nil || !slices.ContainsFunc(repo.GitHub.Options, func(o string) bool {
+			return repo.Config.GitHub == nil || !slices.ContainsFunc(repo.Config.GitHub.Options, func(o string) bool {
 				return o == kickr.GitHubOptionsKickrGitHubApp || o == kickr.GitHubOptionsKickrPersonalToken
 			})
 		},
@@ -67,7 +70,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Globs:      []string{labeler + engine.TmplExtension},
 		Out:        labeler,
 		Remove: func(repo types.Repository) bool {
-			return repo.GitHub == nil || !slices.Contains(repo.GitHub.Options, kickr.GitHubOptionsLabeler)
+			return repo.Config.GitHub == nil || !slices.Contains(repo.Config.GitHub.Options, kickr.GitHubOptionsLabeler)
 		},
 	})
 
@@ -76,7 +79,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Delimiters: engine.DelimitersChevron(),
 		Globs:      []string{review + engine.TmplExtension},
 		Out:        review,
-		Remove:     func(repo types.Repository) bool { return repo.GitHub == nil },
+		Remove:     func(repo types.Repository) bool { return repo.Config.GitHub == nil },
 	})
 
 	scorecard := path.Join(".github", "workflows", "scorecard.yml")
@@ -85,7 +88,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Globs:      []string{scorecard + engine.TmplExtension},
 		Out:        scorecard,
 		Remove: func(repo types.Repository) bool {
-			return repo.GitHub == nil || !slices.Contains(repo.GitHub.Options, kickr.GitHubOptionsOSSFScorecard)
+			return repo.Config.GitHub == nil || !slices.Contains(repo.Config.GitHub.Options, kickr.GitHubOptionsOSSFScorecard)
 		},
 	})
 
@@ -95,7 +98,7 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		Globs:      []string{submission + engine.TmplExtension},
 		Out:        submission,
 		Remove: func(repo types.Repository) bool {
-			return repo.GitHub == nil || !repo.HasLanguage(types.LanguageGo)
+			return repo.Config.GitHub == nil || len(repo.ModulesWith(types.LanguageGo)) == 0
 		},
 	})
 
@@ -109,7 +112,7 @@ func githubConfig() (templates []engine.Template[types.Repository]) {
 		Globs:      []string{labeler + engine.TmplExtension},
 		Out:        labeler,
 		Remove: func(repo types.Repository) bool {
-			return repo.GitHub == nil || !slices.Contains(repo.GitHub.Options, kickr.GitHubOptionsLabeler)
+			return repo.Config.GitHub == nil || !slices.Contains(repo.Config.GitHub.Options, kickr.GitHubOptionsLabeler)
 		},
 	})
 
@@ -118,7 +121,7 @@ func githubConfig() (templates []engine.Template[types.Repository]) {
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      []string{release + engine.TmplExtension},
 		Out:        release,
-		Remove:     func(repo types.Repository) bool { return repo.Platform != parser.GitHub },
+		Remove:     func(repo types.Repository) bool { return repo.VCS.Platform != parser.GitHub },
 	})
 
 	return templates

@@ -1,10 +1,10 @@
 jobs:
 <<- define "hugo" >>
 
-<<- $buildable := list >>
-<<- range .ModulesWith "hugo" >><<- if not .HasDocker >><<- $buildable = append $buildable . >><<- end >><<- end >>
+<<- $hugo_buildable_modules := list >>
+<<- range .ModulesWith "hugo" >><<- if not .HasDocker >><<- $hugo_buildable_modules = append $hugo_buildable_modules . >><<- end >><<- end >>
 
-<<- if gt (len $buildable) 0 >>
+<<- if gt (len $hugo_buildable_modules) 0 >>
 
   hugo-build:
     name: Hugo Build ${{ matrix.name }}
@@ -14,10 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-<<- range $buildable >>
+<<- range $hugo_buildable_modules >>
 <<- $artifact := "build" >>
 <<- if ne .Dir "." >><<- $artifact = print $artifact "-" .Dir >><<- end >>
-<<- if and ($.IsHosting "pages") .IsWebsite >><<- $artifact = print $artifact "-pages" >><<- end >>
+<<- if and .Config.Deployment (eq .Config.Deployment.Target "pages") >><<- $artifact = print $artifact "-pages" >><<- end >>
           - artifact: << $artifact >>
             directory: << .Dir >>
 <<- if ne .Dir "." >>
@@ -28,7 +28,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0

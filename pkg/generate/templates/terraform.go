@@ -10,7 +10,7 @@ import (
 func Terraform() []engine.Template[types.Repository] {
 	// Terraform wasn't parsed during parsers processing
 	noTerraform := func(repo types.Repository) bool {
-		return !repo.HasLanguage(types.LanguageTerraform)
+		return len(repo.ModulesWith(types.LanguageTerraform)) == 0
 	}
 
 	return []engine.Template[types.Repository]{

@@ -2,10 +2,10 @@
 
 # https://semantic-release.gitbook.io/semantic-release/usage/configuration
 
-{{- $golang := .HasLanguage "go" }}
-{{- $gobuild := and $golang (gt .Executables.Binaries 0) }}
+{{- $go_modules := .ModulesWith "go" }}
+{{- $has_go_build := and (gt (len $go_modules) 0) (gt .Executables.Binaries 0) }}
 
-{{- $node := .HasLanguage "node" }}
+{{- $node_modules := .ModulesWith "node" }}
 
 branches:
   - (main|master)
@@ -75,23 +75,23 @@ plugins:
         - BREAKING CHANGES
         - BREAKING
   - "@semantic-release/changelog"
-{{- if and .License (list "bsl-1.0" "mit" | has .License) }}
+{{- if and .Config.License (list "bsl-1.0" "mit" | has .Config.License) }}
   - "semantic-release-license"
 {{- end }}
-{{- if $node }}
+{{- if gt (len $node_modules) 0 }}
   - "@semantic-release/npm"
 {{- end }}
   - - "@semantic-release/git"
     - assets:
         - CHANGELOG.md
-{{- if and .License (list "bsl-1.0" "mit" | has .License) }}
+{{- if and .Config.License (list "bsl-1.0" "mit" | has .Config.License) }}
         - LICENSE
 {{- end }}
-{{- if $node }}
+{{- if gt (len $node_modules) 0 }}
         - package.json
 {{- end }}
       message: "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-{{- if eq .Platform "github" }}
+{{- if eq .Config.Platform "github" }}
   - - "@semantic-release/github"
     - draftRelease: false
       failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
@@ -100,7 +100,7 @@ plugins:
       successCommentCondition: <% return true; %>
       assets:
         - path: ./CHANGELOG.md
-{{- if $gobuild }}
+{{- if $has_go_build }}
         - path: dist/checksums.txt
         - path: dist/*.deb
         - path: dist/*.rpm
@@ -108,7 +108,7 @@ plugins:
         - path: dist/*.zip
 {{- end }}
 {{- end }}
-{{- if eq .Platform "gitlab" }}
+{{- if eq .Config.Platform "gitlab" }}
   - - "@semantic-release/gitlab"
     - failComment: ⚠️ Expected release for branch '${branch.name}' has failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}
       failCommentCondition: <% return false; %>
@@ -116,7 +116,7 @@ plugins:
       successCommentCondition: <% return true; %>
       assets:
         - path: ./CHANGELOG.md
-{{- if $gobuild }}
+{{- if $has_go_build }}
         - path: dist/checksums.txt
         - path: dist/*.deb
         - path: dist/*.rpm
@@ -124,7 +124,7 @@ plugins:
         - path: dist/*.zip
 {{- end }}
 {{- end }}
-{{- if and .GitHub .GitHub.Release (has "backmerge" .GitHub.Release.Options) }}
+{{- if and .Config.GitHub .Config.GitHub.Release (has "backmerge" .Config.GitHub.Release.Options) }}
   - - "@kilianpaquier/semantic-release-backmerge"
     - targets:
         - from: ^(main|master)$
@@ -133,11 +133,11 @@ plugins:
           to: ^(dev|develop)$
         - from: staging
           to: ^(dev|develop)$
-{{- if ne .Platform "github" }}
-      platform: {{ .Platform }}
+{{- if ne .Config.Platform "github" }}
+      platform: {{ .Config.Platform }}
 {{- end }}
 {{- end }}
-{{- if and .GitLab .GitLab.Release (has "backmerge" .GitLab.Release.Options) }}
+{{- if and .Config.GitLab .Config.GitLab.Release (has "backmerge" .Config.GitLab.Release.Options) }}
   - - "@kilianpaquier/semantic-release-backmerge"
     - targets:
         - from: ^(main|master)$
@@ -146,11 +146,11 @@ plugins:
           to: ^(dev|develop)$
         - from: staging
           to: ^(dev|develop)$
-{{- if ne .Platform "gitlab" }}
-      platform: {{ .Platform }}
+{{- if ne .Config.Platform "gitlab" }}
+      platform: {{ .Config.Platform }}
 {{- end }}
 {{- end }}
-{{- if .GitLab }}
+{{- if .Config.GitLab }}
   - - "@semantic-release/exec"
     - analyzeCommitsCmd: echo "SEMREL_INFO_LAST_VERSION=${lastRelease.version}" > semrel.out.env
       verifyReleaseCmd: |

@@ -24,8 +24,15 @@ func TestParserChart(t *testing.T) {
 		kickrfile := filepath.Join(destdir, "chart", kickr.CustomValues)
 		require.NoError(t, os.MkdirAll(kickrfile, files.RwxRxRxRx))
 
+		repo := types.Repository{
+			Config: kickr.Kickr{Helm: &kickr.Helm{}},
+			Modules: []types.Module{
+				{Directory: types.RootModule},
+			},
+		}
+
 		// Act
-		err := generate.ParserHelm(ctx, destdir, &types.Repository{Kickr: kickr.Kickr{Helm: &kickr.Helm{}}})
+		err := generate.ParserHelm(ctx, destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "read yaml")
@@ -40,21 +47,33 @@ func TestParserChart(t *testing.T) {
 			filepath.Join(chartdir, kickr.CustomValues),
 			[]byte("description: a description"), files.RwRR))
 
-		expected := types.Repository{Kickr: kickr.Kickr{Helm: &kickr.Helm{}}}
-		expected.Module(types.RootModule).SetLanguage(types.LanguageHelm, map[string]any{
-			"description": "a description",
-			"docker":      map[string]any{},
+		expected := types.Repository{
+			Config: kickr.Kickr{Helm: &kickr.Helm{}},
+			Modules: []types.Module{
+				{
+					Directory: types.RootModule,
+					Languages: map[string]any{types.LanguageHelm: map[string]any{
+						"description": "a description",
+						"docker":      map[string]any{},
 
-			"clis":    map[string]any{},
-			"crons":   map[string]any{},
-			"jobs":    map[string]any{},
-			"workers": map[string]any{},
+						"clis":    map[string]any{},
+						"crons":   map[string]any{},
+						"jobs":    map[string]any{},
+						"workers": map[string]any{},
 
-			"maintainers": nil,
-			"projectName": "",
-			"projectPath": "",
-		})
-		repo := types.Repository{Kickr: kickr.Kickr{Helm: &kickr.Helm{}}}
+						"maintainers": nil,
+						"projectName": "",
+						"projectPath": "",
+					}},
+				},
+			},
+		}
+		repo := types.Repository{
+			Config: kickr.Kickr{Helm: &kickr.Helm{}},
+			Modules: []types.Module{
+				{Directory: types.RootModule},
+			},
+		}
 
 		// Act
 		err := generate.ParserHelm(ctx, destdir, &repo)
@@ -73,35 +92,57 @@ func TestParserChart(t *testing.T) {
 			filepath.Join(chartdir, kickr.CustomValues),
 			[]byte("workers:\n  api:\n    replicaCount: 2"), files.RwRR))
 
-		conf := kickr.Kickr{Helm: &kickr.Helm{}}
-		vcs := parser.VCS{ProjectPath: "org/repo"}
+		expected := types.Repository{
+			Config: kickr.Kickr{Helm: &kickr.Helm{}},
+			VCS:    parser.VCS{ProjectPath: "org/repo"},
+			Modules: []types.Module{
+				{
+					Directory:   types.RootModule,
+					Config:      kickr.Module{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+					Executables: parser.Executables{Workers: map[string]any{"main": struct{}{}}},
+					Languages: map[string]any{types.LanguageHelm: map[string]any{
+						"description": "",
+						"docker":      map[string]any{},
 
-		expected := types.Repository{Kickr: conf, VCS: vcs}
-		expected.Module(types.RootModule).AddWorker("main")
-		expected.Module(types.RootModule).SetLanguage(types.LanguageHelm, map[string]any{
-			"description": "",
-			"docker":      map[string]any{},
+						"clis":  map[string]any{},
+						"crons": map[string]any{},
+						"jobs":  map[string]any{},
+						"workers": map[string]any{
+							"main": map[string]any{"image": map[string]any{"repository": "org/repo"}},
+							"api": map[string]any{
+								"image":        map[string]any{"repository": "org/repo/services-api"},
+								"replicaCount": uint64(2),
+							},
+						},
 
-			"clis":  map[string]any{},
-			"crons": map[string]any{},
-			"jobs":  map[string]any{},
-			"workers": map[string]any{
-				"main": map[string]any{"image": map[string]any{"repository": "org/repo"}},
-				"api": map[string]any{
-					"image":        map[string]any{"repository": "org/repo/services-api"},
-					"replicaCount": uint64(2),
+						"maintainers": nil,
+						"projectName": "",
+						"projectPath": "org/repo",
+					}},
+				},
+				{
+					Directory:   "services/api",
+					Config:      kickr.Module{Path: "services/api", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+					Executables: parser.Executables{Workers: map[string]any{"api": struct{}{}}},
 				},
 			},
-
-			"maintainers": nil,
-			"projectName": "",
-			"projectPath": "org/repo",
-		})
-		expected.Module("services/api").AddWorker("api")
-
-		repo := types.Repository{Kickr: conf, VCS: vcs}
-		repo.Module(types.RootModule).AddWorker("main")
-		repo.Module("services/api").AddWorker("api")
+		}
+		repo := types.Repository{
+			Config: kickr.Kickr{Helm: &kickr.Helm{}},
+			VCS:    parser.VCS{ProjectPath: "org/repo"},
+			Modules: []types.Module{
+				{
+					Directory:   types.RootModule,
+					Config:      kickr.Module{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+					Executables: parser.Executables{Workers: map[string]any{"main": struct{}{}}},
+				},
+				{
+					Directory:   "services/api",
+					Config:      kickr.Module{Path: "services/api", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+					Executables: parser.Executables{Workers: map[string]any{"api": struct{}{}}},
+				},
+			},
+		}
 
 		// Act
 		err := generate.ParserHelm(ctx, destdir, &repo)

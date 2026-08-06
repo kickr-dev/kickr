@@ -2,22 +2,25 @@
 
 sonar.qualitygate.wait=true
 
-{{- $maintainer := index .Maintainers 0 }}
+{{- $maintainer := index .Config.Maintainers 0 }}
 
 sonar.organization={{ $maintainer.Name }}
 sonar.projectBaseDir=.
 sonar.projectKey={{ .VCS.ProjectPath | replace "/" "_" }}
 sonar.projectName={{ .VCS.ProjectName }}
 
+{{- $go_modules := .ModulesWith "go" }}
+{{- $node_modules := .ModulesWith "node" }}
+
 {{- $exclusions := list }}
 {{- $inclusions := list }}
 
-{{- if .HasLanguage "go" }}
+{{- if gt (len $go_modules) 0 }}
 {{- $exclusions = concat $exclusions (list "cmd/**" "examples/**" "testdata/**" "**/testdata/**" "**/logger.go") }}
 {{- $inclusions = append $inclusions "**/*_test.go" }}
 {{- end }}
 
-{{- if .HasLanguage "node" }}
+{{- if gt (len $node_modules) 0 }}
 {{- $exclusions = concat $exclusions (list "node_modules/**" "dist/**" "**/*.spec.js" "**/*.spec.ts" "**/*.test.js" "**/*.test.ts") }}
 {{- $inclusions = concat $inclusions (list "**/*.spec.js" "**/*.spec.ts" "**/*.test.js" "**/*.test.ts") }}
 {{- end }}
@@ -25,9 +28,9 @@ sonar.projectName={{ .VCS.ProjectName }}
 sonar.exclusions={{ join "," $exclusions }}
 sonar.test.inclusions={{ join "," $inclusions }}
 
-{{- if .HasLanguage "go" }}
+{{- if gt (len $go_modules) 0 }}
 sonar.coverage.exclusions=cmd/**,testutils/**,**/cobra/**,**/tests/**,**/testutils/**
-{{- if .GitLab }}
+{{- if .Config.GitLab }}
 
 sonar.go.tests.reportPaths=reports/go-test.native.json
 {{- end }}
@@ -35,7 +38,7 @@ sonar.go.coverage.reportPaths=reports/go-coverage.native.out
 sonar.go.golangci-lint.reportPaths=reports/go-ci-lint.checkstyle.xml
 {{- end }}
 
-{{- if .HasLanguage "node" }}
+{{- if gt (len $node_modules) 0 }}
 
 sonar.testExecutionReportPaths=reports/node-test.sonar.xml,reports/node-test.xunit.xml,reports/**/node-test.sonar.xml,reports/**/node-test.xunit.xml
 sonar.eslint.reportPaths=reports/node-lint.xslint.json,reports/**/node-lint.xslint.json

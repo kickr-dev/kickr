@@ -34,8 +34,11 @@ func TestGeneratorGitignore(t *testing.T) {
 		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv",
 			httpmock.NewStringResponder(http.StatusInternalServerError, "some error"))
 
-		repo := types.Repository{}
-		repo.Module(types.RootModule)
+		repo := types.Repository{
+			Modules: []types.Module{
+				{Directory: types.RootModule},
+			},
+		}
 
 		// Act
 		err := gen(ctx, t.TempDir(), repo)
@@ -62,8 +65,14 @@ func TestGeneratorGitignore(t *testing.T) {
 				httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/"+strings.Join(query, ","),
 					httpmock.NewStringResponder(http.StatusOK, "some content"))
 
-				repo := types.Repository{}
-				repo.Module(types.RootModule).SetLanguage(lang, struct{}{})
+				repo := types.Repository{
+					Modules: []types.Module{
+						{
+							Directory: types.RootModule,
+							Languages: map[string]any{lang: struct{}{}},
+						},
+					},
+				}
 
 				// Act
 				err := gen(ctx, destdir, repo)
@@ -80,7 +89,8 @@ logs/
 reports/
 tmp/
 
-some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content
+`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 			})
 		}
 	})
@@ -93,8 +103,14 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,hugo",
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
-		repo := types.Repository{}
-		repo.Module(types.RootModule).SetLanguage(types.LanguageHugo, struct{}{})
+		repo := types.Repository{
+			Modules: []types.Module{
+				{
+					Directory: types.RootModule,
+					Languages: map[string]any{types.LanguageHugo: struct{}{}},
+				},
+			},
+		}
 
 		// Act
 		err := gen(ctx, destdir, repo)
@@ -114,7 +130,8 @@ tmp/
 # Hugo direct module checksums
 hugo.direct.sum
 
-some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content
+`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_netlify", func(t *testing.T) {
@@ -125,9 +142,14 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv",
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
-		conf := kickr.Kickr{Website: &kickr.Website{Hosting: kickr.WebsiteHostingNetlify}}
-		repo := types.Repository{Kickr: conf}
-		repo.Module(types.RootModule)
+		repo := types.Repository{
+			Modules: []types.Module{
+				{
+					Directory: types.RootModule,
+					Config:    kickr.Module{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
+				},
+			},
+		}
 
 		// Act
 		err := gen(ctx, destdir, repo)
@@ -147,7 +169,8 @@ tmp/
 # Local Netlify folder
 .netlify
 
-some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content
+`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_bun", func(t *testing.T) {
@@ -158,8 +181,14 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,node",
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
-		repo := types.Repository{}
-		repo.Module(types.RootModule).SetLanguage(types.LanguageNode, parser.PackageJSON{PackageManager: "bun@1.1.6"})
+		repo := types.Repository{
+			Modules: []types.Module{
+				{
+					Directory: types.RootModule,
+					Languages: map[string]any{types.LanguageNode: parser.PackageJSON{PackageManager: "bun@1.1.6"}},
+				},
+			},
+		}
 
 		// Act
 		err := gen(ctx, destdir, repo)
@@ -179,7 +208,8 @@ tmp/
 # Bun cache directory
 .bun
 
-some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content
+`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_modules", func(t *testing.T) {
@@ -192,9 +222,12 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,hugo",
 			httpmock.NewStringResponder(http.StatusOK, "hugo content"))
 
-		repo := types.Repository{}
-		repo.Module(types.RootModule).SetLanguage(types.LanguageGo, nil)
-		repo.Module("docs").SetLanguage(types.LanguageHugo, nil)
+		repo := types.Repository{
+			Modules: []types.Module{
+				{Directory: types.RootModule, Languages: map[string]any{types.LanguageGo: nil}},
+				{Directory: "docs", Languages: map[string]any{types.LanguageHugo: nil}},
+			},
+		}
 
 		// Act
 		err := gen(ctx, destdir, repo)
@@ -213,7 +246,8 @@ logs/
 reports/
 tmp/
 
-go content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+go content
+`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 
 		content, err = os.ReadFile(filepath.Join(destdir, "docs", generator.FileGitignore))
 		require.NoError(t, err)
@@ -228,7 +262,8 @@ tmp/
 # Hugo direct module checksums
 hugo.direct.sum
 
-hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+hugo content
+`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_with_binaries", func(t *testing.T) {
@@ -245,13 +280,20 @@ hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 				httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,go,sonar,sonarqube",
 					httpmock.NewStringResponder(http.StatusOK, "some content"))
 
-				repo := types.Repository{Kickr: tc}
-				module := repo.Module(types.RootModule).SetLanguage(types.LanguageGo, nil)
-				module.Executables = parser.Executables{
-					Clis:    map[string]any{"cli": struct{}{}},
-					Crons:   map[string]any{"cron": struct{}{}},
-					Jobs:    map[string]any{"job": struct{}{}},
-					Workers: map[string]any{"worker": struct{}{}},
+				repo := types.Repository{
+					Config: tc,
+					Modules: []types.Module{
+						{
+							Directory: types.RootModule,
+							Executables: parser.Executables{
+								Clis:    map[string]any{"cli": struct{}{}},
+								Crons:   map[string]any{"cron": struct{}{}},
+								Jobs:    map[string]any{"job": struct{}{}},
+								Workers: map[string]any{"worker": struct{}{}},
+							},
+							Languages: map[string]any{types.LanguageGo: nil},
+						},
+					},
 				}
 
 				// Act
@@ -279,7 +321,8 @@ job-*
 worker-*
 !worker-*/
 
-some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content
+`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 			})
 		}
 	})

@@ -2,6 +2,7 @@ package templates
 
 import (
 	"path"
+	"path/filepath"
 
 	engine "github.com/kickr-dev/engine/pkg"
 
@@ -27,7 +28,7 @@ func Chart() (templates []engine.Template[types.Repository]) {
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
 			Remove: func(repo types.Repository) bool {
-				return repo.Helm == nil
+				return repo.Config.Helm == nil
 			},
 		})
 	}
@@ -36,7 +37,6 @@ func Chart() (templates []engine.Template[types.Repository]) {
 		path.Join("chart", kickr.CustomValues),
 		path.Join("chart", ".helmignore"),
 		path.Join("chart", "Chart.yaml"),
-		path.Join("chart", "charts", ".gitkeep"),
 	}
 	for _, src := range chartfiles {
 		templates = append(templates, engine.Template[types.Repository]{
@@ -44,17 +44,26 @@ func Chart() (templates []engine.Template[types.Repository]) {
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
 			Remove: func(repo types.Repository) bool {
-				return repo.Helm == nil
+				return repo.Config.Helm == nil
 			},
 		})
 	}
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters:  engine.DelimitersBracket(),
+		EmptyPolicy: engine.PolicyKeep,
+		Globs:       []string{path.Join("chart", "charts", ".gitkeep") + engine.TmplExtension},
+		Out:         filepath.Join("chart", "charts", ".gitkeep"),
+		Remove: func(repo types.Repository) bool {
+			return repo.Config.Helm == nil
+		},
+	})
 
 	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters: engine.DelimitersBracket(),
 		Globs:      engine.GlobsWithPart(path.Join("chart", "values.yaml")),
 		Out:        path.Join("chart", "values.yaml"),
 		Remove: func(repo types.Repository) bool {
-			return repo.Helm == nil
+			return repo.Config.Helm == nil
 		},
 	})
 

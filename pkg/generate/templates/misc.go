@@ -32,14 +32,14 @@ func Misc() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".pre-commit-config.yaml" + engine.TmplExtension},
 			Out:        ".pre-commit-config.yaml",
-			Remove:     func(repo types.Repository) bool { return slices.Contains(repo.Exclude, kickr.ExcludePreCommit) },
+			Remove:     func(repo types.Repository) bool { return slices.Contains(repo.Config.Exclude, kickr.ExcludePreCommit) },
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join("scripts", "sh", "conventionalcommits-branch.sh"+engine.TmplExtension)},
 			Out:        path.Join("scripts", "sh", "conventionalcommits-branch.sh"),
 			Remove: func(repo types.Repository) bool {
-				return slices.Contains(repo.Exclude, kickr.ExcludePreCommit) || !slices.Contains(repo.PreCommit, kickr.PreCommitConventionalCommits)
+				return slices.Contains(repo.Config.Exclude, kickr.ExcludePreCommit) || !slices.Contains(repo.Config.PreCommit, kickr.PreCommitConventionalCommits)
 			},
 		},
 	}

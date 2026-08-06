@@ -24,7 +24,10 @@ func Makefile() []engine.Template[types.Module] {
 			Globs:      engine.GlobsWithPart(path.Join("scripts", "mk", "build.mk")),
 			Out:        path.Join("scripts", "mk", "build.mk"),
 			Remove: func(module types.Module) bool {
-				return !module.HasMakefile()
+				_, hugo := module.Languages[types.LanguageHugo]
+				_, ok := module.Languages[types.LanguageGo]
+				_, terraform := module.Languages[types.LanguageTerraform]
+				return !module.HasMakefile() || (!module.HasDocker() && !hugo && !ok && !terraform) //nolint:revive
 			},
 		},
 	}
@@ -49,7 +52,7 @@ func RepositoryMakefile() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join("scripts", "mk", "modules.mk") + engine.TmplExtension},
 			Out:        path.Join("scripts", "mk", "modules.mk"),
 			Remove: func(repo types.Repository) bool {
-				for _, module := range repo.Modules() {
+				for _, module := range repo.Modules {
 					if module.Dir() != types.RootModule && module.HasMakefile() {
 						return false
 					}
@@ -70,7 +73,7 @@ func RepositoryMakefile() []engine.Template[types.Repository] {
 			Globs:      []string{path.Join("scripts", "mk", "lint.mk") + engine.TmplExtension},
 			Out:        path.Join("scripts", "mk", "lint.mk"),
 			Remove: func(repo types.Repository) bool {
-				if !repo.HasLanguage(types.LanguageGo) && !repo.HasLanguage(types.LanguageTerraform) {
+				if len(repo.ModulesWith(types.LanguageGo)) == 0 && len(repo.ModulesWith(types.LanguageTerraform)) == 0 {
 					return true
 				}
 				return !repo.HasMakefile()

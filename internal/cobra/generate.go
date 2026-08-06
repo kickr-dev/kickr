@@ -32,9 +32,9 @@ func generators() []engine.Generator[types.Repository] {
 		generate.GeneratorGitignore(client), // gitignore
 		generate.GeneratorLicense(client),   // license
 
-		engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Docker()),   // module docker
-		engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Golang()),   // module golang
-		engine.GeneratorModules(templates.FS(), (types.Repository).Modules, templates.Makefile()), // module makefile
+		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Docker()),   // module docker
+		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Golang()),   // module golang
+		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Makefile()), // module makefile
 
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
@@ -96,10 +96,12 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 			// run generation
 			engine.Configure(engine.WithForce(force), engine.WithLogger(logger))
 			parsers := []engine.Parser[types.Repository]{
-				// must be kept first since it parses Git informations (useful for next parsers)
+				// must be kept first (global parsing)
 				generate.ParserGit,
+				generate.ParserModules,
 
 				generate.ParserGlob,
+				generate.ParserHugo,
 				generate.ParserGolang,
 				generate.ParserNode,
 				generate.ParserTerraform,
@@ -108,7 +110,7 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 				generate.ParserHelm,
 			}
 
-			if err := engine.Generate(cmd.Context(), *wd, types.Repository{Kickr: config}, parsers, generators); err != nil {
+			if err := engine.Generate(cmd.Context(), *wd, types.Repository{Config: config}, parsers, generators); err != nil {
 				return err
 			}
 

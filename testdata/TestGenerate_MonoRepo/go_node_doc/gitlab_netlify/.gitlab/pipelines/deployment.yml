@@ -35,16 +35,23 @@ netlify-deploy:
     - node-build
     - semantic-release-info
   rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       variables:
         ARGS: --prod --message=$CI_COMMIT_REF_NAME
-        ENV: production
+        ENV: netlify
+      when: manual
+    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF'
+      variables:
+        ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
+        ENV: netlify/$CI_COMMIT_REF_NAME
       when: manual
     - variables:
         ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-        ENV: review/$CI_COMMIT_REF_NAME
+        ENV: netlify/$CI_COMMIT_REF_NAME
       when: manual
       allow_failure: true
+  variables:
+    GIT_STRATEGY: none
   before_script:
     - npm install -g netlify-cli
     - apk add --no-cache jq
@@ -63,12 +70,12 @@ netlify-cleanup:
     name: $ENV
     action: stop
   rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       variables:
-        ENV: production
+        ENV: netlify
       when: never
     - variables:
-        ENV: review/$CI_COMMIT_REF_NAME
+        ENV: netlify/$CI_COMMIT_REF_NAME
       when: manual
       allow_failure: true
   variables:

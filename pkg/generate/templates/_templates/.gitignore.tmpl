@@ -14,35 +14,44 @@ tmp/
 .bun
 {{- end }}
 {{- end }}
+
 {{- if hasKey .Languages "hugo" }}
 
 # Hugo direct module checksums
 hugo.direct.sum
 {{- end }}
-{{- if .Repository.IsHosting "netlify" }}
+
+{{- if and .Config.Deployment (eq .Config.Deployment.Target "netlify") }}
 
 # Local Netlify folder
 .netlify
 {{- end }}
+
 {{- $lines := list }}
 {{- if hasKey .Languages "go" }}
+
 {{- range $name, $_ := .Clis }}
 {{- $lines = append $lines $name }}
 {{- $lines = append $lines (printf "!%s/" $name) }}
 {{- end }}
+
 {{- if gt (len .Crons) 0 }}
 {{- $lines = append $lines "cron-*" }}
 {{- $lines = append $lines "!cron-*/" }}
 {{- end }}
+
 {{- if gt (len .Jobs) 0 }}
 {{- $lines = append $lines "job-*" }}
 {{- $lines = append $lines "!job-*/" }}
 {{- end }}
+
 {{- if gt (len .Workers) 0 }}
 {{- $lines = append $lines "worker-*" }}
 {{- $lines = append $lines "!worker-*/" }}
 {{- end }}
+
 {{- end }}
+
 {{- if gt (len $lines) 0 }}
 
 # Binaries for programs
@@ -50,6 +59,8 @@ hugo.direct.sum
 {{ . }}
 {{- end }}
 {{- end }}
-{{ if .Downloaded }}
+
+{{- if .Downloaded }}
+
 {{ .Downloaded }}
-{{- end -}}
+{{- end }}

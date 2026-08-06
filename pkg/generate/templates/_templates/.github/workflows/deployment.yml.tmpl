@@ -3,34 +3,38 @@
 name: Deployment
 run-name: Deployment
 
-<<- $golang := .HasLanguage "go" >>
-<<- $gobuild := and $golang (gt (len .Executables.Clis) 0) >>
+<<- $go_modules := .ModulesWith "go" >>
+<<- $has_go_build := and (gt (len $go_modules) 0) (gt (len .Executables.Clis) 0) >>
 
-<<- $hugo := false >>
-<<- range .ModulesWith "hugo" >><<- if not .HasDocker >><<- $hugo = true >><<- end >><<- end >>
+<<- $hugo_buildable_modules := list >>
+<<- range .ModulesWith "hugo" >><<- if not .HasDocker >><<- $hugo_buildable_modules = append $hugo_buildable_modules . >><<- end >><<- end >>
+<<- $has_hugo_build := gt (len $hugo_buildable_modules) 0 >>
 
-<<- $node := .HasLanguage "node" >>
-<<- $docker := .HasDocker >>
-
-<<- $tfapply := and (.HasLanguage "terraform") .HasTerraformApply >>
-
-<<- $nodemain := false >>
-<<- $nodepublish := false >>
-<<- range .ModulesWith "node" >>
+<<- $node_modules := .ModulesWith "node" >>
+<<- $has_node_main := false >>
+<<- $has_node_publish := false >>
+<<- range $node_modules >>
 <<- $specifics := get .Languages "node" >>
-<<- $publish := and (not $specifics.Private) (ne $specifics.PublishConfig.Registry "") >>
-<<- if and $specifics.Main (or (not .HasDocker) $publish) >><<- $nodemain = true >><<- end >>
-<<- if and (not $nodepublish) $publish >><<- $nodepublish = true >><<- end >>
+<<- $has_publish := and (not $specifics.Private) (ne $specifics.PublishConfig.Registry "") >>
+<<- if and $specifics.Main (or (not .HasDocker) $has_publish) >><<- $has_node_main = true >><<- end >>
+<<- if $has_publish >><<- $has_node_publish = true >><<- end >>
 <<- end >>
 
-<<- $inputs := or .HasHelmDeploy .HasHelmPublish (and .Website .Website.Hosting) $tfapply .GitHub.Release >>
+<<- $terraform_apply_modules := .ModulesWithTerraformApply >>
+
+<<- $has_docker := .HasDocker >>
+
+<<- $netlify_modules := .ModulesWithDeployment "netlify" >>
+<<- $pages_modules := .ModulesWithDeployment "pages" >>
+
+<<- $inputs := or .Config.HasHelmDeploy .Config.HasHelmPublish (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) (gt (len $terraform_apply_modules) 0) .Config.GitHub.Release >>
 
 on:
   workflow_dispatch:
 <<- if $inputs >>
     inputs:
 <<- end >>
-<<- if .HasHelmDeploy >>
+<<- if .Config.HasHelmDeploy >>
       helm_deploy:
         description: Helm deployment mode.
         type: choice
@@ -39,9 +43,9 @@ on:
           - --dry-run=none
           - --dry-run=server
           - none
-        default: << eq .Helm.Deploy "auto" | ternary "--dry-run=none" "--dry-run=server" >>
+        default: << eq .Config.Helm.Deploy "auto" | ternary "--dry-run=none" "--dry-run=server" >>
 <<- end >>
-<<- if .HasHelmPublish >>
+<<- if .Config.HasHelmPublish >>
       helm_push:
         description: Helm publish mode.
         type: choice
@@ -49,29 +53,40 @@ on:
           - dry-run
           - none
           - full
-        default: << eq .Helm.Publish "auto" | ternary "full" "dry-run" >>
+        default: << eq .Config.Helm.Publish "auto" | ternary "full" "dry-run" >>
 <<- end >>
-<<- if and .Website .Website.Hosting >>
-      << .Website.Hosting >>:
+<<- range $netlify_modules >>
+<<- $suffix := gt (len $netlify_modules) 1 | ternary .Slug "" >>
+      netlify<< with $suffix >>_<< . >><< end >>:
         description: Website deployment mode.
         type: choice
         options:
           - full
           - none
-        default: << .Website.Auto | ternary "full" "none" >>
+        default: << .Config.Deployment.Auto | ternary "full" "none" >>
 <<- end >>
-<<- if $tfapply >>
-<<- $engine := "opentofu" >>
-<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
-      << $engine >>_apply:
-        description: << title $engine >> apply job run mode.
+<<- range $pages_modules >>
+<<- $suffix := gt (len $pages_modules) 1 | ternary .Slug "" >>
+      pages<< with $suffix >>_<< . >><< end >>:
+        description: Website deployment mode.
         type: choice
         options:
           - full
           - none
-        default: << eq .Terraform.Apply "auto" | ternary "full" "none" >>
+        default: << .Config.Deployment.Auto | ternary "full" "none" >>
 <<- end >>
-<<- if .GitHub.Release >>
+<<- $terraform_engine := eq .Config.TerraformEngine "tofu" | ternary "opentofu" "terraform" >>
+<<- range $terraform_apply_modules >>
+<<- $suffix := (gt (len $terraform_apply_modules) 1 | ternary .Slug "") >>
+      << $terraform_engine >><< with $suffix >>_<< . >><< end >>_apply:
+        description: << title $terraform_engine >> apply job run mode.
+        type: choice
+        options:
+          - full
+          - none
+        default: << .Config.HasTerraformAutoApply | ternary "full" "none" >>
+<<- end >>
+<<- if .Config.GitHub.Release >>
       release:
         description: Release job run mode.
         type: choice
@@ -79,7 +94,7 @@ on:
           - dry-run
           - none
           - release
-        default: << .GitHub.Release.Auto | ternary "release" "dry-run" >>
+        default: << .Config.GitHub.Release.Auto | ternary "release" "dry-run" >>
 <<- end >>
 
 concurrency:
@@ -96,7 +111,7 @@ jobs:
     permissions:
       actions: read
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -139,17 +154,17 @@ jobs:
     environment: release
     outputs:
       version: ${{ steps.version.outputs.version }}
-<<- if .GitHub.Release >>
+<<- if .Config.GitHub.Release >>
     permissions:
-<<- if eq .GitHub.Release.Auth "github-token" >>
+<<- if eq .Config.GitHub.Release.Auth "github-token" >>
       contents: write
       issues: write
       pull-requests: write
 <<- end >>
-      id-token: << $node | ternary "write" "none" >>
+      id-token: << gt (len $node_modules) 0 | ternary "write" "none" >>
 <<- end >>
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -157,8 +172,8 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-<<- if .GitHub.Release >>
-<<- if eq .GitHub.Release.Auth "github-app" >>
+<<- if .Config.GitHub.Release >>
+<<- if eq .Config.GitHub.Release.Auth "github-app" >>
       - id: app_token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -168,10 +183,10 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
-<<- if ne .GitHub.Release.Auth "github-token" >>
+<<- if ne .Config.GitHub.Release.Auth "github-token" >>
           persist-credentials: false
 <<- end >>
-<<- if eq .GitHub.Release.Auth "github-app" >>
+<<- if eq .Config.GitHub.Release.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
       # https://github.com/marketplace/actions/setup-node-js-environment
@@ -189,14 +204,14 @@ jobs:
           semantic_version: v25.0.8
           extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
-<<- if eq .GitHub.Release.Auth "github-app" >>
+<<- if eq .Config.GitHub.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-<<- else if eq .GitHub.Release.Auth "personal-token" >>
+<<- else if eq .Config.GitHub.Release.Auth "personal-token" >>
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 <<- end >>
-<<- if $nodepublish >>
+<<- if $has_node_publish >>
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 <<- end >>
       - id: version
@@ -220,30 +235,32 @@ jobs:
         env:
           APP_VERSION: ${{ steps.version.outputs.version }}
 
-<<- if $gobuild >><< template "golang" . >><<- end >>
-<<- if $hugo >><< template "hugo" . >><<- end >>
-<<- if $nodemain >><< template "node" . >><<- end >>
+<<- if $has_go_build >><< template "golang" . >><<- end >>
+<<- if $has_hugo_build >><< template "hugo" . >><<- end >>
+<<- if $has_node_main >><< template "node" . >><<- end >>
 
-<<- if $docker >><< template "docker" . >><<- end >>
-<<- if .Helm >><< template "helm" . >><<- end >>
-<<- if .Website >><< template "static" . >><<- end >>
-<<- if $tfapply >><< template "terraform" . >><<- end >>
+<<- if $has_docker >><< template "docker" . >><<- end >>
+<<- if .Config.Helm >><< template "helm" . >><<- end >>
+<<- if or (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) >><< template "static" . >><<- end >>
+<<- if gt (len $terraform_apply_modules) 0 >><< template "terraform" . >><<- end >>
 
-<<- if .GitHub.Release >>
+<<- if .Config.GitHub.Release >>
 
 <<- $needs := list >>
-<<- if $docker >><<- $needs = append $needs "docker-build" >><<- end >>
-<<- if $gobuild >><<- $needs = append $needs "go-build" >><<- end >>
-<<- if .HasHelmPublish >><<- $needs = append $needs "helm-push" >><<- end >>
-<<- if .HasHelmDeploy >><<- $needs = append $needs "helm-deploy" >><<- end >>
-<<- if $hugo >><<- $needs = append $needs "hugo-build" >><<- end >>
-<<- if .IsHosting "netlify" >><<- $needs = append $needs "netlify" >><<- end >>
-<<- if $nodemain >><<- $needs = append $needs "node-build" >><<- end >>
-<<- if .IsHosting "pages" >><<- $needs = append $needs "pages" >><<- end >>
-<<- if $tfapply >>
-<<- range $node := .ModulesWith "terraform" >>
-<<- $needs = append $needs (print "terraform-apply" (ne $node.Slug "" | ternary (print "-" $node.Slug) "")) >>
+<<- if $has_docker >><<- $needs = append $needs "docker-build" >><<- end >>
+<<- if $has_go_build >><<- $needs = append $needs "go-build" >><<- end >>
+<<- if .Config.HasHelmPublish >><<- $needs = append $needs "helm-push" >><<- end >>
+<<- if .Config.HasHelmDeploy >><<- $needs = append $needs "helm-deploy" >><<- end >>
+<<- if $has_hugo_build >><<- $needs = append $needs "hugo-build" >><<- end >>
+<<- range $netlify_modules >>
+<<- $suffix := gt (len $netlify_modules) 1 | ternary .Slug "" >>
+<<- $needs = append $needs (print "netlify-deploy" (ne $suffix "" | ternary (print "-" $suffix) "")) >>
 <<- end >>
+<<- if $has_node_main >><<- $needs = append $needs "node-build" >><<- end >>
+<<- if gt (len $pages_modules) 0 >><<- $needs = append $needs "pages" >><<- end >>
+<<- range $terraform_apply_modules >>
+<<- $suffix := gt (len $terraform_apply_modules) 1 | ternary .Slug "" >>
+<<- $needs = append $needs (print "terraform-apply" (ne $suffix "" | ternary (print "-" $suffix) "")) >>
 <<- end >>
 
 <<- if eq (len $needs) 0 >><< $needs = append $needs "version" >><<- end >>
@@ -260,14 +277,14 @@ jobs:
       name: release
       url: ${{ steps.environment_url.outputs.environment_url }}
     permissions:
-<<- if eq .GitHub.Release.Auth "github-token" >>
+<<- if eq .Config.GitHub.Release.Auth "github-token" >>
       contents: write
       issues: write
       pull-requests: write
   <<- end >>
-      id-token: << $node | ternary "write" "none" >>
+      id-token: << gt (len $node_modules) 0 | ternary "write" "none" >>
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -275,7 +292,7 @@ jobs:
           disable-sudo-and-containers: true
           egress-policy: audit
 <<- end >>
-<<- if eq .GitHub.Release.Auth "github-app" >>
+<<- if eq .Config.GitHub.Release.Auth "github-app" >>
       - id: app_token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -285,10 +302,10 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
-<<- if ne .GitHub.Release.Auth "github-token" >>
+<<- if ne .Config.GitHub.Release.Auth "github-token" >>
           persist-credentials: false
 <<- end >>
-<<- if eq .GitHub.Release.Auth "github-app" >>
+<<- if eq .Config.GitHub.Release.Auth "github-app" >>
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
 <<- if gt .Executables.Binaries 0 >>
@@ -312,14 +329,14 @@ jobs:
           semantic_version: v25.0.8
           extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
-<<- if eq .GitHub.Release.Auth "github-app" >>
+<<- if eq .Config.GitHub.Release.Auth "github-app" >>
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-<<- else if eq .GitHub.Release.Auth "personal-token" >>
+<<- else if eq .Config.GitHub.Release.Auth "personal-token" >>
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 <<- else >>
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 <<- end >>
-<<- if $nodepublish >>
+<<- if $has_node_publish >>
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 <<- end >>
       - id: environment_url

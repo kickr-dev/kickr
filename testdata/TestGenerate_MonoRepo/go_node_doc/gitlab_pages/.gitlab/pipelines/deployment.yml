@@ -31,7 +31,8 @@ pages:
     action: start
     url: $CI_PAGES_URL
   variables:
-    ENV: production
+    ENV: pages
+    GIT_STRATEGY: none
   dependencies:
     - node-build
   rules:

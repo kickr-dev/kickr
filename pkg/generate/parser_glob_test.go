@@ -47,14 +47,18 @@ func TestParserGlob(t *testing.T) {
 				}
 
 				expected := map[string]any{tc.GlobName: tc.Files}
-				repo := types.Repository{}
+				repo := types.Repository{
+					Modules: []types.Module{
+						{Directory: types.RootModule},
+					},
+				}
 
 				// Act
 				err := generate.ParserGlob(t.Context(), destdir, &repo)
 
 				// Assert
 				require.NoError(t, err)
-				assert.Equal(t, expected, repo.Module(types.RootModule).Globs)
+				assert.Equal(t, expected, repo.Modules[0].Globs)
 			})
 		}
 	})

@@ -1,41 +1,50 @@
 {{- define "static" }}
 
-{{- $websiteDirectory := .Website.Directory | default "." }}
+{{- $netlify_modules := .ModulesWithDeployment "netlify" }}
+{{- $pages_modules := .ModulesWithDeployment "pages" }}
 
-{{- $needs := "" }}
-{{- range .ModulesWith "node" }}{{- if .IsWebsite }}{{- $needs = "node-build" }}{{- end }}{{- end }}
-{{- range .ModulesWith "hugo" }}{{- if .IsWebsite }}{{- $needs = "hugo-build" }}{{- end }}{{- end }}
+{{- $node_modules := .ModulesWith "node" }}
+{{- $hugo_modules := .ModulesWith "hugo" }}
 
-{{- $matrix := or
-  (and (eq $needs "node-build") (gt (len (.ModulesWith "node")) 1))
-  (and (eq $needs "hugo-build") (gt (len (.ModulesWith "hugo")) 1))
--}}
+{{- range $netlify_modules }}
 
-{{- if eq .Website.Hosting "netlify" }}
-netlify-deploy:
+{{- $suffix := gt (len $netlify_modules) 1 | ternary .Slug "" }}
+netlify-deploy{{ with $suffix }}-{{ . }}{{ end }}:
   image: $NETLIFY_IMAGE
   stage: deploy
   environment:
     name: $ENV
     action: start
-    on_stop: netlify-cleanup
+    on_stop: netlify-cleanup{{ with $suffix }}-{{ . }}{{ end }}
     url: $ENVIRONMENT_URL
   dependencies:
-    - {{ not $matrix | ternary $needs (printf "%s: [%s]" $needs $websiteDirectory | quote) }}
+{{- if hasKey .Languages "node" }}
+    - node-build{{ if gt (len $node_modules) 1 }} [{{ .Dir }}]{{ end }}
+{{- end }}
+{{- if hasKey .Languages "hugo" }}
+    - hugo-build{{ if gt (len $hugo_modules) 1 }} [{{ .Dir }}]{{ end }}
+{{- end }}
     - semantic-release-info
   rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       variables:
         ARGS: --prod --message=$CI_COMMIT_REF_NAME
-        ENV: production
-{{- if not .Website.Auto }}
+        ENV: netlify{{ with $suffix }}/{{ . }}{{ end }}
+{{- if not .Config.Deployment.Auto }}
       when: manual
 {{- end }}
+    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF'
+      variables:
+        ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
+        ENV: netlify/$CI_COMMIT_REF_NAME{{ with $suffix }}/{{ . }}{{ end }}
+      when: manual
     - variables:
         ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-        ENV: review/$CI_COMMIT_REF_NAME
+        ENV: netlify/$CI_COMMIT_REF_NAME{{ with $suffix }}/{{ . }}{{ end }}
       when: manual
       allow_failure: true
+  variables:
+    GIT_STRATEGY: none
   before_script:
     - npm install -g netlify-cli
     - apk add --no-cache jq
@@ -46,7 +55,7 @@ netlify-deploy:
     reports:
       dotenv: netlify.out.env
 
-netlify-cleanup:
+netlify-cleanup{{ with $suffix }}-{{ . }}{{ end }}:
   image: $NETLIFY_IMAGE
   stage: deploy
   dependencies: []
@@ -54,12 +63,12 @@ netlify-cleanup:
     name: $ENV
     action: stop
   rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       variables:
-        ENV: production
+        ENV: netlify{{ with $suffix }}/{{ . }}{{ end }}
       when: never
     - variables:
-        ENV: review/$CI_COMMIT_REF_NAME
+        ENV: netlify/$CI_COMMIT_REF_NAME{{ with $suffix }}/{{ . }}{{ end }}
       when: manual
       allow_failure: true
   variables:
@@ -78,7 +87,8 @@ netlify-cleanup:
       done
 {{- end }}
 
-{{- if eq .Website.Hosting "pages" }}
+{{- if gt (len $pages_modules) 0 }}
+{{- $page := first $pages_modules }}
 pages:
   image: $PAGES_IMAGE
   stage: deploy
@@ -87,12 +97,18 @@ pages:
     action: start
     url: $CI_PAGES_URL
   variables:
-    ENV: production
+    ENV: pages
+    GIT_STRATEGY: none
   dependencies:
-    - {{ not $matrix | ternary $needs (printf "%s: [%s]" $needs $websiteDirectory | quote) }}
+{{- if hasKey $page.Languages "node" }}
+    - node-build{{ if gt (len $node_modules) 1 }} [{{ $page.Dir }}]{{ end }}
+{{- end }}
+{{- if hasKey $page.Languages "hugo" }}
+    - hugo-build{{ if gt (len $hugo_modules) 1 }} [{{ $page.Dir }}]{{ end }}
+{{- end }}
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-{{- if not .Website.Auto }}
+{{- if not $page.Config.Deployment.Auto }}
       when: manual
 {{- end }}
   script:

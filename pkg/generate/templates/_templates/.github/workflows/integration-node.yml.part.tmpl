@@ -1,8 +1,8 @@
 jobs:
 <<- define "node" >>
 
-<<- $nodes := .ModulesWith "node" >>
-<<- $manager := cutAfter (get (first $nodes).Languages "node").PackageManager "@" >>
+<<- $node_modules := .ModulesWith "node" >>
+<<- $manager := cutAfter (get (first $node_modules).Languages "node").PackageManager "@" >>
 
   node-audit:
     name: Node Audit ${{ matrix.name }}
@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-<<- range $nodes >>
+<<- range $node_modules >>
           - directory: << .Dir >>
 <<- if ne .Dir "." >>
             name: << printf "(%s)" .Dir >>
@@ -23,7 +23,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -37,7 +37,7 @@ jobs:
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "step-security-actions" .GitHub.Options >>
+<<- if has "step-security-actions" .Config.GitHub.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@f6f5dadeac34f70c7828f731569e8d6e8330b8fb # v2.1.3
 <<- else >>
@@ -65,7 +65,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-<<- range $nodes >>
+<<- range $node_modules >>
           - artifact: << ne .Dir "." | ternary (print "lint-" .Dir) "lint" >>
             directory: << .Dir >>
 <<- if ne .Dir "." >>
@@ -76,7 +76,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -90,7 +90,7 @@ jobs:
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "step-security-actions" .GitHub.Options >>
+<<- if has "step-security-actions" .Config.GitHub.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@f6f5dadeac34f70c7828f731569e8d6e8330b8fb # v2.1.3
 <<- else >>
@@ -110,7 +110,7 @@ jobs:
           mkdir -p reports/
           << $manager >> << eq $manager "npm" | ternary "ci" "install --frozen-lockfile" >>
           << $manager >> run lint -o reports/node-lint.xslint.json -f json
-<<- if has "sonarqube" .GitHub.Options >>
+<<- if has "sonarqube" .Config.GitHub.Options >>
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact }}
@@ -126,7 +126,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-<<- range $nodes >>
+<<- range $node_modules >>
           - artifact: << ne .Dir "." | ternary (print "coverage-" .Dir) "coverage" >>
             directory: << .Dir >>
 <<- if ne .Dir "." >>
@@ -150,7 +150,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -164,7 +164,7 @@ jobs:
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 <<- end >>
 <<- if eq $manager "bun" >>
-<<- if has "step-security-actions" .GitHub.Options >>
+<<- if has "step-security-actions" .Config.GitHub.Options >>
       # https://app.stepsecurity.io/github-action-advisor/step-security/setup-bun
       - uses: step-security/setup-bun@f6f5dadeac34f70c7828f731569e8d6e8330b8fb # v2.1.3
 <<- else >>
@@ -188,7 +188,7 @@ jobs:
 <<- else >>
           << $manager >> run test -- --coverage --coverageDirectory=reports --reporters="jest-junit" --reporters="jest-sonar"
 <<- end >>
-<<- if has "codecov" .GitHub.Options >>
+<<- if has "codecov" .Config.GitHub.Options >>
       - uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
         with:
           codecov_yml_path: .codecov.yml
@@ -213,7 +213,7 @@ jobs:
         env:
           OS: ${{ matrix.os }}
 <<- end >>
-<<- if has "sonarqube" .GitHub.Options >>
+<<- if has "sonarqube" .Config.GitHub.Options >>
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.artifact }}

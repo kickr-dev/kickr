@@ -13,12 +13,6 @@ func (k Kickr) IsHelmPublishAuto() bool {
 	return k.Helm != nil && k.Helm.Publish == HelmPublishAuto
 }
 
-// IsHosting returns truthy in case the configuration has CI enabled, a website to deploy
-// and the input hosting name matches the one configured.
-func (k Kickr) IsHosting(hosting string) bool {
-	return k.Website != nil && k.Website.Hosting == hosting
-}
-
 // HasHelmPublish returns truthy in case the configuration has CI enabled, helm chart generation enabled
 // and publication to a helm repository enabled.
 func (k Kickr) HasHelmPublish() bool {
@@ -31,12 +25,6 @@ func (k Kickr) HasHelmDeploy() bool {
 	return k.Helm != nil && k.Helm.Deploy != ""
 }
 
-// HasTerraformApply returns truthy in case the configuration has CI enabled, terraform generation enabled
-// and apply is enabled in terraform CI configuration.
-func (k Kickr) HasTerraformApply() bool {
-	return k.Terraform != nil && k.Terraform.Apply != ""
-}
-
 // HasSonarQube returns truthy in case SonarQube analysis is enabled on either platform.
 func (k Kickr) HasSonarQube() bool {
 	if k.GitHub != nil && slices.Contains(k.GitHub.Options, GitHubOptionsSonarQube) {
@@ -46,6 +34,39 @@ func (k Kickr) HasSonarQube() bool {
 		return true
 	}
 	return false
+}
+
+// TerraformEngine returns the terraform engine configured throughout the modules, if any.
+func (k Kickr) TerraformEngine() string {
+	for _, module := range k.Modules {
+		if module.Terraform == nil {
+			continue
+		}
+		if module.Terraform.Engine != "" {
+			// engine is unique throughout all modules with terraform / opentofu
+			// validation happens on schema end
+			return module.Terraform.Engine
+		}
+		// engine is unique throughout all modules with terraform / opentofu
+		// validation happens on schema end
+		return TerraformEngineTofu
+	}
+	return ""
+}
+
+// HasTerraformApply returns truthy when at least one module has an apply strategy configured.
+func (k Kickr) HasTerraformApply() bool {
+	return slices.ContainsFunc(k.Modules, Module.HasTerraformApply)
+}
+
+// HasTerraformAutoApply returns truthy when at least one module has an apply strategy configured and set to auto.
+func (k Kickr) HasTerraformAutoApply() bool {
+	return slices.ContainsFunc(k.Modules, Module.HasTerraformAutoApply)
+}
+
+// HasDeploymentAuto returns truthy when at least one module has a deployment strategy configured and set to auto.
+func (k Kickr) HasDeploymentAuto() bool {
+	return slices.ContainsFunc(k.Modules, Module.HasDeploymentAuto)
 }
 
 // HasKickr returns truthy in case one option at least is provided for kickr auto-layout generation.
@@ -88,8 +109,40 @@ func (k *Kickr) EnsureDefaults() {
 		slices.Sort(k.Helm.Environments)
 	}
 
-	if k.Terraform != nil {
-		slices.Sort(k.Terraform.Environments)
-		slices.Sort(k.Terraform.Modules)
+	// sort modules per path
+	slices.SortFunc(k.Modules, func(a, b Module) int {
+		return cmp.Compare(a.Path, b.Path)
+	})
+
+	for _, module := range k.Modules {
+		slices.Sort(module.Exclude)
+		if module.Terraform != nil {
+			slices.Sort(module.Terraform.Environments)
+		}
 	}
+}
+
+// HasTerraformApply returns truthy when the module has an apply strategy configured.
+func (m Module) HasTerraformApply() bool {
+	return m.Terraform != nil && m.Terraform.Apply != ""
+}
+
+// HasTerraformDocs returns truthy when the module needs terraform documentation.
+func (m Module) HasTerraformDocs() bool {
+	return m.Terraform != nil && m.Terraform.Apply == ""
+}
+
+// HasTerraformAutoApply returns truthy when the module has an apply strategy configured and set to auto.
+func (m Module) HasTerraformAutoApply() bool {
+	return m.Terraform != nil && m.Terraform.Apply == TerraformApplyAuto
+}
+
+// HasDeployment returns truthy when the module is deployed on the input target.
+func (m Module) HasDeployment(target string) bool {
+	return m.Deployment != nil && m.Deployment.Target == target
+}
+
+// HasDeploymentAuto returns truthy when the module has a deployment strategy configured and set to auto.
+func (m Module) HasDeploymentAuto() bool {
+	return m.Deployment != nil && m.Deployment.Auto
 }

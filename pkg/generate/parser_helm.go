@@ -20,16 +20,16 @@ import (
 // and merges it with <destdir>/chart/.kickr, this parser should be the last one called
 // to ensure the configuration is in a final state.
 func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error {
-	if repo.Helm == nil {
+	if repo.Config.Helm == nil {
 		return nil
 	}
 	engine.GetLogger().Infof("deployment with helm detected, configuration has 'helm' key in 'deployment' section")
 
-	modules := repo.Modules()
+	modules := repo.ModulesWithDeployment(kickr.DeploymentTargetHelm)
 
 	path := repo.VCS.ProjectPath
-	if repo.Docker != nil && repo.Docker.Path != "" {
-		path = repo.Docker.Path
+	if repo.Config.Docker != nil && repo.Config.Docker.Path != "" {
+		path = repo.Config.Docker.Path
 	}
 
 	executables := func(get func(types.Module) map[string]any) map[string]any {
@@ -47,10 +47,10 @@ func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error
 	}
 
 	base := map[string]any{
-		"description": repo.Description,
+		"description": repo.Config.Description,
 		"docker": func() kickr.Docker {
-			if repo.Docker != nil {
-				return *repo.Docker
+			if repo.Config.Docker != nil {
+				return *repo.Config.Docker
 			}
 			return kickr.Docker{}
 		}(),
@@ -60,7 +60,7 @@ func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error
 		"jobs":    executables(func(m types.Module) map[string]any { return m.Jobs }),
 		"workers": executables(func(m types.Module) map[string]any { return m.Workers }),
 
-		"maintainers": repo.Maintainers,
+		"maintainers": repo.Config.Maintainers,
 		"projectName": repo.VCS.ProjectName,
 		"projectPath": repo.VCS.ProjectPath,
 	}
@@ -69,7 +69,9 @@ func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error
 	if err != nil {
 		return fmt.Errorf("merge values: %w", err)
 	}
-	repo.Module(types.RootModule).SetLanguage(types.LanguageHelm, values)
+	if i := repo.ModuleIndexOf(types.RootModule); i >= 0 {
+		repo.Modules[i].SetLanguage(types.LanguageHelm, values)
+	}
 	return nil
 }
 

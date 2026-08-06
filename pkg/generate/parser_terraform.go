@@ -27,45 +27,28 @@ type TerraformModule struct {
 
 var backends = []string{"http", "s3"}
 
-// ParserTerraform detects the presence of a terraform module with its 'main.tf' at destdir base directory
-// or within specified modules (by config.Terraform.Modules) with their own 'main.tf'.
+// ParserTerraform detects the presence of a terraform module with its 'main.tf' in every repository module.
 //
-// In case a module is specified by the configuration but doesn't contain a 'main.tf' then it will return an error.
+// A module declaring 'terraform:' but whose directory isn't a terraform module returns an error.
+// A module declaring neither is scanned silently: present means terraform, absent means not.
 //
 // All successful module parses are added into config modules.
 func ParserTerraform(_ context.Context, destdir string, repo *types.Repository) error {
-	if tfconfig.IsModuleDir(destdir) {
-		tfmodule, diags := tfconfig.LoadModule(destdir)
-		if diags.HasErrors() {
-			return fmt.Errorf("load module '%s': %w", filepath.Base(destdir), diags)
+	errs := make([]error, 0, len(repo.Modules))
+	for i, module := range repo.Modules {
+		if module.Config.Terraform == nil {
+			continue
 		}
 
-		backend, err := terraformBackend(destdir)
-		if err != nil {
-			engine.GetLogger().Warnf("failed to read backend type: %s", err.Error())
-		}
-		if backend != "" && !slices.Contains(backends, backend) {
-			engine.GetLogger().Warnf("backend '%s' doesn't have an associated behavior", backend)
-		}
-		repo.Module(types.RootModule).SetLanguage(types.LanguageTerraform, TerraformModule{Module: tfmodule, Backend: backend})
-	}
-
-	// no terraform modules specified
-	if repo.Terraform == nil || len(repo.Terraform.Modules) == 0 {
-		return nil
-	}
-
-	errs := make([]error, 0, len(repo.Terraform.Modules))
-	for _, directory := range repo.Terraform.Modules {
-		moduledir := filepath.Join(destdir, directory)
+		moduledir := filepath.Join(destdir, module.Dir())
 		if !tfconfig.IsModuleDir(moduledir) {
-			errs = append(errs, fmt.Errorf("module '%s' isn't a terraform module", directory))
+			errs = append(errs, fmt.Errorf("module '%s' isn't a terraform module", module.Dir()))
 			continue
 		}
 
 		tfmodule, diags := tfconfig.LoadModule(moduledir)
 		if diags.HasErrors() {
-			errs = append(errs, fmt.Errorf("load module '%s': %w", directory, diags))
+			errs = append(errs, fmt.Errorf("load module '%s': %w", module.Dir(), diags))
 			continue
 		}
 
@@ -77,7 +60,7 @@ func ParserTerraform(_ context.Context, destdir string, repo *types.Repository) 
 			engine.GetLogger().Warnf("backend '%s' doesn't have an associated behavior", backend)
 		}
 
-		repo.Module(directory).SetLanguage(types.LanguageTerraform, TerraformModule{Module: tfmodule, Backend: backend})
+		repo.Modules[i].SetLanguage(types.LanguageTerraform, TerraformModule{Module: tfmodule, Backend: backend})
 	}
 	return errors.Join(errs...) // already wrapped
 }

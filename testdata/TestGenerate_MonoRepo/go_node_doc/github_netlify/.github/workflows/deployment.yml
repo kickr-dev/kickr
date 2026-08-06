@@ -211,7 +211,7 @@ jobs:
           category: docker-trivy/${{ matrix.directory }}
           sarif_file: trivy-results.sarif
 
-  netlify:
+  netlify-deploy:
     name: Netlify
     runs-on: ubuntu-latest
     if: ${{ inputs.netlify != 'none' }}

@@ -5,7 +5,7 @@
 {{- $binaries := dict }}
 {{- $_ := map $binaries .Clis .Crons .Jobs .Workers }}
 
-{{- $maintainer := index .Repository.Maintainers 0 }}
+{{- $maintainer := index .Parent.Config.Maintainers 0 }}
 
 #############################
 #        STAGE BUILD        #
@@ -40,16 +40,16 @@ FROM gcr.io/distroless/static-debian13:nonroot@sha256:f7f8f729987ad0fdf6b05eeeae
 LABEL org.opencontainers.image.authors="{{ $maintainer.Name }}{{ if $maintainer.Email }} <{{ $maintainer.Email }}>{{ end }}"
 LABEL org.opencontainers.image.vendor="{{ $maintainer.Name }}"
 
-LABEL org.opencontainers.image.title="{{ .Repository.VCS.ProjectName }}{{ with .Slug }}/{{ . }}{{ end }}"
-{{- if .Repository.Description }}
-LABEL org.opencontainers.image.description="{{ .Repository.Description }}"
+LABEL org.opencontainers.image.title="{{ .Parent.VCS.ProjectName }}{{ with .Slug }}/{{ . }}{{ end }}"
+{{- if .Parent.Config.Description }}
+LABEL org.opencontainers.image.description="{{ .Parent.Config.Description }}"
 {{- end }}
-{{- if .Repository.License }}
-LABEL org.opencontainers.image.licenses="{{ upper .Repository.License }}"
+{{- if .Parent.Config.License }}
+LABEL org.opencontainers.image.licenses="{{ upper .Parent.Config.License }}"
 {{- end }}
-LABEL org.opencontainers.image.url="{{ print .Repository.VCS.ProjectHost "/" .Repository.VCS.ProjectPath }}"
-LABEL org.opencontainers.image.source="{{ print .Repository.VCS.ProjectHost "/" .Repository.VCS.ProjectPath }}"
-LABEL org.opencontainers.image.documentation="{{ print .Repository.VCS.ProjectHost "/" .Repository.VCS.ProjectPath }}"
+LABEL org.opencontainers.image.url="{{ print .Parent.VCS.ProjectHost "/" .Parent.VCS.ProjectPath }}"
+LABEL org.opencontainers.image.source="{{ print .Parent.VCS.ProjectHost "/" .Parent.VCS.ProjectPath }}"
+LABEL org.opencontainers.image.documentation="{{ print .Parent.VCS.ProjectHost "/" .Parent.VCS.ProjectPath }}"
 
 WORKDIR /app
 
@@ -75,7 +75,7 @@ COPY --from=build \
 COPY launcher.sh launcher.sh
 {{- end }}
 
-EXPOSE {{ .Repository.Docker.Port | default 3000 }}
+EXPOSE {{ .Parent.Config.Docker.Port | default 3000 }}
 
 ENTRYPOINT [ "/app/{{ $entrypoint }}" ]
 {{- end }}

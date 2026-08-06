@@ -47,10 +47,10 @@ archives:
         formats: zip
 
 nfpms:
-<<- $maintainer := index .Maintainers 0 >>
+<<- $maintainer := index .Config.Maintainers 0 >>
   - maintainer: << $maintainer.Name >>
-<<- if .License >>
-    license: << .License | upper >>
+<<- if .Config.License >>
+    license: << .Config.License | upper >>
 <<- end >>
     file_name_template: >-
       {{- .ProjectName }}_

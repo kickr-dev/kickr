@@ -43,8 +43,6 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 	}
 
 	return func(ctx context.Context, destdir string, repo types.Repository) error {
-		modules := repo.Modules()
-
 		template := engine.Template[data]{
 			Delimiters:     engine.DelimitersBracket(),
 			GeneratePolicy: engine.PolicyAlways,
@@ -53,15 +51,15 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 		}
 
 		// modules sharing the same languages share the same payload, no need to fetch it twice
-		ignores := make(map[string]string, len(modules))
-		errs := make([]error, 0, len(modules))
-		for _, module := range modules {
+		ignores := make(map[string]string, len(repo.Modules))
+		errs := make([]error, 0, len(repo.Modules))
+		for _, module := range repo.Modules {
 			query := make([]string, 0, len(module.Languages)+3)
 			for language := range module.Languages {
 				query = append(query, parameters[language]...)
 			}
 			query = append(query, "dotenv")
-			if module.Dir() == types.RootModule && repo.HasSonarQube() { // sonar analyzes the whole repository from its root, wherever the analyzed code lives
+			if module.Dir() == types.RootModule && repo.Config.HasSonarQube() { // sonar analyzes the whole repository from its root, wherever the analyzed code lives
 				query = append(query, "sonar", "sonarqube")
 			}
 

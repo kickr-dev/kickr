@@ -1,21 +1,20 @@
 jobs:
 <<- define "terraform" >>
 
-<<- $engine := "opentofu" >>
-<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
-<<- $cmd := eq $engine "opentofu" | ternary "tofu" "terraform" >>
+<<- $terraform_cmd := .Config.TerraformEngine >>
+<<- $terraform_engine := eq $terraform_cmd "tofu" | ternary "opentofu" "terraform" >>
 
-<<- $nodes := .ModulesWith "terraform" >>
+<<- $terraform_modules := .ModulesWith "terraform" >>
 
-  << $engine >>-check:
-    name: << title $engine >> Check ${{ matrix.name }}
+  << $terraform_engine >>-check:
+    name: << title $terraform_engine >> Check ${{ matrix.name }}
     runs-on: ubuntu-latest
     needs: run-workflow
     strategy:
       fail-fast: false
       matrix:
         include:
-<<- range $nodes >>
+<<- range $terraform_modules >>
           - directory: << .Dir >>
 <<- if ne .Dir "." >>
             name: << printf "(%s)" .Dir >>
@@ -25,7 +24,7 @@ jobs:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -34,7 +33,7 @@ jobs:
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-<<- if eq $engine "terraform" >>
+<<- if eq $terraform_engine "terraform" >>
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
@@ -45,19 +44,19 @@ jobs:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
           tofu_version: 1.12.4
 <<- end >>
-      - run: << $cmd >> fmt -check
-      - run: << $cmd >> init -backend=false
-      - run: << $cmd >> validate -no-color
+      - run: << $terraform_cmd >> fmt -check
+      - run: << $terraform_cmd >> init -backend=false
+      - run: << $terraform_cmd >> validate -no-color
 
-  << $engine >>-lint:
-    name: << title $engine >> Lint
+  << $terraform_engine >>-lint:
+    name: << title $terraform_engine >> Lint
     runs-on: ubuntu-latest
     needs: run-workflow
     permissions:
       pull-requests: write
       security-events: write
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -82,29 +81,28 @@ jobs:
           category: tflint
           sarif_file: reports/tflint.sarif
 
-<<- if .HasTerraformApply >>
-<<- range $node := $nodes >>
-<<- $specifics := get $node.Languages "terraform" >>
+<<- range .ModulesWithTerraformApply >>
+<<- $specifics := get .Languages "terraform" >>
 
-  << $engine >>-plan<< with $node.Slug >>-<< . >><< end >>:
-    name: << title $engine >> Plan<< ne $node.Dir "." | ternary (printf " (%s)" $node.Dir) "" >>
+  << $terraform_engine >>-plan<< with .Slug >>-<< . >><< end >>:
+    name: << title $terraform_engine >> Plan<< ne .Dir "." | ternary (printf " (%s)" .Dir) "" >>
     runs-on: ubuntu-latest
-    needs: << $engine >>-check
+    needs: << $terraform_engine >>-check
     environment: ${{ matrix.environment }}
     strategy:
       fail-fast: false
       matrix:
         environment:
-<<- range $.Terraform.Environments >>
+<<- range .Config.Terraform.Environments >>
           - << . >>
 <<- end >>
-<<- if ne $node.Dir "." >>
+<<- if ne .Dir "." >>
     defaults:
       run:
-        working-directory: << $node.Dir >>
+        working-directory: << .Dir >>
 <<- end >>
     steps:
-<<- if has "harden-runner" $.GitHub.Options >>
+<<- if has "harden-runner" $.Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -113,7 +111,7 @@ jobs:
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-<<- if eq $engine "terraform" >>
+<<- if eq $terraform_engine "terraform" >>
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
@@ -125,8 +123,8 @@ jobs:
           tofu_version: 1.12.4
 <<- end >>
       - run: |-
-          << $cmd >> init
-          << $cmd >> plan -no-color
+          << $terraform_cmd >> init
+          << $terraform_cmd >> plan -no-color
 <<- if or (gt (len $specifics.Variables) 0) (eq $specifics.Backend "s3") >>
         env:
 <<- if eq $specifics.Backend "s3" >>
@@ -139,7 +137,6 @@ jobs:
           TF_VAR_<< $name >>: ${{ << print "github." (trimPrefix "github_" $name) >> }}
 <<- else >>
           TF_VAR_<< $name >>: ${{ << print $source "." (upper $name) >> }}
-<<- end >>
 <<- end >>
 <<- end >>
 <<- end >>

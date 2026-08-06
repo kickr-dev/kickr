@@ -16,8 +16,8 @@ func SemanticRelease() []engine.Template[types.Repository] {
 			Globs:      []string{".releaserc.yml" + engine.TmplExtension},
 			Out:        ".releaserc.yml",
 			Remove: func(repo types.Repository) bool {
-				gitlab := repo.GitLab != nil && repo.GitLab.Release != nil
-				github := repo.GitHub != nil && repo.GitHub.Release != nil
+				gitlab := repo.Config.GitLab != nil && repo.Config.GitLab.Release != nil
+				github := repo.Config.GitHub != nil && repo.Config.GitHub.Release != nil
 				return !github && !gitlab
 			},
 		},
@@ -27,7 +27,7 @@ func SemanticRelease() []engine.Template[types.Repository] {
 			Out:            path.Join(".github", "semrel-plugins.txt"),
 			GeneratePolicy: engine.PolicyAlways, // always generate semrel-plugins.txt
 			Remove: func(repo types.Repository) bool {
-				return repo.GitHub == nil || repo.GitHub.Release == nil
+				return repo.Config.GitHub == nil || repo.Config.GitHub.Release == nil
 			},
 		},
 		{
@@ -36,7 +36,7 @@ func SemanticRelease() []engine.Template[types.Repository] {
 			Out:            path.Join(".gitlab", "semrel-plugins.txt"),
 			GeneratePolicy: engine.PolicyAlways, // always generate semrel-plugins.txt
 			Remove: func(repo types.Repository) bool {
-				return repo.GitLab == nil || repo.GitLab.Release == nil
+				return repo.Config.GitLab == nil || repo.Config.GitLab.Release == nil
 			},
 		},
 	}

@@ -33,7 +33,7 @@ func TestParserGit(t *testing.T) {
 	t.Run("success_vcs", func(t *testing.T) {
 		// Arrange
 		expected := types.Repository{
-			Kickr: kickr.Kickr{Platform: parser.GitLab},
+			Config: kickr.Kickr{Platform: parser.GitLab},
 			VCS: parser.VCS{
 				Platform:    parser.GitLab,
 				ProjectHost: "gitlab.com",
@@ -49,7 +49,7 @@ func TestParserGit(t *testing.T) {
 		// Assert
 		require.NoError(t, err)
 		assert.Equal(t, expected, types.Repository{
-			Kickr: repo.Kickr,
+			Config: repo.Config,
 			VCS: parser.VCS{
 				Platform:    repo.VCS.Platform,
 				ProjectHost: repo.VCS.ProjectHost,
@@ -63,7 +63,7 @@ func TestParserGit(t *testing.T) {
 	t.Run("success_platform_already_present", func(t *testing.T) {
 		// Arrange
 		expected := types.Repository{
-			Kickr: kickr.Kickr{Platform: parser.GitHub},
+			Config: kickr.Kickr{Platform: parser.GitHub},
 			VCS: parser.VCS{
 				Platform:    parser.GitHub,
 				ProjectHost: "gitlab.com",
@@ -71,9 +71,7 @@ func TestParserGit(t *testing.T) {
 				ProjectPath: "kickr-dev/kickr",
 			},
 		}
-		repo := types.Repository{
-			Kickr: kickr.Kickr{Platform: parser.GitHub},
-		}
+		repo := types.Repository{Config: kickr.Kickr{Platform: parser.GitHub}}
 
 		// Act
 		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &repo)
@@ -81,7 +79,7 @@ func TestParserGit(t *testing.T) {
 		// Assert
 		require.NoError(t, err)
 		assert.Equal(t, expected, types.Repository{
-			Kickr: repo.Kickr,
+			Config: repo.Config,
 			VCS: parser.VCS{
 				Platform:    repo.VCS.Platform,
 				ProjectHost: repo.VCS.ProjectHost,

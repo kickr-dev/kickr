@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: renovate
     steps:
-<<- if has "harden-runner" .GitHub.Options >>
+<<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
@@ -39,7 +39,7 @@ jobs:
           disable-sudo-and-containers: false # docker use
           egress-policy: audit
 <<- end >>
-<<- if has "renovate:github-app" .GitHub.Options >>
+<<- if has "renovate:github-app" .Config.GitHub.Options >>
       - id: app_token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
@@ -50,13 +50,13 @@ jobs:
           private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
 <<- end >>
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
-<<- if has "renovate:github-app" .GitHub.Options >>
+<<- if has "renovate:github-app" .Config.GitHub.Options >>
         with:
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
       - uses: renovatebot/github-action@22e0a16091fc706b04affe6ae53d5e3358ac4023 # v46.1.19
         with:
-<<- if has "renovate:github-app" .GitHub.Options >>
+<<- if has "renovate:github-app" .Config.GitHub.Options >>
           token: ${{ steps.app_token.outputs.token }}
 <<- else >>
           token: ${{ secrets.RENOVATE_TOKEN }}

@@ -1,24 +1,24 @@
 jobs:
 <<- define "terraform" >>
 
-<<- $engine := "opentofu" >>
-<<- if and .Terraform .Terraform.Engine >><<- $engine = .Terraform.Engine >><<- end >>
-<<- $cmd := eq $engine "opentofu" | ternary "tofu" "terraform" >>
+<<- $terraform_cmd := .Config.TerraformEngine >>
+<<- $terraform_engine := eq $terraform_cmd "tofu" | ternary "opentofu" "terraform" >>
 
-<<- range $node := .ModulesWith "terraform" >>
-<<- $specifics := get $node.Languages "terraform" >>
+<<- range .ModulesWithTerraformApply >>
+<<- $specifics := get .Languages "terraform" >>
+<<- $suffix := gt (len $.ModulesWithTerraformApply) 1 | ternary .Slug "" >>
 
-  terraform-apply<< with $node.Slug >>-<< . >><< end >>:
-    name: Terraform Apply<< ne $node.Dir "." | ternary (printf " (%s)" $node.Dir) "" >>
+  terraform-apply<< with $suffix >>-<< . >><< end >>:
+    name: Terraform Apply<< ne .Dir "." | ternary (printf " (%s)" .Dir) "" >>
     runs-on: ubuntu-latest
-    if: ${{ inputs.<< $engine >>_apply != 'none' }}
+    if: ${{ inputs.<< $terraform_engine >><< with $suffix >>_<< . >><< end >>_apply != 'none' }}
     needs: version
-    environment: ${{ matrix.environment }}
+    environment: ${{ matrix.environment }}<< with $suffix >>/<< . >><< end >>
     strategy:
       fail-fast: false
       matrix:
         environment:
-<<- range $.Terraform.Environments >>
+<<- range .Config.Terraform.Environments >>
           - << . >>
 <<- end >>
         production:
@@ -28,29 +28,29 @@ jobs:
         # see https://github.com/orgs/community/discussions/26253#discussioncomment-3250989
         # for more information about how to include environments depending on branches
         include:
-<<- if has "review" $.Terraform.Environments >>
+<<- if has "review" .Config.Terraform.Environments >>
           - environment: review # enabled on non-protected branches
             protected: false
 <<- end >>
-<<- if has "integration" $.Terraform.Environments >>
+<<- if has "integration" .Config.Terraform.Environments >>
           - environment: integration # enabled on protected branches
             protected: true
 <<- end >>
-<<- if has "staging" $.Terraform.Environments >>
+<<- if has "staging" .Config.Terraform.Environments >>
           - environment: staging # enabled on production branches
             production: true
 <<- end >>
-<<- if has "production" $.Terraform.Environments >>
+<<- if has "production" .Config.Terraform.Environments >>
           - environment: production # enabled on production branches
             production: true
 <<- end >>
-<<- if ne $node.Dir "." >>
+<<- if ne .Dir "." >>
     defaults:
       run:
-        working-directory: << $node.Dir >>
+        working-directory: << .Dir >>
 <<- end >>
     steps:
-<<- if has "harden-runner" $.GitHub.Options >>
+<<- if has "harden-runner" $.Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
       - uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
@@ -59,7 +59,7 @@ jobs:
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-<<- if eq $engine "terraform" >>
+<<- if eq $terraform_engine "terraform" >>
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
@@ -71,8 +71,8 @@ jobs:
           tofu_version: 1.10.6
 <<- end >>
       - run: |-
-          << $cmd >> init
-          << $cmd >> apply -no-color -auto-approve
+          << $terraform_cmd >> init
+          << $terraform_cmd >> apply -no-color -auto-approve
 <<- if or (gt (len $specifics.Variables) 0) (eq $specifics.Backend "s3") >>
         env:
 <<- if eq $specifics.Backend "s3" >>

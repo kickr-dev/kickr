@@ -40,7 +40,10 @@ func ParserGlob(_ context.Context, destdir string, repo *types.Repository) error
 			}
 			paths = append(paths, filepath.ToSlash(path))
 		}
-		repo.Module(types.RootModule).SetGlob(check.Name, paths)
+
+		if i := repo.ModuleIndexOf(types.RootModule); i >= 0 {
+			repo.Modules[i].SetGlob(check.Name, paths)
+		}
 	}
 	return nil
 }

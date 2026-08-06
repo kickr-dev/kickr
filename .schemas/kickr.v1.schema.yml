@@ -126,6 +126,50 @@ properties:
           format: uri
           examples: [maintainer.example.com]
 
+  modules:
+    type: array
+    description: |-
+      Directories the repository is made of, each one owning its own technology stack.
+
+      When absent or empty, the repository root is the sole module.
+      Otherwise every module must be declared, the repository root included as '.'.
+    items:
+      $ref: "#/$defs/module"
+    allOf:
+      # a repository can only serve one 'pages' website, both on GitHub and GitLab
+      - contains:
+          type: object
+          required: [deployment]
+          properties:
+            deployment:
+              required: [target]
+              properties:
+                target:
+                  const: pages
+        minContains: 0
+        maxContains: 1
+    # all terraform modules of a repository must be handled with the same engine
+    not:
+      allOf:
+        - contains:
+            type: object
+            required: [terraform]
+            properties:
+              terraform:
+                required: [engine]
+                properties:
+                  engine:
+                    const: terraform
+        - contains:
+            type: object
+            required: [terraform]
+            properties:
+              terraform:
+                required: [engine]
+                properties:
+                  engine:
+                    const: tofu
+
   platform:
     type: string
     description: |-
@@ -156,13 +200,28 @@ properties:
         - gomod-tidy
         - terraform
 
-  terraform:
-    $ref: "#/$defs/terraform"
-
-  website:
-    $ref: "#/$defs/website"
-
 allOf:
+  # Restrict multiple objects to their base properties, no CI platform being configured
+  - if:
+      not:
+        anyOf:
+          - required: [github]
+          - required: [gitlab]
+    then:
+      properties:
+        docker:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/docker"
+        helm:
+          unevaluatedProperties: false
+          allOf:
+            - $ref: "#/$defs/helm"
+        modules:
+          items:
+            unevaluatedProperties: false
+            allOf:
+              - $ref: "#/$defs/module"
   # Enrich multiple objects with their CI properties
   - if:
       required: [github]
@@ -178,16 +237,12 @@ allOf:
           allOf:
             - $ref: "#/$defs/helm"
             - $ref: "#/$defs/ci/helm"
-        terraform:
-          unevaluatedProperties: false
-          allOf:
-            - $ref: "#/$defs/terraform"
-            - $ref: "#/$defs/ci/terraform"
-        website:
-          unevaluatedProperties: false
-          allOf:
-            - $ref: "#/$defs/website"
-            - $ref: "#/$defs/ci/website"
+        modules:
+          items:
+            unevaluatedProperties: false
+            allOf:
+              - $ref: "#/$defs/module"
+              - $ref: "#/$defs/ci/module"
   # Enrich multiple objects with their CI properties
   - if:
       required: [gitlab]
@@ -203,16 +258,12 @@ allOf:
           allOf:
             - $ref: "#/$defs/helm"
             - $ref: "#/$defs/ci/helm"
-        terraform:
-          unevaluatedProperties: false
-          allOf:
-            - $ref: "#/$defs/terraform"
-            - $ref: "#/$defs/ci/terraform"
-        website:
-          unevaluatedProperties: false
-          allOf:
-            - $ref: "#/$defs/website"
-            - $ref: "#/$defs/ci/website"
+        modules:
+          items:
+            unevaluatedProperties: false
+            allOf:
+              - $ref: "#/$defs/module"
+              - $ref: "#/$defs/ci/module"
 
 $defs:
   ##############################################################
@@ -227,16 +278,6 @@ $defs:
 
       With 'ci' enabled, control where (registry and path) shall the built Docker image be pushed and when (automatically or not).
     properties:
-      exclude:
-        type: array
-        description: |-
-          Available options to remove from Docker generation.
-
-          'website' skips the Dockerfile for the module configured as the static website (see 'website.hosting'),
-          which otherwise still gets one whenever 'docker' is set.
-        items:
-          type: string
-          enum: [website]
       port:
         type: integer
         description: Port to expose in the Dockerfile.
@@ -249,40 +290,27 @@ $defs:
 
       With 'ci' enabled, control how and when shall the Helm Chart be published or deployed alongside on which environments.
 
-  terraform:
+  module:
     type: object
     description: |-
-      Configure the terraform modules and the engine to use (opentofu by default).
+      One directory of the repository, owning its own technology stack.
 
-      By default, if a module is present at repository's root, then there's no need to provide the list of modules.
-      However, if current repository is composed of multiple root modules (in subdirectories),
-      then it's required to provide the full list of modules to generate templates correctly.
+      Languages are detected by kickr inside the directory, they aren't configured here.
 
-      With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments.
+      With 'ci' enabled, control where the module is deployed and, for terraform modules,
+      when shall they be applied and on which environments.
+    required: [path]
     properties:
-      engine:
+      path:
         type: string
-        description: The engine to use to lint, validate, test, apply the resources.
-        default: opentofu
-        enum: [opentofu, terraform]
-      modules:
+        description: Module location, relative to the repository root.
+        examples: [".", docs, apps/api]
+      exclude:
         type: array
-        description: List of terraform / opentofu modules.
+        description: Available options to remove from this module generation.
         items:
           type: string
-
-  website:
-    type: object
-    description: |-
-      Configure which directory to build (depends on the repository files, a package.json for Node, a go.mod for Hugo)
-      and deploy.
-
-      With 'ci' enabled, control where shall the website be deployed (netlify, pages) and when.
-    properties:
-      directory:
-        type: string
-        description: Website directory location (default to '.')
-        examples: [docs, exampleSite]
+          enum: [docker, makefile]
 
   ##############################################################
   #
@@ -358,8 +386,37 @@ $defs:
             Depending on the project registry (GitHub, Jfrog, Nexus, etc.), this property may need a more specific path like 'oci://jfrog.example.com/my/registry'.
           examples: [ghcr.io, oci://ghcr.io]
 
+    module:
+      type: object
+      properties:
+        deployment:
+          type: object
+          description: Where and how the module is deployed.
+          additionalProperties: false
+          required: [target]
+          properties:
+            auto:
+              type: boolean
+              description: Whether the module shall be deployed automatically (or not) on its target.
+            target:
+              type: string
+              description: |-
+                Deployment target of the module.
+
+                'netlify' and 'pages' build and publish the module as a static website.
+                'helm' includes the module executables in the generated Helm Chart values.
+              enum: [helm, netlify, pages]
+        terraform:
+          $ref: "#/$defs/ci/terraform"
+
     terraform:
       type: object
+      description: |-
+        Configure the terraform module and the engine to use (tofu by default).
+
+        With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments.
+      additionalProperties: false
+      required: [engine]
       dependentRequired:
         environments: [apply]
         apply: [environments]
@@ -370,6 +427,11 @@ $defs:
             Apply strategy.
             Not providing this property will mean 'never' as strategy, no apply job will be generated.
           enum: [auto, manual]
+        engine:
+          type: string
+          description: The engine to use to lint, validate, test, apply the resources.
+          enum: [tofu, terraform]
+          default: tofu
         environments:
           type: array
           description: |-
@@ -386,18 +448,6 @@ $defs:
             type: string
             enum: [integration, production, review, staging]
             minItems: 1
-
-    website:
-      type: object
-      required: [hosting]
-      properties:
-        auto:
-          type: boolean
-          description: Whether the website directory shall be built and deployed automatically (or not) on the hosting platform.
-        hosting:
-          type: string
-          description: Hosting platform for the website.
-          enum: [netlify, pages]
 
     release:
       type: object

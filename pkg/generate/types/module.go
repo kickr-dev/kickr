@@ -16,26 +16,20 @@ import (
 type Module struct {
 	parser.Executables
 
-	directory string
-	repo      *Repository
-
+	Config    kickr.Module
+	Directory string
 	Globs     map[string]any
 	Languages map[string]any
+	Parent    *Repository
 }
 
 var _ engine.Module = (*Module)(nil) // ensure interface is implemented
 
 // Dir implements engine.Module.
-func (m Module) Dir() string { return m.directory }
+func (m Module) Dir() string { return m.Directory }
 
 // Slug returns the directory slug representation.
-func (m Module) Slug() string { return engine.ToSlug(m.directory) }
-
-// Repository returns the repository owning this module.
-//
-// Repository-level configuration (Kickr, VCS) is only reachable through this accessor,
-// so any edition has to go through the repository itself rather than the module.
-func (m Module) Repository() *Repository { return m.repo }
+func (m Module) Slug() string { return engine.ToSlug(m.Directory) }
 
 // SetLanguage sets a language with its specificities.
 func (m *Module) SetLanguage(name string, value any) *Module {
@@ -74,17 +68,13 @@ func (m *Module) SetGlob(name string, matches []string) *Module {
 
 // HasDocker returns truthy when the module should have a Dockerfile.
 func (m Module) HasDocker() bool {
-	if m.repo.Docker == nil {
+	if m.Parent.Config.Docker == nil || slices.Contains(m.Config.Exclude, kickr.ModuleExcludeDocker) {
 		return false
 	}
 	if _, ok := m.Languages[LanguageGo]; ok {
 		return m.Binaries() > 0
 	}
-	if m.IsWebsite() && slices.Contains(m.repo.Docker.Exclude, kickr.DockerExcludeWebsite) {
-		return false
-	}
-	languages := []string{LanguageHugo, LanguageNode}
-	for _, language := range languages {
+	for _, language := range []string{LanguageHugo, LanguageNode} {
 		if _, ok := m.Languages[language]; ok {
 			return true
 		}
@@ -92,26 +82,12 @@ func (m Module) HasDocker() bool {
 	return false
 }
 
-// IsWebsite returns truthy when this module is the repository's configured website directory.
-func (m Module) IsWebsite() bool {
-	if m.repo.Website == nil {
-		return false
-	}
-	directory := m.repo.Website.Directory
-	if directory == "" {
-		directory = RootModule
-	}
-	return directory == m.directory
-}
-
 // HasMakefile returns truthy when the module should have a Makefile.
 func (m Module) HasMakefile() bool {
-	if slices.Contains(m.repo.Exclude, kickr.ExcludeMakefile) {
+	if slices.Contains(m.Parent.Config.Exclude, kickr.ExcludeMakefile) || slices.Contains(m.Config.Exclude, kickr.ModuleExcludeMakefile) {
 		return false
 	}
-
-	_, ok := m.Languages[LanguageNode]
-	if ok && len(m.Languages) == 1 {
+	if _, ok := m.Languages[LanguageNode]; ok && len(m.Languages) == 1 {
 		return false
 	}
 	return true

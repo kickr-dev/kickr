@@ -87,7 +87,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "error message"))
 
 		// Act
-		err := gen(ctx, t.TempDir(), types.Repository{Kickr: kickr.Kickr{License: "mit"}})
+		err := gen(ctx, t.TempDir(), types.Repository{Config: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		assert.ErrorContains(t, err, "download license")
@@ -106,7 +106,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, destdir, types.Repository{Kickr: kickr.Kickr{License: "mit"}})
+		err = gen(ctx, destdir, types.Repository{Config: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		require.NoError(t, err)
@@ -122,7 +122,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			httpmock.NewJsonResponderOrPanic(http.StatusOK, gitlab.LicenseTemplate{Content: "some content"}))
 
 		repo := types.Repository{
-			Kickr: kickr.Kickr{
+			Config: kickr.Kickr{
 				License:     "mit",
 				Maintainers: []*kickr.Maintainer{{Name: "name"}},
 			},

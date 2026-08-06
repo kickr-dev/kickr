@@ -11,90 +11,117 @@ import (
 	"github.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
+	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-// ParserGolang detects the presence of a go.mod file
-// and adds go.mod parsed configuration as 'go' in languages.
-//
-// It also detects the presence of main.go files in cmd folder
-// and adds them to executables composition.
-//
-// If a hugo config or theme file is present, it will be detected
-// and 'hugo' will be set as the language ('go' will not in that case).
-func ParserGolang(ctx context.Context, destdir string, repo *types.Repository) error {
-	root, err := parserHugo(ctx, destdir, repo)
-	if err != nil {
-		return fmt.Errorf("parse hugo: %w", err)
+// ParserHugo detects Hugo sites in repository modules and sets their language accordingly.
+func ParserHugo(_ context.Context, destdir string, repo *types.Repository) error {
+	errs := make([]error, 0, len(repo.Modules))
+	for i, module := range repo.Modules {
+		hugo, err := parser.ReadHugo(filepath.Join(destdir, module.Dir()))
+		if err != nil {
+			if !errors.Is(err, parser.ErrNoHugo) {
+				errs = append(errs, fmt.Errorf("read hugo in '%s': %w", module.Dir(), err))
+			}
+			continue
+		}
+
+		engine.GetLogger().Infof("hugo detected in '%s', theme or hugo files are present", module.Dir())
+		repo.Modules[i].SetLanguage(types.LanguageHugo, hugo)
 	}
-	if root {
-		// there's a hugo module at destdir base path, we should skip checking go.work or go.mod
-		// this could evolve in the future depending on end user needs
-		return nil
+	return errors.Join(errs...) // already wrapped
+}
+
+// ParserGolang detects Golang modules in the repository via go.work and go.mod files.
+//
+// In case an Hugo configuration exists in the root module,
+// Golang parsing is skipped.
+func ParserGolang(ctx context.Context, destdir string, repo *types.Repository) error {
+	ri := repo.ModuleIndexOf(types.RootModule)
+	if ri >= 0 {
+		if _, ok := repo.Modules[ri].Languages[types.LanguageHugo]; ok {
+			return nil // root module has hugo language, skip Golang parsing
+		}
+	}
+	if ri < 0 {
+		return nil // Golang parsing goes exclusively through root, either by go.work indicating all modules or go.mod
 	}
 
 	// read go.work first
-	gowork, err := parser.ReadGowork(destdir)
-	if err == nil {
-		engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGowork)
-		repo.Module(types.RootModule).SetLanguage(types.LanguageGo, gowork)
-
-		// each 'use' directive declares a go module, it's the only way for kickr to know about them
-		for _, use := range gowork.Uses {
-			executables, err := parser.ReadGoCmd(filepath.Join(destdir, use.Use))
-			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				return fmt.Errorf("read '%s' in '%s': %w", parser.FolderCMD, use.Use, err)
-			}
-			repo.Module(use.Use).SetLanguage(types.LanguageGo, use.Gomod).SetExecutables(executables)
-		}
-	} else if !errors.Is(err, parser.ErrNoGowork) {
-		return fmt.Errorf("read '%s': %w", parser.FileGowork, err)
+	if err := gowork(ctx, destdir, repo); err != nil {
+		return err // already wrapped
 	}
-
 	// still, try to read a go.mod (it will override go.work data but it's fine since only Go and Toolchain are used)
-	gomod, err := parser.ReadGomod(destdir)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return nil
-		}
-		return fmt.Errorf("read '%s': %w", parser.FileGomod, err)
+	if err := gomod(ctx, destdir, repo); err != nil {
+		return err // already wrapped
 	}
-	engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGomod)
-	repo.Module(types.RootModule).SetLanguage(types.LanguageGo, gomod)
-
-	// parse cmd directory only if there's a go.mod for base directory
-	executables, err := parser.ReadGoCmd(destdir)
-	if err != nil && !errors.Is(err, fs.ErrNotExist) {
-		return fmt.Errorf("read '%s': %w", parser.FolderCMD, err)
-	}
-	repo.Module(types.RootModule).SetExecutables(executables)
 	return nil
 }
 
 var _ engine.Parser[types.Repository] = ParserGolang // ensure interface is implemented
 
-func parserHugo(_ context.Context, destdir string, repo *types.Repository) (bool, error) {
-	var root bool
+// gowork reads destdir go.work (if it exists) and its 'uses' go.mod.
+func gowork(_ context.Context, destdir string, repo *types.Repository) error {
+	ri := repo.ModuleIndexOf(types.RootModule)
 
-	// try to parse destdir for hugo
-	hugoc, err := parser.ReadHugo(destdir)
-	if err == nil {
-		engine.GetLogger().Infof("hugo detected, theme or hugo files are present")
-		root = true
-		repo.Module(types.RootModule).SetLanguage(types.LanguageHugo, hugoc)
-	} else if !errors.Is(err, parser.ErrNoHugo) {
-		return false, fmt.Errorf("read hugo: %w", err)
-	}
-
-	// try to parse website directory for hugo
-	if repo.Website != nil && repo.Website.Directory != "" {
-		hugoc, err := parser.ReadHugo(filepath.Join(destdir, repo.Website.Directory))
-		if err == nil {
-			engine.GetLogger().Infof("hugo detected in '%s', theme or hugo files are present", repo.Website.Directory)
-			repo.Module(repo.Website.Directory).SetLanguage(types.LanguageHugo, hugoc)
-		} else if !errors.Is(err, parser.ErrNoHugo) {
-			return false, fmt.Errorf("read hugo in '%s': %w", repo.Website.Directory, err)
+	work, err := parser.ReadGowork(destdir)
+	if err != nil {
+		if !errors.Is(err, parser.ErrNoGowork) {
+			return fmt.Errorf("read '%s': %w", parser.FileGowork, err)
 		}
+		return nil
 	}
+	engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGowork)
+	repo.Modules[ri].SetLanguage(types.LanguageGo, work)
 
-	return root, nil
+	// each 'use' directive declares a go module, it's the only way for kickr to know about them
+	errs := make([]error, 0, len(work.Uses))
+	for _, use := range work.Uses {
+		i := repo.ModuleIndexOf(use.Use)
+		if i < 0 {
+			repo.Modules = append(repo.Modules, types.Module{
+				Config:    kickr.Module{},
+				Directory: filepath.Clean(use.Use),
+				Parent:    repo,
+			})
+			i = len(repo.Modules) - 1
+		}
+		repo.Modules[i].SetLanguage(types.LanguageGo, use.Gomod)
+
+		executables, err := parser.ReadGoCmd(filepath.Join(destdir, use.Use))
+		if err != nil {
+			if !errors.Is(err, fs.ErrNotExist) {
+				errs = append(errs, fmt.Errorf("read '%s' in '%s': %w", parser.FolderCMD, use.Use, err))
+			}
+			continue
+		}
+		repo.Modules[i].SetExecutables(executables)
+	}
+	return errors.Join(errs...) // already wrapped
+}
+
+// gomod reads destdir go.mod (if it exists) and its cmd directory.
+func gomod(_ context.Context, destdir string, repo *types.Repository) error {
+	ri := repo.ModuleIndexOf(types.RootModule)
+
+	mod, err := parser.ReadGomod(destdir)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return fmt.Errorf("read '%s': %w", parser.FileGomod, err)
+		}
+		return nil
+	}
+	engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGomod)
+	repo.Modules[ri].SetLanguage(types.LanguageGo, mod)
+
+	// parse cmd directory only if there's a go.mod for base directory
+	executables, err := parser.ReadGoCmd(destdir)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return fmt.Errorf("read '%s': %w", parser.FolderCMD, err)
+		}
+		return nil
+	}
+	repo.Modules[ri].SetExecutables(executables)
+	return nil
 }

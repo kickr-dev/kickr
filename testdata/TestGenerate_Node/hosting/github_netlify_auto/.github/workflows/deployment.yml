@@ -110,7 +110,7 @@ jobs:
           path: ${{ matrix.directory }}/dist
           retention-days: 1
 
-  netlify:
+  netlify-deploy:
     name: Netlify
     runs-on: ubuntu-latest
     if: ${{ inputs.netlify != 'none' }}
