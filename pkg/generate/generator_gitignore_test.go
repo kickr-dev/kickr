@@ -89,8 +89,7 @@ logs/
 reports/
 tmp/
 
-some content
-`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 			})
 		}
 	})
@@ -130,8 +129,7 @@ tmp/
 # Hugo direct module checksums
 hugo.direct.sum
 
-some content
-`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_netlify", func(t *testing.T) {
@@ -169,8 +167,7 @@ tmp/
 # Local Netlify folder
 .netlify
 
-some content
-`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_bun", func(t *testing.T) {
@@ -208,8 +205,7 @@ tmp/
 # Bun cache directory
 .bun
 
-some content
-`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_modules", func(t *testing.T) {
@@ -246,8 +242,7 @@ logs/
 reports/
 tmp/
 
-go content
-`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+go content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 
 		content, err = os.ReadFile(filepath.Join(destdir, "docs", generator.FileGitignore))
 		require.NoError(t, err)
@@ -262,8 +257,7 @@ tmp/
 # Hugo direct module checksums
 hugo.direct.sum
 
-hugo content
-`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	})
 
 	t.Run("success_with_binaries", func(t *testing.T) {
@@ -321,8 +315,7 @@ job-*
 worker-*
 !worker-*/
 
-some content
-`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
+some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 			})
 		}
 	})
