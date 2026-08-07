@@ -11,5 +11,7 @@
 {{- else }}
     "autodiscoverFilter": ["{{ .VCS.ProjectPath }}"],
 {{- end }}
-    "onboarding": false
+    "configValidationError": true,
+    "onboarding": false,
+    "suppressNotifications": ["configErrorIssue"]
 }

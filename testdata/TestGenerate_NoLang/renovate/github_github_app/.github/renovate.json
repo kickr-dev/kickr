@@ -7,5 +7,7 @@
 
     "autodiscover": true,
     "autodiscoverNamespaces": ["kickr-dev"],
-    "onboarding": false
+    "configValidationError": true,
+    "onboarding": false,
+    "suppressNotifications": ["configErrorIssue"]
 }
