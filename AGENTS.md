@@ -1,4 +1,4 @@
-# Kickr
+# kickr
 
 ## Schema and generated Go types
 
