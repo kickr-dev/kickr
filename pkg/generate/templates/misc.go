@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
+	"github.com/kickr-dev/engine/pkg/files"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
@@ -37,6 +38,7 @@ func Misc() []engine.Template[types.Repository] {
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join("scripts", "sh", "conventionalcommits-branch.sh"+engine.TmplExtension)},
+			Mode:       files.RwxRxRxRx,
 			Out:        path.Join("scripts", "sh", "conventionalcommits-branch.sh"),
 			Remove: func(repo types.Repository) bool {
 				return slices.Contains(repo.Config.Exclude, kickr.ExcludePreCommit) || !slices.Contains(repo.Config.PreCommit, kickr.PreCommitConventionalCommits)

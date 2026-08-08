@@ -72,7 +72,7 @@ func ParserNode(_ context.Context, destdir string, repo *types.Repository) error
 	nodes := make([]parser.PackageJSON, 0, len(repo.Modules))
 	for i, module := range repo.Modules {
 		var node parser.PackageJSON
-		if err := files.ReadJSON(filepath.Join(destdir, module.Dir(), parser.FilePackageJSON), &node, os.ReadFile); err != nil {
+		if err := files.ReadJSON(os.DirFS(filepath.Join(destdir, module.Dir())), parser.FilePackageJSON, &node); err != nil {
 			if !errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf("read json in '%s': %w", module.Dir(), err)
 			}

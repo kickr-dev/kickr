@@ -2,6 +2,7 @@ package templates
 
 import (
 	engine "github.com/kickr-dev/engine/pkg"
+	"github.com/kickr-dev/engine/pkg/files"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
@@ -28,6 +29,7 @@ func Docker() []engine.Template[types.Module] {
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"launcher.sh" + engine.TmplExtension},
+			Mode:       files.RwxRxRxRx,
 			Out:        "launcher.sh",
 			// launcher.sh is a specific thing to golang being able to have multiple binaries inside a simple project (cmd folder)
 			// however, it may change in the future with python (or rust or others ?) depending on flexibility in repositories layout

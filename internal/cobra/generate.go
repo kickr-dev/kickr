@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 
@@ -75,20 +76,17 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 			return initializeCmd(wd).RunE(cmd, args)
 		},
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			dest := kickr.File(*wd)
+			filename := kickr.File(*wd)
 			logger.Infof("generating layout in %s", *wd)
 
 			// validate configuration
-			if err := files.Validate(
-				func(out any) error { return files.ReadYAML(kickr.Schema, out, schemas.ReadFile) }, // read schema
-				func(out any) error { return files.ReadYAML(dest, out, os.ReadFile) },              // read configuration
-			); err != nil {
+			if err := files.Validate(files.ReadYAMLFunc(schemas.FS(), kickr.Schema), files.ReadYAMLFunc(os.DirFS(*wd), filename)); err != nil {
 				return err
 			}
 
 			// read configuration
 			var config kickr.Kickr
-			if err := files.ReadYAML(dest, &config, os.ReadFile); err != nil {
+			if err := files.ReadYAML(os.DirFS(*wd), filename, &config); err != nil {
 				return err
 			}
 			config.EnsureDefaults()
@@ -115,7 +113,7 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 			}
 
 			// save configuration again in case it was modified during generation
-			return files.WriteYAML(dest, config, kickr.EncodeOpts()...)
+			return files.WriteYAML(filepath.Join(*wd, filename), config, kickr.EncodeOpts()...)
 		},
 	}
 

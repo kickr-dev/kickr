@@ -19,13 +19,13 @@ func Files() []string {
 	return []string{".kickr.yml", ".kickr.yaml", ".kickr"}
 }
 
-// File returns the filepath of the provided dir kickr configuration.
+// File returns the filename of the provided dir kickr configuration.
 //
 // Returns an empty string in case no kickr configuration was found inside dir.
 func File(dir string) string {
 	for _, file := range Files() {
-		if p := filepath.Join(dir, file); files.Exists(p) {
-			return p
+		if files.Exists(filepath.Join(dir, file)) {
+			return file
 		}
 	}
 	return ""

@@ -14,7 +14,7 @@ func initializeCmd(wd *string) *cobra.Command {
 		Use:   "init",
 		Short: "Initialize new kickr project",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			if dest := kickr.File(*wd); dest != "" {
+			if filename := kickr.File(*wd); filename != "" {
 				logger.Info("project already initialized")
 				return nil
 			}

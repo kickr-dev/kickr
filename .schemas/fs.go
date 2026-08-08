@@ -1,13 +1,15 @@
 package schemas
 
-import "embed"
+import (
+	"embed"
+	"io/fs"
+)
 
 //go:generate go run ./gen/main.go
 
 //go:embed *
-var fs embed.FS
+var embedded embed.FS
 
-// ReadFile reads the input name from .schemas embedded fs.
-func ReadFile(name string) ([]byte, error) {
-	return fs.ReadFile(name)
+func FS() fs.FS {
+	return embedded
 }

@@ -11,7 +11,6 @@ import (
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
-	"github.com/kickr-dev/engine/pkg/generator"
 	gitlab "gitlab.com/gitlab-org/api/client-go/v2"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
@@ -23,8 +22,17 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 		httpClient = http.DefaultClient //nolint:revive
 	}
 	return func(ctx context.Context, destdir string, repo types.Repository) error {
+		dest := filepath.Join(destdir, "LICENSE")
+		if repo.Config.License == "" {
+			engine.GetLogger().Infof("skipping license generation, configuration doesn't have 'license' key")
+			if err := os.Remove(dest); err != nil && !errors.Is(err, fs.ErrNotExist) {
+				return fmt.Errorf("remove '%s': %w", "LICENSE", err)
+			}
+			return nil
+		}
+
 		client, err := gitlab.NewClient(os.Getenv("GITLAB_TOKEN"),
-			gitlab.WithBaseURL(generator.GitLabURL),
+			gitlab.WithBaseURL("https://gitlab.com/api/v4"),
 			gitlab.WithHTTPClient(httpClient),
 			gitlab.WithoutRetries(),
 			gitlab.WithRequestOptions(gitlab.WithContext(ctx)))
@@ -37,25 +45,14 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 			return nil
 		}
 
-		dest := filepath.Join(destdir, generator.FileLicense)
-		if repo.Config.License == "" {
-			engine.GetLogger().Infof("skipping license generation, configuration doesn't have 'license' key")
-			if err := os.Remove(dest); err != nil && !errors.Is(err, fs.ErrNotExist) {
-				return fmt.Errorf("remove '%s': %w", generator.FileLicense, err)
-			}
-			return nil
-		}
-
 		if !engine.Forced() && files.Exists(dest) {
-			engine.GetLogger().Infof("not generating '%s' since it already exists", generator.FileLicense)
+			engine.GetLogger().Infof("not generating '%s' since it already exists", "LICENSE")
 			return nil
 		}
 		engine.GetLogger().Infof("license detected, configuration has 'license' key")
 
-		opts := generator.LicenseOptions{
-			Client:  client,
-			License: repo.Config.License,
-			Maintainer: func() *string {
+		opts := gitlab.GetLicenseTemplateOptions{
+			Fullname: func() *string {
 				var zero string
 				if len(repo.Config.Maintainers) == 0 {
 					return &zero
@@ -67,8 +64,12 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 			}(),
 			Project: &repo.VCS.ProjectName,
 		}
-		if err := generator.DownloadLicense(dest, opts); err != nil {
-			return fmt.Errorf("download license: %w", err)
+		template, _, err := client.LicenseTemplates.GetLicenseTemplate(repo.Config.License, &opts)
+		if err != nil {
+			return fmt.Errorf("get license template '%s': %w", repo.Config.License, err)
+		}
+		if err := os.WriteFile(dest, []byte(template.Content), files.RwRR); err != nil { //nolint:gosec
+			return fmt.Errorf("write license file: %w", err)
 		}
 		return nil
 	}

@@ -31,14 +31,10 @@ func merge(t testing.TB, base, complement kickr.Kickr) kickr.Kickr {
 // validate runs the same validation than the generate command does on a '.kickr.yml' file built from conf.
 func validate(t *testing.T, conf kickr.Kickr) error {
 	t.Helper()
+	destdir := t.TempDir()
 
-	dest := filepath.Join(t.TempDir(), ".kickr.yml")
-	require.NoError(t, files.WriteYAML(dest, conf, kickr.EncodeOpts()...))
-
-	return files.Validate(
-		func(out any) error { return files.ReadYAML(kickr.Schema, out, schemas.ReadFile) },
-		func(out any) error { return files.ReadYAML(dest, out, os.ReadFile) },
-	)
+	require.NoError(t, files.WriteYAML(filepath.Join(destdir, ".kickr.yml"), conf, kickr.EncodeOpts()...))
+	return files.Validate(files.ReadYAMLFunc(schemas.FS(), kickr.Schema), files.ReadYAMLFunc(os.DirFS(destdir), ".kickr.yml"))
 }
 
 func TestSchemaModules_Errors(t *testing.T) {
