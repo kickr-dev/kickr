@@ -2,12 +2,12 @@
 
 GOCI_LINT_PATH ?= .golangci.yml
 
-.PHONY: go-lint
-go-lint:
+.PHONY: lint
+lint:
 	@golangci-lint run --config=${GOCI_LINT_PATH} --timeout=300s --allow-parallel-runners \
 		--output.text.path=stdout $(ARGS) || \
-		echo "golangci-lint failed, running 'make go-lint-fix' may fix some issues"
+		echo "golangci-lint failed, running 'make lint-fix' may fix some issues"
 
-.PHONY: go-lint-fix
-go-lint-fix:
-	@ARGS="--fix" make -s go-lint
+.PHONY: lint-fix
+lint-fix:
+	@ARGS="--fix" make -s lint

@@ -4,21 +4,23 @@
 {{- $terraform_modules := .ModulesWith "terraform" }}
 
 {{- if gt (len $go_modules) 0 }}
+{{- $make := gt (len $terraform_modules) 0 | ternary "go-lint" "lint" }}
 
 GOCI_LINT_PATH ?= .golangci.yml
 
-.PHONY: go-lint
-go-lint:
+.PHONY: {{ $make }}
+{{ $make }}:
 	@golangci-lint run --config=${GOCI_LINT_PATH} --timeout=300s --allow-parallel-runners \
 		--output.text.path=stdout $(ARGS) || \
-		echo "golangci-lint failed, running 'make go-lint-fix' may fix some issues"
+		echo "golangci-lint failed, running 'make {{ $make }}-fix' may fix some issues"
 
-.PHONY: go-lint-fix
-go-lint-fix:
-	@ARGS="--fix" make -s go-lint
+.PHONY: {{ $make }}-fix
+{{ $make }}-fix:
+	@ARGS="--fix" make -s {{ $make }}
 {{- end }}
 
 {{- if gt (len $terraform_modules) 0 }}
+{{- $make := gt (len $terraform_modules) 0 | ternary "tflint" "lint" }}
 
 TFLINT_PATH ?= .tflint.hcl
 
@@ -26,12 +28,12 @@ TFLINT_PATH ?= .tflint.hcl
 fmt:
 	@{{ .Config.TerraformEngine }} fmt -diff -recursive
 
-.PHONY: tflint
-tflint:
+.PHONY: {{ $make }}
+{{ $make }}:
 	@tflint --config "${TFLINT_PATH}" --recursive --format compact $(ARGS) || \
-		echo "tflint failed, running 'make tflint-fix' may fix some issues"
+		echo "tflint failed, running 'make {{ $make }}-fix' may fix some issues"
 
-.PHONY: tflint-fix
-tflint-fix:
-	@ARGS="--fix" make -s tflint
+.PHONY: {{ $make }}-fix
+{{ $make }}-fix:
+	@ARGS="--fix" make -s {{ $make }}
 {{- end }}
