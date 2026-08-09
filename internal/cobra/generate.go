@@ -30,8 +30,9 @@ func generators() []engine.Generator[types.Repository] {
 	client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
 
 	return []engine.Generator[types.Repository]{
-		generate.GeneratorGitignore(client), // gitignore
-		generate.GeneratorLicense(client),   // license
+		generate.GeneratorCodeOfConduct(client), // code of conduct
+		generate.GeneratorGitignore(client),     // gitignore
+		generate.GeneratorLicense(client),       // license
 
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Docker()),   // module docker
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Golang()),   // module golang

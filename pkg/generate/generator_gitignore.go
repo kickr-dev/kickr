@@ -16,14 +16,13 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
-// GeneratorGitignore fetches the languages related exclusions from https://docs.gitignore.io/use/api
-// and writes a .gitignore file in every module of the repository.
+// GeneratorGitignore fetches and writes a .gitignore for each repo modules
+// (each one getting only the exclusions of the languages it's made of) using the [Gitignore API].
 //
-// Each module only gets the exclusions of the languages it's made of,
-// so a hugo module in a subdirectory gets the hugo exclusions in its own .gitignore, not the repository root one.
-//
-// The fetched content is appended to the kickr specific exclusions,
+// Fetched content is appended to the kickr specific exclusions,
 // as some of them may be missing depending on kickr layout generation.
+//
+// [Gitignore API]: https://docs.gitignore.io/use/api
 func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, repo types.Repository) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
@@ -42,14 +41,14 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 		types.LanguageTerraform: {"terraform"},
 	}
 
-	return func(ctx context.Context, destdir string, repo types.Repository) error {
-		template := engine.Template[data]{
-			Delimiters:     engine.DelimitersBracket(),
-			GeneratePolicy: engine.PolicyAlways,
-			Globs:          []string{generator.FileGitignore + engine.TmplExtension},
-			Out:            generator.FileGitignore,
-		}
+	template := engine.Template[data]{
+		Delimiters:     engine.DelimitersBracket(),
+		GeneratePolicy: engine.PolicyAlways,
+		Globs:          []string{generator.FileGitignore + engine.TmplExtension},
+		Out:            generator.FileGitignore,
+	}
 
+	return func(ctx context.Context, destdir string, repo types.Repository) error {
 		// modules sharing the same languages share the same payload, no need to fetch it twice
 		ignores := make(map[string]string, len(repo.Modules))
 		errs := make([]error, 0, len(repo.Modules))
@@ -74,7 +73,8 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 				ignores[key] = string(body)
 			}
 
-			if err := engine.ApplyTemplate(templates.FS(), filepath.Join(destdir, module.Dir()), template, data{Module: module, Downloaded: ignores[key]}); err != nil {
+			d := data{Module: module, Downloaded: ignores[key]}
+			if err := engine.ApplyTemplate(templates.FS(), filepath.Join(destdir, module.Dir()), template, d); err != nil {
 				errs = append(errs, fmt.Errorf("apply template in '%s': %w", module.Dir(), err))
 			}
 		}

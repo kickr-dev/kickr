@@ -16,10 +16,11 @@ const (
 )
 
 const (
-	ExcludeMakefile  = "makefile"
-	ExcludePreCommit = "pre-commit"
-	ExcludeRenovate  = "renovate"
-	ExcludeShell     = "shell"
+	ExcludeCodeOfConduct = "code-of-conduct"
+	ExcludeMakefile      = "makefile"
+	ExcludePreCommit     = "pre-commit"
+	ExcludeRenovate      = "renovate"
+	ExcludeShell         = "shell"
 )
 
 const (

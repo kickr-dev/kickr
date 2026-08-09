@@ -76,42 +76,6 @@ func TestSchemaModules_Errors(t *testing.T) {
 		assert.ErrorContains(t, err, "max 1 items required to match contains schema")
 	})
 
-	t.Run("github_multiple_netlify", func(t *testing.T) {
-		// Arrange
-		conf := merge(t, base, kickr.Kickr{
-			GitHub: &kickr.GitHub{},
-			Modules: []kickr.Module{
-				{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
-				{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
-			},
-		})
-
-		// Act
-		err := validate(t, conf)
-
-		// Assert
-		assert.ErrorContains(t, err, "at '/modules'")
-		assert.ErrorContains(t, err, "max 1 items required to match contains schema")
-	})
-
-	t.Run("gitlab_multiple_netlify", func(t *testing.T) {
-		// Arrange
-		conf := merge(t, base, kickr.Kickr{
-			GitLab: &kickr.GitLab{},
-			Modules: []kickr.Module{
-				{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
-				{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
-			},
-		})
-
-		// Act
-		err := validate(t, conf)
-
-		// Assert
-		assert.ErrorContains(t, err, "at '/modules'")
-		assert.ErrorContains(t, err, "max 1 items required to match contains schema")
-	})
-
 	t.Run("github_mixed_engines", func(t *testing.T) {
 		// Arrange
 		conf := merge(t, base, kickr.Kickr{
@@ -310,76 +274,188 @@ func TestSchemaModules(t *testing.T) {
 		{Name: "gitlab_no_modules", Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}}},
 		{
 			Name: "github_one_netlify_and_one_pages",
-			Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Modules: []kickr.Module{
-				{Path: "."},
-				{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify, Auto: true}},
-				{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages}},
-			}},
+			Kickr: kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				Modules: []kickr.Module{
+					{Path: "."},
+					{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify, Auto: true}},
+					{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages}},
+				},
+			},
 		},
 		{
 			Name: "gitlab_one_netlify_and_one_pages",
-			Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Modules: []kickr.Module{
-				{Path: "."},
-				{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify, Auto: true}},
-				{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages}},
-			}},
+			Kickr: kickr.Kickr{
+				GitLab: &kickr.GitLab{},
+				Modules: []kickr.Module{
+					{Path: "."},
+					{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify, Auto: true}},
+					{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages}},
+				},
+			},
+		},
+		{
+			Name: "github_multiple_netlify",
+			Kickr: kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				Modules: []kickr.Module{
+					{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
+					{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
+				},
+			},
+		},
+		{
+			Name: "gitlab_multiple_netlify",
+			Kickr: kickr.Kickr{
+				GitLab: &kickr.GitLab{},
+				Modules: []kickr.Module{
+					{Path: "docs", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
+					{Path: "blog", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
+				},
+			},
 		},
 		{
 			Name: "github_multiple_tofu",
-			Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Modules: []kickr.Module{
-				{Path: "infra/prod", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Apply: kickr.TerraformApplyManual, Environments: []string{kickr.EnvironmentProduction}}},
-				{Path: "infra/staging", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Apply: kickr.TerraformApplyAuto, Environments: []string{kickr.EnvironmentStaging}}},
-			}},
+			Kickr: kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				Modules: []kickr.Module{
+					{
+						Path: "infra/prod",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTofu,
+							Apply:        kickr.TerraformApplyManual,
+							Environments: []string{kickr.EnvironmentProduction},
+						},
+					},
+					{
+						Path: "infra/staging",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTofu,
+							Apply:        kickr.TerraformApplyAuto,
+							Environments: []string{kickr.EnvironmentStaging},
+						},
+					},
+				},
+			},
 		},
 		{
 			Name: "gitlab_multiple_tofu",
-			Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Modules: []kickr.Module{
-				{Path: "infra/prod", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Apply: kickr.TerraformApplyManual, Environments: []string{kickr.EnvironmentProduction}}},
-				{Path: "infra/staging", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Apply: kickr.TerraformApplyAuto, Environments: []string{kickr.EnvironmentStaging}}},
-			}},
+			Kickr: kickr.Kickr{
+				GitLab: &kickr.GitLab{},
+				Modules: []kickr.Module{
+					{
+						Path: "infra/prod",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTofu,
+							Apply:        kickr.TerraformApplyManual,
+							Environments: []string{kickr.EnvironmentProduction},
+						},
+					},
+					{
+						Path: "infra/staging",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTofu,
+							Apply:        kickr.TerraformApplyAuto,
+							Environments: []string{kickr.EnvironmentStaging},
+						},
+					},
+				},
+			},
 		},
 		{
 			Name: "github_multiple_terraform",
-			Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Modules: []kickr.Module{
-				{Path: "infra/prod", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTerraform, Apply: kickr.TerraformApplyManual, Environments: []string{kickr.EnvironmentProduction}}},
-				{Path: "infra/staging", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTerraform, Apply: kickr.TerraformApplyAuto, Environments: []string{kickr.EnvironmentStaging}}},
-			}},
+			Kickr: kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				Modules: []kickr.Module{
+					{
+						Path: "infra/prod",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTerraform,
+							Apply:        kickr.TerraformApplyManual,
+							Environments: []string{kickr.EnvironmentProduction},
+						},
+					},
+					{
+						Path: "infra/staging",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTerraform,
+							Apply:        kickr.TerraformApplyAuto,
+							Environments: []string{kickr.EnvironmentStaging},
+						},
+					},
+				},
+			},
 		},
 		{
 			Name: "gitlab_multiple_terraform",
-			Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Modules: []kickr.Module{
-				{Path: "infra/prod", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTerraform, Apply: kickr.TerraformApplyManual, Environments: []string{kickr.EnvironmentProduction}}},
-				{Path: "infra/staging", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTerraform, Apply: kickr.TerraformApplyAuto, Environments: []string{kickr.EnvironmentStaging}}},
-			}},
+			Kickr: kickr.Kickr{
+				GitLab: &kickr.GitLab{},
+				Modules: []kickr.Module{
+					{
+						Path: "infra/prod",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTerraform,
+							Apply:        kickr.TerraformApplyManual,
+							Environments: []string{kickr.EnvironmentProduction},
+						},
+					},
+					{
+						Path: "infra/staging",
+						Terraform: &kickr.Terraform{
+							Engine:       kickr.TerraformEngineTerraform,
+							Apply:        kickr.TerraformApplyAuto,
+							Environments: []string{kickr.EnvironmentStaging},
+						},
+					},
+				},
+			},
 		},
 		{
 			Name: "github_deployment_helm",
-			Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Modules: []kickr.Module{
-				{Path: "apps/api", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
-				{Path: "apps/worker", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
-			}},
+			Kickr: kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				Modules: []kickr.Module{
+					{Path: "apps/api", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+					{Path: "apps/worker", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+				},
+			},
 		},
 		{
 			Name: "gitlab_deployment_helm",
-			Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Modules: []kickr.Module{
-				{Path: "apps/api", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
-				{Path: "apps/worker", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
-			}},
+			Kickr: kickr.Kickr{
+				GitLab: &kickr.GitLab{},
+				Modules: []kickr.Module{
+					{Path: "apps/api", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+					{Path: "apps/worker", Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
+				},
+			},
 		},
 		{
-			Name:  "github_exclusions",
-			Kickr: kickr.Kickr{GitHub: &kickr.GitHub{}, Modules: []kickr.Module{{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker, kickr.ModuleExcludeMakefile}}}},
+			Name: "github_exclusions",
+			Kickr: kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				Modules: []kickr.Module{
+					{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker, kickr.ModuleExcludeMakefile}},
+				},
+			},
 		},
 		{
-			Name:  "gitlab_exclusions",
-			Kickr: kickr.Kickr{GitLab: &kickr.GitLab{}, Modules: []kickr.Module{{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker, kickr.ModuleExcludeMakefile}}}},
+			Name: "gitlab_exclusions",
+			Kickr: kickr.Kickr{
+				GitLab: &kickr.GitLab{},
+				Modules: []kickr.Module{
+					{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker, kickr.ModuleExcludeMakefile}},
+				},
+			},
 		},
 		{
 			Name: "no_platform_path_and_exclude",
-			Kickr: kickr.Kickr{Modules: []kickr.Module{
-				{Path: "."},
-				{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker}},
-			}},
+			Kickr: kickr.Kickr{
+				Modules: []kickr.Module{
+					{Path: "."},
+					{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker}},
+				},
+			},
 		},
 	}
 	for _, tc := range cases {

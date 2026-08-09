@@ -3,6 +3,7 @@ package generate_test
 import (
 	"bytes"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
@@ -28,10 +29,17 @@ func TestGeneratorGitignore(t *testing.T) {
 	t.Cleanup(httpmock.DeactivateAndReset)
 	gen := generate.GeneratorGitignore(http.DefaultClient)
 
+	mockURL := func(t *testing.T, templates ...string) string {
+		t.Helper()
+		u, err := url.JoinPath(generator.GitignoreBaseURL, strings.Join(templates, ","))
+		require.NoError(t, err)
+		return u
+	}
+
 	t.Run("error_http_call", func(t *testing.T) {
 		// Arrange
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv",
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv"),
 			httpmock.NewStringResponder(http.StatusInternalServerError, "some error"))
 
 		repo := types.Repository{
@@ -62,7 +70,7 @@ func TestGeneratorGitignore(t *testing.T) {
 				query := slices.Concat([]string{"dotenv"}, keys)
 
 				t.Cleanup(httpmock.Reset)
-				httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/"+strings.Join(query, ","),
+				httpmock.RegisterResponder(http.MethodGet, mockURL(t, query...),
 					httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 				repo := types.Repository{
@@ -99,7 +107,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		destdir := t.TempDir()
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,hugo",
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "hugo"),
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 		repo := types.Repository{
@@ -137,7 +145,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		destdir := t.TempDir()
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv",
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv"),
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 		repo := types.Repository{
@@ -175,7 +183,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		destdir := t.TempDir()
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,node",
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "node"),
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 		repo := types.Repository{
@@ -213,9 +221,9 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		destdir := t.TempDir()
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,go",
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "go"),
 			httpmock.NewStringResponder(http.StatusOK, "go content"))
-		httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,hugo",
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "hugo"),
 			httpmock.NewStringResponder(http.StatusOK, "hugo content"))
 
 		repo := types.Repository{
@@ -271,7 +279,7 @@ hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 				destdir := t.TempDir()
 
 				t.Cleanup(httpmock.Reset)
-				httpmock.RegisterResponder(http.MethodGet, "https://www.toptal.com/developers/gitignore/api/dotenv,go,sonar,sonarqube",
+				httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "go", "sonar", "sonarqube"),
 					httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 				repo := types.Repository{

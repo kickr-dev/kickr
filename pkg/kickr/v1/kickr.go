@@ -16,6 +16,7 @@ type Kickr struct {
 	// Exclude defines the part of Kickr generation to exclude.
 	//
 	// Enums:
+	//  - code-of-conduct
 	//  - makefile
 	//  - pre-commit
 	//  - renovate
@@ -307,7 +308,7 @@ type Maintainer struct {
 	//
 	// Examples:
 	//  - maintainer@example.com
-	Email *string `json:"email,omitempty" yaml:"email,omitempty"`
+	Email string `json:"email,omitempty" yaml:"email,omitempty"`
 
 	// Name defines the maintainer name or username.
 	//
@@ -319,7 +320,7 @@ type Maintainer struct {
 	//
 	// Examples:
 	//  - maintainer.example.com
-	URL *string `json:"url,omitempty" yaml:"url,omitempty"`
+	URL string `json:"url,omitempty" yaml:"url,omitempty"`
 }
 
 // Release tunes various configuration on the releasing part.
