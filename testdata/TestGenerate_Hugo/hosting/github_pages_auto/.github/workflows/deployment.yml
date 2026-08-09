@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       pages:
-        description: Website deployment mode.
+        description: Pages deployment mode.
         type: choice
         options:
           - full

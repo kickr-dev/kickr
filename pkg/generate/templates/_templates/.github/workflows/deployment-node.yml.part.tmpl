@@ -23,7 +23,7 @@ jobs:
         include:
 <<- range $node_buildable_modules >>
 <<- $artifact := "build" >>
-<<- if ne .Dir "." >><<- $artifact = print $artifact "-" .Dir >><<- end >>
+<<- with .Slug >><<- $artifact = print $artifact "-" . >><<- end >>
 <<- if and .Config.Deployment (eq .Config.Deployment.Target "pages") >><<- $artifact = print $artifact "-pages" >><<- end >>
           - artifact: << $artifact >>
             directory: << .Dir >>

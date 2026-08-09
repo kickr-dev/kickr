@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       netlify:
-        description: Website deployment mode.
+        description: Netlify deployment mode.
         type: choice
         options:
           - full

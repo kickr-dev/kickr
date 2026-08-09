@@ -5,6 +5,8 @@ jobs:
 <<- $terraform_engine := eq $terraform_cmd "tofu" | ternary "opentofu" "terraform" >>
 
 <<- $terraform_modules := .ModulesWith "terraform" >>
+<<- $terraform_apply_modules := .ModulesWithTerraformApply >>
+<<- $terraform_multiple_apply_modules := gt (len $terraform_apply_modules) 1 >>
 
   << $terraform_engine >>-check:
     name: << title $terraform_engine >> Check ${{ matrix.name }}
@@ -81,11 +83,12 @@ jobs:
           category: tflint
           sarif_file: reports/tflint.sarif
 
-<<- range .ModulesWithTerraformApply >>
+<<- range $terraform_apply_modules >>
+
 <<- $specifics := get .Languages "terraform" >>
 
-  << $terraform_engine >>-plan<< with .Slug >>-<< . >><< end >>:
-    name: << title $terraform_engine >> Plan<< ne .Dir "." | ternary (printf " (%s)" .Dir) "" >>
+  << $terraform_engine >>-plan<< if $terraform_multiple_apply_modules >>-<< .Slug >><< end >>:
+    name: << title $terraform_engine >> Plan<< if $terraform_multiple_apply_modules >> (<< .Dir >>)<< end >>
     runs-on: ubuntu-latest
     needs: << $terraform_engine >>-check
     environment: ${{ matrix.environment }}

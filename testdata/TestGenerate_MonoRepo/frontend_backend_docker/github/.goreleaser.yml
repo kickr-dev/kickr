@@ -8,7 +8,7 @@ snapshot:
   version_template: "{{ .Env.APP_VERSION }}"
 
 builds:
-  - id: api-backend
+  - id: backend/api
     main: ./cmd/api
     dir: backend
     env:

@@ -118,7 +118,7 @@ include:
 {{- if gt (len $terraform_modules) 0 }}
 {{- range .ModulesWithTerraformApply }}
 
-tf-deploy-{{ .Slug }}:
+tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
   stage: infra-prod
   trigger:
     strategy: mirror
@@ -130,7 +130,7 @@ tf-deploy-{{ .Slug }}:
       # https://gitlab.com/to-be-continuous/terraform
       - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/8a16e0037dd185058eefa4fcace694a4984b7408/templates/gitlab-ci-terraform.yml # 9.3.2
         inputs:
-          environment-namespace: /{{ .Slug | default "root" }}
+          environment-namespace: {{ ne .Slug "" | ternary (print "/" .Slug) ("" | quote) }}
           gitlab-backend-disabled: "{{ ne (get .Languages "terraform").Backend "http" }}"
           integ-enabled: "{{ has "integration" .Config.Terraform.Environments }}"
           prod-enabled: "{{ has "production" .Config.Terraform.Environments }}"

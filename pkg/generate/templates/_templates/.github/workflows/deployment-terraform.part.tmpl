@@ -4,16 +4,18 @@ jobs:
 <<- $terraform_cmd := .Config.TerraformEngine >>
 <<- $terraform_engine := eq $terraform_cmd "tofu" | ternary "opentofu" "terraform" >>
 
-<<- range .ModulesWithTerraformApply >>
-<<- $specifics := get .Languages "terraform" >>
-<<- $suffix := gt (len $.ModulesWithTerraformApply) 1 | ternary .Slug "" >>
+<<- $terraform_apply_modules := .ModulesWithTerraformApply >>
+<<- $terraform_multiple_apply_modules := gt (len $terraform_apply_modules) 1 >>
 
-  terraform-apply<< with $suffix >>-<< . >><< end >>:
-    name: Terraform Apply<< ne .Dir "." | ternary (printf " (%s)" .Dir) "" >>
+<<- range $terraform_apply_modules >>
+<<- $specifics := get .Languages "terraform" >>
+
+  << $terraform_engine >>-apply<< if $terraform_multiple_apply_modules >>-<< .Slug >><< end >>:
+    name: << title $terraform_engine >> Apply<< if $terraform_multiple_apply_modules >> (<< .Dir >>)<< end >>
     runs-on: ubuntu-latest
-    if: ${{ inputs.<< $terraform_engine >><< with $suffix >>_<< . >><< end >>_apply != 'none' }}
+    if: ${{ inputs.<< $terraform_engine >>_apply<< if $terraform_multiple_apply_modules >>_<< .Slug >><< end >> != 'none' }}
     needs: version
-    environment: ${{ matrix.environment }}<< with $suffix >>/<< . >><< end >>
+    environment: ${{ matrix.environment }}<< if $terraform_multiple_apply_modules >>/<< .Slug >><< end >>
     strategy:
       fail-fast: false
       matrix:

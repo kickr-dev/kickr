@@ -3,6 +3,8 @@
 name: Deployment
 run-name: Deployment
 
+<<- $has_docker := .HasDocker >>
+
 <<- $go_modules := .ModulesWith "go" >>
 <<- $has_go_build := and (gt (len $go_modules) 0) (gt (len .Executables.Clis) 0) >>
 
@@ -21,11 +23,13 @@ run-name: Deployment
 <<- end >>
 
 <<- $terraform_apply_modules := .ModulesWithTerraformApply >>
-
-<<- $has_docker := .HasDocker >>
+<<- $terraform_multiple_apply_modules := gt (len $terraform_apply_modules) 1 >>
 
 <<- $netlify_modules := .ModulesWithDeployment "netlify" >>
+<<- $netlify_multiple_modules := gt (len $netlify_modules) 1 >>
+
 <<- $pages_modules := .ModulesWithDeployment "pages" >>
+<<- $pages_multiple_modules := gt (len $pages_modules) 1 >>
 
 <<- $inputs := or .Config.HasHelmDeploy .Config.HasHelmPublish (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) (gt (len $terraform_apply_modules) 0) .Config.GitHub.Release >>
 
@@ -56,9 +60,8 @@ on:
         default: << eq .Config.Helm.Publish "auto" | ternary "full" "dry-run" >>
 <<- end >>
 <<- range $netlify_modules >>
-<<- $suffix := gt (len $netlify_modules) 1 | ternary .Slug "" >>
-      netlify<< with $suffix >>_<< . >><< end >>:
-        description: Website deployment mode.
+      netlify<< if $netlify_multiple_modules >>_<< .Slug >><< end >>:
+        description: Netlify deployment mode<< if $netlify_multiple_modules >> (<< .Dir >>)<< end >>.
         type: choice
         options:
           - full
@@ -66,9 +69,8 @@ on:
         default: << .Config.Deployment.Auto | ternary "full" "none" >>
 <<- end >>
 <<- range $pages_modules >>
-<<- $suffix := gt (len $pages_modules) 1 | ternary .Slug "" >>
-      pages<< with $suffix >>_<< . >><< end >>:
-        description: Website deployment mode.
+      pages<< if $pages_multiple_modules >>_<< .Slug >><< end >>:
+        description: Pages deployment mode<< if $pages_multiple_modules >> (<< .Dir >>)<< end >>.
         type: choice
         options:
           - full
@@ -77,9 +79,8 @@ on:
 <<- end >>
 <<- $terraform_engine := eq .Config.TerraformEngine "tofu" | ternary "opentofu" "terraform" >>
 <<- range $terraform_apply_modules >>
-<<- $suffix := (gt (len $terraform_apply_modules) 1 | ternary .Slug "") >>
-      << $terraform_engine >><< with $suffix >>_<< . >><< end >>_apply:
-        description: << title $terraform_engine >> apply job run mode.
+      << $terraform_engine >>_apply<< if $terraform_multiple_apply_modules >>_<< .Slug >><< end >>:
+        description: << title $terraform_engine >> apply run mode<< if $terraform_multiple_apply_modules >> (<< .Dir >>)<< end >>.
         type: choice
         options:
           - full
@@ -88,7 +89,7 @@ on:
 <<- end >>
 <<- if .Config.GitHub.Release >>
       release:
-        description: Release job run mode.
+        description: Release run mode.
         type: choice
         options:
           - dry-run
@@ -252,17 +253,10 @@ jobs:
 <<- if .Config.HasHelmPublish >><<- $needs = append $needs "helm-push" >><<- end >>
 <<- if .Config.HasHelmDeploy >><<- $needs = append $needs "helm-deploy" >><<- end >>
 <<- if $has_hugo_build >><<- $needs = append $needs "hugo-build" >><<- end >>
-<<- range $netlify_modules >>
-<<- $suffix := gt (len $netlify_modules) 1 | ternary .Slug "" >>
-<<- $needs = append $needs (print "netlify-deploy" (ne $suffix "" | ternary (print "-" $suffix) "")) >>
-<<- end >>
+<<- range $netlify_modules >><<- $needs = append $needs (print "netlify-deploy" ($netlify_multiple_modules | ternary (print "-" .Slug) "")) >><<- end >>
 <<- if $has_node_main >><<- $needs = append $needs "node-build" >><<- end >>
-<<- if gt (len $pages_modules) 0 >><<- $needs = append $needs "pages" >><<- end >>
-<<- range $terraform_apply_modules >>
-<<- $suffix := gt (len $terraform_apply_modules) 1 | ternary .Slug "" >>
-<<- $needs = append $needs (print "terraform-apply" (ne $suffix "" | ternary (print "-" $suffix) "")) >>
-<<- end >>
-
+<<- range $pages_modules >><<- $needs = append $needs (print "pages" ($pages_multiple_modules | ternary (print "-" .Slug) "")) >><<- end >>
+<<- range $terraform_apply_modules >><<- $needs = append $needs (print "terraform-apply" ($terraform_multiple_apply_modules | ternary (print "-" .Slug) "")) >><<- end >>
 <<- if eq (len $needs) 0 >><< $needs = append $needs "version" >><<- end >>
 
   release:

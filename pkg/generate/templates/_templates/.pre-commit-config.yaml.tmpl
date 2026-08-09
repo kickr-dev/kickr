@@ -90,7 +90,7 @@ repos:
     hooks:
 {{- range $terraform_docs_modules }}
       - id: terraform-docs-go
-        args: ["markdown", "table", "--output-file", "README.md", "{{ .Dir | default "." }}"]
+        args: ["markdown", "table", "--output-file", "README.md", "{{ .Dir }}"]
 {{- end }}
 {{- end }}
 

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release:
-        description: Release job run mode.
+        description: Release run mode.
         type: choice
         options:
           - dry-run

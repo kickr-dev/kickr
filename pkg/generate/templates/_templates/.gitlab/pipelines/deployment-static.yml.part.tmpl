@@ -1,46 +1,47 @@
 {{- define "static" }}
 
 {{- $netlify_modules := .ModulesWithDeployment "netlify" }}
-{{- $pages_modules := .ModulesWithDeployment "pages" }}
+{{- $netlify_multiple_modules := gt (len $netlify_modules) 1 }}
 
-{{- $node_modules := .ModulesWith "node" }}
-{{- $hugo_modules := .ModulesWith "hugo" }}
+{{- $pages_modules := .ModulesWithDeployment "pages" }}
+{{- $pages_multiple_modules := gt (len $pages_modules) 1 }}
+
+{{- $node_multiple_modules := gt (len (.ModulesWith "node")) 1 }}
+{{- $hugo_multiple_modules := gt (len (.ModulesWith "hugo")) 1 }}
 
 {{- range $netlify_modules }}
-
-{{- $suffix := gt (len $netlify_modules) 1 | ternary .Slug "" }}
-netlify-deploy{{ with $suffix }}-{{ . }}{{ end }}:
+netlify-deploy{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   image: $NETLIFY_IMAGE
   stage: deploy
   environment:
     name: $ENV
     action: start
-    on_stop: netlify-cleanup{{ with $suffix }}-{{ . }}{{ end }}
+    on_stop: netlify-cleanup{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}
     url: $ENVIRONMENT_URL
   dependencies:
 {{- if hasKey .Languages "node" }}
-    - node-build{{ if gt (len $node_modules) 1 }} [{{ .Dir }}]{{ end }}
+    - node-build{{ if $node_multiple_modules }} [{{ .Dir }}]{{ end }}
 {{- end }}
 {{- if hasKey .Languages "hugo" }}
-    - hugo-build{{ if gt (len $hugo_modules) 1 }} [{{ .Dir }}]{{ end }}
+    - hugo-build{{ if $hugo_multiple_modules }} [{{ .Dir }}]{{ end }}
 {{- end }}
     - semantic-release-info
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       variables:
         ARGS: --prod --message=$CI_COMMIT_REF_NAME
-        ENV: netlify{{ with $suffix }}/{{ . }}{{ end }}
+        ENV: netlify{{ if $netlify_multiple_modules }}/{{ .Slug }}{{ end }}
 {{- if not .Config.Deployment.Auto }}
       when: manual
 {{- end }}
     - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF'
       variables:
         ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-        ENV: netlify/$CI_COMMIT_REF_NAME{{ with $suffix }}/{{ . }}{{ end }}
+        ENV: netlify/$CI_COMMIT_REF_NAME{{ if $netlify_multiple_modules }}/{{ .Slug }}{{ end }}
       when: manual
     - variables:
         ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-        ENV: netlify/$CI_COMMIT_REF_NAME{{ with $suffix }}/{{ . }}{{ end }}
+        ENV: netlify/$CI_COMMIT_REF_NAME{{ if $netlify_multiple_modules }}/{{ .Slug }}{{ end }}
       when: manual
       allow_failure: true
   variables:
@@ -55,7 +56,7 @@ netlify-deploy{{ with $suffix }}-{{ . }}{{ end }}:
     reports:
       dotenv: netlify.out.env
 
-netlify-cleanup{{ with $suffix }}-{{ . }}{{ end }}:
+netlify-cleanup{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   image: $NETLIFY_IMAGE
   stage: deploy
   dependencies: []
@@ -65,10 +66,10 @@ netlify-cleanup{{ with $suffix }}-{{ . }}{{ end }}:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       variables:
-        ENV: netlify{{ with $suffix }}/{{ . }}{{ end }}
+        ENV: netlify{{ if $netlify_multiple_modules }}/{{ .Slug }}{{ end }}
       when: never
     - variables:
-        ENV: netlify/$CI_COMMIT_REF_NAME{{ with $suffix }}/{{ . }}{{ end }}
+        ENV: netlify/$CI_COMMIT_REF_NAME{{ if $netlify_multiple_modules }}/{{ .Slug }}{{ end }}
       when: manual
       allow_failure: true
   variables:
@@ -87,9 +88,8 @@ netlify-cleanup{{ with $suffix }}-{{ . }}{{ end }}:
       done
 {{- end }}
 
-{{- if gt (len $pages_modules) 0 }}
-{{- $page := first $pages_modules }}
-pages:
+{{- range $pages_modules }}
+pages{{ if $pages_multiple_modules }}-{{ .Slug }}{{ end }}:
   image: $PAGES_IMAGE
   stage: deploy
   environment:
@@ -97,18 +97,18 @@ pages:
     action: start
     url: $CI_PAGES_URL
   variables:
-    ENV: pages
+    ENV: pages{{ if $pages_multiple_modules }}/{{ .Slug }}{{ end }}
     GIT_STRATEGY: none
   dependencies:
-{{- if hasKey $page.Languages "node" }}
-    - node-build{{ if gt (len $node_modules) 1 }} [{{ $page.Dir }}]{{ end }}
+{{- if hasKey .Languages "node" }}
+    - node-build{{ if $node_multiple_modules }} [{{ .Dir }}]{{ end }}
 {{- end }}
-{{- if hasKey $page.Languages "hugo" }}
-    - hugo-build{{ if gt (len $hugo_modules) 1 }} [{{ $page.Dir }}]{{ end }}
+{{- if hasKey .Languages "hugo" }}
+    - hugo-build{{ if $hugo_multiple_modules }} [{{ .Dir }}]{{ end }}
 {{- end }}
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-{{- if not $page.Config.Deployment.Auto }}
+{{- if not .Config.Deployment.Auto }}
       when: manual
 {{- end }}
   script:

@@ -6,22 +6,22 @@ run-name: Deployment
 on:
   workflow_dispatch:
     inputs:
-      terraform_modules-one_apply:
-        description: Terraform apply job run mode.
+      terraform_apply_modules-one:
+        description: Terraform apply run mode (modules/one).
         type: choice
         options:
           - full
           - none
         default: full
-      terraform_modules-two_apply:
-        description: Terraform apply job run mode.
+      terraform_apply_modules-two:
+        description: Terraform apply run mode (modules/two).
         type: choice
         options:
           - full
           - none
         default: full
       release:
-        description: Release job run mode.
+        description: Release run mode.
         type: choice
         options:
           - dry-run
@@ -118,7 +118,7 @@ jobs:
   terraform-apply-modules-one:
     name: Terraform Apply (modules/one)
     runs-on: ubuntu-latest
-    if: ${{ inputs.terraform_modules-one_apply != 'none' }}
+    if: ${{ inputs.terraform_apply_modules-one != 'none' }}
     needs: version
     environment: ${{ matrix.environment }}/modules-one
     strategy:
@@ -156,7 +156,7 @@ jobs:
   terraform-apply-modules-two:
     name: Terraform Apply (modules/two)
     runs-on: ubuntu-latest
-    if: ${{ inputs.terraform_modules-two_apply != 'none' }}
+    if: ${{ inputs.terraform_apply_modules-two != 'none' }}
     needs: version
     environment: ${{ matrix.environment }}/modules-two
     strategy:

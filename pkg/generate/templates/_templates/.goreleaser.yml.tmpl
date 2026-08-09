@@ -12,7 +12,7 @@ builds:
 <<- $module := . >>
 <<- $specifics := get .Languages "go" >>
 <<- range $name, $_ := .Clis >>
-  - id: << $name >><< with $module.Slug >>-<< . >><< end >>
+  - id: << with $module.Slug >><< . >>/<< end >><< $name >>
     main: ./cmd/<< $name >>
 <<- if ne $module.Dir "." >>
     dir: << $module.Dir >>
@@ -47,8 +47,7 @@ archives:
         formats: zip
 
 nfpms:
-<<- $maintainer := index .Config.Maintainers 0 >>
-  - maintainer: << $maintainer.Name >>
+  - maintainer: << (index .Config.Maintainers 0).Name >>
 <<- if .Config.License >>
     license: << .Config.License | upper >>
 <<- end >>

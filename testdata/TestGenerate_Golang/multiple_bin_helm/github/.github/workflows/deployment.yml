@@ -24,7 +24,7 @@ on:
           - full
         default: dry-run
       release:
-        description: Release job run mode.
+        description: Release run mode.
         type: choice
         options:
           - dry-run

@@ -6,22 +6,22 @@ run-name: Deployment
 on:
   workflow_dispatch:
     inputs:
-      opentofu_modules-one_apply:
-        description: Opentofu apply job run mode.
+      opentofu_apply_modules-one:
+        description: Opentofu apply run mode (modules/one).
         type: choice
         options:
           - full
           - none
         default: none
-      opentofu_modules-two_apply:
-        description: Opentofu apply job run mode.
+      opentofu_apply_modules-two:
+        description: Opentofu apply run mode (modules/two).
         type: choice
         options:
           - full
           - none
         default: none
       release:
-        description: Release job run mode.
+        description: Release run mode.
         type: choice
         options:
           - dry-run
@@ -115,10 +115,10 @@ jobs:
         env:
           APP_VERSION: ${{ steps.version.outputs.version }}
 
-  terraform-apply-modules-one:
-    name: Terraform Apply (modules/one)
+  opentofu-apply-modules-one:
+    name: Opentofu Apply (modules/one)
     runs-on: ubuntu-latest
-    if: ${{ inputs.opentofu_modules-one_apply != 'none' }}
+    if: ${{ inputs.opentofu_apply_modules-one != 'none' }}
     needs: version
     environment: ${{ matrix.environment }}/modules-one
     strategy:
@@ -153,10 +153,10 @@ jobs:
           TF_VAR_my_var: ${{ vars.MY_VAR }}
           TF_VAR_version: ${{ needs.version.outputs.version }}
 
-  terraform-apply-modules-two:
-    name: Terraform Apply (modules/two)
+  opentofu-apply-modules-two:
+    name: Opentofu Apply (modules/two)
     runs-on: ubuntu-latest
-    if: ${{ inputs.opentofu_modules-two_apply != 'none' }}
+    if: ${{ inputs.opentofu_apply_modules-two != 'none' }}
     needs: version
     environment: ${{ matrix.environment }}/modules-two
     strategy:
