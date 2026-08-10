@@ -5,7 +5,7 @@
 The schema definition `.schemas/kickr.v1.schema.yml` is source of truth.
 Never edit `.schemas/kickr.v1.schema.json` or `pkg/kickr/v1/kickr.go`/`constants.go` directly:
 1. Edit the yml
-2. Run `go run ./schemas/gen/main.go`
+2. Run `cd ./.schemas && go generate ./...`
 3. Use the `schema-to-go` skill to update `kickr.go` (structs/GoDoc) and `constants.go` (enums).
 
 ## Types
@@ -41,3 +41,4 @@ Never edit `.schemas/kickr.v1.schema.json` or `pkg/kickr/v1/kickr.go`/`constants
 ---
 
 @README.md
+@CONTRIBUTING.md
