@@ -34,7 +34,7 @@ func Maintainer(config *kickr.Kickr) *huh.Group {
 				if _, err := mail.ParseAddress(s); err != nil {
 					return fmt.Errorf("must be a valid mail: %w", err)
 				}
-				maintainer.Email = &s
+				maintainer.Email = s
 				return nil
 			}),
 		huh.NewInput().
@@ -46,7 +46,7 @@ func Maintainer(config *kickr.Kickr) *huh.Group {
 				if _, err := url.ParseRequestURI(s); err != nil {
 					return fmt.Errorf("must be a valid URL: %w", err)
 				}
-				maintainer.URL = &s
+				maintainer.URL = s
 				return nil
 			}),
 	)

@@ -2,21 +2,44 @@ package initialize_test
 
 import (
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/assert"
+	tea "charm.land/bubbletea/v2"
+	engine "github.com/kickr-dev/engine/pkg"
+	"github.com/stretchr/testify/require"
 
 	"github.com/kickr-dev/kickr/pkg/initialize"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 func TestLicense(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
+	ctx := t.Context()
+
+	t.Run("success_none", func(t *testing.T) {
+		// Arrange
+		reader := NewPacedReader(selectSubmit, 2*time.Millisecond)
+
 		// Act
-		group := initialize.License(&kickr.Kickr{})
+		config, err := engine.Initialize(ctx,
+			engine.WithFormGroups(initialize.License),
+			engine.WithTeaOptions[kickr.Kickr](tea.WithInput(reader)))
 
 		// Assert
-		content := group.Content()
-		assert.Contains(t, content, "Would you like to specify a license (optional) ?")
-		assert.Contains(t, content, "Which one ?")
+		require.NoError(t, err)
+		require.Empty(t, config.License)
+	})
+
+	t.Run("success_picked", func(t *testing.T) {
+		// Arrange
+		reader := NewPacedReader(arrowDown+selectSubmit, 2*time.Millisecond)
+
+		// Act
+		config, err := engine.Initialize(ctx,
+			engine.WithFormGroups(initialize.License),
+			engine.WithTeaOptions[kickr.Kickr](tea.WithInput(reader)))
+
+		// Assert
+		require.NoError(t, err)
+		require.Equal(t, "agpl-3.0", config.License)
 	})
 }
