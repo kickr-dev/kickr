@@ -11,7 +11,6 @@ import (
 	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/generator"
 	"github.com/kickr-dev/engine/pkg/parser"
 
@@ -50,11 +49,6 @@ func GeneratorCodeOfConduct(httpClient *http.Client) func(ctx context.Context, d
 			if err := os.Remove(dest); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf("remove '%s': %w", generator.FileCodeOfConduct, err)
 			}
-			return nil
-		}
-
-		if !engine.Forced() && files.Exists(dest) {
-			engine.GetLogger().Infof("not generating '%s' since it already exists", generator.FileCodeOfConduct)
 			return nil
 		}
 
