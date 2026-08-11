@@ -4,7 +4,7 @@ go 1.26.0
 
 toolchain go1.26.5
 
-replace github.com/kickr-dev/engine => ../engine
+// replace github.com/kickr-dev/engine => ../engine
 
 require (
 	charm.land/bubbletea/v2 v2.0.8
@@ -15,7 +15,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.2
-	github.com/kickr-dev/engine v0.0.0-20260707181216-956c7f3bb2c3
+	github.com/kickr-dev/engine v0.0.0-20260811164533-0a33a3398838
 	github.com/kilianpaquier/compare v1.1.2
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
