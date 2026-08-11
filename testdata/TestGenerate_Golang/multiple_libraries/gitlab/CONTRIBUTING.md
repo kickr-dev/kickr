@@ -24,7 +24,7 @@ For repository's root, kickr, engine directories, lint and test commands can be 
 
 ## Commit messages
 
-Commits must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): summary`.
+Commits must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): summary` (scope optional).
 A `!` after type/scope, or a `BREAKING CHANGE:` footer, forces a major release regardless of type.
 
 | Type       | Purpose                                 | Release |

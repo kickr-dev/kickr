@@ -34,7 +34,7 @@ Specific modules builds commands can be run with the following commands:
 
 ## Commit messages
 
-Commits must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): summary`.
+Commits must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): summary` (scope optional).
 A `!` after type/scope, or a `BREAKING CHANGE:` footer, forces a major release regardless of type.
 
 | Type       | Purpose                                 | Release |
