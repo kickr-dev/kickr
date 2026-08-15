@@ -26,10 +26,11 @@
     - npm install -g netlify-cli
     - apk add --no-cache jq
   script:
+    - branch_sha="$(echo "$CI_COMMIT_REF_NAME" | sha256sum | cut -c -8)"
     - |
       netlify api listSiteDeploys \
         --auth "$NETLIFY_AUTH_TOKEN" \
-        --data "{\"site_id\": \"$NETLIFY_SITE_ID\", \"branch\": \"$BRANCH_SHA\"}" > netlify-deploys.json
+        --data "{\"site_id\": \"$NETLIFY_SITE_ID\", \"branch\": \"$branch_sha\"}" > netlify-deploys.json
     - |
       for id in $(jq -r '.[].id' netlify-deploys.json); do
         netlify api deleteSiteDeploy --auth "$NETLIFY_AUTH_TOKEN" --data "{\"site_id\": \"$NETLIFY_SITE_ID\", \"deploy_id\": \"$id\"}"
