@@ -20,7 +20,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	github.com/yannh/kubeconform v0.8.0
-	gitlab.com/gitlab-org/api/client-go/v2 v2.51.0
+	gitlab.com/gitlab-org/api/client-go/v2 v2.56.0
 	helm.sh/helm/v4 v4.2.3
 )
 
@@ -152,7 +152,7 @@ require (
 	github.com/zclconf/go-cty v1.16.3 // indirect
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.38.0 // indirect
