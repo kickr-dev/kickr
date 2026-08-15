@@ -140,8 +140,7 @@ properties:
     description: |-
       Directories the repository is made of, each one owning its own technology stack.
 
-      When absent or empty, the repository root is the sole module.
-      Otherwise every module must be declared, the repository root included as '.'.
+      When absent or empty, the repository root is the sole module, otherwise included by default.
     items:
       $ref: "#/$defs/module"
     allOf:
