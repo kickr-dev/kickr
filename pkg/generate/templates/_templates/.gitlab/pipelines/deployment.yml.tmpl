@@ -23,7 +23,7 @@ include:
 
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
-  - remote: https://gitlab.com/to-be-continuous/docker/-/raw/44e82817b367db9a3cb56fa4f0f749afd167136c/templates/gitlab-ci-docker.yml # 8.4.2
+  - remote: https://gitlab.com/to-be-continuous/docker/-/raw/ad253fc7bf6a8d1a53111d09b7bad19f4b5c65b9/templates/gitlab-ci-docker.yml # 8.5.1
     inputs:
       build-args: |
         --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
@@ -84,7 +84,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/8a16e0037dd185058eefa4fcace694a4984b7408/templates/gitlab-ci-terraform.yml # 9.3.2
+  - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
     inputs:
       fmt-enabled: "true"
       gitlab-backend-disabled: "true"
@@ -128,7 +128,7 @@ tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
     include:
       # Terraform template
       # https://gitlab.com/to-be-continuous/terraform
-      - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/8a16e0037dd185058eefa4fcace694a4984b7408/templates/gitlab-ci-terraform.yml # 9.3.2
+      - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
         inputs:
           environment-namespace: {{ ne .Slug "" | ternary (print "/" .Slug) ("" | quote) }}
           gitlab-backend-disabled: "{{ ne (get .Languages "terraform").Backend "http" }}"
