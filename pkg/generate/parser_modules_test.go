@@ -41,9 +41,9 @@ func TestParserModules(t *testing.T) {
 	t.Run("success_explicit_modules", func(t *testing.T) {
 		// Arrange
 		expected := types.Repository{
-			Config: kickr.Kickr{Modules: []kickr.Module{{Path: "."}, {Path: "docs"}, {Path: "apps/api"}}},
+			Config: kickr.Kickr{Modules: []kickr.Module{{Path: types.RootModule}, {Path: "docs"}, {Path: "apps/api"}}},
 			Modules: []types.Module{
-				{Directory: ".", Config: kickr.Module{Path: "."}},
+				{Directory: types.RootModule, Config: kickr.Module{Path: types.RootModule}},
 				{Directory: "docs", Config: kickr.Module{Path: "docs"}},
 				{Directory: "apps/api", Config: kickr.Module{Path: "apps/api"}},
 			},
@@ -52,7 +52,7 @@ func TestParserModules(t *testing.T) {
 			expected.Modules[i].Parent = &expected
 		}
 		repo := types.Repository{
-			Config: kickr.Kickr{Modules: []kickr.Module{{Path: "."}, {Path: "docs"}, {Path: "apps/api"}}},
+			Config: kickr.Kickr{Modules: []kickr.Module{{Path: types.RootModule}, {Path: "docs"}, {Path: "apps/api"}}},
 		}
 
 		// Act

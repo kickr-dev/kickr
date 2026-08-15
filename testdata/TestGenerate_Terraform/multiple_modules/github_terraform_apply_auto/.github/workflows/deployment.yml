@@ -116,7 +116,7 @@ jobs:
           APP_VERSION: ${{ steps.version.outputs.version }}
 
   terraform-apply-modules-one:
-    name: Terraform Apply (modules/one)
+    name: Terraform Apply (${{ matrix.environment }}) (modules/one)
     runs-on: ubuntu-latest
     if: ${{ inputs.terraform_apply_modules-one != 'none' }}
     needs: version
@@ -154,7 +154,7 @@ jobs:
           TF_VAR_version: ${{ needs.version.outputs.version }}
 
   terraform-apply-modules-two:
-    name: Terraform Apply (modules/two)
+    name: Terraform Apply (${{ matrix.environment }}) (modules/two)
     runs-on: ubuntu-latest
     if: ${{ inputs.terraform_apply_modules-two != 'none' }}
     needs: version

@@ -26,8 +26,10 @@ hugo-build:
   stage: build
   needs:
     - semantic-release-info
-  variables:
-    HUGO_PROJECT_DIR: docs
+  parallel:
+    matrix:
+      - HUGO_PROJECT_DIR: docs
+      - HUGO_PROJECT_DIR: website
   rules:
     - !reference [.test-policy, rules]
   before_script:

@@ -8,6 +8,7 @@
 
 {{- $netlify_modules := .ModulesWithDeployment "netlify" }}
 {{- $pages_modules := .ModulesWithDeployment "pages" }}
+{{- $static := or (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) }}
 
 ---
 {{- if or $has_docker .Config.Helm (gt (len $terraform_modules) 0) }}
@@ -98,7 +99,6 @@ include:
   - local: .gitlab/deployment.overrides.yml
 {{- end }}
 
-{{- $static := or (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) }}
 {{- if and $static (or $has_docker .Config.Helm (gt (len $terraform_modules) 0)) }}{{ print "\n" }}{{- end }}{{/* simple ugly pretty print */}}
 {{- if $static }}{{ template "static" . }}{{- end }}
 

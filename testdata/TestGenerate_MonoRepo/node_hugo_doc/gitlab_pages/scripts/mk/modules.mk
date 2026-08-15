@@ -5,3 +5,6 @@
 
 docs-%:
 	@$(MAKE) -C docs $*
+
+website-%:
+	@$(MAKE) -C website $*

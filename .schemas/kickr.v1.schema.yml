@@ -89,8 +89,9 @@ properties:
           type: string
           enum: [kickr, overrides:deployment, overrides:integration, renovate, sonarqube]
       release:
-        additionalProperties: false
-        $ref: "#/$defs/ci/release"
+        unevaluatedProperties: false
+        allOf:
+          - $ref: "#/$defs/ci/release"
 
   helm:
     $ref: "#/$defs/helm"
@@ -222,6 +223,11 @@ allOf:
             unevaluatedProperties: false
             allOf:
               - $ref: "#/$defs/module"
+            properties:
+              terraform:
+                unevaluatedProperties: false
+                allOf:
+                  - $ref: "#/$defs/terraform"
   # Enrich multiple objects with their CI properties
   - if:
       required: [github]
@@ -243,6 +249,12 @@ allOf:
             allOf:
               - $ref: "#/$defs/module"
               - $ref: "#/$defs/ci/module"
+            properties:
+              terraform:
+                unevaluatedProperties: false
+                allOf:
+                  - $ref: "#/$defs/terraform"
+                  - $ref: "#/$defs/ci/terraform"
   # Enrich multiple objects with their CI properties
   - if:
       required: [gitlab]
@@ -264,6 +276,12 @@ allOf:
             allOf:
               - $ref: "#/$defs/module"
               - $ref: "#/$defs/ci/module"
+            properties:
+              terraform:
+                unevaluatedProperties: false
+                allOf:
+                  - $ref: "#/$defs/terraform"
+                  - $ref: "#/$defs/ci/terraform"
 
 $defs:
   ##############################################################
@@ -311,6 +329,22 @@ $defs:
         items:
           type: string
           enum: [docker, makefile]
+      terraform:
+        $ref: "#/$defs/terraform"
+
+  terraform:
+    type: object
+    description: |-
+      Configure the terraform module and the engine to use (tofu by default).
+
+      With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments.
+    required: [engine]
+    properties:
+      engine:
+        type: string
+        description: The engine to use to lint, validate, test, apply the resources.
+        enum: [tofu, terraform]
+        default: tofu
 
   ##############################################################
   #
@@ -354,6 +388,7 @@ $defs:
           enum: [auto, manual]
         environments:
           type: array
+          minItems: 1
           description: |-
             Environments to associate a specific Kubernetes context to a branch.
 
@@ -367,7 +402,6 @@ $defs:
           items:
             type: string
             enum: [integration, production, review, staging]
-            minItems: 1
         path:
           type: string
           description: Path within the helm registry (default is the path on VCS remote URL).
@@ -411,12 +445,6 @@ $defs:
 
     terraform:
       type: object
-      description: |-
-        Configure the terraform module and the engine to use (tofu by default).
-
-        With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments.
-      additionalProperties: false
-      required: [engine]
       dependentRequired:
         environments: [apply]
         apply: [environments]
@@ -427,13 +455,9 @@ $defs:
             Apply strategy.
             Not providing this property will mean 'never' as strategy, no apply job will be generated.
           enum: [auto, manual]
-        engine:
-          type: string
-          description: The engine to use to lint, validate, test, apply the resources.
-          enum: [tofu, terraform]
-          default: tofu
         environments:
           type: array
+          minItems: 1
           description: |-
             Environments to associate a specific terraform apply with.
 
@@ -447,7 +471,6 @@ $defs:
           items:
             type: string
             enum: [integration, production, review, staging]
-            minItems: 1
 
     release:
       type: object

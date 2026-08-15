@@ -23,33 +23,9 @@ include:
       snapshot-image: "${CI_REGISTRY}/${CI_PROJECT_PATH}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 
-netlify-deploy:
+.netlify-deploy:
   image: $NETLIFY_IMAGE
   stage: deploy
-  environment:
-    name: $ENV
-    action: start
-    on_stop: netlify-cleanup
-    url: $ENVIRONMENT_URL
-  dependencies:
-    - node-build
-    - semantic-release-info
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      variables:
-        ARGS: --prod --message=$CI_COMMIT_REF_NAME
-        ENV: netlify
-      when: manual
-    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF'
-      variables:
-        ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-        ENV: netlify/$CI_COMMIT_REF_NAME
-      when: manual
-    - variables:
-        ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-        ENV: netlify/$CI_COMMIT_REF_NAME
-      when: manual
-      allow_failure: true
   variables:
     GIT_STRATEGY: none
   before_script:
@@ -62,22 +38,37 @@ netlify-deploy:
     reports:
       dotenv: netlify.out.env
 
-netlify-cleanup:
+.netlify-deploy-review:
+  extends: .netlify-deploy
+  environment:
+    name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
+    action: start
+    on_stop: netlify-cleanup-review
+    url: $ENVIRONMENT_URL
+  variables:
+    ARGS: --prod --message=$CI_COMMIT_REF_NAME
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
+      when: never
+    - when: manual
+      allow_failure: true
+
+.netlify-deploy-production:
+  extends: .netlify-deploy
+  environment:
+    name: production${NETLIFY_ENVIRONMENT_NAMESPACE}
+    action: start
+    url: $ENVIRONMENT_URL
+  variables:
+    ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
+  rules:
+    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF'
+      when: never
+
+.netlify-cleanup:
   image: $NETLIFY_IMAGE
   stage: deploy
   dependencies: []
-  environment:
-    name: $ENV
-    action: stop
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      variables:
-        ENV: netlify
-      when: never
-    - variables:
-        ENV: netlify/$CI_COMMIT_REF_NAME
-      when: manual
-      allow_failure: true
   variables:
     GIT_STRATEGY: none
   before_script:
@@ -92,3 +83,28 @@ netlify-cleanup:
       for id in $(jq -r '.[].id' netlify-deploys.json); do
         netlify api deleteSiteDeploy --auth "$NETLIFY_AUTH_TOKEN" --data "{\"site_id\": \"$NETLIFY_SITE_ID\", \"deploy_id\": \"$id\"}"
       done
+
+.netlify-cleanup-review:
+  environment:
+    name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
+    action: stop
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
+      when: never
+    - when: manual
+      allow_failure: true
+
+netlify-deploy-review:
+  extends: .netlify-deploy-review
+  dependencies:
+    - node-build
+    - semantic-release-info
+
+netlify-cleanup-review:
+  extends: .netlify-cleanup-review
+
+netlify-deploy-production:
+  extends: .netlify-deploy-production
+  dependencies:
+    - node-build
+    - semantic-release-info

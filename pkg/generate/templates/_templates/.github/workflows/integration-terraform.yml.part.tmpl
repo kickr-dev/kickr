@@ -88,7 +88,7 @@ jobs:
 <<- $specifics := get .Languages "terraform" >>
 
   << $terraform_engine >>-plan<< if $terraform_multiple_apply_modules >>-<< .Slug >><< end >>:
-    name: << title $terraform_engine >> Plan<< if $terraform_multiple_apply_modules >> (<< .Dir >>)<< end >>
+    name: << title $terraform_engine >> Plan (${{ matrix.environment }})<< if $terraform_multiple_apply_modules >> (<< .Dir >>)<< end >>
     runs-on: ubuntu-latest
     needs: << $terraform_engine >>-check
     environment: ${{ matrix.environment }}

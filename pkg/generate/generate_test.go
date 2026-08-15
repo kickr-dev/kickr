@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+	"strings"
 	"testing"
 
 	"dario.cat/mergo"
@@ -25,9 +26,8 @@ import (
 )
 
 type testcase struct {
-	Config     kickr.Kickr
-	Deployment *kickr.Deployment
-	Name       string
+	Config kickr.Kickr
+	Name   string
 }
 
 func TestGenerate_NoLang(t *testing.T) {
@@ -191,10 +191,8 @@ func TestGenerate_NoLang(t *testing.T) {
 	t.Run("release", func(t *testing.T) {
 		cases := []testcase{
 			{
-				Name: "github",
-				Config: kickr.Kickr{
-					GitHub: &kickr.GitHub{Release: &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}}},
-				},
+				Name:   "github",
+				Config: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}}}},
 			},
 			{
 				Name:   "github_auto",
@@ -213,10 +211,8 @@ func TestGenerate_NoLang(t *testing.T) {
 				Config: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{Auth: kickr.ReleaseAuthPersonalToken}}},
 			},
 			{
-				Name: "gitlab",
-				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{Release: &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}}},
-				},
+				Name:   "gitlab",
+				Config: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{Options: []string{kickr.ReleaseOptionsBackmerge}}}},
 			},
 			{
 				Name:   "gitlab_auto",
@@ -254,9 +250,7 @@ func TestGenerate_Shell(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			// Arrange
 			repo := types.Repository{
-				Config: merge(t, kickr.Kickr{
-					Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-				}, tc.Config),
+				Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate}}, tc.Config),
 			}
 
 			// Act & Assert
@@ -273,9 +267,7 @@ func TestGenerate_Shell(t *testing.T) {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
-					}, tc.Config),
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -492,12 +484,17 @@ func TestGenerate_Golang(t *testing.T) {
 func TestGenerate_Hugo(t *testing.T) {
 	ctx := t.Context()
 
-	hugo := func(_ context.Context, destdir string, _ *types.Repository) error {
-		file, err := os.Create(filepath.Join(destdir, "hugo.toml"))
-		if err != nil {
-			return fmt.Errorf("create: %w", err)
+	hugo := func(hugodir string) engine.Parser[types.Repository] {
+		return func(_ context.Context, destdir string, _ *types.Repository) error {
+			if err := os.MkdirAll(filepath.Join(destdir, hugodir), files.RwxRxRxRx); err != nil {
+				return fmt.Errorf("mkdir all: %w", err)
+			}
+			file, err := os.Create(filepath.Join(destdir, hugodir, "hugo.toml"))
+			if err != nil {
+				return fmt.Errorf("create: %w", err)
+			}
+			return file.Close()
 		}
-		return file.Close()
 	}
 
 	t.Run("no_website", func(t *testing.T) {
@@ -511,7 +508,7 @@ func TestGenerate_Hugo(t *testing.T) {
 				repo := types.Repository{Config: merge(t, kickr.Kickr{}, tc.Config)}
 
 				// Act & Assert
-				test(ctx, t, repo, hugo)
+				test(ctx, t, repo, hugo(""))
 			})
 		}
 	})
@@ -599,7 +596,7 @@ func TestGenerate_Hugo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, hugo)
+				test(ctx, t, repo, hugo(""))
 			})
 		}
 	})
@@ -617,7 +614,31 @@ func TestGenerate_Hugo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, hugo)
+				test(ctx, t, repo, hugo(""))
+			})
+		}
+	})
+
+	t.Run("netlify_and_pages", func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Modules: []kickr.Module{
+							{Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages}, Path: "docs"},
+							{Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}, Path: "website"},
+						},
+					}, tc.Config),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo, hugo("docs"), hugo("website"))
 			})
 		}
 	})
@@ -893,7 +914,7 @@ func TestGenerate_Node(t *testing.T) {
 		}
 	})
 
-	t.Run("docker_only", func(t *testing.T) {
+	t.Run("docker", func(t *testing.T) {
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -1118,7 +1139,7 @@ func TestGenerate_Terraform(t *testing.T) {
 func TestGenerate_MonoRepo(t *testing.T) {
 	ctx := t.Context()
 
-	golang := func(godir, provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
+	golang := func(godir, cmd, provider string) engine.Parser[types.Repository] {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
 			if err := os.MkdirAll(filepath.Join(destdir, godir), files.RwxRxRxRx); err != nil {
 				return fmt.Errorf("mkdir all: %w", err)
@@ -1129,7 +1150,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				return fmt.Errorf("write file: %w", err)
 			}
 
-			cmd := filepath.Join(destdir, godir, parser.FolderCMD, "api")
+			cmd := filepath.Join(destdir, godir, parser.FolderCMD, cmd)
 			if err := os.MkdirAll(cmd, files.RwxRxRxRx); err != nil {
 				return fmt.Errorf("mkdir all: %w", err)
 			}
@@ -1141,15 +1162,17 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 	}
 
-	hugo := func(_ context.Context, destdir string, _ *types.Repository) error {
-		if err := os.MkdirAll(filepath.Join(destdir, "docs"), files.RwxRxRxRx); err != nil {
-			return fmt.Errorf("mkdir all: %w", err)
+	hugo := func(hugodir string) engine.Parser[types.Repository] {
+		return func(_ context.Context, destdir string, _ *types.Repository) error {
+			if err := os.MkdirAll(filepath.Join(destdir, hugodir), files.RwxRxRxRx); err != nil {
+				return fmt.Errorf("mkdir all: %w", err)
+			}
+			file, err := os.Create(filepath.Join(destdir, hugodir, "hugo.toml"))
+			if err != nil {
+				return fmt.Errorf("create: %w", err)
+			}
+			return file.Close()
 		}
-		file, err := os.Create(filepath.Join(destdir, "docs", "hugo.toml"))
-		if err != nil {
-			return fmt.Errorf("create: %w", err)
-		}
-		return file.Close()
 	}
 
 	node := func(subdir string) engine.Parser[types.Repository] {
@@ -1171,104 +1194,98 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 	}
 
-	cases := []testcase{
-		{
-			Name:       "github_netlify",
-			Config:     kickr.Kickr{GitHub: &kickr.GitHub{}, Platform: parser.GitHub},
-			Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify},
-		},
-		{
-			Name:       "github_pages",
-			Config:     kickr.Kickr{GitHub: &kickr.GitHub{}, Platform: parser.GitHub},
-			Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages},
-		},
-		{
-			Name:       "gitlab_netlify",
-			Config:     kickr.Kickr{GitLab: &kickr.GitLab{}, Platform: parser.GitLab},
-			Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify},
-		},
-		{
-			Name:       "gitlab_pages",
-			Config:     kickr.Kickr{GitLab: &kickr.GitLab{}, Platform: parser.GitLab},
-			Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages},
-		},
+	gowork := func(uses ...string) engine.Parser[types.Repository] {
+		return func(_ context.Context, destdir string, _ *types.Repository) error {
+			content := fmt.Sprintf("go 1.23\nuse (\n\t%s\n)\n", strings.Join(uses, "\n\t"))
+			return os.WriteFile(filepath.Join(destdir, parser.FileGowork), []byte(content), files.RwRR)
+		}
 	}
 
-	t.Run("node_hugo_doc", func(t *testing.T) {
-		for _, tc := range cases {
-			t.Run(tc.Name, func(t *testing.T) {
-				// Arrange
-				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Modules: []kickr.Module{{Path: types.RootModule}, {Path: "docs", Deployment: tc.Deployment}},
-					}, tc.Config),
-				}
-
-				// Act & Assert
-				test(ctx, t, repo, node(""), hugo)
-			})
-		}
-	})
-
-	t.Run("go_hugo_doc", func(t *testing.T) {
-		for _, tc := range cases {
-			t.Run(tc.Name, func(t *testing.T) {
-				// Arrange
-				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Docker:  &kickr.Docker{},
-						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Modules: []kickr.Module{
-							{Path: types.RootModule},
-							{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker}, Deployment: tc.Deployment},
-						},
-					}, tc.Config),
-				}
-
-				// Act & Assert
-				test(ctx, t, repo, golang(types.RootModule, tc.Config.Platform), hugo)
-			})
-		}
-	})
-
 	t.Run("go_node_doc", func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github_netlify", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "github_pages", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab_netlify", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+			{Name: "gitlab_pages", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
+				provider, target, _ := strings.Cut(tc.Name, "_")
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
 						Docker:  &kickr.Docker{},
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Modules: []kickr.Module{
-							{Path: types.RootModule},
-							{Path: "docs", Exclude: []string{kickr.ModuleExcludeDocker}, Deployment: tc.Deployment},
+							{Deployment: &kickr.Deployment{Target: target}, Exclude: []string{kickr.ModuleExcludeDocker}, Path: "docs"},
 						},
 					}, tc.Config),
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(types.RootModule, tc.Config.Platform), node("docs"))
+				test(ctx, t, repo, golang(types.RootModule, "api", provider), node("docs"))
+			})
+		}
+	})
+
+	t.Run("go_hugo_doc", func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github_netlify", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "github_pages", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab_netlify", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+			{Name: "gitlab_pages", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				provider, target, _ := strings.Cut(tc.Name, "_")
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{
+						Docker:  &kickr.Docker{},
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Modules: []kickr.Module{
+							{Deployment: &kickr.Deployment{Target: target}, Exclude: []string{kickr.ModuleExcludeDocker}, Path: "docs"},
+						},
+					}, tc.Config),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo, golang(types.RootModule, "api", provider), hugo("docs"))
+			})
+		}
+	})
+
+	t.Run("node_hugo_doc", func(t *testing.T) {
+		cases := []testcase{
+			{Name: "github_netlify", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "github_pages", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab_netlify", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+			{Name: "gitlab_pages", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				_, target, _ := strings.Cut(tc.Name, "_")
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Modules: []kickr.Module{
+							{Deployment: &kickr.Deployment{Target: target}, Path: "docs"},
+							{Deployment: &kickr.Deployment{Target: target}, Path: "website"},
+						},
+					}, tc.Config),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo, node(types.RootModule), hugo("docs"), hugo("website"))
 			})
 		}
 	})
 
 	t.Run("frontend_backend_docker", func(t *testing.T) {
-		gowork := func(_ context.Context, destdir string, _ *types.Repository) error {
-			gowork := []byte(`
-				go 1.23
-				use (
-					./backend
-				)` + "\n")
-			if err := os.WriteFile(filepath.Join(destdir, parser.FileGowork), gowork, files.RwRR); err != nil {
-				return fmt.Errorf("write file: %w", err)
-			}
-			return nil
-		}
-
 		cases := []testcase{
-			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}, Platform: parser.GitHub}},
-			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}, Platform: parser.GitLab}},
+			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
@@ -1277,20 +1294,20 @@ func TestGenerate_MonoRepo(t *testing.T) {
 					Config: merge(t, kickr.Kickr{
 						Docker:  &kickr.Docker{},
 						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Modules: []kickr.Module{{Path: types.RootModule}, {Path: "backend"}, {Path: "frontend"}},
+						Modules: []kickr.Module{{Path: "backend"}, {Path: "frontend"}},
 					}, tc.Config),
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, gowork, golang("backend", tc.Config.Platform), node("frontend"))
+				test(ctx, t, repo, gowork("./backend"), golang("backend", "api", tc.Name), node("frontend"))
 			})
 		}
 	})
 
 	t.Run("go_self_terraform", func(t *testing.T) {
 		cases := []testcase{
-			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}, Platform: parser.GitHub}},
-			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}, Platform: parser.GitLab}},
+			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
@@ -1299,14 +1316,13 @@ func TestGenerate_MonoRepo(t *testing.T) {
 					Config: merge(t, kickr.Kickr{
 						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
 						Modules: []kickr.Module{
-							{Path: types.RootModule},
 							{Path: ".terraform", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu}},
 						},
 					}, tc.Config),
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(types.RootModule, tc.Config.Platform), terraform(".terraform"))
+				test(ctx, t, repo, golang(types.RootModule, "api", tc.Name), terraform(".terraform"))
 			})
 		}
 	})
@@ -1320,23 +1336,15 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 			{
 				Name: "github_primary",
 				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{
-						Exclude: []string{kickr.GitLabExcludePreCommit},
-					},
-					GitHub: &kickr.GitHub{
-						Release: &kickr.Release{},
-					},
+					GitLab: &kickr.GitLab{Exclude: []string{kickr.GitLabExcludePreCommit}},
+					GitHub: &kickr.GitHub{Release: &kickr.Release{}},
 				},
 			},
 			{
 				Name: "gitlab_primary",
 				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{
-						Release: &kickr.Release{},
-					},
-					GitHub: &kickr.GitHub{
-						Exclude: []string{kickr.GitHubExcludePreCommit},
-					},
+					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
+					GitHub: &kickr.GitHub{Exclude: []string{kickr.GitHubExcludePreCommit}},
 				},
 			},
 		}

@@ -16,6 +16,9 @@ func Makefile() []engine.Template[types.Module] {
 			Globs:      []string{"Makefile" + engine.TmplExtension},
 			Out:        "Makefile",
 			Remove: func(module types.Module) bool {
+				if module.Dir() == types.RootModule && !module.Parent.HasMakefile() {
+					return true
+				}
 				return !module.HasMakefile()
 			},
 		},
@@ -39,14 +42,6 @@ func Makefile() []engine.Template[types.Module] {
 //   - modules Makefiles aggregation
 func RepositoryMakefile() []engine.Template[types.Repository] {
 	return []engine.Template[types.Repository]{
-		{
-			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{"Makefile" + engine.TmplExtension},
-			Out:        "Makefile",
-			Remove: func(repo types.Repository) bool {
-				return !repo.HasMakefile()
-			},
-		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join("scripts", "mk", "modules.mk") + engine.TmplExtension},

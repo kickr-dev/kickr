@@ -149,9 +149,12 @@ go-build:
 node-audit:
   allow_failure: true
 
+{{- if gt (len $node_buildable_modules) 0 }}
+
 node-build:
   needs:
     - semantic-release-info
+{{- end }}
 {{- end }}
 
 {{- if gt (len $hugo_buildable_modules) 0 }}

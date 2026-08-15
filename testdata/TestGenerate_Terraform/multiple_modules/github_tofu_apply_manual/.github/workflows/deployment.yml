@@ -116,7 +116,7 @@ jobs:
           APP_VERSION: ${{ steps.version.outputs.version }}
 
   opentofu-apply-modules-one:
-    name: Opentofu Apply (modules/one)
+    name: Opentofu Apply (${{ matrix.environment }}) (modules/one)
     runs-on: ubuntu-latest
     if: ${{ inputs.opentofu_apply_modules-one != 'none' }}
     needs: version
@@ -154,7 +154,7 @@ jobs:
           TF_VAR_version: ${{ needs.version.outputs.version }}
 
   opentofu-apply-modules-two:
-    name: Opentofu Apply (modules/two)
+    name: Opentofu Apply (${{ matrix.environment }}) (modules/two)
     runs-on: ubuntu-latest
     if: ${{ inputs.opentofu_apply_modules-two != 'none' }}
     needs: version

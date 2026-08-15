@@ -23,21 +23,18 @@ include:
       snapshot-image: "${CI_REGISTRY}/${CI_PROJECT_PATH}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 
-pages:
+.pages:
   image: $PAGES_IMAGE
   stage: deploy
   environment:
-    name: $ENV
+    name: pages${PAGES_ENVIRONMENT_NAMESPACE}
     action: start
     url: $CI_PAGES_URL
   variables:
-    ENV: pages
     GIT_STRATEGY: none
-  dependencies:
-    - hugo-build
   rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      when: manual
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      when: never
   script:
     - |
       if [ "$BUILD_DIR" != "public" ]; then
@@ -49,3 +46,9 @@ pages:
     paths:
       - public
     expire_in: 1 day
+
+pages:
+  extends: .pages
+  dependencies:
+    - hugo-build
+  when: manual
