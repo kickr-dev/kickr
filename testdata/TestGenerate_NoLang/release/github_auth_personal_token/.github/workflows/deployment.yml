@@ -67,7 +67,7 @@ jobs:
     permissions:
       id-token: none
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -83,7 +83,7 @@ jobs:
         with:
           dry_run: true
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
-          semantic_version: v25.0.8
+          semantic_version: v25.0.9
           extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
@@ -113,7 +113,7 @@ jobs:
     permissions:
       id-token: none
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -129,7 +129,7 @@ jobs:
         with:
           dry_run: ${{ inputs.release != 'release' }}
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
-          semantic_version: v25.0.8
+          semantic_version: v25.0.9
           extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

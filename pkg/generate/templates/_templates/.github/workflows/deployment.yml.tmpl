@@ -115,7 +115,7 @@ jobs:
 <<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+      - uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -168,7 +168,7 @@ jobs:
 <<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+      - uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -181,7 +181,7 @@ jobs:
           client-id: ${{ vars.RELEASE_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
 <<- end >>
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 <<- if ne .Config.GitHub.Release.Auth "github-token" >>
@@ -202,7 +202,7 @@ jobs:
         with:
           dry_run: true
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
-          semantic_version: v25.0.8
+          semantic_version: v25.0.9
           extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
 <<- if eq .Config.GitHub.Release.Auth "github-app" >>
@@ -226,7 +226,7 @@ jobs:
         env:
           APP_VERSION: ${{ steps.semrel_version.outputs.new_release_version }}
 <<- else >>
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: version
         run: |-
           DESCRIBE=$(git describe --tags || echo "v0.0.0")
@@ -281,7 +281,7 @@ jobs:
 <<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+      - uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
@@ -293,7 +293,7 @@ jobs:
           client-id: ${{ vars.RELEASE_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
 <<- end >>
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 <<- if ne .Config.GitHub.Release.Auth "github-token" >>
@@ -320,7 +320,7 @@ jobs:
         with:
           dry_run: ${{ inputs.release != 'release' }}
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
-          semantic_version: v25.0.8
+          semantic_version: v25.0.9
           extra_plugins: ${{ steps.plugins.outputs.list }}
         env:
 <<- if eq .Config.GitHub.Release.Auth "github-app" >>
