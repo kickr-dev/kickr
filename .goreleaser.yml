@@ -8,7 +8,8 @@ snapshot:
   version_template: "{{ .Env.APP_VERSION }}"
 
 builds:
-  - main: ./cmd/kickr
+  - id: kickr
+    main: ./cmd/kickr
     env:
       - CGO_ENABLED=0
     ldflags:
