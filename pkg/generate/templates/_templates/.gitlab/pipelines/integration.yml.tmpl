@@ -67,6 +67,7 @@ include:
       project-dir: {{ $firstnode.Dir }}
 {{- end }}
 {{- end }}
+      publish-enabled: "false"
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}

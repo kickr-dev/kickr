@@ -21,6 +21,7 @@ include:
       build-disabled: "true"
       lint-enabled: "true"
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+      publish-enabled: "false"
 
 go-govulncheck:
   allow_failure: true
