@@ -4,15 +4,15 @@
 APP_VERSION ?= v0.0.0
 
 .PHONY: test
-test:
+test: ## run unit tests.
 	@go test ./... -count 1 -timeout=30s
 
 .PHONY: test-race
-test-race:
+test-race: ## run unit tests with the race detector.
 	@CGO_ENABLED=1 go test ./... -race -timeout=30s
 
 .PHONY: test-cover
-test-cover:
+test-cover: ## run unit tests with coverage.
 	@go test ./... -v -coverpkg="./..." -covermode="count" -timeout=30s
 
 {{- $binaries := dict }}
@@ -23,7 +23,7 @@ test-cover:
 {{- range $name, $_ := $binaries }}{{ $binary = $name }}{{ end }}
 
 .PHONY: build
-build:
+build: ## build the {{ $binary }} binary.
 	@CGO_ENABLED=0 go build \
 		-ldflags "\
 			-X '{{ $specifics.Module }}/internal/build.branch=$(shell git rev-parse --abbrev-ref HEAD)' \
@@ -37,10 +37,10 @@ build:
 {{- if gt .Binaries 1 }}
 
 .PHONY: buildall
-buildall:{{ range $name, $_ := $binaries }} build-{{ $name }}{{ end }}
+buildall:{{ range $name, $_ := $binaries }} build-{{ $name }}{{ end }} ## build every binary.
 
 .PHONY:{{ range $name, $_ := $binaries }} {{ $name }}{{ end }}
-build-%:
+build-%: ## build a binary.
 	@CGO_ENABLED=0 go build \
 		-ldflags "\
 			-X '{{ $specifics.Module }}/internal/build.branch=$(shell git rev-parse --abbrev-ref HEAD)' \
@@ -51,7 +51,7 @@ build-%:
 		-o $* ./cmd/$*
 
 .PHONY:{{ range $name, $_ := $binaries }} {{ $name }}{{ end }}
-local-%:
+local-%: ## run a binary locally.
 	@go run ./cmd/$*
 {{- end }}
 {{- end }}

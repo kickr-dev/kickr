@@ -3,7 +3,7 @@
 {{- $go_modules := .ModulesWith "go" }}
 
 .PHONY: clean
-clean:
+clean: ## clean the repository from build artifacts.
 {{- if gt (len $go_modules) 0 }}
 	@go clean
 {{- end }}

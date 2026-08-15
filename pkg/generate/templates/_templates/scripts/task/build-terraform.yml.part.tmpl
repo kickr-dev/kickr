@@ -1,0 +1,20 @@
+tasks:
+<<- define "terraform" >>
+<<- $terraform_cmd := .Parent.Config.TerraformEngine >>
+  fmt:
+    desc: format terraform files.
+    cmds:
+      - << $terraform_cmd >> fmt -diff -recursive
+  validate:
+    desc: validate terraform configuration.
+    cmds:
+      - << $terraform_cmd >> validate
+  plan:
+    desc: plan terraform changes.
+    cmds:
+      - << $terraform_cmd >> plan
+  test:
+    desc: run terraform tests.
+    cmds:
+      - << $terraform_cmd >> test
+<<- end >>

@@ -18,15 +18,11 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-For repository's root directory, lint and test commands can be run through:
-- `golangci-lint run --config=.golangci.yml`
-- `go test ./... -timeout=30s`
-- `go build -o <command> ./cmd/<command>`
+Global commands can be listed with `just` or `just --list`.
 
-For repository's .terraform directory, format and validation commands can be run through:
-- `tofu fmt -diff -recursive`
-- `tofu validate`
-- `tflint --recursive`
+Specific modules commands can be listed with `just <module-slug>` or `just --list <module-slug>`
+and run with `just <module-slug>::<command>`,
+or listed and run directly from within each module directory with `just` or `just --list`.
 
 ## Commit messages
 

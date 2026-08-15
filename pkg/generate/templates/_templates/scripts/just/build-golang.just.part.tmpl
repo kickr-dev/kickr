@@ -1,0 +1,58 @@
+<<- define "golang" >>
+<<- $specifics := get .Languages "go" >>
+
+# run unit tests.
+test:
+  @go test ./... -count 1 -timeout=30s
+
+# run unit tests with the race detector.
+test-race:
+  @CGO_ENABLED=1 go test ./... -race -timeout=30s
+
+# run unit tests with coverage.
+test-cover:
+  @go test ./... -v -coverpkg="./..." -covermode="count" -timeout=30s
+
+<<- $binaries := dict >>
+<<- $_ := map $binaries .Clis .Crons .Jobs .Workers >>
+
+<<- if eq .Binaries 1 >>
+<<- $binary := "" >>
+<<- range $name, $_ := $binaries >><< $binary = $name >><< end >>
+
+# build the << $binary >> binary.
+build:
+  @CGO_ENABLED=0 go build \
+    -ldflags "\
+      -X '<< $specifics.Module >>/internal/build.branch=$(git rev-parse --abbrev-ref HEAD)' \
+      -X '<< $specifics.Module >>/internal/build.commit=$(git rev-parse HEAD)' \
+      -X '<< $specifics.Module >>/internal/build.date=$(TZ=UTC date '+%Y-%m-%dT%TZ')' \
+      -X '<< $specifics.Module >>/internal/build.version=${APP_VERSION:-v0.0.0}' \
+    " \
+    -o << $binary >> ./cmd/<< $binary >>
+<<- end >>
+
+<<- if gt .Binaries 1 >>
+
+# build every binary.
+buildall:<< range $name, $_ := $binaries >> build-<< $name >><< end >>
+
+<<- range $name, $_ := $binaries >>
+
+# build the << $name >> binary.
+build-<< $name >>:
+  @CGO_ENABLED=0 go build \
+    -ldflags "\
+      -X '<< $specifics.Module >>/internal/build.branch=$(git rev-parse --abbrev-ref HEAD)' \
+      -X '<< $specifics.Module >>/internal/build.commit=$(git rev-parse HEAD)' \
+      -X '<< $specifics.Module >>/internal/build.date=$(TZ=UTC date '+%Y-%m-%dT%TZ')' \
+      -X '<< $specifics.Module >>/internal/build.version=${APP_VERSION:-v0.0.0}' \
+    " \
+    -o << $name >> ./cmd/<< $name >>
+
+# run the << $name >> binary locally.
+local-<< $name >>:
+  @go run ./cmd/<< $name >>
+<<- end >>
+<<- end >>
+<<- end >>

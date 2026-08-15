@@ -38,8 +38,10 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-{{- if .HasMakefile }}{{ template "make" . }}{{- end }}
-{{- if not .HasMakefile }}{{ template "raw" . }}{{- end }}
+{{- if eq .Config.BuildTool "make" }}{{ template "make" . }}{{- end }}
+{{- if eq .Config.BuildTool "task" }}{{ template "task" . }}{{- end }}
+{{- if eq .Config.BuildTool "just" }}{{ template "just" . }}{{- end }}
+{{- if not .Config.BuildTool }}{{ template "raw" . }}{{- end }}
 
 ## Commit messages
 

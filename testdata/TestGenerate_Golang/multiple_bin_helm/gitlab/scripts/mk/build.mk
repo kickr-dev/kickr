@@ -3,22 +3,22 @@
 APP_VERSION ?= v0.0.0
 
 .PHONY: test
-test:
+test: ## run unit tests.
 	@go test ./... -count 1 -timeout=30s
 
 .PHONY: test-race
-test-race:
+test-race: ## run unit tests with the race detector.
 	@CGO_ENABLED=1 go test ./... -race -timeout=30s
 
 .PHONY: test-cover
-test-cover:
+test-cover: ## run unit tests with coverage.
 	@go test ./... -v -coverpkg="./..." -covermode="count" -timeout=30s
 
 .PHONY: buildall
-buildall: build-cron-name build-job-name build-worker-name
+buildall: build-cron-name build-job-name build-worker-name ## build every binary.
 
 .PHONY: cron-name job-name worker-name
-build-%:
+build-%: ## build a binary.
 	@CGO_ENABLED=0 go build \
 		-ldflags "\
 			-X 'gitlab.com/kickr-dev/kickr/internal/build.branch=$(shell git rev-parse --abbrev-ref HEAD)' \
@@ -29,11 +29,11 @@ build-%:
 		-o $* ./cmd/$*
 
 .PHONY: cron-name job-name worker-name
-local-%:
+local-%: ## run a binary locally.
 	@go run ./cmd/$*
 
 .PHONY: docker
-docker:
+docker: ## build the docker image.
 	@docker build . \
 		-f Dockerfile \
 		-t kickr:${APP_VERSION} \

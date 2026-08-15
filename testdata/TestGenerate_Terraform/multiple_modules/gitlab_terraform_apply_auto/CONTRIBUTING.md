@@ -18,20 +18,10 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
-
-Specific modules builds commands can be run with the following commands:
-- From repository's root directory:
-  - `make <module-slug>-lint`
-  - `make <module-slug>-test`
-  - `make <module-slug>-build`
-- Within each module directory:
-  - `make lint`
-  - `make test`
-  - `make build`
+For repository's modules/one, modules/two directories, format and validation commands can be run through:
+- `terraform fmt -diff -recursive`
+- `terraform validate`
+- `tflint --recursive`
 
 ## Commit messages
 

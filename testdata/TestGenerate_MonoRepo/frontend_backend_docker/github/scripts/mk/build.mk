@@ -3,13 +3,13 @@
 APP_VERSION ?= v0.0.0
 
 .PHONY: test
-test:
+test: ## run unit tests.
 	@go test ./... -count 1 -timeout=30s
 
 .PHONY: test-race
-test-race:
+test-race: ## run unit tests with the race detector.
 	@CGO_ENABLED=1 go test ./... -race -timeout=30s
 
 .PHONY: test-cover
-test-cover:
+test-cover: ## run unit tests with coverage.
 	@go test ./... -v -coverpkg="./..." -covermode="count" -timeout=30s

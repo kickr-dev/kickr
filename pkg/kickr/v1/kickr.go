@@ -10,6 +10,16 @@ type Kickr struct {
 	// Description is a free-form text that may be used in various cases like in the Helm chart, the Dockerfile, etc.
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 
+	// BuildTool defines the build tool used to generate task automation (Makefile, Taskfile or Justfile).
+	//
+	// Leave unset to skip build tooling generation entirely.
+	//
+	// Enums:
+	//  - make
+	//  - task
+	//  - just
+	BuildTool string `json:"build_tool,omitempty" yaml:"build_tool,omitempty"`
+
 	// Docker defines the general Docker configuration.
 	Docker *Docker `json:"docker,omitempty" yaml:"docker,omitempty"`
 
@@ -17,7 +27,6 @@ type Kickr struct {
 	//
 	// Enums:
 	//  - code-of-conduct
-	//  - makefile
 	//  - pre-commit
 	//  - renovate
 	//  - shell
@@ -108,8 +117,8 @@ type Module struct {
 	// Exclude defines available options to remove from this module generation.
 	//
 	// Enums:
+	//  - build_tool
 	//  - docker
-	//  - makefile
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
 	// Deployment defines where and how the module is deployed.

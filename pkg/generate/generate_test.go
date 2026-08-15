@@ -71,7 +71,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Exclude: []string{kickr.ExcludeRenovate},
 					}, tc.Config),
 				}
 
@@ -101,7 +101,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+						Exclude: []string{kickr.ExcludeShell},
 					}, tc.Config),
 				}
 
@@ -131,7 +131,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeShell},
+						Exclude: []string{kickr.ExcludeShell},
 					}, tc.Config),
 				}
 
@@ -151,7 +151,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			}
 
 			repo := types.Repository{
-				Config: kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile}},
+				Config: kickr.Kickr{},
 			}
 
 			// Act & Assert
@@ -177,7 +177,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Exclude:   []string{kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
 					}, tc.Config),
 				}
@@ -224,7 +224,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Exclude: []string{kickr.ExcludeRenovate},
 					}, tc.Config),
 				}
 
@@ -250,7 +250,7 @@ func TestGenerate_Shell(t *testing.T) {
 		t.Run(tc.Name, func(t *testing.T) {
 			// Arrange
 			repo := types.Repository{
-				Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate}}, tc.Config),
+				Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
 			}
 
 			// Act & Assert
@@ -267,7 +267,7 @@ func TestGenerate_Shell(t *testing.T) {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate}}, tc.Config),
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -311,8 +311,8 @@ func TestGenerate_Golang(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{Release: &kickr.Release{}}}},
-			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{Release: &kickr.Release{}}}},
+			{Name: "github", Config: kickr.Kickr{BuildTool: kickr.BuildToolTask, GitHub: &kickr.GitHub{Release: &kickr.Release{}}}},
+			{Name: "gitlab", Config: kickr.Kickr{BuildTool: kickr.BuildToolJust, GitLab: &kickr.GitLab{Release: &kickr.Release{}}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
@@ -342,7 +342,7 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: kickr.Kickr{
-						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Exclude:   []string{kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitGomodTidy},
 						Platform:  platform,
 					},
@@ -421,7 +421,8 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Docker: &kickr.Docker{Path: "path/to/image", Registry: "registry.example.com"},
+						BuildTool: kickr.BuildToolMake,
+						Docker:    &kickr.Docker{Path: "path/to/image", Registry: "registry.example.com"},
 						Helm: &kickr.Helm{
 							Deploy:       kickr.HelmDeployManual,
 							Environments: []string{kickr.EnvironmentStaging, kickr.EnvironmentProduction},
@@ -468,7 +469,7 @@ func TestGenerate_Golang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: kickr.Kickr{
-						Exclude:   []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Exclude:   []string{kickr.ExcludeRenovate},
 						PreCommit: []string{kickr.PreCommitGomodTidy},
 						Platform:  platform,
 					},
@@ -518,7 +519,8 @@ func TestGenerate_Hugo(t *testing.T) {
 			{
 				Name: "github_netlify_auto",
 				Config: kickr.Kickr{
-					GitHub: &kickr.GitHub{},
+					BuildTool: kickr.BuildToolTask,
+					GitHub:    &kickr.GitHub{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify, Auto: true}},
 					},
@@ -545,7 +547,8 @@ func TestGenerate_Hugo(t *testing.T) {
 			{
 				Name: "gitlab_netlify",
 				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{},
+					BuildTool: kickr.BuildToolJust,
+					GitLab:    &kickr.GitLab{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
 					},
@@ -554,7 +557,8 @@ func TestGenerate_Hugo(t *testing.T) {
 			{
 				Name: "github_pages_auto",
 				Config: kickr.Kickr{
-					GitHub: &kickr.GitHub{},
+					BuildTool: kickr.BuildToolTask,
+					GitHub:    &kickr.GitHub{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages, Auto: true}},
 					},
@@ -581,7 +585,8 @@ func TestGenerate_Hugo(t *testing.T) {
 			{
 				Name: "gitlab_pages",
 				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{},
+					BuildTool: kickr.BuildToolJust,
+					GitLab:    &kickr.GitLab{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages}},
 					},
@@ -705,7 +710,8 @@ func TestGenerate_Node(t *testing.T) {
 			{
 				Name: "github_netlify_auto",
 				Config: kickr.Kickr{
-					GitHub: &kickr.GitHub{},
+					BuildTool: kickr.BuildToolTask,
+					GitHub:    &kickr.GitHub{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify, Auto: true}},
 					},
@@ -732,7 +738,8 @@ func TestGenerate_Node(t *testing.T) {
 			{
 				Name: "gitlab_netlify",
 				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{},
+					BuildTool: kickr.BuildToolJust,
+					GitLab:    &kickr.GitLab{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetNetlify}},
 					},
@@ -741,7 +748,8 @@ func TestGenerate_Node(t *testing.T) {
 			{
 				Name: "github_pages_auto",
 				Config: kickr.Kickr{
-					GitHub: &kickr.GitHub{},
+					BuildTool: kickr.BuildToolTask,
+					GitHub:    &kickr.GitHub{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages, Auto: true}},
 					},
@@ -768,7 +776,8 @@ func TestGenerate_Node(t *testing.T) {
 			{
 				Name: "gitlab_pages",
 				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{},
+					BuildTool: kickr.BuildToolJust,
+					GitLab:    &kickr.GitLab{},
 					Modules: []kickr.Module{
 						{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetPages}},
 					},
@@ -780,7 +789,7 @@ func TestGenerate_Node(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Exclude: []string{kickr.ExcludeRenovate},
 					}, tc.Config),
 				}
 
@@ -904,7 +913,7 @@ func TestGenerate_Node(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludeRenovate},
+						Exclude: []string{kickr.ExcludeRenovate},
 					}, tc.Config),
 				}
 
@@ -990,7 +999,8 @@ func TestGenerate_Terraform(t *testing.T) {
 			{
 				Name: "github_tofu_apply_manual",
 				Config: kickr.Kickr{
-					GitHub: &kickr.GitHub{Release: &kickr.Release{}},
+					BuildTool: kickr.BuildToolTask,
+					GitHub:    &kickr.GitHub{Release: &kickr.Release{}},
 					Modules: []kickr.Module{
 						{Path: types.RootModule},
 						{
@@ -1015,7 +1025,8 @@ func TestGenerate_Terraform(t *testing.T) {
 			{
 				Name: "github_terraform_apply_auto",
 				Config: kickr.Kickr{
-					GitHub: &kickr.GitHub{Release: &kickr.Release{}},
+					BuildTool: kickr.BuildToolJust,
+					GitHub:    &kickr.GitHub{Release: &kickr.Release{}},
 					Modules: []kickr.Module{
 						{Path: types.RootModule},
 						{
@@ -1215,7 +1226,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
 						Docker:  &kickr.Docker{},
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 						Modules: []kickr.Module{
 							{Deployment: &kickr.Deployment{Target: target}, Exclude: []string{kickr.ModuleExcludeDocker}, Path: "docs"},
 						},
@@ -1292,9 +1303,10 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Docker:  &kickr.Docker{},
-						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Modules: []kickr.Module{{Path: "backend"}, {Path: "frontend"}},
+						BuildTool: kickr.BuildToolMake,
+						Docker:    &kickr.Docker{},
+						Exclude:   []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
+						Modules:   []kickr.Module{{Path: "backend"}, {Path: "frontend"}},
 					}, tc.Config),
 				}
 
@@ -1306,15 +1318,15 @@ func TestGenerate_MonoRepo(t *testing.T) {
 
 	t.Run("go_self_terraform", func(t *testing.T) {
 		cases := []testcase{
-			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
-			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+			{Name: "github", Config: kickr.Kickr{BuildTool: kickr.BuildToolTask, GitHub: &kickr.GitHub{}}},
+			{Name: "gitlab", Config: kickr.Kickr{BuildTool: kickr.BuildToolJust, GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeMakefile, kickr.ExcludePreCommit},
+						Exclude: []string{kickr.ExcludePreCommit},
 						Modules: []kickr.Module{
 							{Path: ".terraform", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu}},
 						},
@@ -1437,12 +1449,16 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Docker()),   // module docker
 			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Golang()),   // module golang
 			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Makefile()), // module makefile
+			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Taskfile()), // module taskfile
+			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Justfile()), // module justfile
 
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
+			engine.GeneratorTemplates(templates.FS(), templates.RepositoryTaskfile()),                                                     // taskfile
+			engine.GeneratorTemplates(templates.FS(), templates.RepositoryJustfile()),                                                     // justfile
 			engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
 			engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
 			engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform

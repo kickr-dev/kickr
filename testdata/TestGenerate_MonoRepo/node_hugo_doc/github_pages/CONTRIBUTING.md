@@ -18,20 +18,14 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
+For repository's docs, website directories, build commands can be run through:
+- `hugo --gc --minify --destination dist`
+- `hugo server --disableFastRender --destination dist`
 
-Specific modules builds commands can be run with the following commands:
-- From repository's root directory:
-  - `make <module-slug>-lint`
-  - `make <module-slug>-test`
-  - `make <module-slug>-build`
-- Within each module directory:
-  - `make lint`
-  - `make test`
-  - `make build`
+For repository's root directory, lint, test and build commands can be run through:
+- `bun run lint`
+- `bun run test`
+- `bun run build`
 
 ## Commit messages
 

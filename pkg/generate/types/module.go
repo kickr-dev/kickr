@@ -66,6 +66,20 @@ func (m *Module) SetGlob(name string, matches []string) *Module {
 	return m
 }
 
+// HasBuildTool returns truthy when the module should have the given build tool's automation file.
+func (m Module) HasBuildTool(tool string) bool {
+	if m.Parent.Config.BuildTool != tool {
+		return false
+	}
+	if slices.Contains(m.Config.Exclude, kickr.ModuleExcludeBuildTool) {
+		return false
+	}
+	if _, ok := m.Languages[LanguageNode]; ok && len(m.Languages) == 1 {
+		return false
+	}
+	return true
+}
+
 // HasDocker returns truthy when the module should have a Dockerfile.
 func (m Module) HasDocker() bool {
 	if m.Parent.Config.Docker == nil || slices.Contains(m.Config.Exclude, kickr.ModuleExcludeDocker) {
@@ -80,15 +94,4 @@ func (m Module) HasDocker() bool {
 		}
 	}
 	return false
-}
-
-// HasMakefile returns truthy when the module should have a Makefile.
-func (m Module) HasMakefile() bool {
-	if slices.Contains(m.Parent.Config.Exclude, kickr.ExcludeMakefile) || slices.Contains(m.Config.Exclude, kickr.ModuleExcludeMakefile) {
-		return false
-	}
-	if _, ok := m.Languages[LanguageNode]; ok && len(m.Languages) == 1 {
-		return false
-	}
-	return true
 }

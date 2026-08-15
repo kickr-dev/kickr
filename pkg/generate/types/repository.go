@@ -27,10 +27,10 @@ func RepositoryModules(repo Repository) []Module {
 	return repo.Modules
 }
 
-// HasLanguages returns truthy when at least one repository module contains a language.
-func (r Repository) HasLanguages() bool {
+// HasBuildTool returns truthy when at least one repository module gets the given build tool's automation file.
+func (r Repository) HasBuildTool(tool string) bool {
 	for _, module := range r.Modules {
-		if len(module.Languages) > 0 {
+		if module.HasBuildTool(tool) {
 			return true
 		}
 	}
@@ -47,10 +47,10 @@ func (r Repository) HasDocker() bool {
 	return false
 }
 
-// HasMakefile returns truthy when at least one repository module gets a Makefile.
-func (r Repository) HasMakefile() bool {
+// HasLanguages returns truthy when at least one repository module contains a language.
+func (r Repository) HasLanguages() bool {
 	for _, module := range r.Modules {
-		if module.HasMakefile() {
+		if len(module.Languages) > 0 {
 			return true
 		}
 	}

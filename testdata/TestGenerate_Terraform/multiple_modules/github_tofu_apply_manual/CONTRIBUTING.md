@@ -18,20 +18,11 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
+Global commands can be listed with `task` or `task --list-all`.
 
-Specific modules builds commands can be run with the following commands:
-- From repository's root directory:
-  - `make <module-slug>-lint`
-  - `make <module-slug>-test`
-  - `make <module-slug>-build`
-- Within each module directory:
-  - `make lint`
-  - `make test`
-  - `make build`
+Specific modules commands can be listed with `task <module-slug>` or `task --list-all <module-slug>`
+and run with `task <module-slug>:<command>`,
+or listed and run directly from within each module directory with `task` or `task --list-all`.
 
 ## Commit messages
 

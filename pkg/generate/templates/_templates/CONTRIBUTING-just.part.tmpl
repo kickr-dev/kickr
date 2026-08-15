@@ -1,0 +1,11 @@
+{{- define "just" }}
+
+Global commands can be listed with `just` or `just --list`.
+
+{{- if gt (len .Modules) 1 }}
+
+Specific modules commands can be listed with `just <module-slug>` or `just --list <module-slug>`
+and run with `just <module-slug>::<command>`,
+or listed and run directly from within each module directory with `just` or `just --list`.
+{{- end }}
+{{- end }}

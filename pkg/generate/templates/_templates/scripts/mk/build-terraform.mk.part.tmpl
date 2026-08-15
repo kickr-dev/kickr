@@ -2,15 +2,15 @@
 
 {{- $terraform_cmd := .Parent.Config.TerraformEngine }}
 
-fmt:
+fmt: ## format terraform files.
 	@{{ $terraform_cmd }} fmt -diff -recursive
 
-validate:
+validate: ## validate terraform configuration.
 	@{{ $terraform_cmd }} validate
 
-plan:
+plan: ## plan terraform changes.
 	@{{ $terraform_cmd }} plan
 
-test:
+test: ## run terraform tests.
 	@{{ $terraform_cmd }} test
 {{- end }}

@@ -1,0 +1,11 @@
+{{- define "task" }}
+
+Global commands can be listed with `task` or `task --list-all`.
+
+{{- if gt (len .Modules) 1 }}
+
+Specific modules commands can be listed with `task <module-slug>` or `task --list-all <module-slug>`
+and run with `task <module-slug>:<command>`,
+or listed and run directly from within each module directory with `task` or `task --list-all`.
+{{- end }}
+{{- end }}

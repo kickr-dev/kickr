@@ -9,31 +9,31 @@
 GOCI_LINT_PATH ?= .golangci.yml
 
 .PHONY: {{ $make }}
-{{ $make }}:
+{{ $make }}: ## lint go files.
 	@golangci-lint run --config=${GOCI_LINT_PATH} --timeout=300s --allow-parallel-runners \
 		--output.text.path=stdout $(ARGS) || \
 		echo "golangci-lint failed, running 'make {{ $make }}-fix' may fix some issues"
 
 .PHONY: {{ $make }}-fix
-{{ $make }}-fix:
+{{ $make }}-fix: ## lint and fix go files.
 	@ARGS="--fix" make -s {{ $make }}
 {{- end }}
 
 {{- if gt (len $terraform_modules) 0 }}
-{{- $make := gt (len $terraform_modules) 0 | ternary "tflint" "lint" }}
+{{- $make := gt (len $go_modules) 0 | ternary "tflint" "lint" }}
 
 TFLINT_PATH ?= .tflint.hcl
 
 .PHONY: fmt
-fmt:
+fmt: ## format terraform files.
 	@{{ .Config.TerraformEngine }} fmt -diff -recursive
 
 .PHONY: {{ $make }}
-{{ $make }}:
+{{ $make }}: ## lint terraform files.
 	@tflint --config "${TFLINT_PATH}" --recursive --format compact $(ARGS) || \
 		echo "tflint failed, running 'make {{ $make }}-fix' may fix some issues"
 
 .PHONY: {{ $make }}-fix
-{{ $make }}-fix:
+{{ $make }}-fix: ## lint and fix terraform files.
 	@ARGS="--fix" make -s {{ $make }}
 {{- end }}

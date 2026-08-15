@@ -10,6 +10,12 @@ const (
 )
 
 const (
+	BuildToolJust = "just"
+	BuildToolMake = "make"
+	BuildToolTask = "task"
+)
+
+const (
 	DeploymentTargetHelm    = "helm"
 	DeploymentTargetNetlify = "netlify"
 	DeploymentTargetPages   = "pages"
@@ -17,7 +23,6 @@ const (
 
 const (
 	ExcludeCodeOfConduct = "code-of-conduct"
-	ExcludeMakefile      = "makefile"
 	ExcludePreCommit     = "pre-commit"
 	ExcludeRenovate      = "renovate"
 	ExcludeShell         = "shell"
@@ -28,8 +33,8 @@ const (
 )
 
 const (
-	ModuleExcludeDocker   = "docker"
-	ModuleExcludeMakefile = "makefile"
+	ModuleExcludeBuildTool = "build_tool"
+	ModuleExcludeDocker    = "docker"
 )
 
 const (

@@ -18,10 +18,7 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-For repository's root directory, lint, test and build commands can be run through:
-- `bun run lint`
-- `bun run test`
-- `bun run build`
+Global commands can be listed with `task` or `task --list-all`.
 
 ## Commit messages
 

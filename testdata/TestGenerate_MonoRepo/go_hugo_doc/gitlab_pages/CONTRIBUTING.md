@@ -18,23 +18,14 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
-- `make docker`
+For repository's root directory, lint and test commands can be run through:
+- `golangci-lint run --config=.golangci.yml`
+- `go test ./... -timeout=30s`
+- `go build -o <command> ./cmd/<command>`
 
-Specific modules builds commands can be run with the following commands:
-- From repository's root directory:
-  - `make <module-slug>-lint`
-  - `make <module-slug>-test`
-  - `make <module-slug>-build`
-  - `make <module-slug>-docker`
-- Within each module directory:
-  - `make lint`
-  - `make test`
-  - `make build`
-  - `make docker`
+For repository's docs directory, build commands can be run through:
+- `hugo --gc --minify --destination dist`
+- `hugo server --disableFastRender --destination dist`
 
 ## Commit messages
 

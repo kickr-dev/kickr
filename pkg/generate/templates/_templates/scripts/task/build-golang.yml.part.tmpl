@@ -1,0 +1,79 @@
+tasks:
+<<- define "golang" >>
+<<- $specifics := get .Languages "go" >>
+  test:
+    desc: run unit tests.
+    cmds:
+      - go test ./... -count 1 -timeout=30s
+  test-race:
+    desc: run unit tests with the race detector.
+    cmds:
+      - CGO_ENABLED="1" go test ./... -race -timeout=30s
+  test-cover:
+    desc: run unit tests with coverage.
+    cmds:
+      - go test ./... -v -coverpkg="./..." -covermode="count" -timeout=30s
+
+<<- $binaries := dict >>
+<<- $_ := map $binaries .Clis .Crons .Jobs .Workers >>
+
+<<- if eq .Binaries 1 >>
+<<- $binary := "" >>
+<<- range $name, $_ := $binaries >><< $binary = $name >><< end >>
+  build:
+    desc: build the << $binary >> binary.
+    vars:
+      APP_VERSION: '{{ env "APP_VERSION" | default "v0.0.0" }}'
+      GIT_BRANCH:
+        sh: git rev-parse --abbrev-ref HEAD
+      GIT_COMMIT:
+        sh: git rev-parse HEAD
+      BUILD_DATE:
+        sh: TZ=UTC date '+%Y-%m-%dT%TZ'
+    cmds:
+      - |-
+        CGO_ENABLED="0" go build \
+          -ldflags "\
+            -X '<< $specifics.Module >>/internal/build.branch={{ .GIT_BRANCH }}' \
+            -X '<< $specifics.Module >>/internal/build.commit={{ .GIT_COMMIT }}' \
+            -X '<< $specifics.Module >>/internal/build.date={{ .BUILD_DATE }}' \
+            -X '<< $specifics.Module >>/internal/build.version={{ .APP_VERSION }}' \
+          " \
+          -o << $binary >> ./cmd/<< $binary >>
+<<- end >>
+
+<<- if gt .Binaries 1 >>
+  buildall:
+    desc: build every binary.
+    deps:
+<<- range $name, $_ := $binaries >>
+      - build-<< $name >>
+<<- end >>
+<<- range $name, $_ := $binaries >>
+  build-<< $name >>:
+    desc: build the << $name >> binary.
+    vars:
+      APP_VERSION: '{{ env "APP_VERSION" | default "v0.0.0" }}'
+      GIT_BRANCH:
+        sh: git rev-parse --abbrev-ref HEAD
+      GIT_COMMIT:
+        sh: git rev-parse HEAD
+      BUILD_DATE:
+        sh: TZ=UTC date '+%Y-%m-%dT%TZ'
+    cmds:
+      - |-
+        CGO_ENABLED="0" go build \
+          -ldflags "\
+            -X '<< $specifics.Module >>/internal/build.branch={{ .GIT_BRANCH }}' \
+            -X '<< $specifics.Module >>/internal/build.commit={{ .GIT_COMMIT }}' \
+            -X '<< $specifics.Module >>/internal/build.date={{ .BUILD_DATE }}' \
+            -X '<< $specifics.Module >>/internal/build.version={{ .APP_VERSION }}' \
+          " \
+          -o << $name >> ./cmd/<< $name >>
+  local-<< $name >>:
+    desc: run the << $name >> binary locally.
+    cmds:
+      - go run ./cmd/<< $name >>
+<<- end >>
+<<- end >>
+<<- end >>

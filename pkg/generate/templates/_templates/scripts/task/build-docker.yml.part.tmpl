@@ -1,0 +1,19 @@
+tasks:
+<<- define "docker" >>
+  docker:
+    desc: build the docker image.
+    vars:
+      APP_VERSION: '{{ env "APP_VERSION" | default "v0.0.0" }}'
+      GIT_BRANCH:
+        sh: git rev-parse --abbrev-ref HEAD
+      GIT_COMMIT:
+        sh: git rev-parse HEAD
+    cmds:
+      - |-
+        docker build . \
+          -f Dockerfile \
+          -t << .Parent.VCS.ProjectName >><< with .Slug >>/<< . >><< end >>:{{ .APP_VERSION }} \
+          --build-arg GIT_REF_NAME={{ .GIT_BRANCH }} \
+          --build-arg GIT_COMMIT={{ .GIT_COMMIT }} \
+          --build-arg APP_VERSION={{ .APP_VERSION }}
+<<- end >>

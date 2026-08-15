@@ -1,0 +1,19 @@
+<<- define "terraform" >>
+<<- $terraform_cmd := .Parent.Config.TerraformEngine >>
+
+# format terraform files.
+fmt:
+  @<< $terraform_cmd >> fmt -diff -recursive
+
+# validate terraform configuration.
+validate:
+  @<< $terraform_cmd >> validate
+
+# plan terraform changes.
+plan:
+  @<< $terraform_cmd >> plan
+
+# run terraform tests.
+test:
+  @<< $terraform_cmd >> test
+<<- end >>

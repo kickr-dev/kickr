@@ -21,6 +21,14 @@ properties:
     type: string
     description: A free-form text that may be used in various cases like in the Helm chart, the Dockerfile, etc.
 
+  build_tool:
+    type: string
+    description: |-
+      The build tool used to generate task automation (Makefile, Taskfile or Justfile).
+
+      Leave unset to skip build tooling generation entirely.
+    enum: [make, task, just]
+
   docker:
     $ref: "#/$defs/docker"
 
@@ -29,7 +37,7 @@ properties:
     description: Exclude part of Kickr generation.
     items:
       type: string
-      enum: [code-of-conduct, makefile, pre-commit, renovate, shell]
+      enum: [code-of-conduct, pre-commit, renovate, shell]
 
   github:
     type: object
@@ -328,7 +336,7 @@ $defs:
         description: Available options to remove from this module generation.
         items:
           type: string
-          enum: [docker, makefile]
+          enum: [build_tool, docker]
       terraform:
         $ref: "#/$defs/terraform"
 

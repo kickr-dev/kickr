@@ -19,11 +19,6 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
-
 ## Commit messages
 
 Commits must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): summary` (scope optional).

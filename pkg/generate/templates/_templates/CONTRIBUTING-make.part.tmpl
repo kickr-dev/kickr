@@ -1,29 +1,11 @@
 {{- define "make" }}
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
-{{- if .HasDocker }}
-- `make docker`
-{{- end }}
+Global commands can be listed with `make` or `make help`.
 
 {{- if gt (len .Modules) 1 }}
 
-Specific modules builds commands can be run with the following commands:
-- From repository's root directory:
-  - `make <module-slug>-lint`
-  - `make <module-slug>-test`
-  - `make <module-slug>-build`
-{{- if .HasDocker }}
-  - `make <module-slug>-docker`
-{{- end }}
-- Within each module directory:
-  - `make lint`
-  - `make test`
-  - `make build`
-{{- if .HasDocker }}
-  - `make docker`
-{{- end }}
+Specific modules commands can be listed with `make <module-slug>-help`
+and run with `make <module-slug>-<command>`,
+or listed and run directly from within each module directory with `make` or `make help`.
 {{- end }}
 {{- end }}

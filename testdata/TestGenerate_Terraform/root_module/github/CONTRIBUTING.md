@@ -18,10 +18,10 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
+For repository's . directory, format and validation commands can be run through:
+- `tofu fmt -diff -recursive`
+- `tofu validate`
+- `tflint --recursive`
 
 ## Commit messages
 

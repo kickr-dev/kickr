@@ -18,11 +18,7 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-- `make build`
-- `make docker`
+Global commands can be listed with `make` or `make help`.
 
 ## Commit messages
 

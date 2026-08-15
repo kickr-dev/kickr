@@ -1,7 +1,7 @@
 {{- define "docker" }}
 
 .PHONY: docker
-docker:
+docker: ## build the docker image.
 	@docker build . \
 		-f Dockerfile \
 		-t {{ .Parent.VCS.ProjectName }}{{ with .Slug }}/{{ . }}{{ end }}:${APP_VERSION} \

@@ -3,19 +3,19 @@
 APP_VERSION ?= v0.0.0
 
 .PHONY: test
-test:
+test: ## run unit tests.
 	@go test ./... -count 1 -timeout=30s
 
 .PHONY: test-race
-test-race:
+test-race: ## run unit tests with the race detector.
 	@CGO_ENABLED=1 go test ./... -race -timeout=30s
 
 .PHONY: test-cover
-test-cover:
+test-cover: ## run unit tests with coverage.
 	@go test ./... -v -coverpkg="./..." -covermode="count" -timeout=30s
 
 .PHONY: build
-build:
+build: ## build the api binary.
 	@CGO_ENABLED=0 go build \
 		-ldflags "\
 			-X 'github.com/kickr-dev/kickr/internal/build.branch=$(shell git rev-parse --abbrev-ref HEAD)' \
@@ -26,7 +26,7 @@ build:
 		-o api ./cmd/api
 
 .PHONY: docker
-docker:
+docker: ## build the docker image.
 	@docker build . \
 		-f Dockerfile \
 		-t kickr/backend:${APP_VERSION} \

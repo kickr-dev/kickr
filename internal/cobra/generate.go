@@ -37,12 +37,16 @@ func generators() []engine.Generator[types.Repository] {
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Docker()),   // module docker
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Golang()),   // module golang
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Makefile()), // module makefile
+		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Taskfile()), // module taskfile
+		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Justfile()), // module justfile
 
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 		engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
 		engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
+		engine.GeneratorTemplates(templates.FS(), templates.RepositoryTaskfile()),                                                     // taskfile
+		engine.GeneratorTemplates(templates.FS(), templates.RepositoryJustfile()),                                                     // justfile
 		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
 		engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
 		engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
