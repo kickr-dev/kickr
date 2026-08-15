@@ -38,87 +38,8 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 
 ## Development setup
 
-{{- $engine := .Config.TerraformEngine }}
-
-{{- if .HasMakefile }}
-
-Global builds commands can be run with the following commands:
-- `make lint`
-- `make test`
-
-{{- if gt (len .Modules) 1 }}
-
-Specific modules builds commands can be run with the following commands:
-- From repository's root directory:
-  - `make <module-slug>-lint`
-  - `make <module-slug>-test`
-  - `make <module-slug>-build`
-{{- if .HasDocker }}
-  - `make <module-slug>-docker`
-{{- end }}
-- Within each module directory:
-  - `make lint`
-  - `make test`
-  - `make build`
-{{- if .HasDocker }}
-  - `make docker`
-{{- end }}
-{{- end }}
-
-{{- else }}
-
-{{- $go_modules := .ModulesWith "go" }}
-{{- if gt (len $go_modules) 0 }}
-{{- $dirs := list }}
-{{- range $go_modules }}{{ $dirs = append $dirs (ne .Dir "." | ternary .Dir "root") }}{{ end }}
-{{- $plural := eq (len $dirs) 1 | ternary "directory" "directories" }}
-
-For repository's {{ join ", " $dirs }} {{ $plural }}, lint and test commands can be run through:
-- `golangci-lint run --config=.golangci.yml`
-- `go test ./... -timeout=30s`
-{{- if gt .Executables.Binaries 0 }}
-- `go build -o <command> ./cmd/<command>`
-{{- end }}
-{{- end }}
-
-{{- $hugo_modules := .ModulesWith "hugo" }}
-{{- if gt (len $hugo_modules) 0 }}
-{{- $dirs := list }}
-{{- range $hugo_modules }}{{ $dirs = append $dirs (ne .Dir "." | ternary .Dir "root") }}{{ end }}
-{{- $plural := eq (len $dirs) 1 | ternary "directory" "directories" }}
-
-For repository's {{ join ", " $dirs }} {{ $plural }}, build commands can be run through:
-- `hugo --gc --minify --destination dist`
-- `hugo server --disableFastRender --destination dist`
-{{- end }}
-
-{{- $node_modules := .ModulesWith "node" }}
-{{- if gt (len $node_modules) 0 }}
-{{- $dirs := list }}
-{{- range $node_modules }}{{ $dirs = append $dirs (ne .Dir "." | ternary .Dir "root") }}{{ end }}
-{{- $firstnode := first $node_modules }}
-{{- $manager := cutAfter (get $firstnode.Languages "node").PackageManager "@" }}
-{{- $plural := eq (len $dirs) 1 | ternary "directory" "directories" }}
-
-For repository's {{ join ", " $dirs }} {{ $plural }}, lint, test and build commands can be run through:
-- `{{ $manager }} run lint`
-- `{{ $manager }} run test`
-- `{{ $manager }} run build`
-{{- end }}
-
-{{- $tf_modules := .ModulesWith "terraform" }}
-{{- if gt (len $tf_modules) 0 }}
-{{- $dirs := list }}
-{{- range $tf_modules }}{{ $dirs = append $dirs (.Dir | default "root") }}{{ end }}
-{{- $plural := eq (len $dirs) 1 | ternary "directory" "directories" }}
-
-For repository's {{ join ", " $dirs }} {{ $plural }}, format and validation commands can be run through:
-- `{{ $engine }} fmt -diff -recursive`
-- `{{ $engine }} validate`
-- `tflint --recursive`
-{{- end }}
-
-{{- end }}
+{{- if .HasMakefile }}{{ template "make" . }}{{- end }}
+{{- if not .HasMakefile }}{{ template "raw" . }}{{- end }}
 
 ## Commit messages
 

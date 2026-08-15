@@ -1,0 +1,58 @@
+{{- define "raw" }}
+
+{{- $engine := .Config.TerraformEngine }}
+
+{{- $go_modules := .ModulesWith "go" }}
+{{- $go_directories := list }}
+{{- range $go_modules }}{{ $go_directories = append $go_directories (ne .Dir "." | ternary .Dir "root") }}{{ end }}
+
+{{- $hugo_modules := .ModulesWith "hugo" }}
+{{- $hugo_directories := list }}
+{{- range $hugo_modules }}{{ $hugo_directories = append $hugo_directories (ne .Dir "." | ternary .Dir "root") }}{{ end }}
+
+{{- $node_modules := .ModulesWith "node" }}
+{{- $node_directories := list }}
+{{- range $node_modules }}{{ $node_directories = append $node_directories (ne .Dir "." | ternary .Dir "root") }}{{ end }}
+
+{{- $terraform_modules := .ModulesWith "terraform" }}
+{{- $terraform_directories := list }}
+{{- range $terraform_modules }}{{ $terraform_directories = append $terraform_directories (.Dir | default "root") }}{{ end }}
+
+{{- if gt (len $go_modules) 0 }}
+{{- $plural := eq (len $go_directories) 1 | ternary "directory" "directories" }}
+
+For repository's {{ join ", " $go_directories }} {{ $plural }}, lint and test commands can be run through:
+- `golangci-lint run --config=.golangci.yml`
+- `go test ./... -timeout=30s`
+{{- if gt .Executables.Binaries 0 }}
+- `go build -o <command> ./cmd/<command>`
+{{- end }}
+{{- end }}
+
+{{- if gt (len $hugo_modules) 0 }}
+{{- $plural := eq (len $hugo_directories) 1 | ternary "directory" "directories" }}
+
+For repository's {{ join ", " $hugo_directories }} {{ $plural }}, build commands can be run through:
+- `hugo --gc --minify --destination dist`
+- `hugo server --disableFastRender --destination dist`
+{{- end }}
+
+{{- if gt (len $node_modules) 0 }}
+{{- $manager := cutAfter (get (first $node_modules).Languages "node").PackageManager "@" }}
+{{- $plural := eq (len $node_directories) 1 | ternary "directory" "directories" }}
+
+For repository's {{ join ", " $node_directories }} {{ $plural }}, lint, test and build commands can be run through:
+- `{{ $manager }} run lint`
+- `{{ $manager }} run test`
+- `{{ $manager }} run build`
+{{- end }}
+
+{{- if gt (len $terraform_modules) 0 }}
+{{- $plural := eq (len $terraform_directories) 1 | ternary "directory" "directories" }}
+
+For repository's {{ join ", " $terraform_directories }} {{ $plural }}, format and validation commands can be run through:
+- `{{ $engine }} fmt -diff -recursive`
+- `{{ $engine }} validate`
+- `tflint --recursive`
+{{- end }}
+{{- end }}

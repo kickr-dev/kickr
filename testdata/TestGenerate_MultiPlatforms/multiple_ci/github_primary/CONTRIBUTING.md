@@ -22,6 +22,7 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 Global builds commands can be run with the following commands:
 - `make lint`
 - `make test`
+- `make build`
 
 ## Commit messages
 

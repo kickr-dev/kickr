@@ -21,7 +21,7 @@ func Misc() []engine.Template[types.Repository] {
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{"CONTRIBUTING.md" + engine.TmplExtension},
+			Globs:      engine.GlobsWithPart("CONTRIBUTING.md"),
 			Out:        "CONTRIBUTING.md",
 		},
 		{
