@@ -25,33 +25,6 @@
     reports:
       dotenv: netlify.out.env
 
-.netlify-deploy-review:
-  extends: .netlify-deploy
-  environment:
-    name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
-    action: start
-    on_stop: netlify-cleanup-review
-    url: $ENVIRONMENT_URL
-  variables:
-    ARGS: --prod --message=$CI_COMMIT_REF_NAME
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      when: never
-    - when: manual
-      allow_failure: true
-
-.netlify-deploy-production:
-  extends: .netlify-deploy
-  environment:
-    name: production${NETLIFY_ENVIRONMENT_NAMESPACE}
-    action: start
-    url: $ENVIRONMENT_URL
-  variables:
-    ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-  rules:
-    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF'
-      when: never
-
 .netlify-cleanup:
   image: $NETLIFY_IMAGE
   stage: deploy
@@ -70,8 +43,38 @@
       for id in $(jq -r '.[].id' netlify-deploys.json); do
         netlify api deleteSiteDeploy --auth "$NETLIFY_AUTH_TOKEN" --data "{\"site_id\": \"$NETLIFY_SITE_ID\", \"deploy_id\": \"$id\"}"
       done
+{{- end }}
 
-.netlify-cleanup-review:
+{{- range $netlify_modules }}
+
+netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
+  extends: .netlify-deploy
+  environment:
+    name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
+    action: start
+    on_stop: netlify-cleanup-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}
+    url: $ENVIRONMENT_URL
+  dependencies:
+{{- if hasKey .Languages "node" }}
+    - {{ if not $node_multiple_modules }}node-build{{ else }}"node-build: [{{ .Dir }}]"{{ end }}
+{{- end }}
+{{- if hasKey .Languages "hugo" }}
+    - {{ if not $hugo_multiple_modules }}hugo-build{{ else }}"hugo-build: [{{ .Dir }}]"{{ end }}
+{{- end }}
+    - semantic-release-info
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
+      when: never
+    - when: manual
+      allow_failure: true
+  variables:
+    ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
+{{- if $netlify_multiple_modules }}
+    NETLIFY_ENVIRONMENT_NAMESPACE: /{{ .Slug }}
+{{- end }}
+
+netlify-cleanup-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
+  extends: .netlify-cleanup
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
@@ -80,32 +83,13 @@
       when: never
     - when: manual
       allow_failure: true
-{{- end }}
-
-{{- range $netlify_modules }}
-
-netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
-  extends: .netlify-deploy-review
-  dependencies:
-{{- if hasKey .Languages "node" }}
-    - {{ if not $node_multiple_modules }}node-build{{ else }}"node-build: [{{ .Dir }}]"{{ end }}
-{{- end }}
-{{- if hasKey .Languages "hugo" }}
-    - {{ if not $hugo_multiple_modules }}hugo-build{{ else }}"hugo-build: [{{ .Dir }}]"{{ end }}
-{{- end }}
-    - semantic-release-info
-{{- if $netlify_multiple_modules }}
-  environment:
-    on_stop: netlify-cleanup-review-{{ .Slug }}
-  variables:
-    NETLIFY_ENVIRONMENT_NAMESPACE: /{{ .Slug }}
-{{- end }}
-
-netlify-cleanup-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
-  extends: .netlify-cleanup-review
 
 netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
-  extends: .netlify-deploy-production
+  extends: .netlify-deploy
+  environment:
+    name: production${NETLIFY_ENVIRONMENT_NAMESPACE}
+    action: start
+    url: $ENVIRONMENT_URL
   dependencies:
 {{- if hasKey .Languages "node" }}
     - {{ if not $node_multiple_modules }}node-build{{ else }}"node-build: [{{ .Dir }}]"{{ end }}
@@ -114,8 +98,13 @@ netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}
     - {{ if not $hugo_multiple_modules }}hugo-build{{ else }}"hugo-build: [{{ .Dir }}]"{{ end }}
 {{- end }}
     - semantic-release-info
-{{- if $netlify_multiple_modules }}
+  rules:
+    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF'
+      when: never
+    - when: {{ .Config.Deployment.Auto | ternary "on_success" "manual" }}
   variables:
+    ARGS: --prod --message=$CI_COMMIT_REF_NAME
+{{- if $netlify_multiple_modules }}
     NETLIFY_ENVIRONMENT_NAMESPACE: /{{ .Slug }}
 {{- end }}
 {{- end }}

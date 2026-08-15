@@ -16,33 +16,6 @@
     reports:
       dotenv: netlify.out.env
 
-.netlify-deploy-review:
-  extends: .netlify-deploy
-  environment:
-    name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
-    action: start
-    on_stop: netlify-cleanup-review
-    url: $ENVIRONMENT_URL
-  variables:
-    ARGS: --prod --message=$CI_COMMIT_REF_NAME
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      when: never
-    - when: manual
-      allow_failure: true
-
-.netlify-deploy-production:
-  extends: .netlify-deploy
-  environment:
-    name: production${NETLIFY_ENVIRONMENT_NAMESPACE}
-    action: start
-    url: $ENVIRONMENT_URL
-  variables:
-    ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
-  rules:
-    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF'
-      when: never
-
 .netlify-cleanup:
   image: $NETLIFY_IMAGE
   stage: deploy
@@ -62,7 +35,26 @@
         netlify api deleteSiteDeploy --auth "$NETLIFY_AUTH_TOKEN" --data "{\"site_id\": \"$NETLIFY_SITE_ID\", \"deploy_id\": \"$id\"}"
       done
 
-.netlify-cleanup-review:
+netlify-deploy-review:
+  extends: .netlify-deploy
+  environment:
+    name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
+    action: start
+    on_stop: netlify-cleanup-review
+    url: $ENVIRONMENT_URL
+  dependencies:
+    - hugo-build
+    - semantic-release-info
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
+      when: never
+    - when: manual
+      allow_failure: true
+  variables:
+    ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
+
+netlify-cleanup-review:
+  extends: .netlify-cleanup
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
@@ -72,17 +64,18 @@
     - when: manual
       allow_failure: true
 
-netlify-deploy-review:
-  extends: .netlify-deploy-review
-  dependencies:
-    - hugo-build
-    - semantic-release-info
-
-netlify-cleanup-review:
-  extends: .netlify-cleanup-review
-
 netlify-deploy-production:
-  extends: .netlify-deploy-production
+  extends: .netlify-deploy
+  environment:
+    name: production${NETLIFY_ENVIRONMENT_NAMESPACE}
+    action: start
+    url: $ENVIRONMENT_URL
   dependencies:
     - hugo-build
     - semantic-release-info
+  rules:
+    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF'
+      when: never
+    - when: on_success
+  variables:
+    ARGS: --prod --message=$CI_COMMIT_REF_NAME
