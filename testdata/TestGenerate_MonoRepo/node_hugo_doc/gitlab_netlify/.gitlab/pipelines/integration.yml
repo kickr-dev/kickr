@@ -11,6 +11,7 @@ include:
       build-disabled: "false"
       lint-enabled: "true"
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+      project-dir: .
       publish-enabled: "false"
 
 node-audit:
@@ -36,11 +37,10 @@ hugo-build:
   before_script:
     - git config --global --add safe.directory "$CI_PROJECT_DIR"
   script:
-    - |
-      [ -z "$HUGO_PROJECT_DIR" ] || cd "$HUGO_PROJECT_DIR"
-    - hugo --gc --minify --destination "$CI_PROJECT_DIR/$BUILD_DIR" --logLevel "${LOG_LEVEL:-info}"
+    - cd "$HUGO_PROJECT_DIR"
+    - hugo --gc --minify --destination "$BUILD_DIR" --logLevel "${LOG_LEVEL:-info}"
   artifacts:
     name: "$CI_JOB_NAME artifacts from $CI_PROJECT_NAME on $CI_COMMIT_REF_SLUG"
     paths:
-      - $BUILD_DIR
+      - $HUGO_PROJECT_DIR/$BUILD_DIR
     expire_in: 1 day

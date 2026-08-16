@@ -43,6 +43,11 @@ jobs:
     permissions:
       deployments: write
       pull-requests: write
+<<- if ne .Dir "." >>
+    defaults:
+      run:
+        working-directory: << .Dir >>
+<<- end >>
     steps:
 <<- if has "harden-runner" $.Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs

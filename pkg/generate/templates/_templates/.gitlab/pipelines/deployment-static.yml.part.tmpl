@@ -10,20 +10,24 @@
 {{- $hugo_multiple_modules := gt (len (.ModulesWith "hugo")) 1 }}
 
 {{- if gt (len $netlify_modules) 0 }}
+
 .netlify-deploy:
   image: $NETLIFY_IMAGE
   stage: deploy
-  variables:
-    GIT_STRATEGY: none
   before_script:
     - npm install -g netlify-cli
     - apk add --no-cache jq
   script:
+    # netlify-cli reads netlify.toml from the current directory
+    - cd "$NETLIFY_PROJECT_DIR"
+    - environment_namespace=$(echo "$NETLIFY_ENVIRONMENT_NAMESPACE" | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]')
+    - export $environment_namespace
     - netlify deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --dir "$BUILD_DIR" $ARGS --json > netlify-deploy.json
-    - echo "ENVIRONMENT_URL=$(jq -r '.url // .deploy_url' netlify-deploy.json)" >> netlify.out.env
+    - dotenvfile="netlify.env${environment_namespace:+.${environment_namespace}}"
+    - echo "ENVIRONMENT_URL=$(jq -r '.url // .deploy_url' netlify-deploy.json)" >> "$CI_PROJECT_DIR/$dotenvfile"
   artifacts:
     reports:
-      dotenv: netlify.out.env
+      dotenv: $CI_PROJECT_DIR/netlify.env*
 
 .netlify-cleanup:
   image: $NETLIFY_IMAGE
@@ -73,6 +77,7 @@ netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
 {{- if $netlify_multiple_modules }}
     NETLIFY_ENVIRONMENT_NAMESPACE: /{{ .Slug }}
 {{- end }}
+    NETLIFY_PROJECT_DIR: {{ .Dir }}
 
 netlify-cleanup-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   extends: .netlify-cleanup
@@ -108,10 +113,11 @@ netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}
 {{- if $netlify_multiple_modules }}
     NETLIFY_ENVIRONMENT_NAMESPACE: /{{ .Slug }}
 {{- end }}
+    NETLIFY_PROJECT_DIR: {{ .Dir }}
 {{- end }}
 
 {{- if gt (len $pages_modules) 0 }}
-{{- if gt (len $netlify_modules) 0 }}{{ print "\n" }}{{- end }}{{/* simple ugly pretty print */}}
+
 .pages:
   image: $PAGES_IMAGE
   stage: deploy
@@ -125,7 +131,7 @@ netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       when: never
   script:
-    - |
+    - cd "$PAGES_PROJECT_DIR"
       if [ "$BUILD_DIR" != "public" ]; then
         mkdir -p public
         mv "$BUILD_DIR"/* public
@@ -141,9 +147,12 @@ netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}
 
 pages{{ if $pages_multiple_modules }}-{{ .Slug }}{{ end }}:
   extends: .pages
-{{- if $pages_multiple_modules }}
+{{- if or $pages_multiple_modules (ne .Dir ".") }}
   variables:
+{{- if $pages_multiple_modules }}
     PAGES_ENVIRONMENT_NAMESPACE: /{{ .Slug }}
+{{- end }}
+    PAGES_PROJECT_DIR: {{ .Dir }}
 {{- end }}
   dependencies:
 {{- if hasKey .Languages "node" }}

@@ -26,17 +26,20 @@ include:
 .netlify-deploy:
   image: $NETLIFY_IMAGE
   stage: deploy
-  variables:
-    GIT_STRATEGY: none
   before_script:
     - npm install -g netlify-cli
     - apk add --no-cache jq
   script:
+    # netlify-cli reads netlify.toml from the current directory
+    - cd "$NETLIFY_PROJECT_DIR"
+    - environment_namespace=$(echo "$NETLIFY_ENVIRONMENT_NAMESPACE" | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]')
+    - export $environment_namespace
     - netlify deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --dir "$BUILD_DIR" $ARGS --json > netlify-deploy.json
-    - echo "ENVIRONMENT_URL=$(jq -r '.url // .deploy_url' netlify-deploy.json)" >> netlify.out.env
+    - dotenvfile="netlify.env${environment_namespace:+.${environment_namespace}}"
+    - echo "ENVIRONMENT_URL=$(jq -r '.url // .deploy_url' netlify-deploy.json)" >> "$CI_PROJECT_DIR/$dotenvfile"
   artifacts:
     reports:
-      dotenv: netlify.out.env
+      dotenv: $CI_PROJECT_DIR/netlify.env*
 
 .netlify-cleanup:
   image: $NETLIFY_IMAGE
@@ -75,6 +78,7 @@ netlify-deploy-review:
       allow_failure: true
   variables:
     ARGS: --alias=$BRANCH_SHA --context branch:$BRANCH_SHA --message=$CI_COMMIT_REF_NAME
+    NETLIFY_PROJECT_DIR: docs
 
 netlify-cleanup-review:
   extends: .netlify-cleanup
@@ -102,3 +106,4 @@ netlify-deploy-production:
     - when: manual
   variables:
     ARGS: --prod --message=$CI_COMMIT_REF_NAME
+    NETLIFY_PROJECT_DIR: docs
