@@ -24,8 +24,8 @@ For repository's root directory, lint and test commands can be run through:
 - `go build -o <command> ./cmd/<command>`
 
 For repository's docs directory, build commands can be run through:
-- `hugo --gc --minify --destination dist`
-- `hugo server --disableFastRender --destination dist`
+- `hugo build --gc --destination dist`
+- `hugo server --gc --destination dist --disableFastRender`
 
 ## Commit messages
 

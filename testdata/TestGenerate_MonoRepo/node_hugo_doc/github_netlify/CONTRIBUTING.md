@@ -19,8 +19,8 @@ Remove the header to opt a file out of regeneration, unless `kickr generate -f` 
 ## Development setup
 
 For repository's docs, website directories, build commands can be run through:
-- `hugo --gc --minify --destination dist`
-- `hugo server --disableFastRender --destination dist`
+- `hugo build --gc --destination dist`
+- `hugo server --gc --destination dist --disableFastRender`
 
 For repository's root directory, lint, test and build commands can be run through:
 - `bun run lint`

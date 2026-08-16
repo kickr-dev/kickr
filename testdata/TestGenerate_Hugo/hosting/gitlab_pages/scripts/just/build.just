@@ -2,11 +2,11 @@
 
 # build the hugo site.
 build:
-  @hugo --gc --minify --destination dist --logLevel debug
+  @hugo build --gc --destination dist --logLevel debug
 
 # serve the hugo site locally.
-serve:
-  @hugo server --disableFastRender --destination dist --logLevel debug
+server:
+  @hugo server --gc --destination dist --logLevel debug --disableFastRender
 
 # serve the built hugo site.
 production: build

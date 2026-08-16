@@ -13,7 +13,7 @@ include: []
     # netlify-cli reads netlify.toml from the current directory
     - cd "$NETLIFY_PROJECT_DIR"
     - environment_namespace=$(echo "$NETLIFY_ENVIRONMENT_NAMESPACE" | tr -d '[:punct:]' | tr '[:upper:]' '[:lower:]')
-    - export $environment_namespace
+    - export environment_namespace
     - netlify deploy --site "$NETLIFY_SITE_ID" --auth "$NETLIFY_AUTH_TOKEN" --dir "$BUILD_DIR" $ARGS --json > netlify-deploy.json
     - dotenvfile="netlify.env${environment_namespace:+.${environment_namespace}}"
     - echo "ENVIRONMENT_URL=$(jq -r '.url // .deploy_url' netlify-deploy.json)" >> "$CI_PROJECT_DIR/$dotenvfile"

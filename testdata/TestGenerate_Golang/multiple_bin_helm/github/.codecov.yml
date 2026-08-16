@@ -14,10 +14,10 @@ coverage:
         threshold: 2.5%
 
 ignore:
-  - "cmd"
-  - "examples"
-  - "testdata"
-  - "testutils"
+  - cmd
+  - examples
+  - testdata
+  - testutils
   - "**/build.go"
   - "**/cobra/**"
   - "**/logger.go"

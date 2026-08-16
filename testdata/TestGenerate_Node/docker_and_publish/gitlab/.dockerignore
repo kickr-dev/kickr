@@ -15,10 +15,12 @@ Makefile
 NOTICE
 README.md
 
-# various folders
-docs/
-reports/
+# Vvrious build / compile directories
 dist/
+logs/
+public/
+reports/
+tmp/
 
 # vendor dependencies
 node_modules/

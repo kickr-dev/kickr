@@ -4,18 +4,18 @@ APP_VERSION ?= v0.0.0
 
 .PHONY: build
 build: ## build the hugo site.
-	@hugo --gc --minify --destination dist --logLevel debug
+	@hugo build --gc --destination dist --logLevel debug
 
-.PHONY: serve
-serve: ## serve the hugo site locally.
-	@hugo server --disableFastRender --destination dist --logLevel debug
+.PHONY: server
+server: ## serve the hugo site locally.
+	@hugo server --gc --destination dist --logLevel debug --disableFastRender
 
 {{- $netlify := and .Config.Deployment (eq .Config.Deployment.Target "netlify") }}
 
 .PHONY: production
 {{- if $netlify }}
 production: ## serve the hugo site through netlify dev.
-	@netlify dev -c "make serve" \
+	@netlify dev -c "make server" \
 		--target-port 1313 --port 8888
 		--dir dist
 		--framework hugo

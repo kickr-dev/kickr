@@ -36,10 +36,11 @@ include:
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       when: never
   script:
-    - cd "$PAGES_PROJECT_DIR"
+    - |
+      cd "$PAGES_PROJECT_DIR"
       if [ "$BUILD_DIR" != "public" ]; then
-        mkdir -p public
-        mv "$BUILD_DIR"/* public
+        mkdir -p "$CI_PROJECT_DIR/public"
+        mv "$BUILD_DIR"/* "$CI_PROJECT_DIR/public"
       fi
   artifacts:
     name: "$CI_JOB_NAME artifacts from $CI_PROJECT_NAME on $CI_COMMIT_REF_SLUG"

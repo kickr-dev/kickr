@@ -33,8 +33,8 @@ For repository's {{ join ", " $go_directories }} {{ $plural }}, lint and test co
 {{- $plural := eq (len $hugo_directories) 1 | ternary "directory" "directories" }}
 
 For repository's {{ join ", " $hugo_directories }} {{ $plural }}, build commands can be run through:
-- `hugo --gc --minify --destination dist`
-- `hugo server --disableFastRender --destination dist`
+- `hugo build --gc --destination dist`
+- `hugo server --gc --destination dist --disableFastRender`
 {{- end }}
 
 {{- if gt (len $node_modules) 0 }}

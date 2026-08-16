@@ -6,11 +6,11 @@ tasks:
   build:
     desc: build the hugo site.
     cmds:
-      - hugo --gc --minify --destination dist --logLevel debug
-  serve:
+      - hugo build --gc --destination dist --logLevel debug
+  server:
     desc: serve the hugo site locally.
     cmds:
-      - hugo server --disableFastRender --destination dist --logLevel debug
+      - hugo server --gc --destination dist --logLevel debug --disableFastRender
   production:
     desc: serve the built hugo site.
     deps: [build]

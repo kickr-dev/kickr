@@ -18,10 +18,10 @@ coverage:
 
 ignore:
 {{- if gt (len $go_modules) 0 }}
-  - "cmd"
-  - "examples"
-  - "testdata"
-  - "testutils"
+  - cmd
+  - examples
+  - testdata
+  - testutils
   - "**/build.go"
   - "**/cobra/**"
   - "**/logger.go"
@@ -29,8 +29,9 @@ ignore:
   - "**/testutils/**"
 {{- end }}
 {{- if gt (len $node_modules) 0 }}
-  - "dist"
-  - "node_modules"
+  - dist
+  - node_modules
+  - public
   - "**/*.spec.js"
   - "**/*.spec.ts"
   - "**/*.test.js"

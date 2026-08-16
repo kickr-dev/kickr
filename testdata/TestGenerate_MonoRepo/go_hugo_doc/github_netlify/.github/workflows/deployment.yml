@@ -128,7 +128,7 @@ jobs:
           - mise use -g hugo-extended@0.164.0
           # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
           - mise use -g github:sass/dart-sass@1.102.0
-      - run: hugo --gc --enableGitInfo --minify --destination dist --logLevel "$LOG_LEVEL"
+      - run: hugo build --gc --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
           APP_VERSION: ${{ needs.version.outputs.version }}

@@ -2,12 +2,12 @@
 
 # build the hugo site.
 build:
-  @hugo --gc --minify --destination dist --logLevel debug
+  @hugo build --gc --destination dist --logLevel debug
 
 # serve the hugo site locally.
-serve:
-  @hugo server --disableFastRender --destination dist --logLevel debug
+server:
+  @hugo server --gc --destination dist --logLevel debug --disableFastRender
 
 # serve the hugo site through netlify dev.
 production:
-  @netlify dev -c "just serve" --target-port 1313 --port 8888 --dir dist --framework hugo --context production
+  @netlify dev -c "just server" --target-port 1313 --port 8888 --dir dist --framework hugo --context production

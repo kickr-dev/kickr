@@ -21,7 +21,7 @@ sonar.projectName={{ .VCS.ProjectName }}
 {{- end }}
 
 {{- if gt (len $node_modules) 0 }}
-{{- $exclusions = concat $exclusions (list "node_modules/**" "dist/**" "**/*.spec.js" "**/*.spec.ts" "**/*.test.js" "**/*.test.ts") }}
+{{- $exclusions = concat $exclusions (list "node_modules/**" "dist/**" "public/**" "**/*.spec.js" "**/*.spec.ts" "**/*.test.js" "**/*.test.ts") }}
 {{- $inclusions = concat $inclusions (list "**/*.spec.js" "**/*.spec.ts" "**/*.test.js" "**/*.test.ts") }}
 {{- end }}
 

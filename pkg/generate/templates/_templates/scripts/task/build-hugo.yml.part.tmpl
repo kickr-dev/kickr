@@ -3,17 +3,17 @@ tasks:
   build:
     desc: build the hugo site.
     cmds:
-      - hugo --gc --minify --destination dist --logLevel debug
-  serve:
+      - hugo build --gc --destination dist --logLevel debug
+  server:
     desc: serve the hugo site locally.
     cmds:
-      - hugo server --disableFastRender --destination dist --logLevel debug
+      - hugo server --gc --destination dist --logLevel debug --disableFastRender
 <<- $netlify := and .Config.Deployment (eq .Config.Deployment.Target "netlify") >>
 <<- if $netlify >>
   production:
     desc: serve the hugo site through netlify dev.
     cmds:
-      - netlify dev -c "task serve" --target-port 1313 --port 8888 --dir dist --framework hugo --context production
+      - netlify dev -c "task server" --target-port 1313 --port 8888 --dir dist --framework hugo --context production
 <<- else >>
   production:
     desc: serve the built hugo site.

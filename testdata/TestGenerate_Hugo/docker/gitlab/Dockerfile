@@ -9,7 +9,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN hugo --gc --minify --destination dist
+RUN hugo build --gc --destination dist
 
 #############################
 #         STAGE RUN         #
