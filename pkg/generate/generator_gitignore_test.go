@@ -94,6 +94,7 @@ func TestGeneratorGitignore(t *testing.T) {
 # Various build / compile directories
 dist/
 logs/
+public/
 reports/
 tmp/
 
@@ -131,6 +132,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 # Various build / compile directories
 dist/
 logs/
+public/
 reports/
 tmp/
 
@@ -169,6 +171,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 # Various build / compile directories
 dist/
 logs/
+public/
 reports/
 tmp/
 
@@ -207,6 +210,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 # Various build / compile directories
 dist/
 logs/
+public/
 reports/
 tmp/
 
@@ -247,6 +251,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 # Various build / compile directories
 dist/
 logs/
+public/
 reports/
 tmp/
 
@@ -259,6 +264,7 @@ go content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 # Various build / compile directories
 dist/
 logs/
+public/
 reports/
 tmp/
 
@@ -310,6 +316,7 @@ hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 # Various build / compile directories
 dist/
 logs/
+public/
 reports/
 tmp/
 
