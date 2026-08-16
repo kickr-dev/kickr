@@ -55,7 +55,7 @@ variables:
 {{- end }}
 
 {{- if has "renovate" .Config.GitLab.Options }}
-  RENOVATE_IMAGE: docker.io/renovate/renovate:44.22.0@sha256:6a7cf82eb1cf845583248e5a4c92c2125028fba64249dfd253a14788d8048292
+  RENOVATE_IMAGE: docker.io/renovate/renovate:44.24.2@sha256:dba8b301861ccad2111cf9db1854fa99e057fee2a02211cc2ff297b641b0e4c5
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}
