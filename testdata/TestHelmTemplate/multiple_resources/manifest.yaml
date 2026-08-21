@@ -1,265 +1,215 @@
 ---
-# Source: kickr/templates/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: kickr-worker-name
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  type: ClusterIP
-  ports:
-    - port: 3000
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
----
-# Source: kickr/templates/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: kickr-worker-name-2
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  type: ClusterIP
-  ports:
-    - port: 3000
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
----
-# Source: kickr/templates/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kickr-worker-name
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  paused: true
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: kickr
-      app.kubernetes.io/instance: kickr
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: kickr
-        app.kubernetes.io/instance: kickr
-    spec:
-      serviceAccountName: default
-      securityContext:
-        {}
-      containers:
-        - name: worker-name
-          securityContext:
-            {}
-          image: "kickr-dev/kickr:0.1.0"
-          ports:
-            - name: http
-              containerPort: 3000
-              protocol: TCP
-          env:
-            - name: BINARY_NAME
-              value: "worker-name"
-            - name: BINARY_PORT
-              value: "3000"
-          resources:
-            limits:
-              cpu: 250m
-              memory: 256Mi
-            requests:
-              cpu: 50m
-              memory: 128Mi
-      restartPolicy: Always
----
-# Source: kickr/templates/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kickr-worker-name-2
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  paused: true
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: kickr
-      app.kubernetes.io/instance: kickr
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: kickr
-        app.kubernetes.io/instance: kickr
-    spec:
-      serviceAccountName: default
-      securityContext:
-        {}
-      containers:
-        - name: worker-name-2
-          securityContext:
-            {}
-          image: "kickr-dev/kickr:0.1.0"
-          ports:
-            - name: http
-              containerPort: 3000
-              protocol: TCP
-          env:
-            - name: BINARY_NAME
-              value: "worker-name"
-            - name: BINARY_PORT
-              value: "3000"
-          resources:
-            limits:
-              cpu: 250m
-              memory: 256Mi
-            requests:
-              cpu: 50m
-              memory: 128Mi
-      restartPolicy: Always
----
-# Source: kickr/templates/job.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: kickr-job-name
-  namespace: default
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  suspend: true
-  completionMode: NonIndexed
-  completions: 1
-  parallelism: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: kickr
-      app.kubernetes.io/instance: kickr
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: kickr
-        app.kubernetes.io/instance: kickr
-    spec:
-      serviceAccountName: default
-      securityContext:
-        {}
-      containers:
-        - name: job-name
-          securityContext:
-            {}
-          image: "kickr-dev/kickr:0.1.0"
-          env:
-            - name: BINARY_NAME
-              value: "job-name"
-            - name: BINARY_PORT
-              value: "3000"
-          resources:
-            limits:
-              cpu: 250m
-              memory: 256Mi
-            requests:
-              cpu: 50m
-              memory: 128Mi
-      restartPolicy: OnFailure
----
-# Source: kickr/templates/job.yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: kickr-job-name-2
-  namespace: default
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  suspend: true
-  completionMode: NonIndexed
-  completions: 1
-  parallelism: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: kickr
-      app.kubernetes.io/instance: kickr
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: kickr
-        app.kubernetes.io/instance: kickr
-    spec:
-      serviceAccountName: default
-      securityContext:
-        {}
-      containers:
-        - name: job-name-2
-          securityContext:
-            {}
-          image: "kickr-dev/kickr:0.1.0"
-          env:
-            - name: BINARY_NAME
-              value: "job-name"
-            - name: BINARY_PORT
-              value: "3000"
-          resources:
-            limits:
-              cpu: 250m
-              memory: 256Mi
-            requests:
-              cpu: 50m
-              memory: 128Mi
-      restartPolicy: OnFailure
----
 # Source: kickr/templates/cronjob.yaml
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: kickr-cron-name
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  suspend: true
-  schedule: "0 0 */1 * *"
-  concurrencyPolicy: Forbid
-  failedJobsHistoryLimit: 1
-  successfulJobsHistoryLimit: 3
-  jobTemplate:
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: batch/v1
+    kind: CronJob
+    metadata:
+      name: kickr-cron-name
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
     spec:
+      suspend: true
+      schedule: "0 0 */1 * *"
+      concurrencyPolicy: Forbid
+      failedJobsHistoryLimit: 1
+      successfulJobsHistoryLimit: 3
+      jobTemplate:
+        spec:
+          completionMode: NonIndexed
+          completions: 1
+          parallelism: 1
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: kickr
+              app.kubernetes.io/instance: kickr
+          template:
+            metadata:
+              labels:
+                app.kubernetes.io/name: kickr
+                app.kubernetes.io/instance: kickr
+            spec:
+              serviceAccountName: default
+              containers:
+                - name: cron-name
+                  image: "kickr-dev/kickr:0.1.0"
+                  env:
+                    - name: BINARY_NAME
+                      value: "cron-name"
+                    - name: BINARY_PORT
+                      value: "3000"
+                  resources:
+                    limits:
+                      cpu: 250m
+                      memory: 256Mi
+                    requests:
+                      cpu: 50m
+                      memory: 128Mi
+              restartPolicy: OnFailure
+  - apiVersion: batch/v1
+    kind: CronJob
+    metadata:
+      name: kickr-cron-name-2
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      suspend: true
+      schedule: "0 0 */1 * *"
+      concurrencyPolicy: Forbid
+      failedJobsHistoryLimit: 1
+      successfulJobsHistoryLimit: 3
+      jobTemplate:
+        spec:
+          completionMode: NonIndexed
+          completions: 1
+          parallelism: 1
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: kickr
+              app.kubernetes.io/instance: kickr
+          template:
+            metadata:
+              labels:
+                app.kubernetes.io/name: kickr
+                app.kubernetes.io/instance: kickr
+            spec:
+              serviceAccountName: default
+              containers:
+                - name: cron-name-2
+                  image: "kickr-dev/kickr:0.1.0"
+                  env:
+                    - name: BINARY_NAME
+                      value: "cron-name"
+                    - name: BINARY_PORT
+                      value: "3000"
+                  resources:
+                    limits:
+                      cpu: 250m
+                      memory: 256Mi
+                    requests:
+                      cpu: 50m
+                      memory: 128Mi
+              restartPolicy: OnFailure
+---
+# Source: kickr/templates/deployment.yaml
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: kickr-worker-name
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      paused: true
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: kickr
+          app.kubernetes.io/instance: kickr
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: kickr
+            app.kubernetes.io/instance: kickr
+        spec:
+          serviceAccountName: default
+          containers:
+            - name: worker-name
+              image: "kickr-dev/kickr:0.1.0"
+              ports:
+                - name: http
+                  containerPort: 3000
+                  protocol: TCP
+              env:
+                - name: BINARY_NAME
+                  value: "worker-name"
+                - name: BINARY_PORT
+                  value: "3000"
+              resources:
+                limits:
+                  cpu: 250m
+                  memory: 256Mi
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+          restartPolicy: Always
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: kickr-worker-name-2
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      paused: true
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: kickr
+          app.kubernetes.io/instance: kickr
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: kickr
+            app.kubernetes.io/instance: kickr
+        spec:
+          serviceAccountName: default
+          containers:
+            - name: worker-name-2
+              image: "kickr-dev/kickr:0.1.0"
+              ports:
+                - name: http
+                  containerPort: 3000
+                  protocol: TCP
+              env:
+                - name: BINARY_NAME
+                  value: "worker-name"
+                - name: BINARY_PORT
+                  value: "3000"
+              resources:
+                limits:
+                  cpu: 250m
+                  memory: 256Mi
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+          restartPolicy: Always
+---
+# Source: kickr/templates/job.yaml
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: kickr-job-name
+      namespace: default
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      suspend: true
       completionMode: NonIndexed
       completions: 1
       parallelism: 1
@@ -274,16 +224,12 @@ spec:
             app.kubernetes.io/instance: kickr
         spec:
           serviceAccountName: default
-          securityContext:
-            {}
           containers:
-            - name: cron-name
-              securityContext:
-                {}
+            - name: job-name
               image: "kickr-dev/kickr:0.1.0"
               env:
                 - name: BINARY_NAME
-                  value: "cron-name"
+                  value: "job-name"
                 - name: BINARY_PORT
                   value: "3000"
               resources:
@@ -294,26 +240,19 @@ spec:
                   cpu: 50m
                   memory: 128Mi
           restartPolicy: OnFailure
----
-# Source: kickr/templates/cronjob.yaml
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: kickr-cron-name-2
-  labels:
-    helm.sh/chart: kickr-0.1.0
-    app.kubernetes.io/name: kickr
-    app.kubernetes.io/instance: kickr
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  suspend: true
-  schedule: "0 0 */1 * *"
-  concurrencyPolicy: Forbid
-  failedJobsHistoryLimit: 1
-  successfulJobsHistoryLimit: 3
-  jobTemplate:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: kickr-job-name-2
+      namespace: default
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
     spec:
+      suspend: true
       completionMode: NonIndexed
       completions: 1
       parallelism: 1
@@ -328,16 +267,12 @@ spec:
             app.kubernetes.io/instance: kickr
         spec:
           serviceAccountName: default
-          securityContext:
-            {}
           containers:
-            - name: cron-name-2
-              securityContext:
-                {}
+            - name: job-name-2
               image: "kickr-dev/kickr:0.1.0"
               env:
                 - name: BINARY_NAME
-                  value: "cron-name"
+                  value: "job-name"
                 - name: BINARY_PORT
                   value: "3000"
               resources:
@@ -348,3 +283,48 @@ spec:
                   cpu: 50m
                   memory: 128Mi
           restartPolicy: OnFailure
+---
+# Source: kickr/templates/service.yaml
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: kickr-worker-name
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      type: ClusterIP
+      ports:
+        - port: 3000
+          targetPort: http
+          protocol: TCP
+          name: http
+      selector:
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: kickr-worker-name-2
+      labels:
+        helm.sh/chart: kickr-0.1.0
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr
+        app.kubernetes.io/version: "0.1.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      type: ClusterIP
+      ports:
+        - port: 3000
+          targetPort: http
+          protocol: TCP
+          name: http
+      selector:
+        app.kubernetes.io/name: kickr
+        app.kubernetes.io/instance: kickr

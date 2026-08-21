@@ -2,30 +2,44 @@
 
 {{- $fullname := include (print .Chart.Name ".fullname") . -}}
 
-{{- range $name, $config := merge .Values.crons .Values.jobs .Values.workers }}
-{{- with $config.configMap }}
----
+{{- define "kickr.configmap.item" -}}
+{{- $item := . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ print $fullname "-" $name }}
+  name: {{ print $item.fullname "-" $item.name }}
 data:
-{{- range .tpl_folders }}
-{{- range $path, $_ := $.Files.Glob (print . "/*") }}
+{{- range $item.configMap.tpl_folders }}
+{{- range $path, $_ := $item.root.Files.Glob (print . "/*") }}
   {{ base $path }}: |-
-    {{- tpl ($.Files.Get $path) $config | trimSuffix "\n" | nindent 4 }}
+    {{- tpl ($item.root.Files.Get $path) $item.config | trimSuffix "\n" | nindent 4 }}
 {{- end }}
 {{- end }}
 
-{{- range .include_folders }}
-{{- range $path, $_ := $.Files.Glob (print . "/*") }}
+{{- range $item.configMap.include_folders }}
+{{- range $path, $_ := $item.root.Files.Glob (print . "/*") }}
   {{ base $path }}: |-
-    {{- $.Files.Get $path | trimSuffix "\n" | nindent 4 }}
+    {{- $item.root.Files.Get $path | trimSuffix "\n" | nindent 4 }}
 {{- end }}
 {{- end }}
 
-{{- with .data }}
-  {{- tpl (toYaml .) $config | nindent 2 }}
+{{- with $item.configMap.data }}
+  {{- tpl (toYaml .) $item.config | nindent 2 }}
+{{- end }}
+{{- end -}}
+
+{{- $items := list }}
+{{- range $name, $config := merge .Values.crons .Values.jobs .Values.workers }}
+{{- with $config.configMap }}
+{{- $items = append $items (dict "fullname" $fullname "name" $name "config" $config "configMap" . "root" $) }}
 {{- end }}
 {{- end }}
+{{- if $items }}
+---
+apiVersion: v1
+kind: List
+items:
+  {{- range $items }}
+  - {{ include "kickr.configmap.item" . | nindent 4 | trim }}
+  {{- end }}
 {{- end -}}

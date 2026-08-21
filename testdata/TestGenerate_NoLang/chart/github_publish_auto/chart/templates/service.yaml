@@ -4,21 +4,35 @@
 {{- $labels := include (print .Chart.Name ".labels") . -}}
 {{- $selectorLabels := include (print .Chart.Name ".selectorLabels") . -}}
 
-{{- range $name, $config := .Values.workers }}
----
+{{- define "kickr.service.item" -}}
+{{- $item := . -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ print $fullname "-" $name }}
+  name: {{ print $item.fullname "-" $item.name }}
   labels:
-    {{- $labels | nindent 4 }}
+    {{- $item.labels | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
-    - port: {{ $config.env.BINARY_PORT | default 3000 }}
+    - port: {{ $item.config.env.BINARY_PORT | default 3000 }}
       targetPort: http
       protocol: TCP
       name: http
   selector:
-    {{- $selectorLabels | nindent 4 }}
+    {{- $item.selectorLabels | nindent 4 }}
+{{- end -}}
+
+{{- $items := list }}
+{{- range $name, $config := .Values.workers }}
+{{- $items = append $items (dict "fullname" $fullname "name" $name "config" $config "labels" $labels "selectorLabels" $selectorLabels) }}
+{{- end }}
+{{- if $items }}
+---
+apiVersion: v1
+kind: List
+items:
+  {{- range $items }}
+  - {{ include "kickr.service.item" . | nindent 4 | trim }}
+  {{- end }}
 {{- end -}}

@@ -18,10 +18,10 @@ require (
 	github.com/kickr-dev/engine v0.0.0-20260816115200-622743ca8c5e
 	github.com/kilianpaquier/compare v1.1.2
 	github.com/spf13/cobra v1.10.2
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	github.com/yannh/kubeconform v0.8.0
-	gitlab.com/gitlab-org/api/client-go/v2 v2.56.1
-	helm.sh/helm/v4 v4.2.3
+	gitlab.com/gitlab-org/api/client-go/v2 v2.58.0
+	helm.sh/helm/v4 v4.2.4
 )
 
 require (

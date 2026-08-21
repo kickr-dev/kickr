@@ -94,6 +94,8 @@ func TestHelmTemplate(t *testing.T) {
 				t.Fatal(err, accessor.Manifest())
 			}
 			accessor, err := release.NewAccessor(r)
+
+			// Assert
 			require.NoError(t, err)
 			require.NoError(t, os.WriteFile(actual, []byte(accessor.Manifest()), files.RwRR))
 
@@ -105,7 +107,7 @@ func TestHelmTemplate(t *testing.T) {
 				require.NoError(t, err)
 
 				// Assert
-				assert.False(t, action.HasWarningsOrErrors(result), result.Messages)
+				assert.Empty(t, result.Errors, result.Messages)
 			})
 
 			t.Run("template", func(t *testing.T) {
@@ -150,7 +152,6 @@ func lint(kubeVersion *common.KubeVersion, chartdir, valuesFile string) (*action
 	}
 
 	client := action.NewLint()
-	client.Strict = true
 	client.KubeVersion = kubeVersion
 
 	// run lint

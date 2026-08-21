@@ -3,23 +3,37 @@
 {{- $fullname := include (print .Chart.Name ".fullname") . -}}
 {{- $labels := include (print .Chart.Name ".labels") . -}}
 
-{{- range $name, $config := .Values.workers }}
-{{- if $config.autoscaling.enabled }}
----
+{{- define "kickr.hpa.item" -}}
+{{- $item := . -}}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ print $fullname "-" $name }}
+  name: {{ print $item.fullname "-" $item.name }}
   labels:
-    {{- $labels | nindent 4 }}
+    {{- $item.labels | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ print $fullname "-" $name }}
-  minReplicas: {{ $config.autoscaling.minReplicas }}
-  maxReplicas: {{ $config.autoscaling.maxReplicas }}
+    name: {{ print $item.fullname "-" $item.name }}
+  minReplicas: {{ $item.config.autoscaling.minReplicas }}
+  maxReplicas: {{ $item.config.autoscaling.maxReplicas }}
   metrics:
-    {{- toYaml $config.autoscaling.metrics | nindent 4 }}
+    {{- toYaml $item.config.autoscaling.metrics | nindent 4 }}
+{{- end -}}
+
+{{- $items := list }}
+{{- range $name, $config := .Values.workers }}
+{{- if $config.autoscaling.enabled }}
+{{- $items = append $items (dict "fullname" $fullname "name" $name "config" $config "labels" $labels) }}
 {{- end }}
+{{- end }}
+{{- if $items }}
+---
+apiVersion: v1
+kind: List
+items:
+  {{- range $items }}
+  - {{ include "kickr.hpa.item" . | nindent 4 | trim }}
+  {{- end }}
 {{- end -}}
