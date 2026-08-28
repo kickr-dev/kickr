@@ -93,7 +93,7 @@ jobs:
       - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.12.5
+          tofu_version: 1.12.6
       - run: tofu fmt -check
       - run: tofu init -backend=false
       - run: tofu validate -no-color
@@ -118,7 +118,7 @@ jobs:
           mkdir -p reports/
           tflint --config "$GITHUB_WORKSPACE/.tflint.hcl" --recursive --format sarif | tee reports/tflint.sarif
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
         with:
           category: tflint
           sarif_file: reports/tflint.sarif
@@ -141,7 +141,7 @@ jobs:
       - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.12.5
+          tofu_version: 1.12.6
       - run: |-
           tofu init
           tofu plan -no-color
@@ -168,7 +168,7 @@ jobs:
       - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.12.5
+          tofu_version: 1.12.6
       - run: |-
           tofu init
           tofu plan -no-color

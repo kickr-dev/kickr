@@ -184,7 +184,7 @@ jobs:
             type=semver,enable=true,pattern={{raw}},value=${{ needs.version.outputs.version }}
             type=semver,enable=${{ steps.image.outputs.stable }},pattern=v{{major}}.{{minor}},value=${{ needs.version.outputs.version }}
             type=semver,enable=${{ steps.image.outputs.stable }},pattern=v{{major}},value=${{ needs.version.outputs.version }}
-      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
@@ -211,7 +211,7 @@ jobs:
         env:
           TRIVY_USERNAME: ${{ github.repository_owner }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      - uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
+      - uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
         with:
           category: docker-trivy/${{ matrix.directory }}
           sarif_file: trivy-results.sarif

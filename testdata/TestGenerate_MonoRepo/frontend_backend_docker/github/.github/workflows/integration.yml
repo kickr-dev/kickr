@@ -84,7 +84,7 @@ jobs:
           format: sarif
           output-file: hadolint-results.sarif
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
         with:
           sarif_file: hadolint-results.sarif
           category: docker-hadolint/${{ matrix.directory }}
@@ -122,9 +122,9 @@ jobs:
           args: --config=.golangci.yml --timeout=300s --allow-parallel-runners --output.sarif.path="reports/golangci-lint.sarif" --output.text.path=stdout
           problem-matchers: true
           # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
-          version: v2.12.2
+          version: v2.13.1
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4.37.8
         with:
           sarif_file: reports/golangci-lint.sarif
           category: golangci-lint
