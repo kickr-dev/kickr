@@ -3,8 +3,6 @@
 name: Go Dependency Submission
 run-name: Go Dependency Submission
 
-<<- $specifics := get (first (.ModulesWith "go")).Languages "go" >>
-
 on:
   push:
     branches:
@@ -49,7 +47,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           check-latest: true
-          go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
+          go-version-file: go.mod
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/go-dependency-submission@f35d5c9af13ce9cc32f7930b171e315e878f6921 # v2.0.3
         with:

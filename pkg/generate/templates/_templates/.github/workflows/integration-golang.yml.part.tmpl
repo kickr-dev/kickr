@@ -1,6 +1,5 @@
 jobs:
 <<- define "golang" >>
-<<- $specifics := get (first (.ModulesWith "go")).Languages "go" >>
 
   go-vulncheck:
     name: Go Vulnerability Check
@@ -20,7 +19,7 @@ jobs:
         with:
           check-latest: true
           go-package: ./...
-          go-version-input: '<< $specifics.Toolchain | default $specifics.Go >>'
+          go-version-file: go.mod
 
   go-lint:
     name: Go Lint
@@ -43,7 +42,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           check-latest: true
-          go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
+          go-version-file: go.mod
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: mkdir -p reports/
       - uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
@@ -89,7 +88,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           check-latest: true
-          go-version: '<< $specifics.Toolchain | default $specifics.Go >>'
+          go-version-file: go.mod
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: mkdir -p reports/
       - if: ${{ matrix.os != 'windows-latest' }}

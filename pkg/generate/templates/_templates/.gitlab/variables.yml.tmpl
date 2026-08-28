@@ -73,7 +73,7 @@ variables:
 {{- if gt (len $go_modules) 0 }}
 
   GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.12.2-alpine@sha256:91b27804074a0bacea298707f016911e60cf0cdbc6c7bf5ccacb5f0606d18d60
-  GO_IMAGE: docker.io/library/golang:1.26.5-trixie@sha256:f1a132429b98724a904e9b3bdbaed399d8f923203c3e5170e6def66d0a7cc04c
+  GO_IMAGE: docker.io/library/golang:1-trixie
   GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.173.0@sha256:67319956da3dcb58baf5b322899c15458e3963e7018a86aeeb5cd224e69cb77a
 {{- if gt (len .Executables.Clis) 0 }}
   GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.17.1@sha256:1098a0be4da1780f9616a85f4c5050447b53e3e74804d8017ec1e2bbb1fb697a
@@ -89,7 +89,7 @@ variables:
 
 {{- if gt (len $node_modules) 0 }}
 
-  NODE_IMAGE: docker.io/library/node:26.7.0-alpine3.23@sha256:ce3cc39fe3b8b2602d3b1c4d63d301e46b48c550ecb627869853ddcdda418b63
+  NODE_IMAGE: docker.io/library/node:lts-alpine3.23
   NODE_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.173.0@sha256:67319956da3dcb58baf5b322899c15458e3963e7018a86aeeb5cd224e69cb77a
 {{- end }}
 
