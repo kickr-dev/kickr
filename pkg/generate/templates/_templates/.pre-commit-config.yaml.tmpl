@@ -17,7 +17,7 @@ repos:
   # see https://www.conventionalcommits.org/en/v1.0.0/#specification
   - repo: https://github.com/commitizen-tools/commitizen
     # renovate: datasource=github-tags packageName=commitizen-tools/commitizen depName=commitizen
-    rev: v4.17.0
+    rev: v4.18.0
     hooks:
       - id: commitizen
 
@@ -76,7 +76,7 @@ repos:
 
   - repo: https://github.com/golangci/golangci-lint
     # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
-    rev: v2.12.2
+    rev: v2.13.1
     hooks:
       - id: golangci-lint
 {{- end }}
@@ -101,7 +101,7 @@ repos:
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     # renovate: datasource=github-tags packageName=antonbabenko/pre-commit-terraform depName=pre-commit-terraform
-    rev: v1.108.1
+    rev: v1.109.0
     hooks:
       - id: {{ $teraform_cmd }}_fmt
       - id: {{ $teraform_cmd }}_validate
