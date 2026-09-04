@@ -14,13 +14,13 @@ variables:
 
   DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.43.2@sha256:df7b79b931c1f6ede34aa2aa0470a460106a627131ed9f4b7e1119ac7020ed3e
   DOCKER_HADOLINT_IMAGE: docker.io/hadolint/hadolint:v2.15.1-alpine@sha256:a1d49ae1a4e83c1dbad26b8c1ad7588c8bd1e04f4866b34ad3cac50335198552
-  DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.51.0-debug@sha256:7b980ab125ee77c58ef89622672e2176a6d82722d709362fa1bb6bc12d50e786
+  DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.51.1-debug@sha256:f0819203ad57f6ac805daa7a8fb40f57bab74bb6d2cc3859f3362ee6b36bbb37
   DOCKER_TRIVY_IMAGE: docker.io/aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969
 
-  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.13.1-alpine@sha256:f5e7bd15e2dce6f78f976acc07075f3208ce1a39b78f245f1ea984b2a39d105c
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.13.2-alpine@sha256:da1f79b184ff1d98781648407d05a99b9cba7b282aa3416b0a0eac102a3b0557
   GO_IMAGE: docker.io/library/golang:1-trixie
-  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.174.0@sha256:f1f7b71861c7b28b6e0f661225a2c4f58a484f5d0f182465c6d6b3b22f972ade
+  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.175.0@sha256:b94b53d02fd4a022f9eac4e2af1380f5c3c4c21400e79d3336bdff1d1db5e796
   GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.18.0@sha256:a7609141326e383370858ab3ca2572e96e00fb212fe3fd5610cd4de434652faa
 
   NODE_IMAGE: docker.io/library/node:lts-alpine3.23
-  NODE_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.174.0@sha256:f1f7b71861c7b28b6e0f661225a2c4f58a484f5d0f182465c6d6b3b22f972ade
+  NODE_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.175.0@sha256:b94b53d02fd4a022f9eac4e2af1380f5c3c4c21400e79d3336bdff1d1db5e796
