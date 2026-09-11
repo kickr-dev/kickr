@@ -9,7 +9,7 @@ toolchain go1.27.0
 require (
 	charm.land/bubbletea/v2 v2.0.9
 	charm.land/huh/v2 v2.0.3
-	charm.land/log/v2 v2.0.0
+	charm.land/log/v2 v2.0.1
 	dario.cat/mergo v1.0.2
 	github.com/go-git/go-git/v5 v5.19.2
 	github.com/goccy/go-yaml v1.19.2
@@ -20,13 +20,13 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	github.com/yannh/kubeconform v0.8.0
-	gitlab.com/gitlab-org/api/client-go/v2 v2.60.0
+	gitlab.com/gitlab-org/api/client-go/v2 v2.64.0
 	helm.sh/helm/v4 v4.2.4
 )
 
 require (
 	charm.land/bubbles/v2 v2.0.0 // indirect
-	charm.land/lipgloss/v2 v2.0.1 // indirect
+	charm.land/lipgloss/v2 v2.0.5 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
