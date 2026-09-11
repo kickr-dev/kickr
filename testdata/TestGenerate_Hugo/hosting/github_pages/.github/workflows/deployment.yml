@@ -94,16 +94,16 @@ jobs:
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-          version: v2026.8.14
+          version: v2026.9.1
           install: false
           cache: true
       - run: |-
           # renovate: datasource=golang-version packageName=golang/go depName=golang
-          - mise use -g golang@1.27.0
+          - mise use -g golang@1.27.1
           # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
           - mise use -g hugo-extended@0.165.0
           # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-          - mise use -g github:sass/dart-sass@1.103.1
+          - mise use -g github:sass/dart-sass@1.104.0
       - run: hugo build --gc --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
@@ -136,7 +136,7 @@ jobs:
       pull-requests: write
     steps:
       - id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
         with:
           artifact_name: build-pages
           preview: ${{ github.ref_name != github.event.repository.default_branch }}
