@@ -4,6 +4,8 @@
 
 {{- $gomod := .HasGlob "gomod" }}
 {{- $tmpl := .HasGlob "tmpl" }}
+{{- $hugomods := list }}
+{{- range .ModulesWith "hugo" }}{{- $hugomods = append $hugomods (clean (print .Dir "/go.mod")) }}{{ end }}
 
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
@@ -13,7 +15,8 @@
         "github>kickr-dev/renovate//configs/renovate/docker.json"{{ end }}{{ if or $tmpl .Config.GitHub }},
         "github>kickr-dev/renovate//configs/renovate/github-actions.json"{{ end }}{{ if or $tmpl .Config.GitLab }},
         "github>kickr-dev/renovate//configs/renovate/gitlab-ci.json"{{ end }}{{ if $gomod }},
-        "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if or .Config.HasKickr $tmpl }},
+        "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if $hugomods }},
+        "github>kickr-dev/renovate//configs/renovate/hugo.json({{ join "|" $hugomods }})"{{ end }}{{ if or .Config.HasKickr $tmpl }},
         "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if eq .Config.TerraformEngine "tofu" }},
         "github>kickr-dev/renovate//configs/renovate/opentofu.json"{{ end }}{{ if not (has "pre-commit" .Config.Exclude) }},
         "github>kickr-dev/renovate//configs/renovate/pre-commit.json"{{ end }}
