@@ -15,7 +15,7 @@ Makefile
 NOTICE
 README.md
 
-# Vvrious build / compile directories
+# Various build / compile directories
 dist/
 logs/
 public/
