@@ -8,15 +8,15 @@ include:
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/e5636d90883f5969a4d6a35042bc74080f5ec276/templates/gitlab-ci-helm.yml # 9.7.0
     inputs:
       chart-dir: chart/
-      integ-enabled: "false"
+      integ-enabled: false
       package-args: package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update
-      prod-enabled: "false"
+      prod-enabled: false
       publish-method: disabled
       publish-on: none
-      publish-snapshot-enabled: "false"
+      publish-snapshot-enabled: false
       publish-strategy: none
-      review-enabled: "false"
+      review-enabled: false
       scripts-dir: chart/hooks/
-      semrel-release-disabled: "true" # version is handled manually
-      staging-enabled: "false"
-      test-enabled: "false"
+      semrel-release-disabled: true # version is handled manually
+      staging-enabled: false
+      test-enabled: false

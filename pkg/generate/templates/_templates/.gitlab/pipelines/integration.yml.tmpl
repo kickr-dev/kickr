@@ -35,7 +35,7 @@ include:{{ if not $has_include }} []{{ end }}
   # https://gitlab.com/to-be-continuous/bash
   - remote: https://gitlab.com/to-be-continuous/bash/-/raw/25e0ab61ffadef08b7cda4032afbaa859aebc280/templates/gitlab-ci-bash.yml # 3.10.0
     inputs:
-      bats-enabled: "false"
+      bats-enabled: false
       shellcheck-files: "**/*.*sh"
 {{- end }}
 
@@ -61,13 +61,13 @@ include:{{ if not $has_include }} []{{ end }}
   - remote: https://gitlab.com/to-be-continuous/node/-/raw/1fdebb262a573058989e3a4fc3fd47899edd9b4c/templates/gitlab-ci-node.yml # 5.4.0
     inputs:
       build-dir: $BUILD_DIR
-      build-disabled: "{{ eq (len $node_buildable_modules) 0 }}"
-      lint-enabled: "true"
+      build-disabled: {{ eq (len $node_buildable_modules) 0 }}
+      lint-enabled: true
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
 {{- if eq (len $node_buildable_modules) 1 }}
       project-dir: {{ (first $node_buildable_modules).Dir }}
 {{- end }}
-      publish-enabled: "false"
+      publish-enabled: false
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}
@@ -81,7 +81,7 @@ include:{{ if not $has_include }} []{{ end }}
         -Dsonar.links.homepage=$CI_PROJECT_URL
         -Dsonar.links.ci=$CI_PROJECT_URL/-/pipelines
         -Dsonar.links.issue=$CI_PROJECT_URL/-/work_items
-      quality-gate-enabled: "true"
+      quality-gate-enabled: true
 {{- end }}
 
 {{- if has "overrides:integration" .Config.GitLab.Options }}

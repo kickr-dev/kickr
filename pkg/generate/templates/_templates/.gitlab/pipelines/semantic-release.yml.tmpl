@@ -16,12 +16,12 @@ include:
 {{- if and .Config.GitLab.Release .Config.GitLab.Release.Auto }}
       auto-release-enabled: $CI_COMMIT_REF_PROTECTED
 {{- else }}
-      auto-release-enabled: "false"
+      auto-release-enabled: false
 {{- end }}
       branches-ref: /^(alpha|beta|dev|develop|main|next|rc|staging|v[0-9]+(\.[0-9]+)?\.x)$/
       hooks-dir: scripts
       info-on: all
-      release-disabled: "{{ not .Config.GitLab.Release }}"
+      release-disabled: {{ not .Config.GitLab.Release }}
 {{- if .Config.GitLab.Release }}
       required-plugins-file: .gitlab/semrel-plugins.txt
 {{- end }}

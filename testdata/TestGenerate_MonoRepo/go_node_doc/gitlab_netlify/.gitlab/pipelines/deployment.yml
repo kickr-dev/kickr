@@ -16,10 +16,10 @@ include:
         --label org.opencontainers.image.revision=$CI_COMMIT_SHA
         --label org.opencontainers.image.version=$APP_VERSION
       build-tool: buildah
-      healthcheck-disabled: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
+      healthcheck-disabled: true # https://docs.docker.com/reference/dockerfile/#healthcheck
       release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>
       release-image: "${CI_REGISTRY}/${CI_PROJECT_PATH}:$APP_VERSION"
-      semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
+      semrel-release-disabled: true # handled by docker build and push jobs to avoid too much dependency on semantic-release
       snapshot-image: "${CI_REGISTRY}/${CI_PROJECT_PATH}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 

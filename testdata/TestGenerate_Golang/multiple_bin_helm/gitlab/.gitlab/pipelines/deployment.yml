@@ -16,10 +16,10 @@ include:
         --label org.opencontainers.image.revision=$CI_COMMIT_SHA
         --label org.opencontainers.image.version=$APP_VERSION
       build-tool: buildah
-      healthcheck-disabled: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
+      healthcheck-disabled: true # https://docs.docker.com/reference/dockerfile/#healthcheck
       release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>
       release-image: "registry.example.com/path/to/image:$APP_VERSION"
-      semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
+      semrel-release-disabled: true # handled by docker build and push jobs to avoid too much dependency on semantic-release
       snapshot-image: "registry.example.com/path/to/image/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 
@@ -28,19 +28,19 @@ include:
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/e5636d90883f5969a4d6a35042bc74080f5ec276/templates/gitlab-ci-helm.yml # 9.7.0
     inputs:
       chart-dir: chart/
-      integ-enabled: "false"
+      integ-enabled: false
       package-args: package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update
-      prod-enabled: "true"
+      prod-enabled: true
       publish-method: push
       publish-on: all
-      publish-snapshot-enabled: "false"
+      publish-snapshot-enabled: false
       publish-strategy: manual
       publish-url: chartmuseum.example.com/path/to/repository
-      review-enabled: "false"
+      review-enabled: false
       scripts-dir: chart/hooks/
-      semrel-release-disabled: "true" # version is handled manually
-      staging-enabled: "true"
-      test-enabled: "false"
+      semrel-release-disabled: true # version is handled manually
+      staging-enabled: true
+      test-enabled: false
       deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION"
       integ-app-name: $HELM_BASE_APP_NAME
       prod-deploy-strategy: manual

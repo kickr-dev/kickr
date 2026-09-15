@@ -37,10 +37,10 @@ include:{{ if not $has_include }} []{{ end }}
 {{- if and (eq (len $docker_modules) 1) (ne $firstnode.Dir ".") }}
       file: {{ $firstnode.Dir }}/Dockerfile
 {{- end }}
-      healthcheck-disabled: "true" # https://docs.docker.com/reference/dockerfile/#healthcheck
+      healthcheck-disabled: true # https://docs.docker.com/reference/dockerfile/#healthcheck
       release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>
       release-image: "{{ $registry }}/{{ $path }}{{ if gt (len $docker_modules) 1 }}/${DOCKER_IMAGE_NAME}{{ end }}:$APP_VERSION"
-      semrel-release-disabled: "true" # handled by docker build and push jobs to avoid too much dependency on semantic-release
+      semrel-release-disabled: true # handled by docker build and push jobs to avoid too much dependency on semantic-release
       snapshot-image: "{{ $registry }}/{{ $path }}{{ if gt (len $docker_modules) 1 }}/${DOCKER_IMAGE_NAME}{{ end }}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 {{- end }}
@@ -54,21 +54,21 @@ include:{{ if not $has_include }} []{{ end }}
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/e5636d90883f5969a4d6a35042bc74080f5ec276/templates/gitlab-ci-helm.yml # 9.7.0
     inputs:
       chart-dir: chart/
-      integ-enabled: "{{ and .Config.HasHelmDeploy (has "integration" .Config.Helm.Environments) }}"
+      integ-enabled: {{ and .Config.HasHelmDeploy (has "integration" .Config.Helm.Environments) }}
       package-args: package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update
-      prod-enabled: "{{ and .Config.HasHelmDeploy (has "production" .Config.Helm.Environments) }}"
+      prod-enabled: {{ and .Config.HasHelmDeploy (has "production" .Config.Helm.Environments) }}
       publish-method: {{ .Config.HasHelmPublish | ternary "push" "disabled" }}
       publish-on: {{ .Config.HasHelmPublish | ternary "all" "none" }}
-      publish-snapshot-enabled: "false"
+      publish-snapshot-enabled: false
       publish-strategy: {{ .Config.Helm.Publish | default "none" }}
 {{- if .Config.HasHelmPublish }}
       publish-url: {{ $registry }}/{{ trimSuffix (print "/" .VCS.ProjectName) $path }}
 {{- end }}
-      review-enabled: "{{ and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}"
+      review-enabled: {{ and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
       scripts-dir: chart/hooks/
-      semrel-release-disabled: "true" # version is handled manually
-      staging-enabled: "{{ and .Config.HasHelmDeploy (has "staging" .Config.Helm.Environments) }}"
-      test-enabled: "false"
+      semrel-release-disabled: true # version is handled manually
+      staging-enabled: {{ and .Config.HasHelmDeploy (has "staging" .Config.Helm.Environments) }}
+      test-enabled: false
 {{- if .Config.HasHelmDeploy }}
       deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION"
       integ-app-name: $HELM_BASE_APP_NAME
@@ -86,14 +86,14 @@ include:{{ if not $has_include }} []{{ end }}
   # https://gitlab.com/to-be-continuous/terraform
   - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
     inputs:
-      fmt-enabled: "true"
-      gitlab-backend-disabled: "true"
-      integ-enabled: "false"
-      prod-enabled: "false"
-      review-enabled: "false"
-      staging-enabled: "false"
+      fmt-enabled: true
+      gitlab-backend-disabled: true
+      integ-enabled: false
+      prod-enabled: false
+      review-enabled: false
+      staging-enabled: false
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
-      validate-enabled: "true"
+      validate-enabled: true
 {{- end }}
 {{- if has "overrides:deployment" .Config.GitLab.Options }}
   - local: .gitlab/deployment.overrides.yml
@@ -130,14 +130,14 @@ tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
       - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
         inputs:
           environment-namespace: {{ ne .Slug "" | ternary (print "/" .Slug) ("" | quote) }}
-          gitlab-backend-disabled: "{{ ne (get .Languages "terraform").Backend "http" }}"
-          integ-enabled: "{{ has "integration" .Config.Terraform.Environments }}"
-          prod-enabled: "{{ has "production" .Config.Terraform.Environments }}"
+          gitlab-backend-disabled: {{ ne (get .Languages "terraform").Backend "http" }}
+          integ-enabled: {{ has "integration" .Config.Terraform.Environments }}
+          prod-enabled: {{ has "production" .Config.Terraform.Environments }}
           project-dir: {{ .Dir }}
-          review-enabled: "{{ has "review" .Config.Terraform.Environments }}"
-          staging-enabled: "{{ has "staging" .Config.Terraform.Environments }}"
-          tflint-disabled: "true"
-          trivy-disabled: "true"
+          review-enabled: {{ has "review" .Config.Terraform.Environments }}
+          staging-enabled: {{ has "staging" .Config.Terraform.Environments }}
+          tflint-disabled: true
+          trivy-disabled: true
 {{- if has "overrides:deployment" $.Config.GitLab.Options }}
       - local: .gitlab/deployment.overrides.yml
 {{- end }}

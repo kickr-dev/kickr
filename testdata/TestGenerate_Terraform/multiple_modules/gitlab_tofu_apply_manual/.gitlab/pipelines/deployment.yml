@@ -7,14 +7,14 @@ include:
   # https://gitlab.com/to-be-continuous/terraform
   - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
     inputs:
-      fmt-enabled: "true"
-      gitlab-backend-disabled: "true"
-      integ-enabled: "false"
-      prod-enabled: "false"
-      review-enabled: "false"
-      staging-enabled: "false"
+      fmt-enabled: true
+      gitlab-backend-disabled: true
+      integ-enabled: false
+      prod-enabled: false
+      review-enabled: false
+      staging-enabled: false
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
-      validate-enabled: "true"
+      validate-enabled: true
 
 tf-deploy-modules-one:
   stage: infra-prod
@@ -29,14 +29,14 @@ tf-deploy-modules-one:
       - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
         inputs:
           environment-namespace: /modules-one
-          gitlab-backend-disabled: "false"
-          integ-enabled: "false"
-          prod-enabled: "true"
+          gitlab-backend-disabled: false
+          integ-enabled: false
+          prod-enabled: true
           project-dir: modules/one
-          review-enabled: "false"
-          staging-enabled: "false"
-          tflint-disabled: "true"
-          trivy-disabled: "true"
+          review-enabled: false
+          staging-enabled: false
+          tflint-disabled: true
+          trivy-disabled: true
       - local: .gitlab/variables.yml
 
 tf-deploy-modules-two:
@@ -52,12 +52,12 @@ tf-deploy-modules-two:
       - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
         inputs:
           environment-namespace: /modules-two
-          gitlab-backend-disabled: "false"
-          integ-enabled: "false"
-          prod-enabled: "true"
+          gitlab-backend-disabled: false
+          integ-enabled: false
+          prod-enabled: true
           project-dir: modules/two
-          review-enabled: "false"
-          staging-enabled: "false"
-          tflint-disabled: "true"
-          trivy-disabled: "true"
+          review-enabled: false
+          staging-enabled: false
+          tflint-disabled: true
+          trivy-disabled: true
       - local: .gitlab/variables.yml
