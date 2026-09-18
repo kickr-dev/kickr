@@ -17,7 +17,7 @@ RUN bun install --frozen-lockfile && \
 #############################
 #         STAGE RUN         #
 #############################
-FROM nginx:1.31.5-alpine3.24@sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3
+FROM nginx:1.31.6-alpine3.24@sha256:adad2ae9204d0fd7a34f40299bc838c3782be1293b10005eac4315ff5a1abf4e
 
 LABEL org.opencontainers.image.authors="kilianpaquier"
 LABEL org.opencontainers.image.vendor="kilianpaquier"
