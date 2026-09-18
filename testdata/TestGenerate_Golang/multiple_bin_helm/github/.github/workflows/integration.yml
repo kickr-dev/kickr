@@ -112,7 +112,7 @@ jobs:
           format: sarif
           output-file: hadolint-results.sarif
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         with:
           sarif_file: hadolint-results.sarif
           category: docker-hadolint/${{ matrix.directory }}
@@ -134,7 +134,7 @@ jobs:
       - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.2.4
+          version: v4.3.0
       # https://github.com/marketplace/actions/setup-python
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
@@ -203,7 +203,7 @@ jobs:
           # renovate: datasource=github-tags packageName=golangci/golangci-lint depName=golangci-lint
           version: v2.13.2
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         with:
           sarif_file: reports/golangci-lint.sarif
           category: golangci-lint

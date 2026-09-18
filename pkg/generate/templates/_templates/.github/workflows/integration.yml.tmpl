@@ -111,7 +111,7 @@ jobs:
       - if: ${{ !cancelled() }}
 <<- if has "step-security-actions" .Config.GitHub.Options >>
         # https://app.stepsecurity.io/github-action-advisor/step-security/git-auto-commit-action
-        uses: step-security/git-auto-commit-action@749bc1cc775376092cc4227ba537137f445ca7c3 # v7.1.1
+        uses: step-security/git-auto-commit-action@ca31fda53dd20a6864523b29798308a4c5fa5cfa # v7.2.0
 <<- else >>
         # https://github.com/marketplace/actions/git-auto-commit
         uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
@@ -182,7 +182,7 @@ jobs:
           format: sarif
           output-file: hadolint-results.sarif
       - if: ${{ !cancelled() }}
-        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
+        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
         with:
           sarif_file: hadolint-results.sarif
           category: docker-hadolint/${{ matrix.directory }}
@@ -209,7 +209,7 @@ jobs:
       - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.2.4
+          version: v4.3.0
       # https://github.com/marketplace/actions/setup-python
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
