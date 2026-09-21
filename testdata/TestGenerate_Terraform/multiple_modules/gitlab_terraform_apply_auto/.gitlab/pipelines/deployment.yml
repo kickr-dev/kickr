@@ -18,6 +18,11 @@ include:
 
 tf-deploy-modules-one:
   stage: infra-prod
+  rules:
+    # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
+    - when: on_success
   trigger:
     strategy: mirror
     forward:
@@ -41,6 +46,11 @@ tf-deploy-modules-one:
 
 tf-deploy-modules-two:
   stage: infra-prod
+  rules:
+    # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
+    - when: on_success
   trigger:
     strategy: mirror
     forward:

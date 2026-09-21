@@ -80,6 +80,33 @@ include:{{ if not $has_include }} []{{ end }}
 {{- end }}
 {{- end }}
 
+{{- if and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
+
+helm-review:
+  rules:
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
+    # see https://gitlab.com/to-be-continuous/helm/-/blob/main/templates/gitlab-ci-helm.yml?ref_type=heads#L1591
+    # exclude tags and on $HELM_REVIEW_ENABLED not set
+    - if: '$HELM_REVIEW_ENABLED != "true" || $CI_COMMIT_TAG'
+      when: never
+    # only on non-production, non-integration branches
+    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF && $CI_COMMIT_REF_NAME !~ $INTEG_REF'
+
+helm-cleanup-review:
+  rules:
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
+    # see https://gitlab.com/to-be-continuous/helm/-/blob/main/templates/gitlab-ci-helm.yml?ref_type=heads#L1609
+    # exclude tags and on $HELM_REVIEW_ENABLED not set
+    - if: '$HELM_REVIEW_ENABLED != "true" || $CI_COMMIT_TAG'
+      when: never
+    # only on non-production, non-integration branches
+    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF && $CI_COMMIT_REF_NAME !~ $INTEG_REF'
+      when: manual
+      allow_failure: true
+{{- end }}
+
 {{- if gt (len $terraform_modules) 0 }}
 
   # Terraform template
@@ -119,6 +146,11 @@ include:{{ if not $has_include }} []{{ end }}
 
 tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
   stage: infra-prod
+  rules:
+    # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
+    - when: on_success
   trigger:
     strategy: mirror
     forward:

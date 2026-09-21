@@ -54,6 +54,8 @@ netlify-deploy-review-docs:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
     - when: manual
       allow_failure: true
   variables:
@@ -68,6 +70,8 @@ netlify-cleanup-review-docs:
     action: stop
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
+      when: never
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
       when: never
     - when: manual
       allow_failure: true
@@ -103,6 +107,8 @@ netlify-deploy-review-website:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
     - when: manual
       allow_failure: true
   variables:
@@ -117,6 +123,8 @@ netlify-cleanup-review-website:
     action: stop
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
+      when: never
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
       when: never
     - when: manual
       allow_failure: true

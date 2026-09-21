@@ -70,6 +70,8 @@ netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
     - when: manual
       allow_failure: true
   variables:
@@ -86,6 +88,8 @@ netlify-cleanup-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
     action: stop
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
+      when: never
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
       when: never
     - when: manual
       allow_failure: true
