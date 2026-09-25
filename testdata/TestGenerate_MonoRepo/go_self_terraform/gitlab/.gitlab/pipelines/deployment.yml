@@ -5,7 +5,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/fef22b89d78f356aeac7b7357fd8e5984d05bbca/templates/gitlab-ci-terraform.yml # 9.4.0
+  - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/5b715875b2edc25c3572d89d968dcbd11cb1115d/templates/gitlab-ci-terraform.yml # 9.5.0
     inputs:
       fmt-enabled: true
       gitlab-backend-disabled: true

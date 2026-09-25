@@ -9,8 +9,8 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
-  SEMREL_IMAGE: docker.io/library/node:26.9.0-alpine3.23@sha256:9dac39bfd053b458593c44a099d2667994c8fa9e1a8c10bc7ff2f3d97b62412d
-  KICKR_IMAGE: ghcr.io/jdx/mise:2026.9.11@sha256:f01b88463f3a8396b2273d88469bd09d097aa3cacfe343177eb5457f1d8d2a92
+  SEMREL_IMAGE: docker.io/library/node:26.10.0-alpine3.23@sha256:c3c6e314fd42e41962360b2482fc18d150beb47976c3aa7b8b9689d7ef42a5c2
+  KICKR_IMAGE: ghcr.io/jdx/mise:2026.9.13@sha256:1e74fb7d744027d453731d948dda0748cf19a3e7b4357b09787448088d1ff2ad
   PRE_COMMIT_IMAGE: docker.io/library/python:3.14.7-alpine3.23@sha256:6b8f06d04d5305c1d1288435388df9165ab41e681fae6439d6349d8053cc3f83
 
   GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.13.2-alpine@sha256:da1f79b184ff1d98781648407d05a99b9cba7b282aa3416b0a0eac102a3b0557
