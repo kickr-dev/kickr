@@ -30,7 +30,7 @@ Never edit `.schemas/kickr.v1.schema.json` or `pkg/kickr/v1/kickr.go`/`constants
 
 - Path: `pkg/generate/generate_test.go`
 - Golden-fixture: `test(ctx, t, repo, parsers...)` diffs against `testdata/<TestName>/...`.
-- Regenerate fixtures: `make testdata`.
+- Regenerate fixtures: `just testdata`.
 - Reuse existing `golang`/`node`/`hugo` parser closures instead of duplicating.
   Before refactoring or duplicating one, stop and ask first, don't implement a variant then explain it after.
 

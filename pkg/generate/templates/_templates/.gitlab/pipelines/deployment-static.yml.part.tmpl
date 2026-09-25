@@ -131,20 +131,16 @@ netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}
     url: $CI_PAGES_URL
   variables:
     GIT_STRATEGY: none
+    PAGES_PROJECT_DIR: .
   rules:
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       when: never
-  script:
-    - |
-      cd "$PAGES_PROJECT_DIR"
-      if [ "$BUILD_DIR" != "public" ]; then
-        mkdir -p "$CI_PROJECT_DIR/public"
-        mv "$BUILD_DIR"/* "$CI_PROJECT_DIR/public"
-      fi
+  pages:
+    publish: $PAGES_PROJECT_DIR/$BUILD_DIR
   artifacts:
     name: "$CI_JOB_NAME artifacts from $CI_PROJECT_NAME on $CI_COMMIT_REF_SLUG"
     paths:
-      - public
+      - $PAGES_PROJECT_DIR/$BUILD_DIR
     expire_in: 1 day
 {{- end }}
 
@@ -157,7 +153,9 @@ pages{{ if $pages_multiple_modules }}-{{ .Slug }}{{ end }}:
 {{- if $pages_multiple_modules }}
     PAGES_ENVIRONMENT_NAMESPACE: /{{ .Slug }}
 {{- end }}
+{{- if ne .Dir "." }}
     PAGES_PROJECT_DIR: {{ .Dir }}
+{{- end }}
 {{- end }}
   dependencies:
 {{- if hasKey .Languages "node" }}
