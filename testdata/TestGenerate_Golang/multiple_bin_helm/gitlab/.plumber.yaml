@@ -187,7 +187,7 @@ gitlab:
       # When false, force push must be disabled on protected branches
       allowForcePush: false
       # Require code owner approval for changes
-      codeOwnerApprovalRequired: false
+      codeOwnerApprovalRequired: true
       # Minimum access level required to merge (0=No one, 30=Developer, 40=Maintainer)
       minMergeAccessLevel: 30
       # Minimum access level required to push (0=No one, 30=Developer, 40=Maintainer)
@@ -198,7 +198,7 @@ gitlab:
     # Flags approval rules covering all protected branches that require fewer approvals than the minimum below.
     # GitLab Premium/Ultimate only (passes vacuously on Free).
     mergeRequestApprovalRulesMustRequireMinimumApprovals:
-      enabled: true
+      enabled: false
       # The fewest approvals a rule covering all protected branches must require.
       minimumRequiredApprovals: 1
     # ===========================================
@@ -207,7 +207,7 @@ gitlab:
     # Flags a project where no approval rule carries the explicit "all protected branches" target.
     # GitLab Premium/Ultimate only (fires on Free, where the approvals API returns an empty list).
     mergeRequestApprovalRulesMustCoverAllProtectedBranches:
-      enabled: true
+      enabled: false
     # ===========================================
     # MR approval settings must be compliant
     # ===========================================
@@ -228,21 +228,21 @@ gitlab:
     # mergePipelinesEnabled and mergeTrainsEnabled are GitLab Premium/Ultimate, enabled with nothing uncommented it checks nothing.
     mergeRequestSettingsMustBeCompliant:
       enabled: true
-      # mergeMethod: ff                      # merge, ff or rebase_merge
-      # squashOption: default_on             # never, always, default_on or default_off
-      # mergePipelinesEnabled: true          # run the pipeline on the merged result
-      # mergeTrainsEnabled: true
-      # allowMergeOnSkippedPipeline: false   # never merge when CI was skipped
+      mergeMethod: ff # merge, ff or rebase_merge
+      squashOption: never # never, always, default_on or default_off
+      mergePipelinesEnabled: true # run the pipeline on the merged result
+      mergeTrainsEnabled: true
+      allowMergeOnSkippedPipeline: true # never merge when CI was skipped
       # resolveOutdatedDiffDiscussions: true # auto-resolve stale review threads
       # printingMergeRequestLinkEnabled: true
-      # removeSourceBranchAfterMerge: true   # clean up the branch after merge
+      removeSourceBranchAfterMerge: true # clean up the branch after merge
     # ===========================================
     # Project must have a security policy source
     # ===========================================
     # Requires the project to link a security policy project, optionally a specific one (the ID wins if both are set).
     # GitLab Ultimate only (fires on lower tiers).
     projectMustHaveSecurityPolicySource:
-      enabled: true
+      enabled: false
       # expectedProjectId: 123
       # expectedProjectPath: my-group/security-policy-project
     # ===========================================
@@ -250,7 +250,7 @@ gitlab:
     # ===========================================
     # Detects CI/CD jobs defined directly in .gitlab-ci.yml instead of being included from components or templates.
     pipelineMustNotIncludeHardcodedJobs:
-      enabled: true
+      enabled: false
     # ===========================================
     # Includes must not use ambiguous tag/branch refs
     # ===========================================

@@ -338,7 +338,7 @@ github:
         - dev
       allowForcePush: false
       # Require code-owner approval on protected branches.
-      codeOwnerApprovalRequired: false
+      codeOwnerApprovalRequired: true
 
     # ============================================================================
     # Workflows must include required actions
