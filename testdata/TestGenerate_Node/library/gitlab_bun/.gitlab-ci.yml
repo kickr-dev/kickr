@@ -18,7 +18,17 @@ include:
 # (define the variables below in your GitLab group/project variables)
 
 # https://gitlab.com/to-be-continuous/semantic-release
-# RELEASE_TOKEN: A GitLab 'group access token' or 'project access token' or 'personal access token' with `api` and `write_repository` scopes and at least a `Developer` role.
+# RELEASE_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
+# and `write_repository` scopes and at least a `Developer` role,
+# or a 'fine-grained personal access token' with the following permissions on this project:
+#   - Code: Download, Push
+#   - Commit merge request: Read
+#   - Issue note: Create
+#   - Markdown upload: Create
+#   - Merge request closes issue: Read
+#   - Merge request note: Create
+#   - Project: Read
+#   - Release: Create
 # SEMREL_GPG_SIGNKEY: Path to the GPG signkey exported with `gpg --armor --export-secret-key` (optional).
 
 default:

@@ -40,7 +40,7 @@ func generators() []engine.Generator[types.Repository] {
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Taskfile()), // module taskfile
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Justfile()), // module justfile
 
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
+		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Plumber(), templates.Sonar())),         // analysis
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 		engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang

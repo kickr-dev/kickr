@@ -20,8 +20,24 @@ include:
 
 # https://gitlab.com/to-be-continuous/renovate
 # Don't forget to setup a scheduled pipeline every once in a while to run Renovate updates checks.
-# RENOVATE_TOKEN: A GitLab access token to allow Renovate crawl your projects. [See doc](https://docs.renovatebot.com/modules/platform/gitlab/#authentication).
-# GITHUB_COM_TOKEN: A GitHub access token to allow Renovate fetch changelogs. [See doc](https://docs.renovatebot.com/getting-started/running/#githubcom-token-for-changelogs).
+# RENOVATE_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`, `read_user`
+# and `write_repository` scopes and at least a `Developer` role,
+# or a 'fine-grained personal access token' with the following permissions on the root group:
+#   - Code: Download, Push
+#   - Commit: Read
+#   - Commit status: Create, Read
+#   - Issue: Create, Read, Update
+#   - Member: Read
+#   - Merge request: Approve, Create, Merge, Read, Update
+#   - Merge request approval rule: Create, Delete, Read, Update
+#   - Merge request note: Create, Delete, Read, Update
+#   - Merge train merge request: Add
+#   - Metadata: Read (global)
+#   - Project: Read (also user)
+#   - Repository file: Read
+#   - User: Read (user and global)
+# GITHUB_COM_TOKEN: A GitHub access token to allow Renovate fetch changelogs ([See doc](https://docs.renovatebot.com/getting-started/running/#githubcom-token-for-changelogs)),
+# or a 'fine-grained personal access token' with `Public repositories` read-only access and no permissions.
 
 default:
   interruptible: true

@@ -395,6 +395,7 @@ func TestGenerate_Golang(t *testing.T) {
 							kickr.GitHubOptionsHardenRunner,
 							kickr.GitHubOptionsLabeler,
 							kickr.GitHubOptionsOSSFScorecard,
+							kickr.GitHubOptionsPlumber,
 							kickr.GitHubOptionsSonarQube,
 							kickr.GitHubOptionsStepSecurityActions,
 						},
@@ -407,6 +408,7 @@ func TestGenerate_Golang(t *testing.T) {
 				Config: kickr.Kickr{
 					GitLab: &kickr.GitLab{
 						Options: []string{
+							kickr.GitLabOptionsPlumber,
 							kickr.GitLabOptionsSonarQube,
 							kickr.GitLabOptionsOverridesIntegration,
 							kickr.GitLabOptionsOverridesDeployment,
@@ -1452,7 +1454,7 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Taskfile()), // module taskfile
 			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Justfile()), // module justfile
 
-			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // coverage
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Plumber(), templates.Sonar())),         // analysis
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang

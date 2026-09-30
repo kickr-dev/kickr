@@ -15,7 +15,7 @@
 {{- $precommit := and (not (has "pre-commit" .Config.Exclude)) (not (has "pre-commit" .Config.GitLab.Exclude)) }}
 {{- $shell := and (not (has "shell" .Config.Exclude)) (.HasGlob "shell") }}
 
-{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) (has "sonarqube" .Config.GitLab.Options) (has "overrides:integration" .Config.GitLab.Options) }}
+{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) (has "plumber" .Config.GitLab.Options) (has "sonarqube" .Config.GitLab.Options) (has "overrides:integration" .Config.GitLab.Options) }}
 
 ---
 include:{{ if not $has_include }} []{{ end }}
@@ -68,6 +68,21 @@ include:{{ if not $has_include }} []{{ end }}
       project-dir: {{ (first $node_buildable_modules).Dir }}
 {{- end }}
       publish-enabled: false
+{{- end }}
+
+{{- if has "plumber" .Config.GitLab.Options }}
+
+  # Plumber template
+  # https://gitlab.com/getplumber/plumber
+  - remote: https://gitlab.com/getplumber/plumber/-/raw/c342d11f758f4386d9d2c42333cd1c4ae2d5448a/templates/plumber.yml # v0.5.16
+    inputs:
+      allow_failure: true
+      badge: true
+      config_file: .plumber.yaml
+      gitlab_token: $PLUMBER_TOKEN
+      mr_comment: true
+      score_point: true
+      score_push: true
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}

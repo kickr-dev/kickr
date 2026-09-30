@@ -25,6 +25,17 @@ func (k Kickr) HasHelmDeploy() bool {
 	return k.Helm != nil && k.Helm.Deploy != ""
 }
 
+// HasPlumber returns truthy in case Plumber analysis is enabled on either platform.
+func (k Kickr) HasPlumber() bool {
+	if k.GitHub != nil && slices.Contains(k.GitHub.Options, GitHubOptionsPlumber) {
+		return true
+	}
+	if k.GitLab != nil && slices.Contains(k.GitLab.Options, GitLabOptionsPlumber) {
+		return true
+	}
+	return false
+}
+
 // HasSonarQube returns truthy in case SonarQube analysis is enabled on either platform.
 func (k Kickr) HasSonarQube() bool {
 	if k.GitHub != nil && slices.Contains(k.GitHub.Options, GitHubOptionsSonarQube) {

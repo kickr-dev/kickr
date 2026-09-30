@@ -224,6 +224,7 @@ type GitHub struct {
 	//  - kickr:personal-token
 	//  - labeler
 	//  - ossf-scorecard
+	//  - plumber
 	//  - renovate:github-app
 	//  - renovate:personal-token
 	//  - sonarqube
@@ -248,6 +249,7 @@ type GitLab struct {
 	//  - kickr
 	//  - overrides:deployment
 	//  - overrides:integration
+	//  - plumber
 	//  - renovate
 	//  - sonarqube
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`

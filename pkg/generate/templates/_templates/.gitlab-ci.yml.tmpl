@@ -37,7 +37,20 @@ include:
 {{- if .Config.GitLab.Release }}
 
 # https://gitlab.com/to-be-continuous/semantic-release
-# RELEASE_TOKEN: A GitLab 'group access token' or 'project access token' or 'personal access token' with `api` and `write_repository` scopes and at least a `Developer` role.
+# RELEASE_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
+# and `write_repository` scopes and at least a `Developer` role,
+# or a 'fine-grained personal access token' with the following permissions on this project:
+#   - Code: Download, Push
+#   - Commit merge request: Read
+#   - Issue note: Create
+#   - Markdown upload: Create
+{{- if has "backmerge" .Config.GitLab.Release.Options }}
+#   - Merge request: Create
+{{- end }}
+#   - Merge request closes issue: Read
+#   - Merge request note: Create
+#   - Project: Read
+#   - Release: Create
 # SEMREL_GPG_SIGNKEY: Path to the GPG signkey exported with `gpg --armor --export-secret-key` (optional).
 {{- end }}
 
@@ -84,8 +97,24 @@ include:
 
 # https://gitlab.com/to-be-continuous/renovate
 # Don't forget to setup a scheduled pipeline every once in a while to run Renovate updates checks.
-# RENOVATE_TOKEN: A GitLab access token to allow Renovate crawl your projects. [See doc](https://docs.renovatebot.com/modules/platform/gitlab/#authentication).
-# GITHUB_COM_TOKEN: A GitHub access token to allow Renovate fetch changelogs. [See doc](https://docs.renovatebot.com/getting-started/running/#githubcom-token-for-changelogs).
+# RENOVATE_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`, `read_user`
+# and `write_repository` scopes and at least a `Developer` role,
+# or a 'fine-grained personal access token' with the following permissions on the root group:
+#   - Code: Download, Push
+#   - Commit: Read
+#   - Commit status: Create, Read
+#   - Issue: Create, Read, Update
+#   - Member: Read
+#   - Merge request: Approve, Create, Merge, Read, Update
+#   - Merge request approval rule: Create, Delete, Read, Update
+#   - Merge request note: Create, Delete, Read, Update
+#   - Merge train merge request: Add
+#   - Metadata: Read (global)
+#   - Project: Read (also user)
+#   - Repository file: Read
+#   - User: Read (user and global)
+# GITHUB_COM_TOKEN: A GitHub access token to allow Renovate fetch changelogs ([See doc](https://docs.renovatebot.com/getting-started/running/#githubcom-token-for-changelogs)),
+# or a 'fine-grained personal access token' with `Public repositories` read-only access and no permissions.
 {{- end }}
 
 {{- if gt (len $netlify_modules) 0 }}
@@ -103,9 +132,34 @@ include:
 # SONAR_PASSWORD: SonarQube password (depends on your authentication method).
 {{- end }}
 
+{{- if has "plumber" .Config.GitLab.Options }}
+
+# https://gitlab.com/getplumber/plumber
+# PLUMBER_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
+# and `read_repository` scopes and at least a `Maintainer` role,
+# or a 'fine-grained personal access token' with the following permissions on this project and its parent groups:
+#   - Approval configuration: Read
+#   - Approval rule: Read
+#   - Badge: Create, Read, Update
+#   - Branch: Read
+#   - Commit: Read
+#   - Group: Read
+#   - Merge request note: Create, Read, Update
+#   - Project: Read
+#   - Protected branch: Read
+#   - Repository file: Read
+#   - Repository tag: Read
+{{- end }}
+
 {{- if has "kickr" .Config.GitLab.Options }}
 
-# KICKR_TOKEN: A GitLab access token to allow kickr layout update (`write_repository` and `api` scopes with a `Developer` role).
+# KICKR_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
+# and `write_repository` scopes and at least a `Developer` role,
+# or a 'fine-grained personal access token' with the following permissions on this project:
+#   - Code: Push
+#   - Merge request: Create, Read, Update
+#   - Project: Read
+#   - User: Read (user and global)
 {{- end }}
 
 default:

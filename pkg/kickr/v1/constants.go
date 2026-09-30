@@ -49,6 +49,7 @@ const (
 	GitHubOptionsKickrPersonalToken    = "kickr:personal-token"
 	GitHubOptionsLabeler               = "labeler"
 	GitHubOptionsOSSFScorecard         = "ossf-scorecard"
+	GitHubOptionsPlumber               = "plumber"
 	GitHubOptionsRenovateGitHubApp     = "renovate:github-app"
 	GitHubOptionsRenovatePersonalToken = "renovate:personal-token"
 	GitHubOptionsSonarQube             = "sonarqube"
@@ -59,6 +60,7 @@ const (
 	GitLabOptionsKickr                = "kickr"
 	GitLabOptionsOverridesDeployment  = "overrides:deployment"
 	GitLabOptionsOverridesIntegration = "overrides:integration"
+	GitLabOptionsPlumber              = "plumber"
 	GitLabOptionsRenovate             = "renovate"
 	GitLabOptionsSonarQube            = "sonarqube"
 )

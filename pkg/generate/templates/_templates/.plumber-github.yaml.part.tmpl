@@ -1,0 +1,459 @@
+{{- define "github" }}
+
+# ============================================================================
+# GitHub Actions controls
+# ============================================================================
+github:
+  controls:
+    # ===========================================
+    # Actions must be pinned by commit SHA
+    # ===========================================
+    # Flags workflow steps whose `uses:` reference isn't a 40-character commit SHA.
+    actionsMustBePinnedByCommitSha:
+      enabled: true
+      # Action-owner prefixes exempt from the pin-by-SHA requirement.
+      trustedOwners:
+        - actions
+        - github
+
+    # ===========================================
+    # Actions must come from authorized sources
+    # ===========================================
+    # Restricts which `uses:` action sources are allowed, org-scoped wildcards (`owner/*`) only.
+    # Owner matching is literal and CASE-SENSITIVE, mixed-case orgs are listed in both forms.
+    githubActionMustComeFromAuthorizedSources:
+      enabled: true
+      trustGithubOfficialActions: true # actions/* and github/*
+      trustSameOrgActions: true # action owner == scanned repo owner
+      minimumStars: 20000 # popular-by-adoption floor (requires API access)
+      trustedGithubActions:
+        # ── Cloud providers ──────────────────────────────────────────
+        - aws-actions/* # Amazon Web Services
+        - google-github-actions/* # Google Cloud
+        - googleapis/* # Google (release-please-action)
+        - Azure/* # Microsoft Azure
+        - cloudflare/* # Cloudflare (wrangler-action)
+        - hashicorp/* # HashiCorp (IBM)
+        - pulumi/* # Pulumi
+        - digitalocean/* # DigitalOcean
+        - ibm/* # IBM
+        - oracle-actions/* # Oracle
+        - canonical/* # Canonical / Ubuntu
+        - fastly/* # Fastly
+        # ── Container / build / release / CI tooling ─────────────────
+        - docker/* # Docker, Inc.
+        - gradle/* # Gradle
+        - goreleaser/* # GoReleaser
+        - bazel-contrib/* # Bazel community / Linux Foundation
+        - jfrog/* # JFrog
+        - dagger/* # Dagger
+        - buildkite/* # Buildkite
+        - CircleCI-Public/* # CircleCI
+        - earthly/* # Earthly
+        # ── Language & packaging ecosystems ──────────────────────────
+        - pypa/* # Python Packaging Authority
+        - ruby/* # Ruby
+        - denoland/* # Deno
+        - oven-sh/* # Bun (Oven, Inc.)
+        - astral-sh/* # Astral (uv, ruff)
+        - golangci/* # golangci-lint
+        - dart-lang/* # Dart / Google
+        - erlef/* # Erlang Ecosystem Foundation
+        - haskell-actions/* # Haskell
+        - julia-actions/* # Julia
+        - ocaml/* # OCaml
+        - conda-incubator/* # Conda
+        - r-lib/* # R
+        - sbt/* # sbt build tool
+        - VirtusLab/* # Scala CLI
+        - gleam-lang/* # Gleam
+        # ── Security vendors & supply-chain projects ─────────────────
+        - getplumber/* # Plumber (this tool's own actions)
+        - step-security/* # StepSecurity (harden-runner)
+        - ossf/* # OpenSSF / Linux Foundation (scorecard-action)
+        - sigstore/* # Sigstore / LF (cosign-installer)
+        - slsa-framework/* # SLSA / OpenSSF
+        - aquasecurity/* # Aqua Security (trivy-action)
+        - anchore/* # Anchore (sbom-action, scan-action)
+        - snyk/* # Snyk
+        - SonarSource/* # SonarSource
+        - trufflesecurity/* # Truffle Security
+        - gitleaks/* # Gitleaks
+        - chainguard-dev/* # Chainguard
+        - GitGuardian/* # GitGuardian
+        - bridgecrewio/* # Bridgecrew / Palo Alto (checkov)
+        - zaproxy/* # OWASP ZAP
+        - Checkmarx/* # Checkmarx
+        - veracode/* # Veracode
+        - tenable/* # Tenable
+        - semgrep/* # Semgrep
+        - in-toto/* # in-toto / supply-chain attestation
+        - sonatype/* # Sonatype
+        - sonatype-nexus-community/* # Sonatype community
+        - checkmarx-ts/* # Checkmarx TS
+        - Qualys/* # Qualys
+        - orcasecurity/* # Orca Security
+        - oxsecurity/* # OX Security (MegaLinter)
+        # ── Dev platforms / SaaS with mature security programs ───────
+        - codecov/* # Codecov (pin by SHA — 2021 breach)
+        - getsentry/* # Sentry
+        - DataDog/* # Datadog
+        - cypress-io/* # Cypress.io
+        - JetBrains/* # JetBrains (qodana)
+        - microsoft/* # Microsoft
+        - atlassian/* # Atlassian
+        - Shopify/* # Shopify
+        - netlify/* # Netlify
+        - planetscale/* # PlanetScale
+        - supabase/* # Supabase
+        - expo/* # Expo
+        - grafana/* # Grafana Labs
+        - honeycombio/* # Honeycomb
+        - newrelic/* # New Relic
+        - saucelabs/* # Sauce Labs
+        - mongodb/* # MongoDB
+        - adobe/* # Adobe
+        - facebook/* # Meta / Facebook
+        # ── CNCF / infrastructure foundations ────────────────────────
+        - helm/* # Helm / CNCF
+        - kubernetes-sigs/* # Kubernetes SIGs / CNCF
+        - opentofu/* # OpenTofu / Linux Foundation
+        - ansible/* # Ansible / Red Hat
+        - ansible-community/* # Ansible community
+        # ── Project orgs & widely-adopted publishers ─────────────────
+        - pnpm/* # pnpm package manager
+        - anthropics/* # Anthropic (claude-code-action)
+        - openai/* # OpenAI (codex-action)
+        - slackapi/* # Slack
+        - google/* # Google (oss-fuzz, etc.)
+        - golang/* # Go team (govulncheck-action)
+        - dependabot/* # Dependabot / GitHub
+        - rubygems/* # RubyGems
+        - apple-actions/* # Apple
+        - redhat-actions/* # Red Hat
+        - graalvm/* # Oracle GraalVM
+        - arduino/* # Arduino
+        - msys2/* # MSYS2
+        - android-actions/* # Android
+        - changesets/* # Changesets
+        - tauri-apps/* # Tauri
+        - biomejs/* # Biome
+        - bufbuild/* # Buf
+        - reviewdog/* # reviewdog
+        - hadolint/* # hadolint
+        - gittools/* # GitTools (GitVersion)
+        - fsfe/* # Free Software Foundation Europe (reuse-action)
+        - cachix/* # Cachix
+        - nix-community/* # Nix community
+        - DeterminateSystems/* # Determinate Systems
+        - 1Password/* # 1Password
+        - tailscale/* # Tailscale
+        - octokit/* # GitHub Octokit org
+        - NuGet/* # Microsoft / .NET Foundation
+        - depot/* # Depot Technologies, Inc.
+        - chromaui/* # Chromatic / Chroma Software
+        - signpath/* # SignPath GmbH
+        - rust-lang/* # Rust project / crates.io
+        - apache/* # Apache Software Foundation
+        - Homebrew/* # Homebrew project
+        - PyO3/* # PyO3 org (maturin)
+        - EmbarkStudios/* # Embark Studios (cargo-deny)
+        - bytecodealliance/* # Bytecode Alliance / Linux Foundation
+        - emscripten-core/* # Emscripten project
+        - devcontainers/* # devcontainers org (Microsoft-stewarded)
+        - renovatebot/* # Mend.io (renovate)
+        - prefix-dev/* # prefix.dev (pixi)
+        - scientific-python/* # scientific-python consortium
+        - browserstack/* # BrowserStack
+        - digicert/* # DigiCert (pin by SHA — high blast radius)
+        - zizmorcore/* # zizmor scanner (Trail of Bits ecosystem)
+        - go-task/* # go-task / taskfile.dev
+        - namespacelabs/* # Namespace Labs
+        - voidzero-dev/* # VoidZero (pin by SHA — remote install script)
+        - crowdin/* # Crowdin
+        - linear/* # Linear
+        - qltysh/* # Qlty Software
+        - flatpak/* # Flatpak project
+        - peter-evans/* # Peter Evans (widely-adopted PR/comment actions; pin by SHA)
+        # ── Lowercase case-aliases (literal matcher is case-sensitive) ──
+        - azure/* # = Azure/*
+        - sonarsource/* # = SonarSource/*
+        - datadog/* # = DataDog/*
+        - jetbrains/* # = JetBrains/*
+        - shopify/* # = Shopify/*
+        - gitguardian/* # = GitGuardian/*
+        - checkmarx/* # = Checkmarx/*
+        - qualys/* # = Qualys/*
+        - circleci-public/* # = CircleCI-Public/*
+        - virtuslab/* # = VirtusLab/*
+        - nuget/* # = NuGet/*
+        - determinatesystems/* # = DeterminateSystems/*
+        - 1password/* # = 1Password/*
+        - apple-Actions/* # mixed-case form of apple-actions/*
+        - embarkstudios/* # = EmbarkStudios/*
+        - pyo3/* # = PyO3/*
+        - homebrew/* # = Homebrew/*
+
+    # ===========================================
+    # Container images must not use forbidden reference
+    # ===========================================
+    # Same control as GitLab, with GitHub-side values.
+    containerImageMustNotUseForbiddenTags:
+      enabled: true
+      tags:
+        - latest
+        - dev
+        - development
+        - staging
+        - main
+        - master
+      # When true, ALL images must be pinned by digest (e.g. alpine@sha256:...), taking precedence over the tags list.
+      containerImagesMustBePinnedByDigest: true
+
+    # ===========================================
+    # Pipeline must not use Docker-in-Docker
+    # ===========================================
+    # Flags `docker:dind` services, plus plaintext DOCKER_HOST and empty DOCKER_TLS_CERTDIR values.
+    pipelineMustNotUseDockerInDocker:
+      enabled: true
+      detectInsecureDaemon: true
+
+    # ===========================================
+    # Pipeline must not execute unverified scripts
+    # ===========================================
+    # Scans every workflow `run:` step for pipe-to-shell, download-then-exec and base64-obfuscated payloads.
+    pipelineMustNotExecuteUnverifiedScripts:
+      enabled: true
+      trustedUrls: []
+      # - https://internal-artifacts.example.com/*
+
+    # ===========================================
+    # Reusable workflows must not inherit secrets
+    # ===========================================
+    # Detects `jobs.<name>.secrets: inherit` calls, use an explicit secrets map instead.
+    reusableWorkflowsMustNotInheritSecrets:
+      enabled: true
+
+    # ===========================================
+    # Checkout must not persist credentials
+    # ===========================================
+    # Flags `actions/checkout` without `persist-credentials: false` (GITHUB_TOKEN left in `.git/config`).
+    checkoutMustNotPersistCredentials:
+      enabled: true
+
+    # ===========================================
+    # Workflow must not export the entire secrets context
+    # ===========================================
+    # Flags jobs serializing the whole `secrets` context with toJson(secrets), reference each secret by name instead.
+    workflowMustNotExportEntireSecretsContext:
+      enabled: true
+
+    # ===========================================
+    # Security jobs must not be weakened
+    # ===========================================
+    # Security jobs must not be neutralized via `continue-on-error: true` or manual-dispatch-only triggers.
+    # Patterns are globs matched against `<workflow filename without extension>/<job id>` (e.g. codeql/analyze).
+    securityJobsMustNotBeWeakened:
+      enabled: true
+      securityJobPatterns:
+        - "*codeql*"
+        - "*dependency-review*"
+        - "*trufflehog*"
+        - "*gitleaks*"
+        - "*osv-scanner*"
+        - "*semgrep*"
+        - "*trivy*"
+        - "*snyk*"
+        - "*-sast"
+        - "*-sast-*"
+        - "*-scan"
+        - "*scan*"
+        - "*-security"
+        - "*-security-*"
+        - "*-audit"
+        - "*-audit-*"
+        - "*secret*detect*"
+        - "*detect*secret*"
+      allowFailureMustBeFalse:
+        enabled: true
+      rulesMustNotBeRedefined:
+        enabled: true
+      whenMustNotBeManual:
+        enabled: true
+
+    # ===========================================
+    # Workflows must not inject user input in scripts
+    # ===========================================
+    # Catches attacker-controlled `github.event.*`, `github.head_ref` or `github.actor` expressions interpolated into `run:`, bind through `env:` first.
+    workflowMustNotInjectUserInputInScripts:
+      enabled: true
+
+    # ===========================================
+    # Workflow must not write untrusted content to $GITHUB_ENV / $GITHUB_PATH
+    # ===========================================
+    # Flags `run:` steps writing attacker-controlled expressions into $GITHUB_ENV or $GITHUB_PATH.
+    workflowMustNotWriteUntrustedContentToGitHubEnv:
+      enabled: true
+
+    # ===========================================
+    # Workflows must not use dangerous triggers
+    # ===========================================
+    # Flags `pull_request_target` and `workflow_run` triggers (base repository secrets, influenceable by unprivileged callers).
+    workflowMustNotUseDangerousTriggers:
+      enabled: true
+
+    # ===========================================
+    # pull_request_target workflows must not check out the PR head
+    # ===========================================
+    # Flags `pull_request_target` workflows checking out the pull request head (secrets and fork code run together).
+    pullRequestTargetMustNotCheckoutHead:
+      enabled: true
+
+    # ===========================================
+    # Workflows must declare permissions
+    # ===========================================
+    # Flags workflows without an explicit `permissions:` block (falls back to the repository default GITHUB_TOKEN).
+    workflowsMustDeclarePermissions:
+      enabled: true
+
+    # ===========================================
+    # Branch must be protected (project governance)
+    # ===========================================
+    # Inspects repository settings via the GitHub branch-protection API.
+    # Full detail requires a token with `repo` scope or "Administration: read", emits no findings otherwise.
+    branchMustBeProtected:
+      enabled: true
+      defaultMustBeProtected: true
+      namePatterns:
+        - main
+        - master
+        - release/*
+        - production
+        - dev
+      allowForcePush: false
+      # Require code-owner approval on protected branches.
+      codeOwnerApprovalRequired: false
+
+    # ============================================================================
+    # Workflows must include required actions
+    # ============================================================================
+    # Asserts that workflows collectively reference a set of required actions or reusable workflows, enabled with nothing set it checks nothing.
+    # Use one of:
+    #   required: (myorg/sast-scan AND myorg/secret-scan) OR myorg/full-security-suite
+    #   requiredGroups: [["myorg/sast-scan", "myorg/dependency-review"], ["myorg/full-security-suite"]]
+    workflowMustIncludeRequiredActions:
+      enabled: true
+      # required: myorg/sast-scan AND myorg/policy/.github/workflows/scan.yml
+      requiredGroups: []
+
+    # ===========================================
+    # Workflow must not grant write-all permissions
+    # ===========================================
+    # Flags workflows and jobs whose effective `permissions:` is `write-all`.
+    workflowMustNotGrantPermissionsWriteAll:
+      enabled: true
+
+    # ===========================================
+    # Actions must not use ambiguous tag/branch refs
+    # ===========================================
+    # Flags `uses: owner/repo@ref` refs resolving upstream as both a tag and a branch (pin to a 40-char commit SHA instead).
+    # Requires GitHub API auth, abstains otherwise.
+    externalRefsMustNotCollide:
+      enabled: true
+
+    # ===========================================
+    # Actions must not reference archived repositories
+    # ===========================================
+    # Flags `uses: owner/repo@ref` references whose upstream repository is archived.
+    # Requires GitHub API auth, abstains otherwise.
+    actionsMustNotBeArchived:
+      enabled: true
+
+    # ===========================================
+    # Actions must pin commits that exist upstream
+    # ===========================================
+    # Flags `uses: owner/repo@<sha>` references pinned to a commit SHA the upstream repository confirms doesn't exist.
+    # Requires GitHub API auth, abstains otherwise.
+    actionRefsMustExistUpstream:
+      enabled: true
+
+    # ===========================================
+    # Actions must not carry known CVEs
+    # ===========================================
+    # Cross-references every `uses: owner/repo@ref` against the GitHub Advisory Database (`actions` ecosystem).
+    # Requires GitHub API auth, abstains otherwise.
+    actionsMustNotCarryKnownCVEs:
+      enabled: true
+
+    # ===========================================
+    # Actions must not execute mutable remote code
+    # ===========================================
+    # Flags third-party actions fetching and executing a script from a moving ref (main/master/HEAD) of another repository.
+    # Requires GitHub API auth.
+    actionsMustNotExecuteMutableRemoteCode:
+      enabled: true
+
+    # ===========================================
+    # Release workflows must not restore an untrusted cache
+    # ===========================================
+    # Flags release/publish jobs restoring a build cache whose key isn't scoped to the release ref (github.ref_name / github.sha).
+    releaseWorkflowsMustNotRestoreUntrustedCache:
+      enabled: true
+      # Actions that publish/release artifacts.
+      publishActions:
+        - pypa/gh-action-pypi-publish
+        - JS-DevTools/npm-publish
+        - gradle/publish-plugin
+        - softprops/action-gh-release
+        - ncipollo/release-action
+        - goreleaser/goreleaser-action
+        - crazy-max/ghaction-docker-buildx
+        - changesets/action
+      # Cache-restoring actions and their mode:
+      #   always  — restores whenever present
+      #   default — restores unless disableInput holds disableValue
+      #   opt-in  — restores only when enableInput names a package manager (enableContains further requires that substring in the value)
+      cacheActions:
+        - {action: actions/cache, mode: always}
+        - {action: actions/cache/restore, mode: always}
+        - {action: Swatinem/rust-cache, mode: always}
+        - {action: actions/setup-go, mode: default, disableInput: cache, disableValue: false}
+        - {action: gradle/actions/setup-gradle, mode: default, disableInput: cache-disabled, disableValue: true}
+        - {action: actions/setup-node, mode: opt-in, enableInput: cache}
+        - {action: actions/setup-python, mode: opt-in, enableInput: cache}
+        - {action: actions/setup-java, mode: opt-in, enableInput: cache}
+        - {action: pnpm/action-setup, mode: opt-in, enableInput: cache}
+        - {action: docker/build-push-action, mode: opt-in, enableInput: cache-from, enableContains: type=gha}
+      # Shell commands (regex) marking a job as release intent even without a publish action.
+      publishScriptPatterns:
+        - '(?i)(npm|pnpm|yarn|bun)\s+publish'
+        - '(?i)cargo\s+publish'
+        - '(?i)twine\s+upload'
+        - '(?i)poetry\s+publish'
+        - '(?i)gh\s+release\s+create'
+        - '(?i)goreleaser\s+release'
+        - '(?i)semantic-release'
+        - '(?i)gradlew?\b[^\n]*\bpublish'
+        - '(?i)\bmvnw?\b[^\n]*\bdeploy\b'
+        - '(?i)dotnet\s+nuget\s+push'
+        - '(?i)gem\s+push'
+        - '(?i)docker\s+push'
+      # Verification-only forms vetoing a publish-script match on the same run block.
+      publishScriptExcludePatterns:
+        - '(?i)--dry-run'
+        - '(?i)publishToMavenLocal'
+      # Jobs to exempt from this control (glob on `<workflow-file>/<job-id>`).
+      allowedJobs: []
+        # - '*/lint'
+        # - 'release-docs/*'
+
+    # ===========================================
+    # Pipeline must not enable debug trace
+    # ===========================================
+    # Flags workflows or jobs setting debug-trace toggles to a truthy value, which dumps every environment variable into the job log.
+    pipelineMustNotEnableDebugTrace:
+      enabled: true
+      forbiddenVariables:
+        - ACTIONS_STEP_DEBUG
+        - ACTIONS_RUNNER_DEBUG
+{{- end }}

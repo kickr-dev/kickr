@@ -64,6 +64,7 @@ properties:
             - kickr:personal-token
             - labeler
             - ossf-scorecard
+            - plumber
             - renovate:github-app
             - renovate:personal-token
             - sonarqube
@@ -95,7 +96,7 @@ properties:
         type: array
         items:
           type: string
-          enum: [kickr, overrides:deployment, overrides:integration, renovate, sonarqube]
+          enum: [kickr, overrides:deployment, overrides:integration, plumber, renovate, sonarqube]
       release:
         unevaluatedProperties: false
         allOf:

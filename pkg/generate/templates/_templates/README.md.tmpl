@@ -57,6 +57,9 @@
 {{- if and .Config.GitHub (has "ossf-scorecard" .Config.GitHub.Options) }}
   <img alt="OpenSSF Scorecard" src="https://img.shields.io/ossf-scorecard/{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}?label={{ toQuery "OpenSSF Scorecard" }}&style={{ $style }}">
 {{- end }}
+{{- if .Config.HasPlumber }}
+  <img alt="Plumber Score" src="https://img.shields.io/endpoint?url={{ toQuery (print "https://score.getplumber.io/" .VCS.ProjectHost "/" .VCS.ProjectPath ".json") }}&style={{ $style }}">
+{{- end }}
 </div>
 
 ---

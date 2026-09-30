@@ -24,6 +24,21 @@ func CodeCov() []engine.Template[types.Repository] {
 	}
 }
 
+// Plumber returns the slice of templates related to Plumber configuration.
+func Plumber() []engine.Template[types.Repository] {
+	name := ".plumber.yaml"
+	return []engine.Template[types.Repository]{
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      engine.GlobsWithPart(name),
+			Out:        name,
+			Remove: func(repo types.Repository) bool {
+				return !repo.Config.HasPlumber()
+			},
+		},
+	}
+}
+
 // Sonar returns the slice of templates related to SonarCloud / SonarQube configuration.
 func Sonar() []engine.Template[types.Repository] {
 	name := "sonar.properties"
