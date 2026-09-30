@@ -1,10 +1,18 @@
 # kickr <!-- omit in toc -->
 
 <div align="center">
-  <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/kickr-dev/kickr/integration.yml?style=for-the-badge">
-  <img alt="GitLab Release" src="https://img.shields.io/gitlab/v/release/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&include_prereleases&sort=semver&style=for-the-badge">
-  <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&style=for-the-badge">
-  <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&branch=main&style=for-the-badge">
+  <a href="https://gitlab.com/kickr-dev/kickr/actions/workflows/integration.yml">
+    <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/kickr-dev/kickr/integration.yml?style=for-the-badge">
+  </a>
+  <a href="https://gitlab.com/kickr-dev/kickr/-/releases">
+    <img alt="GitLab Release" src="https://img.shields.io/gitlab/v/release/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&include_prereleases&sort=semver&style=for-the-badge">
+  </a>
+  <a href="https://gitlab.com/kickr-dev/kickr/-/work_items">
+    <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&style=for-the-badge">
+  </a>
+  <a href="https://gitlab.com/kickr-dev/kickr/-/pipelines?ref=main">
+    <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&branch=main&style=for-the-badge">
+  </a>
 </div>
 
 ---
