@@ -50,6 +50,10 @@ variables:
   PAGES_IMAGE: docker.io/library/debian:trixie-slim@sha256:b6e2a152f22a40ff69d92cb397223c906017e1391a73c952b588e51af8883bf8
 {{- end }}
 
+{{- if has "plumber" .Config.GitLab.Options }}
+  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.5.16@sha256:cdf0874835facb94da6cf59254c6219ecaefcd5bcac64b0d4e73bcb0091b0b09
+{{- end }}
+
 {{- if $precommit }}
   PRE_COMMIT_IMAGE: docker.io/library/python:3.14.7-alpine3.23@sha256:6b8f06d04d5305c1d1288435388df9165ab41e681fae6439d6349d8053cc3f83
 {{- end }}
