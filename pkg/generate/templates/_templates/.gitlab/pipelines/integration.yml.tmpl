@@ -79,7 +79,7 @@ include:{{ if not $has_include }} []{{ end }}
       allow_failure: true
       badge: true
       config_file: .plumber.yaml
-      gitlab_token: $PLUMBER_TOKEN
+      gitlab_token: $PLUMBER_GITLAB_TOKEN
       image: $PLUMBER_IMAGE
       mr_comment: true
       score_point: true

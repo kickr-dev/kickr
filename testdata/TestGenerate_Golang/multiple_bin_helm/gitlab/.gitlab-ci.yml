@@ -68,7 +68,7 @@ include:
 # SONAR_PASSWORD: SonarQube password (depends on your authentication method).
 
 # https://gitlab.com/getplumber/plumber
-# PLUMBER_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
+# PLUMBER_GITLAB_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
 # and `read_repository` scopes and at least a `Maintainer` role,
 # or a 'fine-grained personal access token' with the following permissions on this project and its parent groups:
 #   - Approval configuration: Read
