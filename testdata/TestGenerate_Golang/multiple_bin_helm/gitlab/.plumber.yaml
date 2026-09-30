@@ -45,59 +45,60 @@ gitlab:
         - docker.io/getplumber/plumber@sha256:*
         - getplumber/plumber:*
         # GitLab registry patterns (the project's own GitLab Container Registry)
-        - $CI_REGISTRY_IMAGE:*
-        - $CI_REGISTRY_IMAGE/*
         - $CI_REGISTRY/*
-        - ${CI_REGISTRY}/*
-        - ${CI_REGISTRY_IMAGE}:*
+        - $CI_REGISTRY_IMAGE/*
+        - $CI_REGISTRY_IMAGE:*
         - ${CI_REGISTRY_IMAGE}/*
+        - ${CI_REGISTRY_IMAGE}:*
+        - ${CI_REGISTRY}/*
         # GitLab Dependency Proxy
         - ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/*
         # GitLab official registries
-        - registry.gitlab.com/security-products/*
         - registry.gitlab.com/gitlab-org/*
         - registry.gitlab.com/pipeline-components/*
+        - registry.gitlab.com/security-products/*
+        - registry.gitlab.com/to-be-continuous/* # to-be-continuous
         # Never use host-wide patterns on multi-tenant registries (ghcr.io/*, gcr.io/*, quay.io/*, nvcr.io/*), prefer org-scoped ones.
 
         # Docker Hub — language / runtime official images
+        - docker.io/alpine:*
+        - docker.io/debian:*
+        - docker.io/golang:*
         - docker.io/node:*
         - docker.io/python:*
-        - docker.io/golang:*
         - docker.io/rust:*
-        - docker.io/alpine:*
         - docker.io/ubuntu:*
-        - docker.io/debian:*
         # Docker Hub — well-known publishers (verified publishers or upstream project namespaces)
-        - docker.io/curlimages/* # curl docker team (curl/curl-container)
         - docker.io/alpine/* # Alpine Linux maintainers (alpinelinux org)
-        - docker.io/golangci/* # golangci-lint upstream
-        - docker.io/koalaman/* # ShellCheck author (Vidar Holen)
-        - docker.io/hadolint/* # hadolint upstream
-        - docker.io/semgrep/* # Semgrep, Inc.
-        - docker.io/sonarsource/* # SonarSource verified publisher
         - docker.io/aquasec/* # Aqua Security
-        - docker.io/cypress/* # Cypress.io verified publisher
-        - docker.io/gittools/* # GitTools (GitVersion) upstream
-        - docker.io/renovate/* # Renovate Bot (Mend.io) verified publisher
-        - docker.io/gitlab/* # GitLab verified publisher
-        - docker.io/lycheeverse/* # lychee link checker upstream
-        - docker.io/hugomods/* # HugoMods Hugo container project
-        - docker.io/fsfe/* # Free Software Foundation Europe (REUSE)
-        - docker.io/hashicorp/* # HashiCorp (IBM) verified publisher
         - docker.io/cimg/* # CircleCI convenience images
         - docker.io/circleci/* # CircleCI legacy convenience images
+        - docker.io/curlimages/* # curl docker team (curl/curl-container)
+        - docker.io/cypress/* # Cypress.io verified publisher
+        - docker.io/fsfe/* # Free Software Foundation Europe (REUSE)
+        - docker.io/gitlab/* # GitLab verified publisher
+        - docker.io/gittools/* # GitTools (GitVersion) upstream
+        - docker.io/golangci/* # golangci-lint upstream
+        - docker.io/hadolint/* # hadolint upstream
+        - docker.io/hashicorp/* # HashiCorp (IBM) verified publisher
+        - docker.io/hugomods/* # HugoMods Hugo container project
+        - docker.io/koalaman/* # ShellCheck author (Vidar Holen)
+        - docker.io/lycheeverse/* # lychee link checker upstream
+        - docker.io/renovate/* # Renovate Bot (Mend.io) verified publisher
+        - docker.io/semgrep/* # Semgrep, Inc.
+        - docker.io/sonarsource/* # SonarSource verified publisher
         # Docker Hub — cloud vendor official images
         - docker.io/amazon/* # Amazon Web Services
-        - docker.io/google/* # Google
-        - docker.io/nvidia/* # NVIDIA verified publisher
         - docker.io/bitnami/* # Bitnami / VMware (Broadcom) verified publisher
+        - docker.io/google/* # Google
         - docker.io/intel/* # Intel (oneAPI / HPC kit images)
+        - docker.io/nvidia/* # NVIDIA verified publisher
         - docker.io/rocm/* # AMD (ROCm GPU compute images)
         # Docker Hub — OS / distro official images
-        - docker.io/redhat/* # Red Hat
-        - docker.io/opensuse/* # openSUSE Project
         - docker.io/gentoo/* # Gentoo Linux maintainers
         - docker.io/nixos/* # NixOS Foundation
+        - docker.io/opensuse/* # openSUSE Project
+        - docker.io/redhat/* # Red Hat
         - docker.io/rustlang/* # Rust Programming Language official
         # Docker Hub — architecture-specific Docker Official Images (same trust as library/*)
         - docker.io/amd64/* # Linux x86-64 official images
@@ -109,51 +110,61 @@ gitlab:
         - docker.io/riscv64/* # RISC-V 64-bit official images
         - docker.io/s390x/* # IBM z Systems official images
         # Docker Hub — additional verified / upstream project namespaces
-        - docker.io/continuumio/* # Anaconda, Inc. (miniconda / anaconda)
-        - docker.io/oven/* # Bun runtime (Oven, Inc.)
-        - docker.io/snapcore/* # Canonical (snapcraft build images)
-        - docker.io/bufbuild/* # Buf (protobuf tooling) upstream
-        - docker.io/getsentry/* # Sentry (sentry-cli) upstream
-        - docker.io/zricethezav/* # gitleaks upstream (Zachary Rice)
-        - docker.io/pandoc/* # Pandoc project upstream
+        - docker.io/anchore/* # Anchore (syft) upstream
         - docker.io/bats/* # Bats-core (Bash testing) project
+        - docker.io/bridgecrew/* # Bridgecrew / Palo Alto (checkov) upstream
+        - docker.io/bufbuild/* # Buf (protobuf tooling) upstream
+        - docker.io/continuumio/* # Anaconda, Inc. (miniconda / anaconda)
+        - docker.io/cytopia/* # yamllint upstream (cytopia)
         - docker.io/davidanson/* # markdownlint-cli2 upstream (David Anson)
+        - docker.io/getsentry/* # Sentry (sentry-cli) upstream
+        - docker.io/infracost/* # Infracost upstream
         - docker.io/jdkato/* # Vale (prose linter) upstream (Joseph Kato)
+        - docker.io/oven/* # Bun runtime (Oven, Inc.)
+        - docker.io/pandoc/* # Pandoc project upstream
+        - docker.io/snapcore/* # Canonical (snapcraft build images)
+        - docker.io/zegl/* # kube-score upstream (Gustav Westling)
+        - docker.io/zricethezav/* # gitleaks upstream (Zachary Rice)
         # Microsoft Artifact Registry — single-publisher, the whole registry is trustable
         - mcr.microsoft.com/*
         # Quay.io — well-known projects with their own organisation
         - quay.io/buildah/* # Containers project (Buildah)
-        - quay.io/podman/* # Containers project (Podman)
-        - quay.io/containers/* # Containers project umbrella org
         - quay.io/centos/* # CentOS Project (CentOS Stream)
-        - quay.io/pypa/* # Python Packaging Authority (manylinux)
+        - quay.io/containers/* # Containers project umbrella org
         - quay.io/gnome_infrastructure/* # GNOME Infrastructure team
+        - quay.io/podman/* # Containers project (Podman)
+        - quay.io/pypa/* # Python Packaging Authority (manylinux)
+        - quay.io/terraform-docs/* # terraform-docs upstream
         # GitHub Container Registry — each entry is the actual org publishing the upstream tool
         - ghcr.io/astral-sh/* # Astral (uv, ruff)
-        - ghcr.io/renovatebot/* # Renovate Bot upstream
-        - ghcr.io/containerbase/* # containerbase (Renovate base images)
         - ghcr.io/canonical/* # Canonical (snapcraft-rocks etc.)
-        - ghcr.io/graalvm/* # Oracle GraalVM team
-        - ghcr.io/terraform-linters/* # tflint upstream organisation
-        - ghcr.io/prefix-dev/* # prefix.dev (pixi)
         - ghcr.io/cirruslabs/* # Cirrus Labs (Flutter CI images)
-        - ghcr.io/streetsidesoftware/* # Street Side Software (cspell)
+        - ghcr.io/containerbase/* # containerbase (Renovate base images)
+        - ghcr.io/gohugoio/* # Hugo upstream
+        - ghcr.io/goreleaser/* # GoReleaser upstream
+        - ghcr.io/graalvm/* # Oracle GraalVM team
         - ghcr.io/igorshubovych/* # markdownlint-cli upstream (Igor Shubovych)
+        - ghcr.io/jdx/* # mise upstream
+        - ghcr.io/opentofu/* # OpenTofu upstream
+        - ghcr.io/prefix-dev/* # prefix.dev (pixi)
+        - ghcr.io/renovatebot/* # Renovate Bot upstream
+        - ghcr.io/streetsidesoftware/* # Street Side Software (cspell)
         - ghcr.io/tcort/* # markdown-link-check upstream (Tom Cort)
+        - ghcr.io/terraform-linters/* # tflint upstream organisation
         # Google Container Registry — Google-owned projects
-        - gcr.io/kaniko-project/* # Kaniko (Google Cloud Build)
         - gcr.io/go-containerregistry/* # google/go-containerregistry (crane, gcrane)
         - gcr.io/google.com/cloudsdktool/* # Google Cloud SDK (gcloud) official
+        - gcr.io/kaniko-project/* # Kaniko (Google Cloud Build)
         - gcr.io/oss-fuzz-base/* # OSS-Fuzz base images (Google)
         # Vendor-owned dedicated registries (entire host controlled by the vendor)
         - nvcr.io/nvidia/* # NVIDIA NGC catalog (NVIDIA-operated registry)
-        - registry.suse.com/* # SUSE registry (BCI base images, SUSE-operated host)
         - registry.fedoraproject.org/* # Fedora Project registry (Fedora-operated host)
+        - registry.suse.com/* # SUSE registry (BCI base images, SUSE-operated host)
         # Registry-alias / bare-ref forms the matcher may see verbatim
-        - registry.hub.docker.com/library/* # = docker.io/library/*
         - library/* # = docker.io/library/* (bare ref, unresolved-$VAR case)
-        - redhat/* # = docker.io/redhat/* (bare ref, unresolved-$VAR case)
         - opensuse/* # = docker.io/opensuse/* (bare ref, unresolved-$VAR case)
+        - redhat/* # = docker.io/redhat/* (bare ref, unresolved-$VAR case)
+        - registry.hub.docker.com/library/* # = docker.io/library/*
     # ===========================================
     # CI/CD variables must be protected
     # ===========================================
@@ -177,13 +188,13 @@ gitlab:
       defaultMustBeProtected: true
       # Branch name patterns that must be protected (supports wildcards)
       namePatterns:
+        - dev
+        - develop
         - main
         - master
-        - release/*
         - production
-        - dev
-        # - develop
-        # - staging
+        - release/*
+        - staging
       # When false, force push must be disabled on protected branches
       allowForcePush: false
       # Require code owner approval for changes
@@ -271,14 +282,14 @@ gitlab:
     includesMustNotUseForbiddenVersions:
       enabled: true
       forbiddenVersions:
-        - latest
         - "~latest"
+        - dev
+        - develop
+        - HEAD
+        - latest
         - main
         - master
-        - HEAD
-        # - dev
-        # - develop
-        # - staging
+        - staging
       # Adds the project's default branch to forbidden versions.
       defaultBranchIsForbiddenVersion: true
     # ============================================================================

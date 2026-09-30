@@ -29,170 +29,178 @@ github:
       trustedGithubActions:
         # ── Cloud providers ──────────────────────────────────────────
         - aws-actions/* # Amazon Web Services
+        - Azure/* # Microsoft Azure
+        - canonical/* # Canonical / Ubuntu
+        - cloudflare/* # Cloudflare (wrangler-action)
+        - digitalocean/* # DigitalOcean
+        - fastly/* # Fastly
         - google-github-actions/* # Google Cloud
         - googleapis/* # Google (release-please-action)
-        - Azure/* # Microsoft Azure
-        - cloudflare/* # Cloudflare (wrangler-action)
         - hashicorp/* # HashiCorp (IBM)
-        - pulumi/* # Pulumi
-        - digitalocean/* # DigitalOcean
         - ibm/* # IBM
         - oracle-actions/* # Oracle
-        - canonical/* # Canonical / Ubuntu
-        - fastly/* # Fastly
+        - pulumi/* # Pulumi
         # ── Container / build / release / CI tooling ─────────────────
-        - docker/* # Docker, Inc.
-        - gradle/* # Gradle
-        - goreleaser/* # GoReleaser
         - bazel-contrib/* # Bazel community / Linux Foundation
-        - jfrog/* # JFrog
-        - dagger/* # Dagger
         - buildkite/* # Buildkite
         - CircleCI-Public/* # CircleCI
+        - dagger/* # Dagger
+        - docker/* # Docker, Inc.
         - earthly/* # Earthly
+        - goreleaser/* # GoReleaser
+        - gradle/* # Gradle
+        - jdx/* # mise (mise-action)
+        - jfrog/* # JFrog
+        - release-drafter/* # Release Drafter
         # ── Language & packaging ecosystems ──────────────────────────
-        - pypa/* # Python Packaging Authority
-        - ruby/* # Ruby
-        - denoland/* # Deno
-        - oven-sh/* # Bun (Oven, Inc.)
         - astral-sh/* # Astral (uv, ruff)
-        - golangci/* # golangci-lint
+        - conda-incubator/* # Conda
         - dart-lang/* # Dart / Google
+        - denoland/* # Deno
         - erlef/* # Erlang Ecosystem Foundation
+        - gleam-lang/* # Gleam
+        - golangci/* # golangci-lint
         - haskell-actions/* # Haskell
         - julia-actions/* # Julia
         - ocaml/* # OCaml
-        - conda-incubator/* # Conda
+        - oven-sh/* # Bun (Oven, Inc.)
+        - pypa/* # Python Packaging Authority
         - r-lib/* # R
+        - ruby/* # Ruby
         - sbt/* # sbt build tool
         - VirtusLab/* # Scala CLI
-        - gleam-lang/* # Gleam
         # ── Security vendors & supply-chain projects ─────────────────
+        - anchore/* # Anchore (sbom-action, scan-action)
+        - aquasecurity/* # Aqua Security (trivy-action)
+        - bridgecrewio/* # Bridgecrew / Palo Alto (checkov)
+        - chainguard-dev/* # Chainguard
+        - checkmarx-ts/* # Checkmarx TS
+        - Checkmarx/* # Checkmarx
         - getplumber/* # Plumber (this tool's own actions)
-        - step-security/* # StepSecurity (harden-runner)
+        - GitGuardian/* # GitGuardian
+        - gitleaks/* # Gitleaks
+        - in-toto/* # in-toto / supply-chain attestation
+        - orcasecurity/* # Orca Security
         - ossf/* # OpenSSF / Linux Foundation (scorecard-action)
+        - oxsecurity/* # OX Security (MegaLinter)
+        - Qualys/* # Qualys
+        - semgrep/* # Semgrep
         - sigstore/* # Sigstore / LF (cosign-installer)
         - slsa-framework/* # SLSA / OpenSSF
-        - aquasecurity/* # Aqua Security (trivy-action)
-        - anchore/* # Anchore (sbom-action, scan-action)
         - snyk/* # Snyk
         - SonarSource/* # SonarSource
-        - trufflesecurity/* # Truffle Security
-        - gitleaks/* # Gitleaks
-        - chainguard-dev/* # Chainguard
-        - GitGuardian/* # GitGuardian
-        - bridgecrewio/* # Bridgecrew / Palo Alto (checkov)
-        - zaproxy/* # OWASP ZAP
-        - Checkmarx/* # Checkmarx
-        - veracode/* # Veracode
-        - tenable/* # Tenable
-        - semgrep/* # Semgrep
-        - in-toto/* # in-toto / supply-chain attestation
-        - sonatype/* # Sonatype
         - sonatype-nexus-community/* # Sonatype community
-        - checkmarx-ts/* # Checkmarx TS
-        - Qualys/* # Qualys
-        - orcasecurity/* # Orca Security
-        - oxsecurity/* # OX Security (MegaLinter)
+        - sonatype/* # Sonatype
+        - step-security/* # StepSecurity (harden-runner)
+        - tenable/* # Tenable
+        - trufflesecurity/* # Truffle Security
+        - veracode/* # Veracode
+        - zaproxy/* # OWASP ZAP
         # ── Dev platforms / SaaS with mature security programs ───────
-        - codecov/* # Codecov (pin by SHA — 2021 breach)
-        - getsentry/* # Sentry
-        - DataDog/* # Datadog
-        - cypress-io/* # Cypress.io
-        - JetBrains/* # JetBrains (qodana)
-        - microsoft/* # Microsoft
+        - adobe/* # Adobe
         - atlassian/* # Atlassian
-        - Shopify/* # Shopify
-        - netlify/* # Netlify
-        - planetscale/* # PlanetScale
-        - supabase/* # Supabase
+        - codecov/* # Codecov (pin by SHA — 2021 breach)
+        - cypress-io/* # Cypress.io
+        - DataDog/* # Datadog
         - expo/* # Expo
+        - facebook/* # Meta / Facebook
+        - getsentry/* # Sentry
         - grafana/* # Grafana Labs
         - honeycombio/* # Honeycomb
-        - newrelic/* # New Relic
-        - saucelabs/* # Sauce Labs
+        - JetBrains/* # JetBrains (qodana)
+        - microsoft/* # Microsoft
         - mongodb/* # MongoDB
-        - adobe/* # Adobe
-        - facebook/* # Meta / Facebook
+        - netlify/* # Netlify
+        - newrelic/* # New Relic
+        - planetscale/* # PlanetScale
+        - saucelabs/* # Sauce Labs
+        - Shopify/* # Shopify
+        - supabase/* # Supabase
         # ── CNCF / infrastructure foundations ────────────────────────
+        - ansible-community/* # Ansible community
+        - ansible/* # Ansible / Red Hat
         - helm/* # Helm / CNCF
         - kubernetes-sigs/* # Kubernetes SIGs / CNCF
         - opentofu/* # OpenTofu / Linux Foundation
-        - ansible/* # Ansible / Red Hat
-        - ansible-community/* # Ansible community
+        - terraform-linters/* # tflint (setup-tflint)
         # ── Project orgs & widely-adopted publishers ─────────────────
-        - pnpm/* # pnpm package manager
-        - anthropics/* # Anthropic (claude-code-action)
-        - openai/* # OpenAI (codex-action)
-        - slackapi/* # Slack
-        - google/* # Google (oss-fuzz, etc.)
-        - golang/* # Go team (govulncheck-action)
-        - dependabot/* # Dependabot / GitHub
-        - rubygems/* # RubyGems
-        - apple-actions/* # Apple
-        - redhat-actions/* # Red Hat
-        - graalvm/* # Oracle GraalVM
-        - arduino/* # Arduino
-        - msys2/* # MSYS2
-        - android-actions/* # Android
-        - changesets/* # Changesets
-        - tauri-apps/* # Tauri
-        - biomejs/* # Biome
-        - bufbuild/* # Buf
-        - reviewdog/* # reviewdog
-        - hadolint/* # hadolint
-        - gittools/* # GitTools (GitVersion)
-        - fsfe/* # Free Software Foundation Europe (reuse-action)
-        - cachix/* # Cachix
-        - nix-community/* # Nix community
-        - DeterminateSystems/* # Determinate Systems
         - 1Password/* # 1Password
-        - tailscale/* # Tailscale
-        - octokit/* # GitHub Octokit org
-        - NuGet/* # Microsoft / .NET Foundation
-        - depot/* # Depot Technologies, Inc.
-        - chromaui/* # Chromatic / Chroma Software
-        - signpath/* # SignPath GmbH
-        - rust-lang/* # Rust project / crates.io
+        - android-actions/* # Android
+        - anthropics/* # Anthropic (claude-code-action)
         - apache/* # Apache Software Foundation
-        - Homebrew/* # Homebrew project
-        - PyO3/* # PyO3 org (maturin)
-        - EmbarkStudios/* # Embark Studios (cargo-deny)
-        - bytecodealliance/* # Bytecode Alliance / Linux Foundation
-        - emscripten-core/* # Emscripten project
-        - devcontainers/* # devcontainers org (Microsoft-stewarded)
-        - renovatebot/* # Mend.io (renovate)
-        - prefix-dev/* # prefix.dev (pixi)
-        - scientific-python/* # scientific-python consortium
+        - apple-actions/* # Apple
+        - arduino/* # Arduino
+        - biomejs/* # Biome
         - browserstack/* # BrowserStack
-        - digicert/* # DigiCert (pin by SHA — high blast radius)
-        - zizmorcore/* # zizmor scanner (Trail of Bits ecosystem)
-        - go-task/* # go-task / taskfile.dev
-        - namespacelabs/* # Namespace Labs
-        - voidzero-dev/* # VoidZero (pin by SHA — remote install script)
+        - bufbuild/* # Buf
+        - bytecodealliance/* # Bytecode Alliance / Linux Foundation
+        - cachix/* # Cachix
+        - changesets/* # Changesets
+        - chromaui/* # Chromatic / Chroma Software
         - crowdin/* # Crowdin
-        - linear/* # Linear
-        - qltysh/* # Qlty Software
+        - cycjimmy/* # semantic-release-action
+        - dependabot/* # Dependabot / GitHub
+        - depot/* # Depot Technologies, Inc.
+        - DeterminateSystems/* # Determinate Systems
+        - devcontainers/* # devcontainers org (Microsoft-stewarded)
+        - digicert/* # DigiCert (pin by SHA — high blast radius)
+        - EmbarkStudios/* # Embark Studios (cargo-deny)
+        - emscripten-core/* # Emscripten project
         - flatpak/* # Flatpak project
+        - fsfe/* # Free Software Foundation Europe (reuse-action)
+        - gittools/* # GitTools (GitVersion)
+        - go-task/* # go-task / taskfile.dev
+        - golang/* # Go team (govulncheck-action)
+        - google/* # Google (oss-fuzz, etc.)
+        - graalvm/* # Oracle GraalVM
+        - hadolint/* # hadolint
+        - Homebrew/* # Homebrew project
+        - linear/* # Linear
+        - ludeeus/* # action-shellcheck
+        - msys2/* # MSYS2
+        - namespacelabs/* # Namespace Labs
+        - nix-community/* # Nix community
+        - NuGet/* # Microsoft / .NET Foundation
+        - nwtgck/* # actions-netlify
+        - octokit/* # GitHub Octokit org
+        - openai/* # OpenAI (codex-action)
         - peter-evans/* # Peter Evans (widely-adopted PR/comment actions; pin by SHA)
+        - pnpm/* # pnpm package manager
+        - pre-commit/* # pre-commit
+        - prefix-dev/* # prefix.dev (pixi)
+        - PyO3/* # PyO3 org (maturin)
+        - qltysh/* # Qlty Software
+        - redhat-actions/* # Red Hat
+        - renovatebot/* # Mend.io (renovate)
+        - reviewdog/* # reviewdog
+        - rubygems/* # RubyGems
+        - rust-lang/* # Rust project / crates.io
+        - scientific-python/* # scientific-python consortium
+        - signpath/* # SignPath GmbH
+        - slackapi/* # Slack
+        - stefanzweifel/* # git-auto-commit-action
+        - tailscale/* # Tailscale
+        - tauri-apps/* # Tauri
+        - voidzero-dev/* # VoidZero (pin by SHA — remote install script)
+        - zizmorcore/* # zizmor scanner (Trail of Bits ecosystem)
         # ── Lowercase case-aliases (literal matcher is case-sensitive) ──
-        - azure/* # = Azure/*
-        - sonarsource/* # = SonarSource/*
-        - datadog/* # = DataDog/*
-        - jetbrains/* # = JetBrains/*
-        - shopify/* # = Shopify/*
-        - gitguardian/* # = GitGuardian/*
-        - checkmarx/* # = Checkmarx/*
-        - qualys/* # = Qualys/*
-        - circleci-public/* # = CircleCI-Public/*
-        - virtuslab/* # = VirtusLab/*
-        - nuget/* # = NuGet/*
-        - determinatesystems/* # = DeterminateSystems/*
         - 1password/* # = 1Password/*
         - apple-Actions/* # mixed-case form of apple-actions/*
+        - azure/* # = Azure/*
+        - checkmarx/* # = Checkmarx/*
+        - circleci-public/* # = CircleCI-Public/*
+        - datadog/* # = DataDog/*
+        - determinatesystems/* # = DeterminateSystems/*
         - embarkstudios/* # = EmbarkStudios/*
-        - pyo3/* # = PyO3/*
+        - gitguardian/* # = GitGuardian/*
         - homebrew/* # = Homebrew/*
+        - jetbrains/* # = JetBrains/*
+        - nuget/* # = NuGet/*
+        - pyo3/* # = PyO3/*
+        - qualys/* # = Qualys/*
+        - shopify/* # = Shopify/*
+        - sonarsource/* # = SonarSource/*
+        - virtuslab/* # = VirtusLab/*
 
     # ===========================================
     # Container images must not use forbidden reference
