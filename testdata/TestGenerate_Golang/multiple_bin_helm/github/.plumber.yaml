@@ -6,212 +6,189 @@
 
 version: "2.0"
 
-# ============================================================================
-# GitHub Actions controls
-# ============================================================================
 github:
   controls:
-    # ===========================================
-    # Actions must be pinned by commit SHA
-    # ===========================================
     # Flags workflow steps whose `uses:` reference isn't a 40-character commit SHA.
     actionsMustBePinnedByCommitSha:
       enabled: true
-      # Action-owner prefixes exempt from the pin-by-SHA requirement.
       trustedOwners:
         - actions
         - github
 
-    # ===========================================
-    # Actions must come from authorized sources
-    # ===========================================
-    # Restricts which `uses:` action sources are allowed, org-scoped wildcards (`owner/*`) only.
-    # Owner matching is literal and CASE-SENSITIVE, mixed-case orgs are listed in both forms.
+    # Restricts `uses:` sources to org-scoped wildcards (`owner/*`).
+    # Owner matching is case-sensitive, so mixed-case orgs are listed in both forms.
     githubActionMustComeFromAuthorizedSources:
       enabled: true
-      trustGithubOfficialActions: true # actions/* and github/*
       trustSameOrgActions: true # action owner == scanned repo owner
       minimumStars: 20000 # popular-by-adoption floor (requires API access)
       trustedGithubActions:
-        # ── Cloud providers ──────────────────────────────────────────
-        - aws-actions/* # Amazon Web Services
-        - Azure/* # Microsoft Azure
-        - canonical/* # Canonical / Ubuntu
-        - cloudflare/* # Cloudflare (wrangler-action)
-        - digitalocean/* # DigitalOcean
-        - fastly/* # Fastly
-        - google-github-actions/* # Google Cloud
-        - googleapis/* # Google (release-please-action)
-        - hashicorp/* # HashiCorp (IBM)
-        - ibm/* # IBM
-        - oracle-actions/* # Oracle
-        - pulumi/* # Pulumi
-        # ── Container / build / release / CI tooling ─────────────────
-        - bazel-contrib/* # Bazel community / Linux Foundation
-        - buildkite/* # Buildkite
-        - CircleCI-Public/* # CircleCI
-        - dagger/* # Dagger
-        - docker/* # Docker, Inc.
-        - earthly/* # Earthly
-        - goreleaser/* # GoReleaser
-        - gradle/* # Gradle
-        - jdx/* # mise (mise-action)
-        - jfrog/* # JFrog
-        - release-drafter/* # Release Drafter
-        # ── Language & packaging ecosystems ──────────────────────────
-        - astral-sh/* # Astral (uv, ruff)
-        - conda-incubator/* # Conda
-        - dart-lang/* # Dart / Google
-        - denoland/* # Deno
-        - erlef/* # Erlang Ecosystem Foundation
-        - gleam-lang/* # Gleam
-        - golangci/* # golangci-lint
-        - haskell-actions/* # Haskell
-        - julia-actions/* # Julia
-        - ocaml/* # OCaml
-        - oven-sh/* # Bun (Oven, Inc.)
-        - pypa/* # Python Packaging Authority
-        - r-lib/* # R
-        - ruby/* # Ruby
-        - sbt/* # sbt build tool
-        - VirtusLab/* # Scala CLI
-        # ── Security vendors & supply-chain projects ─────────────────
-        - anchore/* # Anchore (sbom-action, scan-action)
-        - aquasecurity/* # Aqua Security (trivy-action)
-        - bridgecrewio/* # Bridgecrew / Palo Alto (checkov)
-        - chainguard-dev/* # Chainguard
-        - checkmarx-ts/* # Checkmarx TS
-        - Checkmarx/* # Checkmarx
-        - getplumber/* # Plumber (this tool's own actions)
-        - GitGuardian/* # GitGuardian
-        - gitleaks/* # Gitleaks
-        - in-toto/* # in-toto / supply-chain attestation
-        - orcasecurity/* # Orca Security
-        - ossf/* # OpenSSF / Linux Foundation (scorecard-action)
-        - oxsecurity/* # OX Security (MegaLinter)
-        - Qualys/* # Qualys
-        - semgrep/* # Semgrep
-        - sigstore/* # Sigstore / LF (cosign-installer)
-        - slsa-framework/* # SLSA / OpenSSF
-        - snyk/* # Snyk
-        - SonarSource/* # SonarSource
-        - sonatype-nexus-community/* # Sonatype community
-        - sonatype/* # Sonatype
-        - step-security/* # StepSecurity (harden-runner)
-        - tenable/* # Tenable
-        - trufflesecurity/* # Truffle Security
-        - veracode/* # Veracode
-        - zaproxy/* # OWASP ZAP
-        # ── Dev platforms / SaaS with mature security programs ───────
-        - adobe/* # Adobe
-        - atlassian/* # Atlassian
-        - codecov/* # Codecov (pin by SHA — 2021 breach)
-        - cypress-io/* # Cypress.io
-        - DataDog/* # Datadog
-        - expo/* # Expo
-        - facebook/* # Meta / Facebook
-        - getsentry/* # Sentry
-        - grafana/* # Grafana Labs
-        - honeycombio/* # Honeycomb
-        - JetBrains/* # JetBrains (qodana)
-        - microsoft/* # Microsoft
-        - mongodb/* # MongoDB
-        - netlify/* # Netlify
-        - newrelic/* # New Relic
-        - planetscale/* # PlanetScale
-        - saucelabs/* # Sauce Labs
-        - Shopify/* # Shopify
-        - supabase/* # Supabase
-        # ── CNCF / infrastructure foundations ────────────────────────
-        - ansible-community/* # Ansible community
-        - ansible/* # Ansible / Red Hat
-        - helm/* # Helm / CNCF
-        - kubernetes-sigs/* # Kubernetes SIGs / CNCF
-        - opentofu/* # OpenTofu / Linux Foundation
-        - terraform-linters/* # tflint (setup-tflint)
-        # ── Project orgs & widely-adopted publishers ─────────────────
-        - 1Password/* # 1Password
-        - android-actions/* # Android
-        - anthropics/* # Anthropic (claude-code-action)
-        - apache/* # Apache Software Foundation
-        - apple-actions/* # Apple
-        - arduino/* # Arduino
-        - biomejs/* # Biome
-        - browserstack/* # BrowserStack
-        - bufbuild/* # Buf
-        - bytecodealliance/* # Bytecode Alliance / Linux Foundation
-        - cachix/* # Cachix
-        - changesets/* # Changesets
-        - chromaui/* # Chromatic / Chroma Software
-        - crowdin/* # Crowdin
-        - cycjimmy/* # semantic-release-action
-        - dependabot/* # Dependabot / GitHub
-        - depot/* # Depot Technologies, Inc.
-        - DeterminateSystems/* # Determinate Systems
-        - devcontainers/* # devcontainers org (Microsoft-stewarded)
-        - digicert/* # DigiCert (pin by SHA — high blast radius)
-        - EmbarkStudios/* # Embark Studios (cargo-deny)
-        - emscripten-core/* # Emscripten project
-        - flatpak/* # Flatpak project
-        - fsfe/* # Free Software Foundation Europe (reuse-action)
-        - gittools/* # GitTools (GitVersion)
-        - go-task/* # go-task / taskfile.dev
-        - golang/* # Go team (govulncheck-action)
-        - google/* # Google (oss-fuzz, etc.)
-        - graalvm/* # Oracle GraalVM
-        - hadolint/* # hadolint
-        - Homebrew/* # Homebrew project
-        - linear/* # Linear
-        - ludeeus/* # action-shellcheck
-        - msys2/* # MSYS2
-        - namespacelabs/* # Namespace Labs
-        - nix-community/* # Nix community
-        - NuGet/* # Microsoft / .NET Foundation
-        - nwtgck/* # actions-netlify
-        - octokit/* # GitHub Octokit org
-        - openai/* # OpenAI (codex-action)
-        - peter-evans/* # Peter Evans (widely-adopted PR/comment actions; pin by SHA)
-        - pnpm/* # pnpm package manager
-        - pre-commit/* # pre-commit
-        - prefix-dev/* # prefix.dev (pixi)
-        - PyO3/* # PyO3 org (maturin)
-        - qltysh/* # Qlty Software
-        - redhat-actions/* # Red Hat
-        - renovatebot/* # Mend.io (renovate)
-        - reviewdog/* # reviewdog
-        - rubygems/* # RubyGems
-        - rust-lang/* # Rust project / crates.io
-        - scientific-python/* # scientific-python consortium
-        - signpath/* # SignPath GmbH
-        - slackapi/* # Slack
-        - stefanzweifel/* # git-auto-commit-action
-        - tailscale/* # Tailscale
-        - tauri-apps/* # Tauri
-        - voidzero-dev/* # VoidZero (pin by SHA — remote install script)
-        - zizmorcore/* # zizmor scanner (Trail of Bits ecosystem)
-        # ── Lowercase case-aliases (literal matcher is case-sensitive) ──
-        - 1password/* # = 1Password/*
-        - apple-Actions/* # mixed-case form of apple-actions/*
-        - azure/* # = Azure/*
-        - checkmarx/* # = Checkmarx/*
-        - circleci-public/* # = CircleCI-Public/*
-        - datadog/* # = DataDog/*
-        - determinatesystems/* # = DeterminateSystems/*
-        - embarkstudios/* # = EmbarkStudios/*
-        - gitguardian/* # = GitGuardian/*
-        - homebrew/* # = Homebrew/*
-        - jetbrains/* # = JetBrains/*
-        - nuget/* # = NuGet/*
-        - pyo3/* # = PyO3/*
-        - qualys/* # = Qualys/*
-        - shopify/* # = Shopify/*
-        - sonarsource/* # = SonarSource/*
-        - virtuslab/* # = VirtusLab/*
+        - 1password/*
+        - 1Password/*
+        - adobe/*
+        - anchore/*
+        - android-actions/*
+        - ansible-community/*
+        - ansible/*
+        - anthropics/*
+        - apache/*
+        - apple-actions/*
+        - apple-Actions/*
+        - aquasecurity/*
+        - arduino/*
+        - astral-sh/*
+        - atlassian/*
+        - aws-actions/*
+        - azure/*
+        - Azure/*
+        - bazel-contrib/*
+        - biomejs/*
+        - bridgecrewio/*
+        - browserstack/*
+        - bufbuild/*
+        - buildkite/*
+        - bytecodealliance/*
+        - cachix/*
+        - canonical/*
+        - chainguard-dev/*
+        - changesets/*
+        - checkmarx-ts/*
+        - checkmarx/*
+        - Checkmarx/*
+        - chromaui/*
+        - circleci-public/*
+        - CircleCI-Public/*
+        - cloudflare/*
+        - codecov/*
+        - conda-incubator/*
+        - crowdin/*
+        - cycjimmy/*
+        - cypress-io/*
+        - dagger/*
+        - dart-lang/*
+        - datadog/*
+        - DataDog/*
+        - denoland/*
+        - dependabot/*
+        - depot/*
+        - determinatesystems/*
+        - DeterminateSystems/*
+        - devcontainers/*
+        - digicert/*
+        - digitalocean/*
+        - docker/*
+        - earthly/*
+        - embarkstudios/*
+        - EmbarkStudios/*
+        - emscripten-core/*
+        - erlef/*
+        - expo/*
+        - facebook/*
+        - fastly/*
+        - flatpak/*
+        - fsfe/*
+        - getplumber/*
+        - getsentry/*
+        - gitguardian/*
+        - GitGuardian/*
+        - gitleaks/*
+        - gittools/*
+        - gleam-lang/*
+        - go-task/*
+        - golang/*
+        - golangci/*
+        - google-github-actions/*
+        - google/*
+        - googleapis/*
+        - goreleaser/*
+        - graalvm/*
+        - gradle/*
+        - grafana/*
+        - hadolint/*
+        - hashicorp/*
+        - haskell-actions/*
+        - helm/*
+        - homebrew/*
+        - Homebrew/*
+        - honeycombio/*
+        - ibm/*
+        - in-toto/*
+        - jdx/*
+        - jetbrains/*
+        - JetBrains/*
+        - jfrog/*
+        - julia-actions/*
+        - kubernetes-sigs/*
+        - linear/*
+        - ludeeus/*
+        - microsoft/*
+        - mongodb/*
+        - msys2/*
+        - namespacelabs/*
+        - netlify/*
+        - newrelic/*
+        - nix-community/*
+        - nuget/*
+        - NuGet/*
+        - nwtgck/*
+        - ocaml/*
+        - octokit/*
+        - openai/*
+        - opentofu/*
+        - oracle-actions/*
+        - orcasecurity/*
+        - ossf/*
+        - oven-sh/*
+        - oxsecurity/*
+        - peter-evans/*
+        - planetscale/*
+        - pnpm/*
+        - pre-commit/*
+        - prefix-dev/*
+        - pulumi/*
+        - pyo3/*
+        - PyO3/*
+        - pypa/*
+        - qltysh/*
+        - qualys/*
+        - Qualys/*
+        - r-lib/*
+        - redhat-actions/*
+        - release-drafter/*
+        - renovatebot/*
+        - reviewdog/*
+        - ruby/*
+        - rubygems/*
+        - rust-lang/*
+        - saucelabs/*
+        - sbt/*
+        - scientific-python/*
+        - semgrep/*
+        - shopify/*
+        - Shopify/*
+        - signpath/*
+        - sigstore/*
+        - slackapi/*
+        - slsa-framework/*
+        - snyk/*
+        - sonarsource/*
+        - SonarSource/*
+        - sonatype-nexus-community/*
+        - sonatype/*
+        - stefanzweifel/*
+        - step-security/*
+        - supabase/*
+        - tailscale/*
+        - tauri-apps/*
+        - tenable/*
+        - terraform-linters/*
+        - trufflesecurity/*
+        - veracode/*
+        - virtuslab/*
+        - VirtusLab/*
+        - voidzero-dev/*
+        - zaproxy/*
+        - zizmorcore/*
 
-    # ===========================================
-    # Container images must not use forbidden reference
-    # ===========================================
-    # Same control as GitLab, with GitHub-side values.
     containerImageMustNotUseForbiddenTags:
       enabled: true
       tags:
@@ -221,52 +198,34 @@ github:
         - staging
         - main
         - master
-      # When true, ALL images must be pinned by digest (e.g. alpine@sha256:...), taking precedence over the tags list.
+      # Takes precedence over the tags list.
       containerImagesMustBePinnedByDigest: true
 
-    # ===========================================
-    # Pipeline must not use Docker-in-Docker
-    # ===========================================
-    # Flags `docker:dind` services, plus plaintext DOCKER_HOST and empty DOCKER_TLS_CERTDIR values.
+    # Flags `docker:dind` services, plaintext DOCKER_HOST and empty DOCKER_TLS_CERTDIR.
     pipelineMustNotUseDockerInDocker:
       enabled: true
       detectInsecureDaemon: true
 
-    # ===========================================
-    # Pipeline must not execute unverified scripts
-    # ===========================================
-    # Scans every workflow `run:` step for pipe-to-shell, download-then-exec and base64-obfuscated payloads.
+    # Flags pipe-to-shell, download-then-exec and base64-obfuscated payloads in `run:` steps.
     pipelineMustNotExecuteUnverifiedScripts:
       enabled: true
       trustedUrls: []
       # - https://internal-artifacts.example.com/*
 
-    # ===========================================
-    # Reusable workflows must not inherit secrets
-    # ===========================================
     # Detects `jobs.<name>.secrets: inherit` calls, use an explicit secrets map instead.
     reusableWorkflowsMustNotInheritSecrets:
       enabled: true
 
-    # ===========================================
-    # Checkout must not persist credentials
-    # ===========================================
     # Flags `actions/checkout` without `persist-credentials: false` (GITHUB_TOKEN left in `.git/config`).
     checkoutMustNotPersistCredentials:
       enabled: true
 
-    # ===========================================
-    # Workflow must not export the entire secrets context
-    # ===========================================
     # Flags jobs serializing the whole `secrets` context with toJson(secrets), reference each secret by name instead.
     workflowMustNotExportEntireSecretsContext:
       enabled: true
 
-    # ===========================================
-    # Security jobs must not be weakened
-    # ===========================================
-    # Security jobs must not be neutralized via `continue-on-error: true` or manual-dispatch-only triggers.
-    # Patterns are globs matched against `<workflow filename without extension>/<job id>` (e.g. codeql/analyze).
+    # Flags security jobs neutralized by `continue-on-error: true` or manual-dispatch-only triggers.
+    # Patterns are globs on `<workflow filename without extension>/<job id>` (e.g. codeql/analyze).
     securityJobsMustNotBeWeakened:
       enabled: true
       securityJobPatterns:
@@ -295,46 +254,28 @@ github:
       whenMustNotBeManual:
         enabled: true
 
-    # ===========================================
-    # Workflows must not inject user input in scripts
-    # ===========================================
-    # Catches attacker-controlled `github.event.*`, `github.head_ref` or `github.actor` expressions interpolated into `run:`, bind through `env:` first.
+    # Flags attacker-controlled `github.event.*`, `github.head_ref` or `github.actor` interpolated into `run:` (bind through `env:` first).
     workflowMustNotInjectUserInputInScripts:
       enabled: true
 
-    # ===========================================
-    # Workflow must not write untrusted content to $GITHUB_ENV / $GITHUB_PATH
-    # ===========================================
     # Flags `run:` steps writing attacker-controlled expressions into $GITHUB_ENV or $GITHUB_PATH.
     workflowMustNotWriteUntrustedContentToGitHubEnv:
       enabled: true
 
-    # ===========================================
-    # Workflows must not use dangerous triggers
-    # ===========================================
     # Flags `pull_request_target` and `workflow_run` triggers (base repository secrets, influenceable by unprivileged callers).
     workflowMustNotUseDangerousTriggers:
       enabled: true
 
-    # ===========================================
-    # pull_request_target workflows must not check out the PR head
-    # ===========================================
     # Flags `pull_request_target` workflows checking out the pull request head (secrets and fork code run together).
     pullRequestTargetMustNotCheckoutHead:
       enabled: true
 
-    # ===========================================
-    # Workflows must declare permissions
-    # ===========================================
     # Flags workflows without an explicit `permissions:` block (falls back to the repository default GITHUB_TOKEN).
     workflowsMustDeclarePermissions:
       enabled: true
 
-    # ===========================================
-    # Branch must be protected (project governance)
-    # ===========================================
     # Inspects repository settings via the GitHub branch-protection API.
-    # Full detail requires a token with `repo` scope or "Administration: read", emits no findings otherwise.
+    # Needs a token with `repo` scope or "Administration: read", emits no findings otherwise.
     branchMustBeProtected:
       enabled: true
       defaultMustBeProtected: true
@@ -345,13 +286,9 @@ github:
         - production
         - dev
       allowForcePush: false
-      # Require code-owner approval on protected branches.
       codeOwnerApprovalRequired: true
 
-    # ============================================================================
-    # Workflows must include required actions
-    # ============================================================================
-    # Asserts that workflows collectively reference a set of required actions or reusable workflows, enabled with nothing set it checks nothing.
+    # Requires workflows to reference the given actions or reusable workflows, checks nothing when empty.
     # Use one of:
     #   required: (myorg/sast-scan AND myorg/secret-scan) OR myorg/full-security-suite
     #   requiredGroups: [["myorg/sast-scan", "myorg/dependency-review"], ["myorg/full-security-suite"]]
@@ -360,60 +297,34 @@ github:
       # required: myorg/sast-scan AND myorg/policy/.github/workflows/scan.yml
       requiredGroups: []
 
-    # ===========================================
-    # Workflow must not grant write-all permissions
-    # ===========================================
-    # Flags workflows and jobs whose effective `permissions:` is `write-all`.
     workflowMustNotGrantPermissionsWriteAll:
       enabled: true
 
-    # ===========================================
-    # Actions must not use ambiguous tag/branch refs
-    # ===========================================
-    # Flags `uses: owner/repo@ref` refs resolving upstream as both a tag and a branch (pin to a 40-char commit SHA instead).
+    # Flags `uses: owner/repo@ref` refs that exist upstream as both tag and branch (pin to a commit SHA).
     # Requires GitHub API auth, abstains otherwise.
     externalRefsMustNotCollide:
       enabled: true
 
-    # ===========================================
-    # Actions must not reference archived repositories
-    # ===========================================
-    # Flags `uses: owner/repo@ref` references whose upstream repository is archived.
     # Requires GitHub API auth, abstains otherwise.
     actionsMustNotBeArchived:
       enabled: true
 
-    # ===========================================
-    # Actions must pin commits that exist upstream
-    # ===========================================
-    # Flags `uses: owner/repo@<sha>` references pinned to a commit SHA the upstream repository confirms doesn't exist.
     # Requires GitHub API auth, abstains otherwise.
     actionRefsMustExistUpstream:
       enabled: true
 
-    # ===========================================
-    # Actions must not carry known CVEs
-    # ===========================================
-    # Cross-references every `uses: owner/repo@ref` against the GitHub Advisory Database (`actions` ecosystem).
     # Requires GitHub API auth, abstains otherwise.
     actionsMustNotCarryKnownCVEs:
       enabled: true
 
-    # ===========================================
-    # Actions must not execute mutable remote code
-    # ===========================================
-    # Flags third-party actions fetching and executing a script from a moving ref (main/master/HEAD) of another repository.
+    # Flags third-party actions executing a script from a moving ref (main/master/HEAD) of another repository.
     # Requires GitHub API auth.
     actionsMustNotExecuteMutableRemoteCode:
       enabled: true
 
-    # ===========================================
-    # Release workflows must not restore an untrusted cache
-    # ===========================================
-    # Flags release/publish jobs restoring a build cache whose key isn't scoped to the release ref (github.ref_name / github.sha).
+    # Flags release/publish jobs restoring a cache whose key isn't scoped to the release ref (github.ref_name / github.sha).
     releaseWorkflowsMustNotRestoreUntrustedCache:
       enabled: true
-      # Actions that publish/release artifacts.
       publishActions:
         - pypa/gh-action-pypi-publish
         - JS-DevTools/npm-publish
@@ -424,9 +335,9 @@ github:
         - crazy-max/ghaction-docker-buildx
         - changesets/action
       # Cache-restoring actions and their mode:
-      #   always  — restores whenever present
-      #   default — restores unless disableInput holds disableValue
-      #   opt-in  — restores only when enableInput names a package manager (enableContains further requires that substring in the value)
+      #   always restores whenever present
+      #   default restores unless disableInput holds disableValue
+      #   opt-in restores only when enableInput names a package manager (enableContains also requires that substring)
       cacheActions:
         - {action: actions/cache, mode: always}
         - {action: actions/cache/restore, mode: always}
@@ -438,7 +349,7 @@ github:
         - {action: actions/setup-java, mode: opt-in, enableInput: cache}
         - {action: pnpm/action-setup, mode: opt-in, enableInput: cache}
         - {action: docker/build-push-action, mode: opt-in, enableInput: cache-from, enableContains: type=gha}
-      # Shell commands (regex) marking a job as release intent even without a publish action.
+      # Shell commands (regex) marking a job as a release even without a publish action.
       publishScriptPatterns:
         - '(?i)(npm|pnpm|yarn|bun)\s+publish'
         - '(?i)cargo\s+publish'
@@ -452,19 +363,16 @@ github:
         - '(?i)dotnet\s+nuget\s+push'
         - '(?i)gem\s+push'
         - '(?i)docker\s+push'
-      # Verification-only forms vetoing a publish-script match on the same run block.
+      # Verification-only forms vetoing a publish-script match.
       publishScriptExcludePatterns:
         - '(?i)--dry-run'
         - '(?i)publishToMavenLocal'
-      # Jobs to exempt from this control (glob on `<workflow-file>/<job-id>`).
+      # Jobs exempt from this control (glob on `<workflow-file>/<job-id>`).
       allowedJobs: []
         # - '*/lint'
         # - 'release-docs/*'
 
-    # ===========================================
-    # Pipeline must not enable debug trace
-    # ===========================================
-    # Flags workflows or jobs setting debug-trace toggles to a truthy value, which dumps every environment variable into the job log.
+    # Flags debug-trace toggles set to a truthy value, which dump every environment variable into the job log.
     pipelineMustNotEnableDebugTrace:
       enabled: true
       forbiddenVariables:

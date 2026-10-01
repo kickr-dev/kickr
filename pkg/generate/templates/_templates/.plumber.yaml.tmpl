@@ -6,5 +6,5 @@
 
 version: "2.0"
 
-{{- if .Config.GitLab }}{{ template "gitlab" . }}{{- end }}
-{{- if .Config.GitHub }}{{ template "github" . }}{{- end }}
+{{- if and .Config.GitLab (has "plumber" .Config.GitLab.Options) }}{{ template "gitlab" . }}{{- end }}
+{{- if and .Config.GitHub (has "plumber" .Config.GitHub.Options) }}{{ template "github" . }}{{- end }}

@@ -8,10 +8,7 @@ version: "2.0"
 
 gitlab:
   controls:
-    # ===========================================
-    # Container images must not use forbidden reference
-    # ===========================================
-    # Detects CI/CD jobs using Docker images with mutable tags (non-reproducible builds).
+    # Flags images using mutable tags (non-reproducible builds).
     containerImageMustNotUseForbiddenTags:
       enabled: true
       tags:
@@ -25,168 +22,136 @@ gitlab:
         # - edge
         # - canary
         # - unstable
-      # When true, ALL images must be pinned by digest (e.g. alpine@sha256:...), taking precedence over the tags list.
+      # Takes precedence over the tags list (e.g. alpine@sha256:...).
       containerImagesMustBePinnedByDigest: true
-    # ===========================================
-    # Container images must come from authorized sources
-    # ===========================================
-    # Detects CI/CD jobs using Docker images from untrusted registries.
+
     containerImageMustComeFromAuthorizedSources:
       enabled: true
-      # Trust official Docker Hub images (without a username prefix, e.g. nginx, alpine, python).
       trustDockerHubOfficialImages: true
-      # Trusted registry URLs and patterns (supports wildcards).
       trustedUrls:
-        # Docker Hub official images (fully-qualified form)
-        - docker.io/library/*
-        # Common CI/CD tool images
+        - ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/*
+        - ${CI_REGISTRY_IMAGE}:*
+        - ${CI_REGISTRY_IMAGE}/*
+        - ${CI_REGISTRY}/*
+        - $CI_REGISTRY_IMAGE:*
+        - $CI_REGISTRY_IMAGE/*
+        - $CI_REGISTRY/*
+        - docker.io/alpine:*
+        - docker.io/alpine/*
+        - docker.io/amazon/*
+        - docker.io/amd64/*
+        - docker.io/anchore/*
+        - docker.io/aquasec/*
+        - docker.io/arm32v6/*
+        - docker.io/arm32v7/*
+        - docker.io/arm64v8/*
+        - docker.io/bats/*
+        - docker.io/bitnami/*
+        - docker.io/bridgecrew/*
+        - docker.io/bufbuild/*
+        - docker.io/cimg/*
+        - docker.io/circleci/*
+        - docker.io/continuumio/*
+        - docker.io/curlimages/*
+        - docker.io/cypress/*
+        - docker.io/cytopia/*
+        - docker.io/davidanson/*
+        - docker.io/debian:*
         - docker.io/docker:*
+        - docker.io/fsfe/*
+        - docker.io/gentoo/*
         - docker.io/getplumber/plumber:*
         - docker.io/getplumber/plumber@sha256:*
+        - docker.io/getsentry/*
+        - docker.io/gitlab/*
+        - docker.io/gittools/*
+        - docker.io/golang:*
+        - docker.io/golangci/*
+        - docker.io/google/*
+        - docker.io/hadolint/*
+        - docker.io/hashicorp/*
+        - docker.io/hugomods/*
+        - docker.io/i386/*
+        - docker.io/infracost/*
+        - docker.io/intel/*
+        - docker.io/jdkato/*
+        - docker.io/koalaman/*
+        - docker.io/library/*
+        - docker.io/lycheeverse/*
+        - docker.io/nixos/*
+        - docker.io/node:*
+        - docker.io/nvidia/*
+        - docker.io/opensuse/*
+        - docker.io/oven/*
+        - docker.io/pandoc/*
+        - docker.io/ppc64le/*
+        - docker.io/python:*
+        - docker.io/redhat/*
+        - docker.io/renovate/*
+        - docker.io/riscv64/*
+        - docker.io/rocm/*
+        - docker.io/rust:*
+        - docker.io/rustlang/*
+        - docker.io/s390x/*
+        - docker.io/semgrep/*
+        - docker.io/snapcore/*
+        - docker.io/sonarsource/*
+        - docker.io/ubuntu:*
+        - docker.io/zegl/*
+        - docker.io/zricethezav/*
+        - gcr.io/go-containerregistry/*
+        - gcr.io/google.com/cloudsdktool/*
+        - gcr.io/kaniko-project/*
+        - gcr.io/oss-fuzz-base/*
         - getplumber/plumber:*
-        # GitLab registry patterns (the project's own GitLab Container Registry)
-        - $CI_REGISTRY/*
-        - $CI_REGISTRY_IMAGE/*
-        - $CI_REGISTRY_IMAGE:*
-        - ${CI_REGISTRY_IMAGE}/*
-        - ${CI_REGISTRY_IMAGE}:*
-        - ${CI_REGISTRY}/*
-        # GitLab Dependency Proxy
-        - ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/*
-        # GitLab official registries
+        - ghcr.io/astral-sh/*
+        - ghcr.io/canonical/*
+        - ghcr.io/cirruslabs/*
+        - ghcr.io/containerbase/*
+        - ghcr.io/gohugoio/*
+        - ghcr.io/goreleaser/*
+        - ghcr.io/graalvm/*
+        - ghcr.io/igorshubovych/*
+        - ghcr.io/jdx/*
+        - ghcr.io/opentofu/*
+        - ghcr.io/prefix-dev/*
+        - ghcr.io/renovatebot/*
+        - ghcr.io/streetsidesoftware/*
+        - ghcr.io/tcort/*
+        - ghcr.io/terraform-linters/*
+        - library/*
+        - mcr.microsoft.com/*
+        - nvcr.io/nvidia/*
+        - opensuse/*
+        - quay.io/buildah/*
+        - quay.io/centos/*
+        - quay.io/containers/*
+        - quay.io/gnome_infrastructure/*
+        - quay.io/podman/*
+        - quay.io/pypa/*
+        - quay.io/terraform-docs/*
+        - redhat/*
+        - registry.fedoraproject.org/*
         - registry.gitlab.com/gitlab-org/*
         - registry.gitlab.com/pipeline-components/*
         - registry.gitlab.com/security-products/*
-        - registry.gitlab.com/to-be-continuous/* # to-be-continuous
-        # Never use host-wide patterns on multi-tenant registries (ghcr.io/*, gcr.io/*, quay.io/*, nvcr.io/*), prefer org-scoped ones.
+        - registry.gitlab.com/to-be-continuous/*
+        - registry.hub.docker.com/library/*
+        - registry.suse.com/*
 
-        # Docker Hub — language / runtime official images
-        - docker.io/alpine:*
-        - docker.io/debian:*
-        - docker.io/golang:*
-        - docker.io/node:*
-        - docker.io/python:*
-        - docker.io/rust:*
-        - docker.io/ubuntu:*
-        # Docker Hub — well-known publishers (verified publishers or upstream project namespaces)
-        - docker.io/alpine/* # Alpine Linux maintainers (alpinelinux org)
-        - docker.io/aquasec/* # Aqua Security
-        - docker.io/cimg/* # CircleCI convenience images
-        - docker.io/circleci/* # CircleCI legacy convenience images
-        - docker.io/curlimages/* # curl docker team (curl/curl-container)
-        - docker.io/cypress/* # Cypress.io verified publisher
-        - docker.io/fsfe/* # Free Software Foundation Europe (REUSE)
-        - docker.io/gitlab/* # GitLab verified publisher
-        - docker.io/gittools/* # GitTools (GitVersion) upstream
-        - docker.io/golangci/* # golangci-lint upstream
-        - docker.io/hadolint/* # hadolint upstream
-        - docker.io/hashicorp/* # HashiCorp (IBM) verified publisher
-        - docker.io/hugomods/* # HugoMods Hugo container project
-        - docker.io/koalaman/* # ShellCheck author (Vidar Holen)
-        - docker.io/lycheeverse/* # lychee link checker upstream
-        - docker.io/renovate/* # Renovate Bot (Mend.io) verified publisher
-        - docker.io/semgrep/* # Semgrep, Inc.
-        - docker.io/sonarsource/* # SonarSource verified publisher
-        # Docker Hub — cloud vendor official images
-        - docker.io/amazon/* # Amazon Web Services
-        - docker.io/bitnami/* # Bitnami / VMware (Broadcom) verified publisher
-        - docker.io/google/* # Google
-        - docker.io/intel/* # Intel (oneAPI / HPC kit images)
-        - docker.io/nvidia/* # NVIDIA verified publisher
-        - docker.io/rocm/* # AMD (ROCm GPU compute images)
-        # Docker Hub — OS / distro official images
-        - docker.io/gentoo/* # Gentoo Linux maintainers
-        - docker.io/nixos/* # NixOS Foundation
-        - docker.io/opensuse/* # openSUSE Project
-        - docker.io/redhat/* # Red Hat
-        - docker.io/rustlang/* # Rust Programming Language official
-        # Docker Hub — architecture-specific Docker Official Images (same trust as library/*)
-        - docker.io/amd64/* # Linux x86-64 official images
-        - docker.io/arm32v6/* # ARMv6 32-bit official images
-        - docker.io/arm32v7/* # ARMv7 32-bit official images
-        - docker.io/arm64v8/* # ARMv8 64-bit official images
-        - docker.io/i386/* # x86/i686 official images
-        - docker.io/ppc64le/* # IBM POWER8 official images
-        - docker.io/riscv64/* # RISC-V 64-bit official images
-        - docker.io/s390x/* # IBM z Systems official images
-        # Docker Hub — additional verified / upstream project namespaces
-        - docker.io/anchore/* # Anchore (syft) upstream
-        - docker.io/bats/* # Bats-core (Bash testing) project
-        - docker.io/bridgecrew/* # Bridgecrew / Palo Alto (checkov) upstream
-        - docker.io/bufbuild/* # Buf (protobuf tooling) upstream
-        - docker.io/continuumio/* # Anaconda, Inc. (miniconda / anaconda)
-        - docker.io/cytopia/* # yamllint upstream (cytopia)
-        - docker.io/davidanson/* # markdownlint-cli2 upstream (David Anson)
-        - docker.io/getsentry/* # Sentry (sentry-cli) upstream
-        - docker.io/infracost/* # Infracost upstream
-        - docker.io/jdkato/* # Vale (prose linter) upstream (Joseph Kato)
-        - docker.io/oven/* # Bun runtime (Oven, Inc.)
-        - docker.io/pandoc/* # Pandoc project upstream
-        - docker.io/snapcore/* # Canonical (snapcraft build images)
-        - docker.io/zegl/* # kube-score upstream (Gustav Westling)
-        - docker.io/zricethezav/* # gitleaks upstream (Zachary Rice)
-        # Microsoft Artifact Registry — single-publisher, the whole registry is trustable
-        - mcr.microsoft.com/*
-        # Quay.io — well-known projects with their own organisation
-        - quay.io/buildah/* # Containers project (Buildah)
-        - quay.io/centos/* # CentOS Project (CentOS Stream)
-        - quay.io/containers/* # Containers project umbrella org
-        - quay.io/gnome_infrastructure/* # GNOME Infrastructure team
-        - quay.io/podman/* # Containers project (Podman)
-        - quay.io/pypa/* # Python Packaging Authority (manylinux)
-        - quay.io/terraform-docs/* # terraform-docs upstream
-        # GitHub Container Registry — each entry is the actual org publishing the upstream tool
-        - ghcr.io/astral-sh/* # Astral (uv, ruff)
-        - ghcr.io/canonical/* # Canonical (snapcraft-rocks etc.)
-        - ghcr.io/cirruslabs/* # Cirrus Labs (Flutter CI images)
-        - ghcr.io/containerbase/* # containerbase (Renovate base images)
-        - ghcr.io/gohugoio/* # Hugo upstream
-        - ghcr.io/goreleaser/* # GoReleaser upstream
-        - ghcr.io/graalvm/* # Oracle GraalVM team
-        - ghcr.io/igorshubovych/* # markdownlint-cli upstream (Igor Shubovych)
-        - ghcr.io/jdx/* # mise upstream
-        - ghcr.io/opentofu/* # OpenTofu upstream
-        - ghcr.io/prefix-dev/* # prefix.dev (pixi)
-        - ghcr.io/renovatebot/* # Renovate Bot upstream
-        - ghcr.io/streetsidesoftware/* # Street Side Software (cspell)
-        - ghcr.io/tcort/* # markdown-link-check upstream (Tom Cort)
-        - ghcr.io/terraform-linters/* # tflint upstream organisation
-        # Google Container Registry — Google-owned projects
-        - gcr.io/go-containerregistry/* # google/go-containerregistry (crane, gcrane)
-        - gcr.io/google.com/cloudsdktool/* # Google Cloud SDK (gcloud) official
-        - gcr.io/kaniko-project/* # Kaniko (Google Cloud Build)
-        - gcr.io/oss-fuzz-base/* # OSS-Fuzz base images (Google)
-        # Vendor-owned dedicated registries (entire host controlled by the vendor)
-        - nvcr.io/nvidia/* # NVIDIA NGC catalog (NVIDIA-operated registry)
-        - registry.fedoraproject.org/* # Fedora Project registry (Fedora-operated host)
-        - registry.suse.com/* # SUSE registry (BCI base images, SUSE-operated host)
-        # Registry-alias / bare-ref forms the matcher may see verbatim
-        - library/* # = docker.io/library/* (bare ref, unresolved-$VAR case)
-        - opensuse/* # = docker.io/opensuse/* (bare ref, unresolved-$VAR case)
-        - redhat/* # = docker.io/redhat/* (bare ref, unresolved-$VAR case)
-        - registry.hub.docker.com/library/* # = docker.io/library/*
-    # ===========================================
-    # CI/CD variables must be protected
-    # ===========================================
-    # Flags project CI/CD settings variables not marked protected (exposed to unprotected branches).
-    # Requires a GitLab API token with read access to variables, reports not-evaluable otherwise.
+    # Flags project CI/CD variables not protected.
+    # Needs a GitLab API token with variables read access, reports not-evaluable otherwise.
     cicdVariablesMustBeProtected:
       enabled: true
-    # ===========================================
-    # CI/CD variables must be masked
-    # ===========================================
-    # Flags project CI/CD settings variables not masked (printed verbatim in job logs), including values shorter than 8 characters.
+
+    # Flags project CI/CD variables not masked, including values under 8 characters.
     cicdVariablesMustBeMasked:
       enabled: true
-    # Branch must be protected
-    # ===========================================
-    # Checks that critical branches are protected from force pushes and require code reviews.
-    # Requires a GitLab API token, abstains (no findings) otherwise.
+
+    # Needs a GitLab API token, abstains otherwise.
     branchMustBeProtected:
       enabled: true
-      # Require the default branch to be protected
       defaultMustBeProtected: true
-      # Branch name patterns that must be protected (supports wildcards)
       namePatterns:
         - dev
         - develop
@@ -195,89 +160,65 @@ gitlab:
         - production
         - release/*
         - staging
-      # When false, force push must be disabled on protected branches
       allowForcePush: false
-      # Require code owner approval for changes
       codeOwnerApprovalRequired: true
-      # Minimum access level required to merge (0=No one, 30=Developer, 40=Maintainer)
+      # Minimum access level to merge (0=No one, 30=Developer, 40=Maintainer)
       minMergeAccessLevel: 30
-      # Minimum access level required to push (0=No one, 30=Developer, 40=Maintainer)
+      # Minimum access level to push (same values)
       minPushAccessLevel: 40
-    # ===========================================
-    # MR approval rules must require a minimum number of approvals
-    # ===========================================
-    # Flags approval rules covering all protected branches that require fewer approvals than the minimum below.
-    # GitLab Premium/Ultimate only (passes vacuously on Free).
+
+    # Premium/Ultimate only (passes vacuously on Free).
     mergeRequestApprovalRulesMustRequireMinimumApprovals:
       enabled: false
-      # The fewest approvals a rule covering all protected branches must require.
       minimumRequiredApprovals: 1
-    # ===========================================
-    # MR approval rules must cover all protected branches
-    # ===========================================
-    # Flags a project where no approval rule carries the explicit "all protected branches" target.
-    # GitLab Premium/Ultimate only (fires on Free, where the approvals API returns an empty list).
+
+    # Premium/Ultimate only (fires on Free, where the approvals API returns an empty list).
     mergeRequestApprovalRulesMustCoverAllProtectedBranches:
       enabled: false
-    # ===========================================
-    # MR approval settings must be compliant
-    # ===========================================
-    # Checks the project's merge request approval settings against the expectations below (unset expectations aren't checked).
-    # GitLab Premium/Ultimate only (fires on every run on Free), enabled with nothing uncommented it checks nothing.
+
+    # Checks approval settings against the expectations below (unset ones are skipped).
+    # Premium/Ultimate only (fires on every run on Free), checks nothing while all are commented out.
     mergeRequestApprovalSettingsMustBeCompliant:
       enabled: true
       # preventApprovalByAuthor: true
       # preventApprovalsByCommitters: true
       # preventEditingApprovalRulesInMR: true
       # requireReAuthToApprove: true
-      # Ladder: keep_approvals < remove_approvals_by_code_owners < remove_all_approvals (GitLab default).
+      # Strictness: keep_approvals < remove_approvals_by_code_owners < remove_all_approvals (default).
       # behaviorWhenCommitIsAdded: remove_all_approvals
-    # ===========================================
-    # MR settings must be compliant
-    # ===========================================
-    # Requires the project's merge request settings to match the values below exactly.
-    # mergePipelinesEnabled and mergeTrainsEnabled are GitLab Premium/Ultimate, enabled with nothing uncommented it checks nothing.
+
+    # mergePipelinesEnabled and mergeTrainsEnabled are Premium/Ultimate only.
     mergeRequestSettingsMustBeCompliant:
       enabled: true
       mergeMethod: ff # merge, ff or rebase_merge
       squashOption: never # never, always, default_on or default_off
-      mergePipelinesEnabled: true # run the pipeline on the merged result
+      mergePipelinesEnabled: true
       mergeTrainsEnabled: true
-      allowMergeOnSkippedPipeline: true # never merge when CI was skipped
-      # resolveOutdatedDiffDiscussions: true # auto-resolve stale review threads
+      allowMergeOnSkippedPipeline: true
+      # resolveOutdatedDiffDiscussions: true
       # printingMergeRequestLinkEnabled: true
-      removeSourceBranchAfterMerge: true # clean up the branch after merge
-    # ===========================================
-    # Project must have a security policy source
-    # ===========================================
-    # Requires the project to link a security policy project, optionally a specific one (the ID wins if both are set).
-    # GitLab Ultimate only (fires on lower tiers).
+      removeSourceBranchAfterMerge: true
+
+    ## Requires the project to link a security policy project, optionally a specific one (the ID wins if both are set).
+    # Ultimate only (fires on lower tiers).
     projectMustHaveSecurityPolicySource:
       enabled: false
       # expectedProjectId: 123
       # expectedProjectPath: my-group/security-policy-project
-    # ===========================================
-    # Pipeline must not include hardcoded jobs
-    # ===========================================
+
     # Detects CI/CD jobs defined directly in .gitlab-ci.yml instead of being included from components or templates.
     pipelineMustNotIncludeHardcodedJobs:
       enabled: false
-    # ===========================================
-    # Includes must not use ambiguous tag/branch refs
-    # ===========================================
-    # Flags include refs resolving upstream as both a tag and a branch (pin to a 40-char commit SHA instead).
-    # Requires a GitLab API token, abstains otherwise.
+
+    # Flags include refs resolving upstream as both tag and branch (pin to a 40-char commit SHA).
+    # Needs a GitLab API token, abstains otherwise.
     externalRefsMustNotCollide:
       enabled: true
-    # ===========================================
-    # Includes must be up to date
-    # ===========================================
+
     # Detects CI/CD includes from the GitLab CI Catalog not using the latest available version.
     includesMustBeUpToDate:
       enabled: true
-    # ===========================================
-    # Includes must not use forbidden versions
-    # ===========================================
+
     # Detects CI/CD includes using mutable version references.
     includesMustNotUseForbiddenVersions:
       enabled: true
@@ -290,12 +231,10 @@ gitlab:
         - main
         - master
         - staging
-      # Adds the project's default branch to forbidden versions.
+      # Also forbids the project's default branch.
       defaultBranchIsForbiddenVersion: true
-    # ============================================================================
-    # Pipeline must include component
-    # ============================================================================
-    # Ensures pipelines include required GitLab CI/CD components, enabled with nothing set it checks nothing.
+
+    # Requires the given components, checks nothing when empty.
     # Use one of (see https://github.com/getplumber/plumber/blob/main/configuration/expression_test.go):
     #   required: (components/sast/sast AND components/secret-detection/secret-detection) OR your-org/full-security/full-security
     #   requiredGroups: [["components/sast/sast", "components/secret-detection/secret-detection"], ["your-org/full-security-pipeline/full-security"]]
@@ -303,10 +242,8 @@ gitlab:
       enabled: true
       # required: components/sast/sast AND components/secret-detection/secret-detection AND getplumber/plumber/plumber
       requiredGroups: []
-    # ============================================================================
-    # Pipeline must include template
-    # ============================================================================
-    # Ensures pipelines include required templates (project file includes), enabled with nothing set it checks nothing.
+
+    # Requires the given project file includes, checks nothing when empty.
     # Use one of:
     #   required: (templates/go/go AND templates/trivy/trivy) OR templates/full-go-pipeline
     #   requiredGroups: [["templates/go/go", "templates/trivy/trivy"], ["templates/full-go-pipeline"]]
@@ -314,19 +251,15 @@ gitlab:
       enabled: true
       # required: templates/go/go AND templates/trivy/trivy AND templates/iso27001/iso27001
       requiredGroups: []
-    # ===========================================
-    # Pipeline must not enable debug trace
-    # ===========================================
-    # Detects pipelines setting debug variables to "true", which print all environment variables (secrets included) in job logs.
+
+    # Flags debug variables set to "true", which print every environment variable (secrets included) in job logs.
     pipelineMustNotEnableDebugTrace:
       enabled: true
       forbiddenVariables:
         - CI_DEBUG_TRACE
         - CI_DEBUG_SERVICES
-    # ===========================================
-    # Pipeline must not use unsafe variable expansion
-    # ===========================================
-    # Detects user-controlled CI variables passed to commands re-interpreting their input as shell code (eval, sh -c, etc.).
+
+    # Flags user-controlled CI variables passed to commands that re-interpret input as shell code (eval, sh -c, etc.).
     # Indirect aliasing (BRANCH: $CI_COMMIT_BRANCH then sh -c $BRANCH) isn't tracked.
     pipelineMustNotUseUnsafeVariableExpansion:
       enabled: true
@@ -345,13 +278,9 @@ gitlab:
       # allowedPatterns:
       #   - "helm.*--set.*\\$CI_"
       allowedPatterns: []
-    # ===========================================
-    # Security jobs must not be weakened
-    # ===========================================
+
     # Detects security scanning jobs neutralized through overrides (allow_failure, when: never / manual).
     securityJobsMustNotBeWeakened:
-      enabled: true
-      # Job name patterns considered "security jobs" (supports wildcards).
       securityJobPatterns:
         - "*-sast"
         - "secret_detection"
@@ -361,18 +290,13 @@ gitlab:
         - "dast"
         - "dast_*"
         - "license_scanning"
-      # Detects security jobs with allow_failure: true (GitLab's own security templates ship with it).
       allowFailureMustBeFalse:
         enabled: true
-      # Detects security jobs whose rules: block is overridden with when: never or when: manual.
       rulesMustNotBeRedefined:
         enabled: true
-      # Detects security jobs with when: manual set at job level.
       whenMustNotBeManual:
         enabled: true
-    # ===========================================
-    # Pipeline must not override job variables
-    # ===========================================
+
     # Detects controlled variables redefined in .gitlab-ci.yml instead of GitLab CI/CD Settings.
     pipelineMustNotOverrideJobVariables:
       enabled: true
@@ -388,18 +312,14 @@ gitlab:
         - DEPENDENCY_SCANNING_DISABLED
         - LICENSE_SCANNING_DISABLED
         # - MY_CUSTOM_PROTECTED_VAR
-    # ── Pipeline must not execute unverified scripts ─────────────────
-    #
-    # Detects jobs downloading or inline-executing scripts without integrity verification (curl | bash, etc.).
+
+    # Flags jobs downloading or executing scripts without integrity verification (curl | bash, etc.).
     pipelineMustNotExecuteUnverifiedScripts:
       enabled: true
-      # Trusted URLs (supports wildcards).
       trustedUrls: []
       # - https://internal-artifacts.example.com/*
-    # ── Pipeline must not use Docker-in-Docker ──────────────────────
-    #
-    # Detects CI/CD jobs using Docker-in-Docker (dind) services.
+
     pipelineMustNotUseDockerInDocker:
       enabled: true
-      # Also flags insecure daemon configuration (DOCKER_TLS_CERTDIR="" or DOCKER_HOST tcp://...:2375).
+      # Also flags insecure daemon config (DOCKER_TLS_CERTDIR="" or DOCKER_HOST tcp://...:2375).
       detectInsecureDaemon: true
