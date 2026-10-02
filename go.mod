@@ -7,7 +7,7 @@ toolchain go1.27.1
 // replace github.com/kickr-dev/engine => ../engine
 
 require (
-	charm.land/bubbletea/v2 v2.0.9
+	charm.land/bubbletea/v2 v2.0.10
 	charm.land/huh/v2 v2.0.3
 	charm.land/log/v2 v2.0.1
 	dario.cat/mergo v1.0.2
