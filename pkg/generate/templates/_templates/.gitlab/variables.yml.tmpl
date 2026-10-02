@@ -36,11 +36,11 @@ variables:
 {{- end }}
 
 {{- if gt (len $hugo_modules) 0 }}
-  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.166.0@sha256:9f3cccb54b48e83a5468cd44f0372b10834b6d8418ef692d9821bb1314761829
+  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.167.0@sha256:7bb99a126eddeea8fbfaacedc5ef6708805411bdeaa01e668405a137fd02d048
 {{- end }}
 
 {{- if .Config.HasKickr }}
-  KICKR_IMAGE: ghcr.io/jdx/mise:2026.9.13@sha256:1e74fb7d744027d453731d948dda0748cf19a3e7b4357b09787448088d1ff2ad
+  KICKR_IMAGE: ghcr.io/jdx/mise:2026.10.0@sha256:5253aad873240675097e6229786dff87d54a9ac9d52917e42903de37511f74b3
 {{- end }}
 
 {{- if gt (len $netlify_modules) 0 }}
@@ -60,7 +60,7 @@ variables:
 {{- end }}
 
 {{- if has "renovate" .Config.GitLab.Options }}
-  RENOVATE_IMAGE: docker.io/renovate/renovate:44.103.6@sha256:9c07736ffc4f85e26310db577696cad7dd9ca3d359bea6d0eadbb3d399caa38b
+  RENOVATE_IMAGE: docker.io/renovate/renovate:44.115.10@sha256:e262ed52b23dd8c545c80faf5b1ad5c95a07b3f198888de8d7b8928f45c307c7
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}
@@ -70,9 +70,9 @@ variables:
 {{- if .HasDocker }}
 
   DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.43.4@sha256:cc0f390bea0cef10fa05f4d7e4fa758c283cc232c448d512324d925347b8a6d2
-  DOCKER_DIND_IMAGE: docker.io/library/docker:29.8.1-dind@sha256:3f3c01aaaebf7cce837356b688b7c059a4749f10bd7660dec7c58fc454a283f0
+  DOCKER_DIND_IMAGE: docker.io/library/docker:29.8.2-dind@sha256:7dcdfc4a20246236f558175182ccace1eb15a41bd3eb119dd2284f393498b7c1
   DOCKER_HADOLINT_IMAGE: docker.io/hadolint/hadolint:v2.15.1-alpine@sha256:a1d49ae1a4e83c1dbad26b8c1ad7588c8bd1e04f4866b34ad3cac50335198552
-  DOCKER_IMAGE: docker.io/library/docker:29.8.1@sha256:3f3c01aaaebf7cce837356b688b7c059a4749f10bd7660dec7c58fc454a283f0
+  DOCKER_IMAGE: docker.io/library/docker:29.8.2@sha256:7dcdfc4a20246236f558175182ccace1eb15a41bd3eb119dd2284f393498b7c1
   DOCKER_KANIKO_IMAGE: registry.gitlab.com/to-be-continuous/tools/kaniko:1.25.19@sha256:a218eda674a5e9784b2f31b0ecd5b0de2f816e7b795fce93b48f48c1bb956fcf
   DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.52.0-debug@sha256:dd31bb351e28f958f2911dc2c53ef34340f3d61d5feb624e1ac061ccd0f87018
   DOCKER_SKOPEO_IMAGE: quay.io/containers/skopeo:v1.22.3@sha256:0513bbb5dd8ea8317c055cd85058d9c2bda9af66df9f2c00112589b8ea2b695e
@@ -81,9 +81,9 @@ variables:
 
 {{- if gt (len $go_modules) 0 }}
 
-  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.13.2-alpine@sha256:da1f79b184ff1d98781648407d05a99b9cba7b282aa3416b0a0eac102a3b0557
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.14.0-alpine@sha256:25925c95ebdc7aee39ecc0e6f4f33ac27b9a91718bc65fdf18a1a5c4c9325ee4
   GO_IMAGE: docker.io/library/golang:1-trixie
-  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.177.0@sha256:acaac22ffc7b7cc5926de0751b223bce0b2491c33d18422fa72f632c78d81198
+  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.178.0@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b
 {{- if gt (len .Executables.Clis) 0 }}
   GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.18.2@sha256:7077423cf5ef643ff56a34b58f93c1364e927e5c3dfa470eeabc44cab1a9c72b
 {{- end }}
@@ -99,16 +99,16 @@ variables:
 {{- if gt (len $node_modules) 0 }}
 
   NODE_IMAGE: docker.io/library/node:lts-alpine3.23
-  NODE_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.177.0@sha256:acaac22ffc7b7cc5926de0751b223bce0b2491c33d18422fa72f632c78d81198
+  NODE_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.178.0@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b
 {{- end }}
 
 {{- if gt (len $terraform_modules) 0 }}
 {{- if eq $engine "tofu" }}
-  TF_IMAGE: ghcr.io/opentofu/opentofu:1.12.6@sha256:22cb52f6c5bf5c72a48a8f56d993d8df3e9462b1cdfb5db7e77143c87e8d159f
+  TF_IMAGE: ghcr.io/opentofu/opentofu:1.13.1@sha256:1df996fca13806a20d5a3d3ad54acdcf76bcb1aa4ac30b5ba169b9e4cecdbcc8
 {{- else }}
-  TF_IMAGE: docker.io/hashicorp/terraform:1.16.3@sha256:c9a9d991c113f3bda5269de1506983d45ce1409dfe702df433acf10a5ea9f6bc
+  TF_IMAGE: docker.io/hashicorp/terraform:1.16.4@sha256:985cdc6c1d9b0a65b83377f666efd2f740b47f02ac55be1ced3d18f7d3b0e829
 {{- end }}
-  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.3.21@sha256:9aefe56582004ebdac112fe85c3268dc4d3658231a8f023fb714ba9d29539d53
+  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.3.22@sha256:617c76e3f9b1f7907ebca9abb6b9d746844edcb48e9bd775e4692c69c1c6ac47
   TF_DOCS_IMAGE: quay.io/terraform-docs/terraform-docs:0.20.0@sha256:37329e2dc2518e7f719a986a3954b10771c3fe000f50f83fd4d98d489df2eae2
   TF_INFRACOST_IMAGE: docker.io/infracost/infracost:0.10.46@sha256:b19f83e23b43ac0189d5153eaa9ac38c1b2cebb1f38c0f2b1ac93f56be9e35cb
   TF_PUBLISH_IMAGE: docker.io/curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777

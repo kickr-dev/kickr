@@ -13,8 +13,8 @@ variables:
 
   SEMREL_IMAGE: docker.io/library/node:26.10.0-alpine3.23@sha256:c3c6e314fd42e41962360b2482fc18d150beb47976c3aa7b8b9689d7ef42a5c2
   PRE_COMMIT_IMAGE: docker.io/library/python:3.14.7-alpine3.23@sha256:6b8f06d04d5305c1d1288435388df9165ab41e681fae6439d6349d8053cc3f83
-  TF_IMAGE: docker.io/hashicorp/terraform:1.16.3@sha256:c9a9d991c113f3bda5269de1506983d45ce1409dfe702df433acf10a5ea9f6bc
-  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.3.21@sha256:9aefe56582004ebdac112fe85c3268dc4d3658231a8f023fb714ba9d29539d53
+  TF_IMAGE: docker.io/hashicorp/terraform:1.16.4@sha256:985cdc6c1d9b0a65b83377f666efd2f740b47f02ac55be1ced3d18f7d3b0e829
+  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.3.22@sha256:617c76e3f9b1f7907ebca9abb6b9d746844edcb48e9bd775e4692c69c1c6ac47
   TF_DOCS_IMAGE: quay.io/terraform-docs/terraform-docs:0.20.0@sha256:37329e2dc2518e7f719a986a3954b10771c3fe000f50f83fd4d98d489df2eae2
   TF_INFRACOST_IMAGE: docker.io/infracost/infracost:0.10.46@sha256:b19f83e23b43ac0189d5153eaa9ac38c1b2cebb1f38c0f2b1ac93f56be9e35cb
   TF_PUBLISH_IMAGE: docker.io/curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777
