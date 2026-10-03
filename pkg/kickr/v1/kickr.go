@@ -245,7 +245,6 @@ type GitHub struct {
 	//  - labeler
 	//  - ossf-scorecard
 	//  - renovate:github-app
-	//  - renovate:overrides
 	//  - renovate:personal-token
 	//  - sonarqube
 	//  - step-security-actions
@@ -271,7 +270,6 @@ type GitLab struct {
 	//  - overrides:deployment
 	//  - overrides:integration
 	//  - renovate
-	//  - renovate:overrides
 	//  - sonarqube
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
 

@@ -2,16 +2,8 @@
 
 // https://docs.renovatebot.com/self-hosted-configuration/
 
-{{- $overrides := and .Config.GitLab (has "renovate:overrides" .Config.GitLab.Options) }}
-
 {
     "$schema": "https://docs.renovatebot.com/renovate-global-schema.json",
-{{- if $overrides }}
-
-    "extends": [
-        "local>{{ .VCS.ProjectPath }}//.gitlab/renovate.local.json"
-    ],
-{{- end }}
 
     "allowedCommands": [
         "^git diff --exit-code -G\\^go -- go\\.mod$",

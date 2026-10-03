@@ -52,7 +52,6 @@ const (
 	GitHubOptionsLabeler               = "labeler"
 	GitHubOptionsOSSFScorecard         = "ossf-scorecard"
 	GitHubOptionsRenovateGitHubApp     = "renovate:github-app"
-	GitHubOptionsRenovateOverrides     = "renovate:overrides"
 	GitHubOptionsRenovatePersonalToken = "renovate:personal-token"
 	GitHubOptionsSonarQube             = "sonarqube"
 	GitHubOptionsStepSecurityActions   = "step-security-actions"
@@ -63,7 +62,6 @@ const (
 	GitLabOptionsOverridesDeployment  = "overrides:deployment"
 	GitLabOptionsOverridesIntegration = "overrides:integration"
 	GitLabOptionsRenovate             = "renovate"
-	GitLabOptionsRenovateOverrides    = "renovate:overrides"
 	GitLabOptionsSonarQube            = "sonarqube"
 )
 
