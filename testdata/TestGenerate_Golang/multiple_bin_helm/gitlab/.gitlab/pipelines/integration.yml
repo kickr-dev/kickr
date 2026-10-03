@@ -25,7 +25,7 @@ include:
     inputs:
       allow_failure: true
       badge: true
-      config_file: .plumber.yaml
+      config_file: .gitlab/plumber.yml
       gitlab_token: $PLUMBER_GITLAB_TOKEN
       image: $PLUMBER_IMAGE
       score_point: true

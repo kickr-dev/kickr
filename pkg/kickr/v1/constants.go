@@ -29,6 +29,7 @@ const (
 )
 
 const (
+	GitHubExcludePlumber   = "plumber"
 	GitHubExcludePreCommit = "pre-commit"
 )
 
@@ -38,6 +39,7 @@ const (
 )
 
 const (
+	GitLabExcludePlumber   = "plumber"
 	GitLabExcludePreCommit = "pre-commit"
 )
 
@@ -49,8 +51,8 @@ const (
 	GitHubOptionsKickrPersonalToken    = "kickr:personal-token"
 	GitHubOptionsLabeler               = "labeler"
 	GitHubOptionsOSSFScorecard         = "ossf-scorecard"
-	GitHubOptionsPlumber               = "plumber"
 	GitHubOptionsRenovateGitHubApp     = "renovate:github-app"
+	GitHubOptionsRenovateOverrides     = "renovate:overrides"
 	GitHubOptionsRenovatePersonalToken = "renovate:personal-token"
 	GitHubOptionsSonarQube             = "sonarqube"
 	GitHubOptionsStepSecurityActions   = "step-security-actions"
@@ -60,8 +62,8 @@ const (
 	GitLabOptionsKickr                = "kickr"
 	GitLabOptionsOverridesDeployment  = "overrides:deployment"
 	GitLabOptionsOverridesIntegration = "overrides:integration"
-	GitLabOptionsPlumber              = "plumber"
 	GitLabOptionsRenovate             = "renovate"
+	GitLabOptionsRenovateOverrides    = "renovate:overrides"
 	GitLabOptionsSonarQube            = "sonarqube"
 )
 
@@ -89,6 +91,10 @@ const (
 	LicenseMIT        = "mit"
 	LicenseMPL20      = "mpl-2.0"
 	LicenseUnlicense  = "unlicense"
+)
+
+const (
+	OptionsRenovateOverrides = "renovate:overrides"
 )
 
 const (

@@ -9,6 +9,18 @@ include:
     inputs:
       pre-commit-file: .pre-commit-config.yaml
 
+  # Plumber template
+  # https://gitlab.com/getplumber/plumber
+  - remote: https://gitlab.com/getplumber/plumber/-/raw/c342d11f758f4386d9d2c42333cd1c4ae2d5448a/templates/plumber.yml # v0.5.16
+    inputs:
+      allow_failure: true
+      badge: true
+      config_file: .gitlab/plumber.yml
+      gitlab_token: $PLUMBER_GITLAB_TOKEN
+      image: $PLUMBER_IMAGE
+      score_point: true
+      score_push: true
+
 pre-commit:
   variables:
     GIT_DEPTH: "0"
@@ -19,3 +31,7 @@ pre-commit:
     - install_ca_certs "${CUSTOM_CA_CERTS:-$DEFAULT_CA_CERTS}"
     - apk add git
     - git checkout -b "$CI_COMMIT_REF_NAME"
+
+plumber:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF || $CI_COMMIT_REF_NAME =~ $INTEG_REF'

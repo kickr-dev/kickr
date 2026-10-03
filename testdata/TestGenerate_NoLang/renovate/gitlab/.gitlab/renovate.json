@@ -5,6 +5,11 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-global-schema.json",
 
+    "allowedCommands": [
+        "^git diff --exit-code -G\\^go -- go\\.mod$",
+        "^go mod tidy$",
+        "^hugo mod tidy$"
+    ],
     "autodiscover": true,
     "autodiscoverNamespaces": ["kickr-dev"],
     "configValidationError": true,

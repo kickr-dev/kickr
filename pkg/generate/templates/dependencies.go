@@ -22,6 +22,15 @@ func Renovate() []engine.Template[types.Repository] {
 			},
 		},
 		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join("configs", "renovate", "local.json"+engine.TmplExtension)},
+			Out:        path.Join("configs", "renovate", "local.json"),
+			Remove: func(repo types.Repository) bool {
+				return slices.Contains(repo.Config.Exclude, kickr.ExcludeRenovate) ||
+					!slices.Contains(repo.Config.Options, kickr.OptionsRenovateOverrides)
+			},
+		},
+		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join(".github", "workflows", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "workflows", "renovate.yml"),
@@ -33,12 +42,24 @@ func Renovate() []engine.Template[types.Repository] {
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
+			Globs:      []string{path.Join(".github", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".github", "renovate.json"),
 			Remove: func(repo types.Repository) bool {
 				return repo.Config.GitHub == nil || !slices.ContainsFunc(repo.Config.GitHub.Options, func(o string) bool {
 					return o == kickr.GitHubOptionsRenovateGitHubApp || o == kickr.GitHubOptionsRenovatePersonalToken
 				})
+			},
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join(".github", "renovate.local.json"+engine.TmplExtension)},
+			Out:        path.Join(".github", "renovate.local.json"),
+			Remove: func(repo types.Repository) bool {
+				return repo.Config.GitHub == nil ||
+					!slices.Contains(repo.Config.GitHub.Options, kickr.GitHubOptionsRenovateOverrides) ||
+					!slices.ContainsFunc(repo.Config.GitHub.Options, func(o string) bool {
+						return o == kickr.GitHubOptionsRenovateGitHubApp || o == kickr.GitHubOptionsRenovatePersonalToken
+					})
 			},
 		},
 		{
@@ -51,10 +72,20 @@ func Renovate() []engine.Template[types.Repository] {
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{path.Join(".ci", "renovate.json"+engine.TmplExtension)},
+			Globs:      []string{path.Join(".gitlab", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "renovate.json"),
 			Remove: func(repo types.Repository) bool {
 				return repo.Config.GitLab == nil || !slices.Contains(repo.Config.GitLab.Options, kickr.GitLabOptionsRenovate)
+			},
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join(".gitlab", "renovate.local.json"+engine.TmplExtension)},
+			Out:        path.Join(".gitlab", "renovate.local.json"),
+			Remove: func(repo types.Repository) bool {
+				return repo.Config.GitLab == nil ||
+					!slices.Contains(repo.Config.GitLab.Options, kickr.GitLabOptionsRenovateOverrides) ||
+					!slices.Contains(repo.Config.GitLab.Options, kickr.GitLabOptionsRenovate)
 			},
 		},
 	}

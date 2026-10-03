@@ -22,5 +22,20 @@ include:
 # secret variables
 # (define the variables below in your GitLab group/project variables)
 
+# https://gitlab.com/getplumber/plumber
+# PLUMBER_GITLAB_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
+# and `read_repository` scopes and at least a `Maintainer` role,
+# or a 'fine-grained personal access token' with the following permissions on this project and its parent groups:
+#   - Approval configuration: Read
+#   - Approval rule: Read
+#   - Badge: Create, Read, Update
+#   - Branch: Read
+#   - Commit: Read
+#   - Group: Read
+#   - Project: Read
+#   - Protected branch: Read
+#   - Repository file: Read
+#   - Repository tag: Read
+
 default:
   interruptible: true

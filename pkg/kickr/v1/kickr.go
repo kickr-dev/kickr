@@ -68,6 +68,12 @@ type Kickr struct {
 	// Otherwise every module must be declared, the repository root included as '.'.
 	Modules []Module `json:"modules,omitempty" yaml:"modules,omitempty"`
 
+	// Options defines available options to tune Kickr generation.
+	//
+	// Enums:
+	//  - renovate:overrides
+	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
+
 	// Platform defines the source code hosting platform (GitHub, GitLab, Gitea, Bitbucket).
 	//
 	// By default, it will be guessed based on Git remote URL.
@@ -234,6 +240,7 @@ type GitHub struct {
 	// Exclude defines available options to remove from GitHub Actions generation.
 	//
 	// Enums:
+	//  - plumber
 	//  - pre-commit
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
@@ -247,8 +254,8 @@ type GitHub struct {
 	//  - kickr:personal-token
 	//  - labeler
 	//  - ossf-scorecard
-	//  - plumber
 	//  - renovate:github-app
+	//  - renovate:overrides
 	//  - renovate:personal-token
 	//  - sonarqube
 	//  - step-security-actions
@@ -263,6 +270,7 @@ type GitLab struct {
 	// Exclude defines available options to remove from GitLab CICD generation.
 	//
 	// Enums:
+	//  - plumber
 	//  - pre-commit
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
@@ -272,8 +280,8 @@ type GitLab struct {
 	//  - kickr
 	//  - overrides:deployment
 	//  - overrides:integration
-	//  - plumber
 	//  - renovate
+	//  - renovate:overrides
 	//  - sonarqube
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
 

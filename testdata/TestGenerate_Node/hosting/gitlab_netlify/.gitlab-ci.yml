@@ -25,5 +25,20 @@ include:
 # NETLIFY_SITE_ID: The netlify site ID where builds will be published (should be retrieved if the project name is the same here https://app.netlify.com/sites/kickr/configuration/general).
 # NETLIFY_AUTH_TOKEN: The netlify authentication token (it's a personal token) to use for deployments (once connected, can be retrieved here https://app.netlify.com/user/applications#content).
 
+# https://gitlab.com/getplumber/plumber
+# PLUMBER_GITLAB_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`
+# and `read_repository` scopes and at least a `Maintainer` role,
+# or a 'fine-grained personal access token' with the following permissions on this project and its parent groups:
+#   - Approval configuration: Read
+#   - Approval rule: Read
+#   - Badge: Create, Read, Update
+#   - Branch: Read
+#   - Commit: Read
+#   - Group: Read
+#   - Project: Read
+#   - Protected branch: Read
+#   - Repository file: Read
+#   - Repository tag: Read
+
 default:
   interruptible: true

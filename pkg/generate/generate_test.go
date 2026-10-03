@@ -125,6 +125,14 @@ func TestGenerate_NoLang(t *testing.T) {
 				Name:   "gitlab",
 				Config: kickr.Kickr{GitLab: &kickr.GitLab{Options: []string{kickr.GitLabOptionsRenovate}}},
 			},
+			{
+				Name:   "github_overrides",
+				Config: kickr.Kickr{Options: []string{kickr.OptionsRenovateOverrides}},
+			},
+			{
+				Name:   "gitlab_overrides",
+				Config: kickr.Kickr{Options: []string{kickr.OptionsRenovateOverrides}},
+			},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
@@ -157,6 +165,32 @@ func TestGenerate_NoLang(t *testing.T) {
 			// Act & Assert
 			test(ctx, t, repo, tmpl)
 		})
+	})
+
+	t.Run("plumber", func(t *testing.T) {
+		cases := []testcase{
+			{
+				Name:   "disabled_github",
+				Config: kickr.Kickr{GitHub: &kickr.GitHub{Exclude: []string{kickr.GitHubExcludePlumber}}},
+			},
+			{
+				Name:   "disabled_gitlab",
+				Config: kickr.Kickr{GitLab: &kickr.GitLab{Exclude: []string{kickr.GitLabExcludePlumber}}},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				// Arrange
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludeRenovate, kickr.ExcludeShell},
+					}, tc.Config),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo)
+			})
+		}
 	})
 
 	t.Run("precommit", func(t *testing.T) {
@@ -395,7 +429,6 @@ func TestGenerate_Golang(t *testing.T) {
 							kickr.GitHubOptionsHardenRunner,
 							kickr.GitHubOptionsLabeler,
 							kickr.GitHubOptionsOSSFScorecard,
-							kickr.GitHubOptionsPlumber,
 							kickr.GitHubOptionsSonarQube,
 							kickr.GitHubOptionsStepSecurityActions,
 						},
@@ -408,7 +441,6 @@ func TestGenerate_Golang(t *testing.T) {
 				Config: kickr.Kickr{
 					GitLab: &kickr.GitLab{
 						Options: []string{
-							kickr.GitLabOptionsPlumber,
 							kickr.GitLabOptionsSonarQube,
 							kickr.GitLabOptionsOverridesIntegration,
 							kickr.GitLabOptionsOverridesDeployment,
@@ -1414,7 +1446,7 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 			{
 				Name: "github_primary",
 				Config: kickr.Kickr{
-					GitLab: &kickr.GitLab{Exclude: []string{kickr.GitLabExcludePreCommit}},
+					GitLab: &kickr.GitLab{Exclude: []string{kickr.GitLabExcludePlumber, kickr.GitLabExcludePreCommit}},
 					GitHub: &kickr.GitHub{Release: &kickr.Release{}},
 				},
 			},
@@ -1422,7 +1454,7 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 				Name: "gitlab_primary",
 				Config: kickr.Kickr{
 					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
-					GitHub: &kickr.GitHub{Exclude: []string{kickr.GitHubExcludePreCommit}},
+					GitHub: &kickr.GitHub{Exclude: []string{kickr.GitHubExcludePlumber, kickr.GitHubExcludePreCommit}},
 				},
 			},
 		}

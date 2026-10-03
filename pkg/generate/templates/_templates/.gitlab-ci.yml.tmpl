@@ -132,7 +132,7 @@ include:
 # SONAR_PASSWORD: SonarQube password (depends on your authentication method).
 {{- end }}
 
-{{- if has "plumber" .Config.GitLab.Options }}
+{{- if not (has "plumber" .Config.GitLab.Exclude) }}
 
 # https://gitlab.com/getplumber/plumber
 # PLUMBER_GITLAB_TOKEN: A GitLab 'service account token', 'group access token', 'project access token' or 'personal access token' with `api`

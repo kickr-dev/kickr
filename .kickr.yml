@@ -7,9 +7,10 @@ exclude:
 gitlab:
   options:
     - kickr
-    - plumber
   release: {}
 license: apache-2.0
 maintainers:
   - name: u.kilianpaquier
+options:
+  - renovate:overrides
 platform: gitlab

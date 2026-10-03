@@ -50,6 +50,7 @@ properties:
         items:
           type: string
           enum:
+            - plumber
             - pre-commit
       options:
         description: Available options to tune GitHub Actions.
@@ -64,8 +65,8 @@ properties:
             - kickr:personal-token
             - labeler
             - ossf-scorecard
-            - plumber
             - renovate:github-app
+            - renovate:overrides
             - renovate:personal-token
             - sonarqube
             - step-security-actions
@@ -90,13 +91,14 @@ properties:
         items:
           type: string
           enum:
+            - plumber
             - pre-commit
       options:
         description: Available options to GitLab CICD jobs.
         type: array
         items:
           type: string
-          enum: [kickr, overrides:deployment, overrides:integration, plumber, renovate, sonarqube]
+          enum: [kickr, overrides:deployment, overrides:integration, renovate, renovate:overrides, sonarqube]
       release:
         unevaluatedProperties: false
         allOf:
@@ -178,6 +180,13 @@ properties:
                 properties:
                   engine:
                     const: tofu
+
+  options:
+    type: array
+    description: Available options to tune Kickr generation.
+    items:
+      type: string
+      enum: [renovate:overrides]
 
   platform:
     type: string

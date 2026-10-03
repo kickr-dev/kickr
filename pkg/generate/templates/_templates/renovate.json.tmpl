@@ -19,6 +19,7 @@
         "github>kickr-dev/renovate//configs/renovate/hugo.json({{ join "|" $hugomods }})"{{ end }}{{ if or .Config.HasKickr $tmpl }},
         "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if .ModulesWith "terraform" }},
         "github>kickr-dev/renovate//configs/renovate/terraform.json"{{ end }}{{ if not (has "pre-commit" .Config.Exclude) }},
-        "github>kickr-dev/renovate//configs/renovate/pre-commit.json"{{ end }}
+        "github>kickr-dev/renovate//configs/renovate/pre-commit.json"{{ end }}{{ if has "renovate:overrides" .Config.Options }},
+        "local>{{ .VCS.ProjectPath }}//configs/renovate/local.json"{{ end }}
     ]
 }

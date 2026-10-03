@@ -27,10 +27,10 @@ func (k Kickr) HasHelmDeploy() bool {
 
 // HasPlumber returns truthy in case Plumber analysis is enabled on either platform.
 func (k Kickr) HasPlumber() bool {
-	if k.GitHub != nil && slices.Contains(k.GitHub.Options, GitHubOptionsPlumber) {
+	if k.GitHub != nil && !slices.Contains(k.GitHub.Exclude, GitHubExcludePlumber) {
 		return true
 	}
-	if k.GitLab != nil && slices.Contains(k.GitLab.Options, GitLabOptionsPlumber) {
+	if k.GitLab != nil && !slices.Contains(k.GitLab.Exclude, GitLabExcludePlumber) {
 		return true
 	}
 	return false
@@ -95,6 +95,7 @@ func (k Kickr) HasKickr() bool {
 // and ensures default properties are always sets.
 func (k *Kickr) EnsureDefaults() {
 	slices.Sort(k.Exclude)
+	slices.Sort(k.Options)
 	slices.Sort(k.PreCommit)
 
 	// sort maintainers per name
@@ -103,6 +104,7 @@ func (k *Kickr) EnsureDefaults() {
 	})
 
 	if k.GitHub != nil {
+		slices.Sort(k.GitHub.Exclude)
 		slices.Sort(k.GitHub.Options)
 		if k.GitHub.Release != nil {
 			slices.Sort(k.GitHub.Release.Options)
@@ -110,6 +112,7 @@ func (k *Kickr) EnsureDefaults() {
 	}
 
 	if k.GitLab != nil {
+		slices.Sort(k.GitLab.Exclude)
 		slices.Sort(k.GitLab.Options)
 		if k.GitLab.Release != nil {
 			slices.Sort(k.GitLab.Release.Options)

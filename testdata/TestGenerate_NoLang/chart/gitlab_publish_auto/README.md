@@ -10,6 +10,9 @@
   <a href="https://gitlab.com/kickr-dev/kickr/-/pipelines?ref=main">
     <img alt="GitLab CICD" src="https://img.shields.io/gitlab/pipeline-status/kickr-dev%2Fkickr?gitlab_url=https%3A%2F%2Fgitlab.com&branch=main&style=for-the-badge">
   </a>
+  <a href="https://score.getplumber.io/gitlab.com/kickr-dev/kickr">
+    <img alt="Plumber Score" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fscore.getplumber.io%2Fgitlab.com%2Fkickr-dev%2Fkickr.json&style=for-the-badge">
+  </a>
 </div>
 
 ---

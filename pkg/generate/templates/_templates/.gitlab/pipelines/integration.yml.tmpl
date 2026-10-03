@@ -13,9 +13,10 @@
 {{- end }}
 
 {{- $precommit := and (not (has "pre-commit" .Config.Exclude)) (not (has "pre-commit" .Config.GitLab.Exclude)) }}
+{{- $plumber := not (has "plumber" .Config.GitLab.Exclude) }}
 {{- $shell := and (not (has "shell" .Config.Exclude)) (.HasGlob "shell") }}
 
-{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) (has "plumber" .Config.GitLab.Options) (has "sonarqube" .Config.GitLab.Options) (has "overrides:integration" .Config.GitLab.Options) }}
+{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) $plumber (has "sonarqube" .Config.GitLab.Options) (has "overrides:integration" .Config.GitLab.Options) }}
 
 ---
 include:{{ if not $has_include }} []{{ end }}
@@ -70,7 +71,7 @@ include:{{ if not $has_include }} []{{ end }}
       publish-enabled: false
 {{- end }}
 
-{{- if has "plumber" .Config.GitLab.Options }}
+{{- if $plumber }}
 
   # Plumber template
   # https://gitlab.com/getplumber/plumber
@@ -78,7 +79,7 @@ include:{{ if not $has_include }} []{{ end }}
     inputs:
       allow_failure: true
       badge: true
-      config_file: .plumber.yaml
+      config_file: .gitlab/plumber.yml
       gitlab_token: $PLUMBER_GITLAB_TOKEN
       image: $PLUMBER_IMAGE
       score_point: true
@@ -173,7 +174,7 @@ node-build:
 {{- end }}
 {{- end }}
 
-{{- if has "plumber" .Config.GitLab.Options }}
+{{- if $plumber }}
 
 plumber:
   rules:
