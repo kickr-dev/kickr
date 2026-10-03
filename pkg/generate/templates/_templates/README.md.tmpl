@@ -60,24 +60,21 @@
   </a>
 {{- end }}
 
-{{- $go_modules := .ModulesWith "go" }}
-{{- $hugo_modules := .ModulesWith "hugo" }}
-{{- $node_modules := .ModulesWith "node" }}
+{{- $root_go := false }}
+{{- range .ModulesWith "go" }}{{- if eq .Dir "." }}{{ $root_go = true }}{{ end }}{{- end }}
 
-{{- if or (gt (len $go_modules) 0) (gt (len $hugo_modules) 0) }}
+{{- if $root_go }}
   <a href="{{ $repo }}/{{ if eq .Config.Platform "gitlab" }}-/{{ end }}blob/HEAD/go.mod">
     <img alt="Go Version" src="https://img.shields.io/{{ .Config.Platform }}/go-mod/go-version/{{ .VCS.ProjectPath }}?style={{ $style }}">
   </a>
 {{- end }}
 
-{{- if gt (len $node_modules) 0 }}
-{{- range $node_modules }}
+{{- range .ModulesWith "node" }}
 {{- $node := get .Languages "node" }}
 {{- if and (not $node.Private) (eq $node.PublishConfig.Registry "") }}
   <a href="https://www.npmjs.com/package/{{ $node.Name }}">
     <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/{{ toQuery $node.Name }}?style={{ $style }}">
   </a>
-{{- end }}
 {{- end }}
 {{- end }}
 
