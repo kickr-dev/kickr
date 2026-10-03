@@ -4,10 +4,12 @@
 {{- $style := "for-the-badge" }}
 {{- $repo := print "https://" .VCS.ProjectHost "/" .VCS.ProjectPath }}
 
-{{- if eq .Config.Platform "github" }}
+{{- if and .Config.GitHub .Config.GitHub.Release }}
   <a href="{{ $repo }}/releases">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/{{ .VCS.ProjectPath }}?include_prereleases&sort=semver&style={{ $style }}">
   </a>
+{{- end }}
+{{- if eq .Config.Platform "github" }}
   <a href="{{ $repo }}/issues">
     <img alt="GitHub Issues" src="https://img.shields.io/github/issues-raw/{{ .VCS.ProjectPath }}?style={{ $style }}">
   </a>
@@ -24,10 +26,12 @@
 {{- end }}
 
 {{- $url := toQuery (print "https://" .VCS.ProjectHost) }}
-{{- if eq .Config.Platform "gitlab" }}
+{{- if and .Config.GitLab .Config.GitLab.Release }}
   <a href="{{ $repo }}/-/releases">
     <img alt="GitLab Release" src="https://img.shields.io/gitlab/v/release/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&include_prereleases&sort=semver&style={{ $style }}">
   </a>
+{{- end }}
+{{- if eq .Config.Platform "gitlab" }}
   <a href="{{ $repo }}/-/work_items">
     <img alt="GitLab Issues" src="https://img.shields.io/gitlab/issues/open/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }}">
   </a>
