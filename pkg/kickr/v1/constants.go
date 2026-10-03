@@ -126,3 +126,12 @@ const (
 	TerraformEngineTerraform = "terraform"
 	TerraformEngineTofu      = "tofu"
 )
+
+const (
+	TerraformPublishAuto   = "auto"
+	TerraformPublishManual = "manual"
+)
+
+const (
+	TerraformRegistryGitlab = "gitlab"
+)

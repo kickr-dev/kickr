@@ -81,7 +81,6 @@ include:{{ if not $has_include }} []{{ end }}
       config_file: .plumber.yaml
       gitlab_token: $PLUMBER_GITLAB_TOKEN
       image: $PLUMBER_IMAGE
-      mr_comment: true
       score_point: true
       score_push: true
 {{- end }}
@@ -174,6 +173,13 @@ node-build:
 {{- end }}
 {{- end }}
 
+{{- if has "plumber" .Config.GitLab.Options }}
+
+plumber:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF || $CI_COMMIT_REF_NAME =~ $INTEG_REF'
+{{- end }}
+
 {{- if gt (len $hugo_buildable_modules) 0 }}
 {{- $firstnode := first $hugo_buildable_modules }}
 
@@ -189,8 +195,7 @@ hugo-build:
     GIT_SUBMODULE_STRATEGY: recursive # fetch Hugo themes
 {{- if eq (len $hugo_buildable_modules) 1 }}
     HUGO_PROJECT_DIR: {{ $firstnode.Dir }}
-{{- end }}
-{{- if gt (len $hugo_buildable_modules) 1 }}
+{{- else }}
   parallel:
     matrix:
 {{- range $hugo_buildable_modules }}

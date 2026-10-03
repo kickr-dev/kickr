@@ -22,6 +22,9 @@ tf-deploy-modules-one:
     # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
     - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
       when: never
+    # apply jobs never run on tags and an empty child pipeline fails the trigger
+    - if: $CI_COMMIT_TAG
+      when: never
     - when: on_success
   trigger:
     strategy: mirror
@@ -38,6 +41,7 @@ tf-deploy-modules-one:
           integ-enabled: false
           prod-enabled: true
           project-dir: modules/one
+          publish-enabled: false
           review-enabled: false
           staging-enabled: false
           tflint-disabled: true
@@ -49,6 +53,9 @@ tf-deploy-modules-two:
   rules:
     # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
     - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      when: never
+    # apply jobs never run on tags and an empty child pipeline fails the trigger
+    - if: $CI_COMMIT_TAG
       when: never
     - when: on_success
   trigger:
@@ -66,6 +73,7 @@ tf-deploy-modules-two:
           integ-enabled: false
           prod-enabled: true
           project-dir: modules/two
+          publish-enabled: false
           review-enabled: false
           staging-enabled: false
           tflint-disabled: true

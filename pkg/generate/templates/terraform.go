@@ -6,7 +6,7 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
-// Terraform returns the slice of templates related to Terraform / OpenTofu generation (tflint).
+// Terraform returns the slice of templates related to Terraform / OpenTofu generation (terraform-docs, tflint).
 func Terraform() []engine.Template[types.Repository] {
 	// Terraform wasn't parsed during parsers processing
 	noTerraform := func(repo types.Repository) bool {
@@ -14,6 +14,14 @@ func Terraform() []engine.Template[types.Repository] {
 	}
 
 	return []engine.Template[types.Repository]{
+		{
+			Delimiters: engine.DelimitersChevron(),
+			Globs:      []string{".terraform-docs.yml" + engine.TmplExtension},
+			Out:        ".terraform-docs.yml",
+			Remove: func(repo types.Repository) bool {
+				return len(repo.ModulesWithTerraformPublish()) == 0
+			},
+		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".tflint.hcl" + engine.TmplExtension},

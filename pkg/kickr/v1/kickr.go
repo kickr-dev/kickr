@@ -104,7 +104,7 @@ type Kickr struct {
 // Languages are detected by kickr inside the directory, they aren't configured here.
 //
 // With 'ci' enabled, control where the module is deployed and, for terraform modules,
-// when shall they be applied and on which environments.
+// when shall they be applied (and on which environments) or published.
 type Module struct {
 	// Path defines the module location, relative to the repository root.
 	//
@@ -147,7 +147,7 @@ type Deployment struct {
 
 // Terraform configures the terraform module and the engine to use (tofu by default).
 //
-// With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments.
+// With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments, or published.
 type Terraform struct {
 	// Apply defines the apply strategy.
 	//
@@ -173,6 +173,29 @@ type Terraform struct {
 	//  - review
 	//  - staging
 	Environments []string `json:"environments,omitempty" yaml:"environments,omitempty"`
+
+	// Publish defines the terraform module publishing strategy.
+	//
+	// Not providing this property will mean 'never' as strategy, the module won't be published.
+	// Not compatible with 'apply', a published module is never applied.
+	//
+	// Without 'registry', publishing is the release git tag itself, no publish job will be generated.
+	//
+	// Enums:
+	//  - auto
+	//  - manual
+	Publish string `json:"publish,omitempty" yaml:"publish,omitempty"`
+
+	// Registry defines the registry where the terraform module is published.
+	//
+	// Not providing this property means the public Terraform and OpenTofu registries,
+	// which read the git tags of a public GitHub repository named 'terraform-<provider>-<name>' once registered.
+	//
+	// 'gitlab' uploads the module to the GitLab Terraform Module Registry on stable release tags (GitLab CI/CD only).
+	//
+	// Enums:
+	//  - gitlab
+	Registry string `json:"registry,omitempty" yaml:"registry,omitempty"`
 }
 
 // Docker defines the general Docker configuration.

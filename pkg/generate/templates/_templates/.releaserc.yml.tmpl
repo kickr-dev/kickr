@@ -90,7 +90,7 @@ plugins:
 {{- if gt (len $node_modules) 0 }}
         - package.json
 {{- end }}
-      message: "chore(release): v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      message: "chore(release): v${nextRelease.version} [skip ci on branch]\n\n${nextRelease.notes}"
 {{- if eq .Config.Platform "github" }}
   - - "@semantic-release/github"
     - draftRelease: false

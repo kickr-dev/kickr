@@ -1100,6 +1100,31 @@ func TestGenerate_Terraform(t *testing.T) {
 					},
 				},
 			},
+			{
+				Name: "gitlab_tofu_apply_and_publish",
+				Config: kickr.Kickr{
+					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
+					Modules: []kickr.Module{
+						{Path: types.RootModule},
+						{
+							Path: "modules/one",
+							Terraform: &kickr.Terraform{
+								Engine:   kickr.TerraformEngineTofu,
+								Publish:  kickr.TerraformPublishAuto,
+								Registry: kickr.TerraformRegistryGitlab,
+							},
+						},
+						{
+							Path: "modules/two",
+							Terraform: &kickr.Terraform{
+								Apply:        kickr.TerraformApplyManual,
+								Engine:       kickr.TerraformEngineTofu,
+								Environments: []string{kickr.EnvironmentProduction},
+							},
+						},
+					},
+				},
+			},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
@@ -1121,25 +1146,64 @@ func TestGenerate_Terraform(t *testing.T) {
 		}
 
 		cases := []testcase{
-			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
-			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+			{
+				Name: "github",
+				Config: kickr.Kickr{
+					GitHub: &kickr.GitHub{},
+					Modules: []kickr.Module{
+						{
+							Path:      types.RootModule,
+							Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Environments: []string{kickr.EnvironmentProduction}},
+						},
+					},
+				},
+			},
+			{
+				Name: "gitlab",
+				Config: kickr.Kickr{
+					GitLab: &kickr.GitLab{},
+					Modules: []kickr.Module{
+						{
+							Path:      types.RootModule,
+							Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Environments: []string{kickr.EnvironmentProduction}},
+						},
+					},
+				},
+			},
+			{
+				Name: "github_publish",
+				Config: kickr.Kickr{
+					GitHub: &kickr.GitHub{Release: &kickr.Release{}},
+					Modules: []kickr.Module{
+						{
+							Path:      types.RootModule,
+							Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishAuto},
+						},
+					},
+				},
+			},
+			{
+				Name: "gitlab_publish",
+				Config: kickr.Kickr{
+					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
+					Modules: []kickr.Module{
+						{
+							Path: types.RootModule,
+							Terraform: &kickr.Terraform{
+								Engine:   kickr.TerraformEngineTofu,
+								Publish:  kickr.TerraformPublishAuto,
+								Registry: kickr.TerraformRegistryGitlab,
+							},
+						},
+					},
+				},
+			},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						PreCommit: []string{kickr.PreCommitTerraform},
-						Modules: []kickr.Module{
-							{
-								Path: types.RootModule,
-								Terraform: &kickr.Terraform{
-									Engine:       kickr.TerraformEngineTofu,
-									Environments: []string{kickr.EnvironmentProduction},
-								},
-							},
-						},
-					}, tc.Config),
+					Config: merge(t, kickr.Kickr{PreCommit: []string{kickr.PreCommitTerraform}}, tc.Config),
 				}
 
 				// Act & Assert

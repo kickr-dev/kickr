@@ -17,8 +17,8 @@
         "github>kickr-dev/renovate//configs/renovate/gitlab-ci.json"{{ end }}{{ if $gomod }},
         "github>kickr-dev/renovate//configs/renovate/gomod.json"{{ end }}{{ if $hugomods }},
         "github>kickr-dev/renovate//configs/renovate/hugo.json({{ join "|" $hugomods }})"{{ end }}{{ if or .Config.HasKickr $tmpl }},
-        "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if eq .Config.TerraformEngine "tofu" }},
-        "github>kickr-dev/renovate//configs/renovate/opentofu.json"{{ end }}{{ if not (has "pre-commit" .Config.Exclude) }},
+        "github>kickr-dev/renovate//configs/renovate/kickr.json"{{ end }}{{ if .ModulesWith "terraform" }},
+        "github>kickr-dev/renovate//configs/renovate/terraform.json"{{ end }}{{ if not (has "pre-commit" .Config.Exclude) }},
         "github>kickr-dev/renovate//configs/renovate/pre-commit.json"{{ end }}
     ]
 }

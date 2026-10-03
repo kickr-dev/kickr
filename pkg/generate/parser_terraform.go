@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strings"
 
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
 	engine "github.com/kickr-dev/engine/pkg"
@@ -22,7 +23,10 @@ import (
 type TerraformModule struct {
 	*tfconfig.Module
 
-	Backend string
+	PublishName     string
+	PublishProvider string
+
+	StateBackend string
 }
 
 var backends = []string{"http", "s3"}
@@ -52,15 +56,45 @@ func ParserTerraform(_ context.Context, destdir string, repo *types.Repository) 
 			continue
 		}
 
-		backend, err := terraformBackend(moduledir)
-		if err != nil {
-			engine.GetLogger().Warnf("failed to read backend type: %s", err.Error())
-		}
-		if backend != "" && !slices.Contains(backends, backend) {
-			engine.GetLogger().Warnf("backend '%s' doesn't have an associated behavior", backend)
+		// publish name and provider are derived from the repository name, naming convention is 'terraform-<provider>-<name>',
+		// where 'provider' is the terraform provider on which the module applies
+		// and 'name' is the module name.
+		//
+		// since a terraform module can include and publish nested modules under 'modules' directory,
+		// such modules are suffixed with their directory name (e.g. 'terraform-aws-vpc-subnet' for a module in 'modules/subnet').
+		//
+		// see https://developer.hashicorp.com/terraform/registry/modules/publish#requirements
+		// see https://developer.hashicorp.com/terraform/language/modules/develop/structure
+		var name, provider string
+		if module.Config.Terraform.Publish != "" {
+			provider, name = "local", repo.VCS.ProjectName
+			if rest, ok := strings.CutPrefix(repo.VCS.ProjectName, "terraform-"); ok {
+				provider, name, _ = strings.Cut(rest, "-")
+			}
+			if module.Dir() != types.RootModule {
+				name += "-" + engine.ToSlug(strings.TrimPrefix(module.Dir(), "modules/"))
+			}
 		}
 
-		repo.Modules[i].SetLanguage(types.LanguageTerraform, TerraformModule{Module: tfmodule, Backend: backend})
+		// backend detection only applies to module with an apply step
+		var backend string
+		if module.Config.HasTerraformApply() {
+			var err error
+			backend, err = terraformBackend(moduledir)
+			if err != nil {
+				engine.GetLogger().Warnf("failed to read backend type: %s", err.Error())
+			}
+			if backend != "" && !slices.Contains(backends, backend) {
+				engine.GetLogger().Warnf("backend '%s' doesn't have an associated behavior", backend)
+			}
+		}
+
+		repo.Modules[i].SetLanguage(types.LanguageTerraform, TerraformModule{
+			Module:          tfmodule,
+			StateBackend:    backend,
+			PublishName:     name,
+			PublishProvider: provider,
+		})
 	}
 	return errors.Join(errs...) // already wrapped
 }

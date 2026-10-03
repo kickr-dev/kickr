@@ -81,16 +81,16 @@ repos:
       - id: golangci-lint
 {{- end }}
 
-{{- $terraform_docs_modules := .ModulesWithTerraformDocs }}
-{{- if gt (len $terraform_docs_modules) 0 }}
+{{- $terraform_publish_modules := .ModulesWithTerraformPublish }}
+{{- if gt (len $terraform_publish_modules) 0 }}
 
   - repo: https://github.com/terraform-docs/terraform-docs
     # renovate: datasource=github-tags packageName=terraform-docs/terraform-docs depName=terraform-docs
     rev: v0.24.0
     hooks:
-{{- range $terraform_docs_modules }}
+{{- range $terraform_publish_modules }}
       - id: terraform-docs-go
-        args: ["markdown", "table", "--output-file", "README.md", "{{ .Dir }}"]
+        args: ["{{ .Dir }}"]
 {{- end }}
 {{- end }}
 

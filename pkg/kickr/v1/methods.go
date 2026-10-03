@@ -138,9 +138,9 @@ func (m Module) HasTerraformApply() bool {
 	return m.Terraform != nil && m.Terraform.Apply != ""
 }
 
-// HasTerraformDocs returns truthy when the module needs terraform documentation.
-func (m Module) HasTerraformDocs() bool {
-	return m.Terraform != nil && m.Terraform.Apply == ""
+// HasTerraformPublish returns truthy when the module will be published to a private or public terraform registry.
+func (m Module) HasTerraformPublish() bool {
+	return m.Terraform != nil && m.Terraform.Publish != ""
 }
 
 // HasTerraformAutoApply returns truthy when the module has an apply strategy configured and set to auto.

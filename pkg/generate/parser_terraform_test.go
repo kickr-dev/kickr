@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
 	"github.com/kickr-dev/engine/pkg/files"
+	"github.com/kickr-dev/engine/pkg/parser"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -104,10 +105,10 @@ func TestParserTerraform(t *testing.T) {
 			Modules: []types.Module{
 				{
 					Directory: types.RootModule,
-					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{}},
+					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}},
 					Languages: map[string]any{
 						types.LanguageTerraform: generate.TerraformModule{
-							Backend: "local",
+							StateBackend: "local",
 							Module: &tfconfig.Module{
 								Path: destdir,
 								Variables: map[string]*tfconfig.Variable{
@@ -136,7 +137,7 @@ func TestParserTerraform(t *testing.T) {
 			Modules: []types.Module{
 				{
 					Directory: types.RootModule,
-					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{}},
+					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}},
 				},
 			},
 		}
@@ -161,10 +162,10 @@ func TestParserTerraform(t *testing.T) {
 			Modules: []types.Module{
 				{
 					Directory: types.RootModule,
-					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{}},
+					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}},
 					Languages: map[string]any{
 						types.LanguageTerraform: generate.TerraformModule{
-							Backend: "s3",
+							StateBackend: "s3",
 							Module: &tfconfig.Module{
 								Path:              destdir,
 								Variables:         map[string]*tfconfig.Variable{},
@@ -180,10 +181,10 @@ func TestParserTerraform(t *testing.T) {
 				},
 				{
 					Directory: "module",
-					Config:    kickr.Module{Path: "module", Terraform: &kickr.Terraform{}},
+					Config:    kickr.Module{Path: "module", Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}},
 					Languages: map[string]any{
 						types.LanguageTerraform: generate.TerraformModule{
-							Backend: "http",
+							StateBackend: "http",
 							Module: &tfconfig.Module{
 								Path:              filepath.Join(destdir, "module"),
 								Variables:         map[string]*tfconfig.Variable{},
@@ -201,8 +202,8 @@ func TestParserTerraform(t *testing.T) {
 		}
 		repo := types.Repository{
 			Modules: []types.Module{
-				{Directory: types.RootModule, Config: kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{}}},
-				{Directory: "module", Config: kickr.Module{Path: "module", Terraform: &kickr.Terraform{}}},
+				{Directory: types.RootModule, Config: kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}}},
+				{Directory: "module", Config: kickr.Module{Path: "module", Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}}},
 			},
 		}
 
@@ -230,10 +231,10 @@ func TestParserTerraform(t *testing.T) {
 			Modules: []types.Module{
 				{
 					Directory: "module",
-					Config:    kickr.Module{Path: "module", Terraform: &kickr.Terraform{}},
+					Config:    kickr.Module{Path: "module", Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}},
 					Languages: map[string]any{
 						types.LanguageTerraform: generate.TerraformModule{
-							Backend: "s3",
+							StateBackend: "s3",
 							Module: &tfconfig.Module{
 								Path: filepath.Join(destdir, "module"),
 								Variables: map[string]*tfconfig.Variable{
@@ -258,10 +259,10 @@ func TestParserTerraform(t *testing.T) {
 				},
 				{
 					Directory: "another_module",
-					Config:    kickr.Module{Path: "another_module", Terraform: &kickr.Terraform{}},
+					Config:    kickr.Module{Path: "another_module", Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}},
 					Languages: map[string]any{
 						types.LanguageTerraform: generate.TerraformModule{
-							Backend: "http",
+							StateBackend: "http",
 							Module: &tfconfig.Module{
 								Path: filepath.Join(destdir, "another_module"),
 								Variables: map[string]*tfconfig.Variable{
@@ -288,9 +289,78 @@ func TestParserTerraform(t *testing.T) {
 		}
 		repo := types.Repository{
 			Modules: []types.Module{
-				{Directory: "module", Config: kickr.Module{Path: "module", Terraform: &kickr.Terraform{}}},
-				{Directory: "another_module", Config: kickr.Module{Path: "another_module", Terraform: &kickr.Terraform{}}},
+				{Directory: "module", Config: kickr.Module{Path: "module", Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}}},
+				{Directory: "another_module", Config: kickr.Module{Path: "another_module", Terraform: &kickr.Terraform{Apply: kickr.TerraformApplyAuto}}},
 			},
+		}
+
+		// Act
+		err := generate.ParserTerraform(ctx, destdir, &repo)
+
+		// Assert
+		require.NoError(t, err)
+		assert.Equal(t, expected, repo)
+	})
+
+	t.Run("success_publish", func(t *testing.T) {
+		// Arrange
+		destdir := t.TempDir()
+		require.NoError(t, os.WriteFile(filepath.Join(destdir, "main.tf"), []byte(`terraform {}`), files.RwRR))
+
+		require.NoError(t, os.MkdirAll(filepath.Join(destdir, "modules", "subnets"), files.RwxRxRxRx))
+		require.NoError(t, os.WriteFile(filepath.Join(destdir, "modules", "subnets", "main.tf"), []byte(`terraform {}`), files.RwRR))
+
+		expected := types.Repository{
+			Modules: []types.Module{
+				{
+					Directory: types.RootModule,
+					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}},
+					Languages: map[string]any{
+						types.LanguageTerraform: generate.TerraformModule{
+							Module: &tfconfig.Module{
+								Path:              destdir,
+								Variables:         map[string]*tfconfig.Variable{},
+								Outputs:           map[string]*tfconfig.Output{},
+								RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
+								ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
+								ManagedResources:  map[string]*tfconfig.Resource{},
+								DataResources:     map[string]*tfconfig.Resource{},
+								ModuleCalls:       map[string]*tfconfig.ModuleCall{},
+							},
+							PublishName:     "vpc",
+							PublishProvider: "aws",
+						},
+					},
+				},
+				{
+					Directory: "modules/subnets",
+					Config:    kickr.Module{Path: "modules/subnets", Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}},
+					Languages: map[string]any{
+						types.LanguageTerraform: generate.TerraformModule{
+							Module: &tfconfig.Module{
+								Path:              filepath.Join(destdir, "modules", "subnets"),
+								Variables:         map[string]*tfconfig.Variable{},
+								Outputs:           map[string]*tfconfig.Output{},
+								RequiredProviders: map[string]*tfconfig.ProviderRequirement{},
+								ProviderConfigs:   map[string]*tfconfig.ProviderConfig{},
+								ManagedResources:  map[string]*tfconfig.Resource{},
+								DataResources:     map[string]*tfconfig.Resource{},
+								ModuleCalls:       map[string]*tfconfig.ModuleCall{},
+							},
+							PublishName:     "vpc-subnets",
+							PublishProvider: "aws",
+						},
+					},
+				},
+			},
+			VCS: parser.VCS{ProjectName: "terraform-aws-vpc"},
+		}
+		repo := types.Repository{
+			Modules: []types.Module{
+				{Directory: types.RootModule, Config: kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}}},
+				{Directory: "modules/subnets", Config: kickr.Module{Path: "modules/subnets", Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}}},
+			},
+			VCS: parser.VCS{ProjectName: "terraform-aws-vpc"},
 		}
 
 		// Act

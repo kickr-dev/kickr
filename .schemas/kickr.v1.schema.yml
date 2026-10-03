@@ -210,7 +210,7 @@ properties:
         - terraform
 
 allOf:
-  # Restrict multiple objects to their base properties, no CI platform being configured
+  # restrict multiple objects to their base properties, no CI platform being configured
   - if:
       not:
         anyOf:
@@ -236,7 +236,7 @@ allOf:
                 unevaluatedProperties: false
                 allOf:
                   - $ref: "#/$defs/terraform"
-  # Enrich multiple objects with their CI properties
+  # enrich multiple objects with their CI properties
   - if:
       required: [github]
     then:
@@ -263,7 +263,10 @@ allOf:
                 allOf:
                   - $ref: "#/$defs/terraform"
                   - $ref: "#/$defs/ci/terraform"
-  # Enrich multiple objects with their CI properties
+                # only the public registries (git tags) are available with GitHub
+                not:
+                  required: [registry]
+  # enrich multiple objects with their CI properties
   - if:
       required: [gitlab]
     then:
@@ -290,6 +293,33 @@ allOf:
                 allOf:
                   - $ref: "#/$defs/terraform"
                   - $ref: "#/$defs/ci/terraform"
+  # terraform modules publishing relies on release git tags
+  - if:
+      required: [github, modules]
+      properties:
+        modules:
+          contains:
+            required: [terraform]
+            properties:
+              terraform:
+                required: [publish]
+    then:
+      properties:
+        github:
+          required: [release]
+  - if:
+      required: [gitlab, modules]
+      properties:
+        modules:
+          contains:
+            required: [terraform]
+            properties:
+              terraform:
+                required: [publish]
+    then:
+      properties:
+        gitlab:
+          required: [release]
 
 $defs:
   ##############################################################
@@ -324,7 +354,7 @@ $defs:
       Languages are detected by kickr inside the directory, they aren't configured here.
 
       With 'ci' enabled, control where the module is deployed and, for terraform modules,
-      when shall they be applied and on which environments.
+      when shall they be applied (and on which environments) or published.
     required: [path]
     properties:
       path:
@@ -345,7 +375,7 @@ $defs:
     description: |-
       Configure the terraform module and the engine to use (tofu by default).
 
-      With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments.
+      With 'ci' enabled, control when shall the terraform modules be applied (or not) and on which environments, or published.
     required: [engine]
     properties:
       engine:
@@ -456,6 +486,10 @@ $defs:
       dependentRequired:
         environments: [apply]
         apply: [environments]
+        registry: [publish]
+      # a published module is a library, never applied
+      not:
+        required: [apply, publish]
       properties:
         apply:
           type: string
@@ -479,6 +513,25 @@ $defs:
           items:
             type: string
             enum: [integration, production, review, staging]
+        publish:
+          type: string
+          description: |-
+            Terraform module publishing strategy.
+            Not providing this property will mean 'never' as strategy, the module won't be published.
+            Not compatible with 'apply', a published module is never applied.
+
+            Without 'registry', publishing is the release git tag itself, no publish job will be generated.
+          enum: [auto, manual]
+        registry:
+          type: string
+          description: |-
+            Registry where the terraform module is published.
+
+            Not providing this property means the public Terraform and OpenTofu registries,
+            which read the git tags of a public GitHub repository named 'terraform-<provider>-<name>' once registered.
+
+            'gitlab' uploads the module to the GitLab Terraform Module Registry on stable release tags (GitLab CI/CD only).
+          enum: [gitlab]
 
     release:
       type: object

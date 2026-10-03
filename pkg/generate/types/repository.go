@@ -81,9 +81,9 @@ func (r Repository) ModulesWithTerraformApply() []Module {
 	return r.FilterModules(func(m Module) bool { return m.Config.HasTerraformApply() })
 }
 
-// ModulesWithTerraformDocs returns the repository modules with terraform documentation needed.
-func (r Repository) ModulesWithTerraformDocs() []Module {
-	return r.FilterModules(func(m Module) bool { return m.Config.HasTerraformDocs() })
+// ModulesWithTerraformPublish returns the repository modules with publishing to a registry.
+func (r Repository) ModulesWithTerraformPublish() []Module {
+	return r.FilterModules(func(m Module) bool { return m.Config.HasTerraformPublish() })
 }
 
 // ModuleIndexOf returns the index of the module matching the given directory,

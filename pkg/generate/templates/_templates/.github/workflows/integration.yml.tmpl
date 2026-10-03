@@ -10,6 +10,7 @@ run-name: Integration
 
 <<- $terraform_modules := .ModulesWith "terraform" >>
 <<- $terraform_apply_modules := .ModulesWithTerraformApply >>
+<<- $terraform_publish_modules := .ModulesWithTerraformPublish >>
 <<- $terraform_cmd := .Config.TerraformEngine >>
 
 on:
@@ -317,6 +318,9 @@ jobs:
 <<- end >>
 <<- if and (gt (len $terraform_modules) 0) (eq $terraform_cmd "tofu") >>
       - opentofu-check
+<<- if gt (len $terraform_publish_modules) 0 >>
+      - opentofu-docs
+<<- end >>
       - opentofu-lint
 <<- range $terraform_apply_modules >>
       - opentofu-plan<< with .Slug >>-<< . >><< end >>
@@ -327,6 +331,9 @@ jobs:
 <<- end >>
 <<- if and (gt (len $terraform_modules) 0) (eq $terraform_cmd "terraform") >>
       - terraform-check
+<<- if gt (len $terraform_publish_modules) 0 >>
+      - terraform-docs
+<<- end >>
       - terraform-lint
 <<- range $terraform_apply_modules >>
       - terraform-plan<< with .Slug >>-<< . >><< end >>

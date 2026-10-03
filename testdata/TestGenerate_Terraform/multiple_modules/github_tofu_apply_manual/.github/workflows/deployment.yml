@@ -196,8 +196,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ inputs.release != 'none' && github.ref_protected }}
     needs:
-      - terraform-apply-modules-one
-      - terraform-apply-modules-two
+      - opentofu-apply-modules-one
+      - opentofu-apply-modules-two
     environment:
       name: release
       url: ${{ steps.environment_url.outputs.environment_url }}

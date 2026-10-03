@@ -75,9 +75,9 @@ jobs:
       - run: |-
           << $terraform_cmd >> init
           << $terraform_cmd >> apply -no-color -auto-approve
-<<- if or (gt (len $specifics.Variables) 0) (eq $specifics.Backend "s3") >>
+<<- if or (gt (len $specifics.Variables) 0) (eq $specifics.StateBackend "s3") >>
         env:
-<<- if eq $specifics.Backend "s3" >>
+<<- if eq $specifics.StateBackend "s3" >>
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
 <<- end >>

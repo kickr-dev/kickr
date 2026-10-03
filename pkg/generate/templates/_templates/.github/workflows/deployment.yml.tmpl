@@ -256,7 +256,7 @@ jobs:
 <<- range $netlify_modules >><<- $needs = append $needs (print "netlify-deploy" ($netlify_multiple_modules | ternary (print "-" .Slug) "")) >><<- end >>
 <<- if $has_node_main >><<- $needs = append $needs "node-build" >><<- end >>
 <<- range $pages_modules >><<- $needs = append $needs (print "pages" ($pages_multiple_modules | ternary (print "-" .Slug) "")) >><<- end >>
-<<- range $terraform_apply_modules >><<- $needs = append $needs (print "terraform-apply" ($terraform_multiple_apply_modules | ternary (print "-" .Slug) "")) >><<- end >>
+<<- range $terraform_apply_modules >><<- $needs = append $needs (print $terraform_engine "-apply" ($terraform_multiple_apply_modules | ternary (print "-" .Slug) "")) >><<- end >>
 <<- if eq (len $needs) 0 >><< $needs = append $needs "version" >><<- end >>
 
   release:

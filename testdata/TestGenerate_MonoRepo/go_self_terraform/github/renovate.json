@@ -9,6 +9,6 @@
         "github>kickr-dev/renovate//configs/renovate/default.json",
         "github>kickr-dev/renovate//configs/renovate/github-actions.json",
         "github>kickr-dev/renovate//configs/renovate/gomod.json",
-        "github>kickr-dev/renovate//configs/renovate/opentofu.json"
+        "github>kickr-dev/renovate//configs/renovate/terraform.json"
     ]
 }

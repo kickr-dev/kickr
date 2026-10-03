@@ -7,6 +7,7 @@ jobs:
 <<- $terraform_modules := .ModulesWith "terraform" >>
 <<- $terraform_apply_modules := .ModulesWithTerraformApply >>
 <<- $terraform_multiple_apply_modules := gt (len $terraform_apply_modules) 1 >>
+<<- $terraform_publish_modules := .ModulesWithTerraformPublish >>
 
   << $terraform_engine >>-check:
     name: << title $terraform_engine >> Check ${{ matrix.name }}
@@ -49,6 +50,33 @@ jobs:
       - run: << $terraform_cmd >> fmt -check
       - run: << $terraform_cmd >> init -backend=false
       - run: << $terraform_cmd >> validate -no-color
+
+<<- if gt (len $terraform_publish_modules) 0 >>
+<<- $terraform_publish_dirs := list >>
+<<- range $terraform_publish_modules >><<- $terraform_publish_dirs = append $terraform_publish_dirs .Dir >><<- end >>
+
+  << $terraform_engine >>-docs:
+    name: << title $terraform_engine >> Docs
+    runs-on: ubuntu-latest
+    needs: run-workflow
+    steps:
+<<- if has "harden-runner" .Config.GitHub.Options >>
+      # https://docs.stepsecurity.io/harden-runner/workflow-runs
+      # https://github.com/marketplace/actions/harden-runner
+      - uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+<<- end >>
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: terraform-docs/gh-actions@6de6da0cefcc6b4b7a5cbea4d79d97060733093c # v1.4.1
+        with:
+          config-file: .terraform-docs.yml
+          fail-on-diff: true
+          output-method: ""
+          template: ""
+          working-dir: << join "," $terraform_publish_dirs >>
+<<- end >>
 
   << $terraform_engine >>-lint:
     name: << title $terraform_engine >> Lint
@@ -128,9 +156,9 @@ jobs:
       - run: |-
           << $terraform_cmd >> init
           << $terraform_cmd >> plan -no-color
-<<- if or (gt (len $specifics.Variables) 0) (eq $specifics.Backend "s3") >>
+<<- if or (gt (len $specifics.Variables) 0) (eq $specifics.StateBackend "s3") >>
         env:
-<<- if eq $specifics.Backend "s3" >>
+<<- if eq $specifics.StateBackend "s3" >>
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
 <<- end >>

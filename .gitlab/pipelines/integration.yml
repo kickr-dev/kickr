@@ -28,7 +28,6 @@ include:
       config_file: .plumber.yaml
       gitlab_token: $PLUMBER_GITLAB_TOKEN
       image: $PLUMBER_IMAGE
-      mr_comment: true
       score_point: true
       score_push: true
 
@@ -51,3 +50,7 @@ go-build:
     paths:
       - dist
     expire_in: 1 day
+
+plumber:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF || $CI_COMMIT_REF_NAME =~ $INTEG_REF'
