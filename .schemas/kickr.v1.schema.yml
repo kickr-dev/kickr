@@ -272,9 +272,6 @@ allOf:
                 allOf:
                   - $ref: "#/$defs/terraform"
                   - $ref: "#/$defs/ci/terraform"
-                # only the public registries (git tags) are available with GitHub
-                not:
-                  required: [registry]
   # enrich multiple objects with their CI properties
   - if:
       required: [gitlab]
@@ -302,9 +299,9 @@ allOf:
                 allOf:
                   - $ref: "#/$defs/terraform"
                   - $ref: "#/$defs/ci/terraform"
-  # terraform modules publishing relies on release git tags
+  # terraform modules publishing relies on release git tags, created by any CI platform
   - if:
-      required: [github, modules]
+      required: [modules]
       properties:
         modules:
           contains:
@@ -313,11 +310,18 @@ allOf:
               terraform:
                 required: [publish]
     then:
-      properties:
-        github:
-          required: [release]
+      anyOf:
+        - required: [github]
+          properties:
+            github:
+              required: [release]
+        - required: [gitlab]
+          properties:
+            gitlab:
+              required: [release]
+  # the GitLab Terraform Module Registry upload runs in GitLab CI/CD
   - if:
-      required: [gitlab, modules]
+      required: [modules]
       properties:
         modules:
           contains:
@@ -325,10 +329,11 @@ allOf:
             properties:
               terraform:
                 required: [publish]
+                properties:
+                  publish:
+                    const: gitlab
     then:
-      properties:
-        gitlab:
-          required: [release]
+      required: [gitlab]
 
 $defs:
   ##############################################################
@@ -495,7 +500,6 @@ $defs:
       dependentRequired:
         environments: [apply]
         apply: [environments]
-        registry: [publish]
       # a published module is a library, never applied
       not:
         required: [apply, publish]
@@ -525,22 +529,13 @@ $defs:
         publish:
           type: string
           description: |-
-            Terraform module publishing strategy.
-            Not providing this property will mean 'never' as strategy, the module won't be published.
-            Not compatible with 'apply', a published module is never applied.
+            Terraform module publishing registry.
+            Not providing this property will mean the module isn't published.
+            A published module is never applied, so it's not compatible with 'apply'.
 
-            Without 'registry', publishing is the release git tag itself, no publish job will be generated.
-          enum: [auto, manual]
-        registry:
-          type: string
-          description: |-
-            Registry where the terraform module is published.
-
-            Not providing this property means the public Terraform and OpenTofu registries,
-            which read the git tags of a public GitHub repository named 'terraform-<provider>-<name>' once registered.
-
-            'gitlab' uploads the module to the GitLab Terraform Module Registry on stable release tags (GitLab CI/CD only).
-          enum: [gitlab]
+            'community' relies on the release git tag, read by the OpenTofu and Terraform registries.
+            'gitlab' uploads the module to the GitLab Terraform Module Registry on stable release tags.
+          enum: [community, gitlab]
 
     release:
       type: object

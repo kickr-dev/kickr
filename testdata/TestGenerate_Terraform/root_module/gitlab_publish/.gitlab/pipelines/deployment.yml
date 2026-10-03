@@ -28,8 +28,7 @@ tf-deploy:
     # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
     - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
       when: never
-    # stable tags only since tf-publish-module truncates prerelease versions to x.y.z
-    - if: '$CI_COMMIT_TAG =~ $RELEASE_REF'
+    - when: on_success
   trigger:
     strategy: mirror
     forward:

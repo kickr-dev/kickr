@@ -314,7 +314,7 @@ func TestParserTerraform(t *testing.T) {
 			Modules: []types.Module{
 				{
 					Directory: types.RootModule,
-					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}},
+					Config:    kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishCommunity}},
 					Languages: map[string]any{
 						types.LanguageTerraform: generate.TerraformModule{
 							Module: &tfconfig.Module{
@@ -334,7 +334,7 @@ func TestParserTerraform(t *testing.T) {
 				},
 				{
 					Directory: "modules/subnets",
-					Config:    kickr.Module{Path: "modules/subnets", Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}},
+					Config:    kickr.Module{Path: "modules/subnets", Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishCommunity}},
 					Languages: map[string]any{
 						types.LanguageTerraform: generate.TerraformModule{
 							Module: &tfconfig.Module{
@@ -357,8 +357,8 @@ func TestParserTerraform(t *testing.T) {
 		}
 		repo := types.Repository{
 			Modules: []types.Module{
-				{Directory: types.RootModule, Config: kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}}},
-				{Directory: "modules/subnets", Config: kickr.Module{Path: "modules/subnets", Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishAuto}}},
+				{Directory: types.RootModule, Config: kickr.Module{Path: types.RootModule, Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishCommunity}}},
+				{Directory: "modules/subnets", Config: kickr.Module{Path: "modules/subnets", Terraform: &kickr.Terraform{Publish: kickr.TerraformPublishCommunity}}},
 			},
 			VCS: parser.VCS{ProjectName: "terraform-aws-vpc"},
 		}

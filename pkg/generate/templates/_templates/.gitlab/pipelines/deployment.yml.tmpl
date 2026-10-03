@@ -3,9 +3,7 @@
 {{- $terraform_modules := .ModulesWith "terraform" }}
 {{- $terraform_downstreams := list }}
 {{- range $terraform_modules }}
-{{- if or .Config.HasTerraformApply (eq .Config.Terraform.Registry "gitlab") }}
-{{- $terraform_downstreams = append $terraform_downstreams . }}
-{{- end }}
+{{- if or .Config.HasTerraformApply (eq .Config.Terraform.Publish "gitlab") }}{{- $terraform_downstreams = append $terraform_downstreams . }}{{- end }}
 {{- end }}
 {{- $terraform_publish_modules := .ModulesWithTerraformPublish }}
 
@@ -168,7 +166,7 @@ tf-docs:
 {{- end }}
 
 {{- range $terraform_downstreams }}
-{{- $publish := eq .Config.Terraform.Registry "gitlab" }}
+{{- $publish := eq .Config.Terraform.Publish "gitlab" }}
 {{- $specifics := get .Languages "terraform" }}
 
 tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
@@ -177,18 +175,7 @@ tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
     # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
     - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
       when: never
-{{- if $publish }}
-    # stable tags only since tf-publish-module truncates prerelease versions to x.y.z
-    - if: '$CI_COMMIT_TAG =~ $RELEASE_REF'
-{{- if eq .Config.Terraform.Publish "manual" }}
-      when: manual
-{{- end }}
-{{- else }}
-    # apply jobs never run on tags and an empty child pipeline fails the trigger
-    - if: $CI_COMMIT_TAG
-      when: never
     - when: on_success
-{{- end }}
   trigger:
     strategy: mirror
     forward:

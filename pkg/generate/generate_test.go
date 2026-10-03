@@ -1138,14 +1138,7 @@ func TestGenerate_Terraform(t *testing.T) {
 					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
 					Modules: []kickr.Module{
 						{Path: types.RootModule},
-						{
-							Path: "modules/one",
-							Terraform: &kickr.Terraform{
-								Engine:   kickr.TerraformEngineTofu,
-								Publish:  kickr.TerraformPublishAuto,
-								Registry: kickr.TerraformRegistryGitlab,
-							},
-						},
+						{Path: "modules/one", Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishGitlab}},
 						{
 							Path: "modules/two",
 							Terraform: &kickr.Terraform{
@@ -1209,7 +1202,7 @@ func TestGenerate_Terraform(t *testing.T) {
 					Modules: []kickr.Module{
 						{
 							Path:      types.RootModule,
-							Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishAuto},
+							Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishCommunity},
 						},
 					},
 				},
@@ -1220,12 +1213,8 @@ func TestGenerate_Terraform(t *testing.T) {
 					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
 					Modules: []kickr.Module{
 						{
-							Path: types.RootModule,
-							Terraform: &kickr.Terraform{
-								Engine:   kickr.TerraformEngineTofu,
-								Publish:  kickr.TerraformPublishAuto,
-								Registry: kickr.TerraformRegistryGitlab,
-							},
+							Path:      types.RootModule,
+							Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishGitlab},
 						},
 					},
 				},

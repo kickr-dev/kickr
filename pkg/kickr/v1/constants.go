@@ -134,10 +134,6 @@ const (
 )
 
 const (
-	TerraformPublishAuto   = "auto"
-	TerraformPublishManual = "manual"
-)
-
-const (
-	TerraformRegistryGitlab = "gitlab"
+	TerraformPublishCommunity = "community"
+	TerraformPublishGitlab    = "gitlab"
 )

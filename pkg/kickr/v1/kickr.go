@@ -180,28 +180,18 @@ type Terraform struct {
 	//  - staging
 	Environments []string `json:"environments,omitempty" yaml:"environments,omitempty"`
 
-	// Publish defines the terraform module publishing strategy.
+	// Publish defines the terraform module publishing registry.
 	//
-	// Not providing this property will mean 'never' as strategy, the module won't be published.
-	// Not compatible with 'apply', a published module is never applied.
+	// Not providing this property will mean the module isn't published.
+	// A published module is never applied, so it's not compatible with 'apply'.
 	//
-	// Without 'registry', publishing is the release git tag itself, no publish job will be generated.
-	//
-	// Enums:
-	//  - auto
-	//  - manual
-	Publish string `json:"publish,omitempty" yaml:"publish,omitempty"`
-
-	// Registry defines the registry where the terraform module is published.
-	//
-	// Not providing this property means the public Terraform and OpenTofu registries,
-	// which read the git tags of a public GitHub repository named 'terraform-<provider>-<name>' once registered.
-	//
-	// 'gitlab' uploads the module to the GitLab Terraform Module Registry on stable release tags (GitLab CI/CD only).
+	// 'community' relies on the release git tag, read by the OpenTofu and Terraform registries.
+	// 'gitlab' uploads the module to the GitLab Terraform Module Registry on stable release tags.
 	//
 	// Enums:
+	//  - community
 	//  - gitlab
-	Registry string `json:"registry,omitempty" yaml:"registry,omitempty"`
+	Publish string `json:"publish,omitempty" yaml:"publish,omitempty"`
 }
 
 // Docker defines the general Docker configuration.

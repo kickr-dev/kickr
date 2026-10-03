@@ -204,16 +204,6 @@ func TestValidate_Errors(t *testing.T) {
 			}),
 			ErrContains: []string{"at '/modules/0/terraform': properties 'environments' required, if 'apply' exists"},
 		},
-		{
-			Name: "terraform_registry_without_publish",
-			Config: merge(t, kickr.Kickr{
-				GitLab: &kickr.GitLab{Release: &kickr.Release{}},
-				Modules: []kickr.Module{
-					{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Registry: kickr.TerraformRegistryGitlab}},
-				},
-			}),
-			ErrContains: []string{"at '/modules/0/terraform': properties 'publish' required, if 'registry' exists"},
-		},
 
 		// terraform publishing
 		{
@@ -227,7 +217,7 @@ func TestValidate_Errors(t *testing.T) {
 							Apply:        kickr.TerraformApplyAuto,
 							Engine:       kickr.TerraformEngineTofu,
 							Environments: []string{kickr.EnvironmentProduction},
-							Publish:      kickr.TerraformPublishAuto,
+							Publish:      kickr.TerraformPublishCommunity,
 						},
 					},
 				},
@@ -235,28 +225,21 @@ func TestValidate_Errors(t *testing.T) {
 			ErrContains: []string{"at '/modules/0/terraform': 'not' failed"},
 		},
 		{
-			Name: "github_terraform_registry_forbidden",
+			Name: "github_terraform_publish_gitlab",
 			Config: merge(t, kickr.Kickr{
 				GitHub: &kickr.GitHub{Release: &kickr.Release{}},
 				Modules: []kickr.Module{
-					{
-						Path: types.RootModule,
-						Terraform: &kickr.Terraform{
-							Engine:   kickr.TerraformEngineTofu,
-							Publish:  kickr.TerraformPublishAuto,
-							Registry: kickr.TerraformRegistryGitlab,
-						},
-					},
+					{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishGitlab}},
 				},
 			}),
-			ErrContains: []string{"at '/modules/0/terraform': 'not' failed"},
+			ErrContains: []string{"at '/': missing property 'gitlab'"},
 		},
 		{
 			Name: "github_terraform_publish_without_release",
 			Config: merge(t, kickr.Kickr{
 				GitHub: &kickr.GitHub{},
 				Modules: []kickr.Module{
-					{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishAuto}},
+					{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishCommunity}},
 				},
 			}),
 			ErrContains: []string{"at '/github': missing property 'release'"},
@@ -266,10 +249,21 @@ func TestValidate_Errors(t *testing.T) {
 			Config: merge(t, kickr.Kickr{
 				GitLab: &kickr.GitLab{},
 				Modules: []kickr.Module{
-					{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishAuto}},
+					{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishCommunity}},
 				},
 			}),
 			ErrContains: []string{"at '/gitlab': missing property 'release'"},
+		},
+		{
+			Name: "both_platforms_terraform_publish_without_release",
+			Config: merge(t, kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				GitLab: &kickr.GitLab{},
+				Modules: []kickr.Module{
+					{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishCommunity}},
+				},
+			}),
+			ErrContains: []string{"at '/github': missing property 'release'", "at '/gitlab': missing property 'release'"},
 		},
 
 		// structural allOf / contains
@@ -413,23 +407,36 @@ func TestValidate(t *testing.T) {
 				Config: merge(t, kickr.Kickr{
 					GitHub: &kickr.GitHub{Release: &kickr.Release{}},
 					Modules: []kickr.Module{
-						{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishAuto}},
+						{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishCommunity}},
 					},
 				}),
 			},
 			{
-				Name: "gitlab_terraform_publish_registry",
+				Name: "gitlab_terraform_publish_gitlab",
 				Config: merge(t, kickr.Kickr{
 					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
 					Modules: []kickr.Module{
-						{
-							Path: types.RootModule,
-							Terraform: &kickr.Terraform{
-								Engine:   kickr.TerraformEngineTofu,
-								Publish:  kickr.TerraformPublishManual,
-								Registry: kickr.TerraformRegistryGitlab,
-							},
-						},
+						{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishGitlab}},
+					},
+				}),
+			},
+			{
+				Name: "both_platforms_terraform_publish_gitlab_github_release",
+				Config: merge(t, kickr.Kickr{
+					GitHub: &kickr.GitHub{Release: &kickr.Release{}},
+					GitLab: &kickr.GitLab{},
+					Modules: []kickr.Module{
+						{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishGitlab}},
+					},
+				}),
+			},
+			{
+				Name: "both_platforms_terraform_publish_community_gitlab_release",
+				Config: merge(t, kickr.Kickr{
+					GitHub: &kickr.GitHub{},
+					GitLab: &kickr.GitLab{Release: &kickr.Release{}},
+					Modules: []kickr.Module{
+						{Path: types.RootModule, Terraform: &kickr.Terraform{Engine: kickr.TerraformEngineTofu, Publish: kickr.TerraformPublishCommunity}},
 					},
 				}),
 			},

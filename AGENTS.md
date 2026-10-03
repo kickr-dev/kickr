@@ -30,12 +30,13 @@ Never edit `.schemas/kickr.v1.schema.json` or `pkg/kickr/v1/kickr.go`/`constants
 
 - Path: `pkg/generate/generate_test.go`
 - Golden-fixture: `test(ctx, t, repo, parsers...)` diffs against `testdata/<TestName>/...`.
-- Regenerate fixtures: `just testdata`.
+- The user regenerates fixtures with `just testdata` and reviews the diff.
 - Reuse existing `golang`/`node`/`hugo` parser closures instead of duplicating.
   Before refactoring or duplicating one, stop and ask first, don't implement a variant then explain it after.
 
 ## Process
 
+- Never run `go` or `just` commands (build, generate, lint, test, testdata). Make the edits and stop, the user runs them.
 - When a config combination is ambiguous or contradictory (*e.g.* Website hosting vs Docker interaction), ask before picking one, even if a previous answer seemed to settle it.
 
 ---
