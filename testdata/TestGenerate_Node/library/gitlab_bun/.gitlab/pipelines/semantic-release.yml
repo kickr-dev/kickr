@@ -25,6 +25,7 @@ include:
       aud: sigstore
 
 semantic-release-info:
+  stage: build
   variables:
     SEMREL_DRY_RUN: "true"
   script:

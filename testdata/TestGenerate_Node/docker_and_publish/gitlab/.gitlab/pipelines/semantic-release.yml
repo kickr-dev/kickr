@@ -20,6 +20,7 @@ include:
     GITLAB_TOKEN: $RELEASE_TOKEN
 
 semantic-release-info:
+  stage: build
   variables:
     SEMREL_DRY_RUN: "true"
   script:
