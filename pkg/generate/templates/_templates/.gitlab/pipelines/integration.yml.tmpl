@@ -131,19 +131,6 @@ bash-shellcheck:
 {{- end }}
 
 {{- if gt (len $go_modules) 0 }}
-
-go-ci-lint:
-  needs: []
-
-go-govulncheck:
-  allow_failure: true
-
-go-mod-outdated:
-  rules: [when: never]
-
-go-test:
-  needs: []
-
 {{- if gt (len .Executables.Clis) 0 }}
 
 go-build:
@@ -169,6 +156,21 @@ go-build:
 {{- else }}
 
 go-build-test:
+  needs: []
+{{- end }}
+
+go-ci-lint:
+  needs: []
+
+go-govulncheck:
+  allow_failure: true
+
+go-mod-outdated:
+  rules: [when: never]
+
+{{- if gt .Executables.Binaries 0 }}
+
+go-test:
   needs: []
 {{- end }}
 {{- end }}

@@ -32,18 +32,6 @@ include:
       score_point: true
       score_push: true
 
-go-ci-lint:
-  needs: []
-
-go-govulncheck:
-  allow_failure: true
-
-go-mod-outdated:
-  rules: [when: never]
-
-go-test:
-  needs: []
-
 go-build:
   image:
     name: $GO_GORELEASER_IMAGE
@@ -60,6 +48,18 @@ go-build:
     paths:
       - dist
     expire_in: 1 day
+
+go-ci-lint:
+  needs: []
+
+go-govulncheck:
+  allow_failure: true
+
+go-mod-outdated:
+  rules: [when: never]
+
+go-test:
+  needs: []
 
 plumber:
   rules:

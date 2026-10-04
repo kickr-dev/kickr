@@ -44,6 +44,9 @@ include:
       quality-gate-enabled: true
   - local: .gitlab/integration.overrides.yml
 
+go-build:
+  rules: [when: never]
+
 go-ci-lint:
   needs: []
 
@@ -55,9 +58,6 @@ go-mod-outdated:
 
 go-test:
   needs: []
-
-go-build:
-  rules: [when: never]
 
 plumber:
   rules:
