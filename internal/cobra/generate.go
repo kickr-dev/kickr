@@ -33,6 +33,7 @@ func generators() []engine.Generator[types.Repository] {
 		generate.GeneratorCodeOfConduct(client), // code of conduct
 		generate.GeneratorGitignore(client),     // gitignore
 		generate.GeneratorLicense(client),       // license
+		generate.GeneratorREADME,                // readme
 
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Docker()),   // module docker
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Golang()),   // module golang

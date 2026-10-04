@@ -11,7 +11,7 @@ import (
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-// Misc returns the slice of templates globally related to a code repository (README.md, CODEOWNERS, etc.).
+// Misc returns the slice of templates globally related to a code repository (CODEOWNERS, CONTRIBUTING.md, etc.).
 func Misc() []engine.Template[types.Repository] {
 	return []engine.Template[types.Repository]{
 		{
@@ -23,11 +23,6 @@ func Misc() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart("CONTRIBUTING.md"),
 			Out:        "CONTRIBUTING.md",
-		},
-		{
-			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{"README.md" + engine.TmplExtension},
-			Out:        "README.md",
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),

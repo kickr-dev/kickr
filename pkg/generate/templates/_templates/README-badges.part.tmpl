@@ -1,0 +1,67 @@
+{{- define "badges" -}}
+
+<!-- BEGIN_KICKR_BADGES -->
+{{- $style := "for-the-badge" }}
+{{- $repo := print "https://" .VCS.ProjectHost "/" .VCS.ProjectPath }}
+
+{{- if and .Config.GitHub .Config.GitHub.Release }}
+[![GitHub Release](https://img.shields.io/github/v/release/{{ .VCS.ProjectPath }}?include_prereleases&sort=semver&style={{ $style }})]({{ $repo }}/releases)
+{{- end }}
+{{- if eq .Config.Platform "github" }}
+[![GitHub Issues](https://img.shields.io/github/issues-raw/{{ .VCS.ProjectPath }}?style={{ $style }})]({{ $repo }}/issues)
+{{- if .Config.License }}
+[![GitHub License](https://img.shields.io/github/license/{{ .VCS.ProjectPath }}?style={{ $style }})]({{ $repo }}/blob/HEAD/LICENSE)
+{{- end }}
+{{- end }}
+{{- if .Config.GitHub }}
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/{{ .VCS.ProjectPath }}/integration.yml?style={{ $style }})]({{ $repo }}/actions/workflows/integration.yml)
+{{- end }}
+
+{{- $url := toQuery (print "https://" .VCS.ProjectHost) }}
+{{- if and .Config.GitLab .Config.GitLab.Release }}
+[![GitLab Release](https://img.shields.io/gitlab/v/release/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&include_prereleases&sort=semver&style={{ $style }})]({{ $repo }}/-/releases)
+{{- end }}
+{{- if eq .Config.Platform "gitlab" }}
+[![GitLab Issues](https://img.shields.io/gitlab/issues/open/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }})]({{ $repo }}/-/work_items)
+{{- if .Config.License }}
+[![GitLab License](https://img.shields.io/gitlab/license/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&style={{ $style }})]({{ $repo }}/-/blob/HEAD/LICENSE)
+{{- end }}
+{{- end }}
+{{- if .Config.GitLab }}
+[![GitLab CICD](https://img.shields.io/gitlab/pipeline-status/{{ toQuery .VCS.ProjectPath }}?gitlab_url={{ $url }}&branch=main&style={{ $style }})]({{ $repo }}/-/pipelines?ref=main)
+{{- end }}
+
+{{- if and .Config.GitHub (has "codecov" .Config.GitHub.Options) }}
+[![Coverage](https://img.shields.io/codecov/c/github/{{ .VCS.ProjectPath }}?style={{ $style }})](https://app.codecov.io/gh/{{ .VCS.ProjectPath }})
+{{- end }}
+{{- if and .Config.GitLab (has "codecov" .Config.GitLab.Options) }}
+[![Coverage](https://img.shields.io/codecov/c/gitlab/{{ .VCS.ProjectPath }}?style={{ $style }})](https://app.codecov.io/gl/{{ .VCS.ProjectPath }})
+{{- end }}
+
+{{- if or (and .Config.GitHub (has "sonarqube" .Config.GitHub.Options)) (and .Config.GitLab (has "sonarqube" .Config.GitLab.Options)) }}
+[![Coverage](https://img.shields.io/sonar/coverage/{{ .VCS.ProjectPath | replace "/" "_" }}?server={{ toQuery "https://sonarsource.com" }}&style={{ $style }})](https://sonarcloud.io/summary/overall?id={{ .VCS.ProjectPath | replace "/" "_" }})
+{{- end }}
+
+{{- $root_go := false }}
+{{- range .ModulesWith "go" }}{{- if eq .Dir "." }}{{- $root_go = true }}{{- end }}{{- end }}
+
+{{- if $root_go }}
+[![Go Version](https://img.shields.io/{{ .Config.Platform }}/go-mod/go-version/{{ .VCS.ProjectPath }}?style={{ $style }})]({{ $repo }}/{{ if eq .Config.Platform "gitlab" }}-/{{ end }}blob/HEAD/go.mod)
+{{- end }}
+
+{{- range .ModulesWith "node" }}
+{{- $node := get .Languages "node" }}
+{{- if and (not $node.Private) (eq $node.PublishConfig.Registry "") }}
+[![NPM Downloads](https://img.shields.io/npm/d18m/{{ toQuery $node.Name }}?style={{ $style }})](https://www.npmjs.com/package/{{ $node.Name }})
+{{- end }}
+{{- end }}
+
+{{- if and .Config.GitHub (has "ossf-scorecard" .Config.GitHub.Options) }}
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/{{ print .VCS.ProjectHost "/" .VCS.ProjectPath }}?label={{ toQuery "OpenSSF Scorecard" }}&style={{ $style }})](https://scorecard.dev/viewer/?uri={{ print .VCS.ProjectHost "/" .VCS.ProjectPath }})
+{{- end }}
+{{- if .Config.HasPlumber }}
+[![Plumber Score](https://img.shields.io/endpoint?url={{ toQuery (print "https://score.getplumber.io/" .VCS.ProjectHost "/" .VCS.ProjectPath ".json") }}&style={{ $style }})](https://score.getplumber.io/{{ .VCS.ProjectHost }}/{{ .VCS.ProjectPath }})
+{{- end }}
+<!-- END_KICKR_BADGES -->
+
+{{- end -}}
