@@ -188,18 +188,18 @@ node-audit:
   needs: []
   allow_failure: true
 
-node-lint:
-  needs: []
-
-node-sbom:
-  needs: []
-
 {{- if gt (len $node_buildable_modules) 0 }}
 
 node-build:
   needs:
     - semantic-release-info
 {{- end }}
+
+node-lint:
+  needs: []
+
+node-sbom:
+  needs: []
 {{- end }}
 
 {{- if $plumber }}

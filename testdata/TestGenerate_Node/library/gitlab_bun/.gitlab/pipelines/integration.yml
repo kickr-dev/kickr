@@ -38,15 +38,15 @@ node-audit:
   needs: []
   allow_failure: true
 
+node-build:
+  needs:
+    - semantic-release-info
+
 node-lint:
   needs: []
 
 node-sbom:
   needs: []
-
-node-build:
-  needs:
-    - semantic-release-info
 
 plumber:
   rules:
