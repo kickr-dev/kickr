@@ -296,7 +296,7 @@ func TestParserGolang(t *testing.T) {
 					Directory: types.RootModule,
 					Languages: map[string]any{
 						types.LanguageGo: parser.Gowork{
-							ContainerImage: "docker.io/library/golang:1.25.3-trixie@" + digest,
+							ContainerImage: generate.GoImage + ":1.25.3-trixie@" + digest,
 							Go:             "1.22",
 							Toolchain:      "1.25.3",
 							Uses:           []parser.GoworkUse{{Gomod: libmod, Use: "./lib1"}},
@@ -350,7 +350,7 @@ func TestParserGolang(t *testing.T) {
 					Directory: types.RootModule,
 					Languages: map[string]any{
 						types.LanguageGo: parser.Gomod{
-							ContainerImage: "docker.io/library/golang:1.22-trixie@" + digest,
+							ContainerImage: generate.GoImage + ":1.22-trixie@" + digest,
 							Go:             "1.22",
 							Module:         "github.com/kickr-dev/kickr",
 							Toolchain:      "default",

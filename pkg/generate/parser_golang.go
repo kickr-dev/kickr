@@ -16,6 +16,7 @@ import (
 	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
+// GoImage is the container image repository of Go, whose version digest is pinned by ParserGolang.
 const GoImage = "docker.io/library/golang"
 
 // ParserGolang detects Golang modules in the repository via go.work and go.mod files.

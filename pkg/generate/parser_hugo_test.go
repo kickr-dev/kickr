@@ -146,7 +146,7 @@ func TestParserHugo(t *testing.T) {
 					Directory: types.RootModule,
 					Languages: map[string]any{
 						types.LanguageHugo: parser.HugoCompose{
-							ContainerImage: "ghcr.io/gohugoio/hugo:v0.160.0@" + digest,
+							ContainerImage: generate.HugoImage + ":v0.160.0@" + digest,
 							HugoConfig: &parser.HugoConfig{
 								Module: parser.HugoModule{HugoVersion: parser.HugoVersion{Max: "0.160.0", Min: "0.150.0"}},
 							},
@@ -190,7 +190,7 @@ func TestParserHugo(t *testing.T) {
 					Directory: types.RootModule,
 					Languages: map[string]any{
 						types.LanguageHugo: parser.HugoCompose{
-							ContainerImage: "ghcr.io/gohugoio/hugo:v0.150.0@" + digest,
+							ContainerImage: generate.HugoImage + ":v0.150.0@" + digest,
 							HugoConfig: &parser.HugoConfig{
 								Module: parser.HugoModule{HugoVersion: parser.HugoVersion{Min: "v0.150.0"}},
 							},

@@ -12,10 +12,10 @@ import (
 	"testing"
 
 	"dario.cat/mergo"
+	"github.com/jarcoal/httpmock"
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/parser"
-	"github.com/jarcoal/httpmock"
 	compare "github.com/kilianpaquier/compare/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

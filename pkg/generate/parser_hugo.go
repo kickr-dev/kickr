@@ -16,6 +16,7 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
+// HugoImage is the container image repository of Hugo, whose version digest is pinned by ParserHugo.
 const HugoImage = "ghcr.io/gohugoio/hugo"
 
 // ParserHugo detects Hugo sites in repository modules and sets their language accordingly.
