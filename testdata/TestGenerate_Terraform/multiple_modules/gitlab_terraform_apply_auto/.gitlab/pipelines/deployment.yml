@@ -13,6 +13,7 @@ include:
       prod-enabled: false
       review-enabled: false
       staging-enabled: false
+      publish-enabled: false
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
       validate-enabled: true
 
