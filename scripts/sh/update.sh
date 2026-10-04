@@ -17,13 +17,19 @@ if [ "$cmd" = "" ]; then
 fi
 log_info "Found kickr generator named '$cmd'"
 
-workspaces=$(find / -name workspaces 2>/dev/null)
+workspaces=$(find "$HOME" -type d -name workspaces -prune -print 2>/dev/null)
+[ ! -d /workspaces ] || workspaces="$workspaces /workspaces"
 for workspace in $workspaces; do
-  dirs=$(find "$workspace" -name testdata -prune -o -name .terraform -prune -o -name .kickr.yml -exec dirname {} +;)
+  dirs=$(find "$workspace" \
+    \( -name .git -o -name .gitlab-ci-local -o -name .terraform -o -name node_modules -o -name testdata -o -name vendor \) -prune \
+    -o -type f -name .kickr.yml -exec dirname {} +)
   for dir in $dirs; do
-    log_info "Updating layout of $dir"
-    $cmd --dir "$dir"
+    (
+      $cmd --dir "$dir" --log-level warn
+      [ -z "$(git -C "$dir" status --porcelain -- . ':(exclude,glob)**/.gitignore')" ] || log_info "Updated layout of $dir"
+    ) &
   done
   unset dirs dir
 done
+wait
 unset workspaces workspace
