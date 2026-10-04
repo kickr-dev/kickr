@@ -10,6 +10,7 @@
         "^go mod tidy$",
         "^hugo mod tidy$"
     ],
+    "allowedUnsafeExecutions": ["goGenerate"],
     "autodiscover": true,
 {{- if not .HasLanguages }}
     "autodiscoverNamespaces": ["{{ trimSuffix (print "/" .VCS.ProjectName) .VCS.ProjectPath }}"],

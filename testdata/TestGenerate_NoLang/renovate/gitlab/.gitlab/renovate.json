@@ -10,6 +10,7 @@
         "^go mod tidy$",
         "^hugo mod tidy$"
     ],
+    "allowedUnsafeExecutions": ["goGenerate"],
     "autodiscover": true,
     "autodiscoverNamespaces": ["kickr-dev"],
     "configValidationError": true,
