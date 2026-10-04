@@ -16,6 +16,8 @@
 {{- $pages_modules := .ModulesWithDeployment "pages" }}
 {{- $static := or (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) }}
 
+{{- $helm_review := and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
+
 {{- $has_include := or $has_docker .Config.Helm (gt (len $terraform_modules) 0) }}
 
 ---
@@ -99,13 +101,15 @@ include:{{ if not $has_include }} []{{ end }}
       fmt-enabled: true
 {{- if eq (len $terraform_apply_modules) 1 }}
 {{- $apply := first $terraform_apply_modules }}
-{{- $specifics := get $apply.Languages "terraform" }}
       environment-namespace: {{ ne $apply.Slug "" | ternary (print "/" $apply.Slug) ("" | quote) }}
-      gitlab-backend-disabled: {{ ne $specifics.StateBackend "http" }}
+      gitlab-backend-disabled: {{ ne (get $apply.Languages "terraform").StateBackend "http" }}
       integ-enabled: {{ has "integration" $apply.Config.Terraform.Environments }}
+      integ-plan-enabled: {{ has "integration" $apply.Config.Terraform.Environments }}
       prod-enabled: {{ has "production" $apply.Config.Terraform.Environments }}
       review-enabled: {{ has "review" $apply.Config.Terraform.Environments }}
+      review-plan-enabled: {{ has "review" $apply.Config.Terraform.Environments }}
       staging-enabled: {{ has "staging" $apply.Config.Terraform.Environments }}
+      staging-plan-enabled: {{ has "staging" $apply.Config.Terraform.Environments }}
 {{- else }}
       gitlab-backend-disabled: true
       integ-enabled: false
@@ -121,37 +125,35 @@ include:{{ if not $has_include }} []{{ end }}
   - local: .gitlab/deployment.overrides.yml
 {{- end }}
 
+{{- if or $helm_review (gt (len $netlify_modules) 0) (gt (len $terraform_apply_modules) 0) }}
+
+# skip deployments on merge trains so destroy jobs from branch or merge request pipelines can run
+workflow:
+  rules:
+    - !reference [.tbc-workflow-rules, default]
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      variables:
+{{- if $helm_review }}
+        HELM_REVIEW_ENABLED: "false"
+{{- end }}
+{{- if gt (len $netlify_modules) 0 }}
+        NETLIFY_REVIEW_ENABLED: "false"
+{{- end }}
+{{- if gt (len $terraform_apply_modules) 1 }}
+        TF_DEPLOY_ENABLED: "false"
+{{- end }}
+{{- if eq (len $terraform_apply_modules) 1 }}
+        TF_PROD_PLAN_ENABLED: "false"
+        TF_REVIEW_ENABLED: "false"
+        TF_REVIEW_PLAN_ENABLED: "false"
+{{- end }}
+    - when: always
+{{- end }}
+
 {{- if .Config.Helm }}
 
 helm-lint:
   needs: []
-{{- end }}
-
-{{- if and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
-
-helm-review:
-  rules:
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-      when: never
-    # see https://gitlab.com/to-be-continuous/helm/-/blob/main/templates/gitlab-ci-helm.yml?ref_type=heads#L1591
-    # exclude tags and on $HELM_REVIEW_ENABLED not set
-    - if: '$HELM_REVIEW_ENABLED != "true" || $CI_COMMIT_TAG'
-      when: never
-    # only on non-production, non-integration branches
-    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF && $CI_COMMIT_REF_NAME !~ $INTEG_REF'
-
-helm-cleanup-review:
-  rules:
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-      when: never
-    # see https://gitlab.com/to-be-continuous/helm/-/blob/main/templates/gitlab-ci-helm.yml?ref_type=heads#L1609
-    # exclude tags and on $HELM_REVIEW_ENABLED not set
-    - if: '$HELM_REVIEW_ENABLED != "true" || $CI_COMMIT_TAG'
-      when: never
-    # only on non-production, non-integration branches
-    - if: '$CI_COMMIT_REF_NAME !~ $PROD_REF && $CI_COMMIT_REF_NAME !~ $INTEG_REF'
-      when: manual
-      allow_failure: true
 {{- end }}
 
 {{- if $static }}{{ template "static" . }}{{- end }}
@@ -209,10 +211,11 @@ tf-publish-module:
 {{- end }}
 
 {{- if eq (len $terraform_apply_modules) 1 }}
+{{- $apply := first $terraform_apply_modules }}
 
 .tf-workspace:
   variables:
-    TF_PROJECT_DIR: {{ (first $terraform_apply_modules).Dir }}
+    TF_PROJECT_DIR: {{ $apply.Dir }}
 {{- end }}
 
 {{- if gt (len $terraform_apply_modules) 1 }}
@@ -222,8 +225,7 @@ tf-publish-module:
 tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
   stage: infra-prod
   rules:
-    # disable on merge train pipelines (also skips tf-review/tf-destroy-review from the child pipeline)
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    - if: '$TF_DEPLOY_ENABLED == "false"'
       when: never
     - when: on_success
   trigger:
@@ -239,11 +241,14 @@ tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
           environment-namespace: {{ ne .Slug "" | ternary (print "/" .Slug) ("" | quote) }}
           gitlab-backend-disabled: {{ ne $specifics.StateBackend "http" }}
           integ-enabled: {{ has "integration" .Config.Terraform.Environments }}
+          integ-plan-enabled: {{ has "integration" .Config.Terraform.Environments }}
           prod-enabled: {{ has "production" .Config.Terraform.Environments }}
           project-dir: {{ .Dir }}
           publish-enabled: false
           review-enabled: {{ has "review" .Config.Terraform.Environments }}
+          review-plan-enabled: {{ has "review" .Config.Terraform.Environments }}
           staging-enabled: {{ has "staging" .Config.Terraform.Environments }}
+          staging-plan-enabled: {{ has "staging" .Config.Terraform.Environments }}
           tflint-disabled: true
           trivy-disabled: true
 {{- if has "overrides:deployment" $.Config.GitLab.Options }}

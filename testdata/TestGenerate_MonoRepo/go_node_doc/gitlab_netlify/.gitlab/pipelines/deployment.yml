@@ -23,6 +23,15 @@ include:
       snapshot-image: "${CI_REGISTRY}/${CI_PROJECT_PATH}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 
+# skip deployments on merge trains so destroy jobs from branch or merge request pipelines can run
+workflow:
+  rules:
+    - !reference [.tbc-workflow-rules, default]
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      variables:
+        NETLIFY_REVIEW_ENABLED: "false"
+    - when: always
+
 .netlify-deploy:
   image: $NETLIFY_IMAGE
   stage: deploy
@@ -74,7 +83,7 @@ netlify-deploy-review:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
       when: never
     - when: manual
       allow_failure: true
@@ -90,7 +99,7 @@ netlify-cleanup-review:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
       when: never
     - when: manual
       allow_failure: true

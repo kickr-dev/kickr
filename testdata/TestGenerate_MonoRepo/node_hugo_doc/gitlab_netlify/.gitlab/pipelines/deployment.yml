@@ -3,6 +3,15 @@
 ---
 include: []
 
+# skip deployments on merge trains so destroy jobs from branch or merge request pipelines can run
+workflow:
+  rules:
+    - !reference [.tbc-workflow-rules, default]
+    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+      variables:
+        NETLIFY_REVIEW_ENABLED: "false"
+    - when: always
+
 .netlify-deploy:
   image: $NETLIFY_IMAGE
   stage: deploy
@@ -54,7 +63,7 @@ netlify-deploy-review-docs:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
       when: never
     - when: manual
       allow_failure: true
@@ -71,7 +80,7 @@ netlify-cleanup-review-docs:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
       when: never
     - when: manual
       allow_failure: true
@@ -107,7 +116,7 @@ netlify-deploy-review-website:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
       when: never
     - when: manual
       allow_failure: true
@@ -124,7 +133,7 @@ netlify-cleanup-review-website:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
       when: never
     - when: manual
       allow_failure: true
