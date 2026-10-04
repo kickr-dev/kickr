@@ -3,7 +3,7 @@
 #############################
 #        STAGE BUILD        #
 #############################
-FROM golang:1-trixie AS build
+FROM docker.io/library/golang:1.27.1-trixie@sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275ed5 AS build
 
 ARG CGO_ENABLED=0
 ARG GIT_REF_NAME

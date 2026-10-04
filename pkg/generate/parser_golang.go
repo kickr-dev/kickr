@@ -5,63 +5,56 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net/http"
 	"path/filepath"
 
 	engine "github.com/kickr-dev/engine/pkg"
+	"github.com/kickr-dev/engine/pkg/generator"
 	"github.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-// ParserHugo detects Hugo sites in repository modules and sets their language accordingly.
-func ParserHugo(_ context.Context, destdir string, repo *types.Repository) error {
-	errs := make([]error, 0, len(repo.Modules))
-	for i, module := range repo.Modules {
-		hugo, err := parser.ReadHugo(filepath.Join(destdir, module.Dir()))
-		if err != nil {
-			if !errors.Is(err, parser.ErrNoHugo) {
-				errs = append(errs, fmt.Errorf("read hugo in '%s': %w", module.Dir(), err))
-			}
-			continue
-		}
-
-		engine.GetLogger().Infof("hugo detected in '%s', theme or hugo files are present", module.Dir())
-		repo.Modules[i].SetLanguage(types.LanguageHugo, hugo)
-	}
-	return errors.Join(errs...) // already wrapped
-}
+const GoImage = "docker.io/library/golang"
 
 // ParserGolang detects Golang modules in the repository via go.work and go.mod files.
 //
 // In case an Hugo configuration exists in the root module,
 // Golang parsing is skipped.
-func ParserGolang(ctx context.Context, destdir string, repo *types.Repository) error {
-	ri := repo.ModuleIndexOf(types.RootModule)
-	if ri >= 0 {
-		if _, ok := repo.Modules[ri].Languages[types.LanguageHugo]; ok {
-			return nil // root module has hugo language, skip Golang parsing
+//
+// Each module image is fetched from its toolchain (or go) version and pinned by digest.
+func ParserGolang(httpClient *http.Client) func(ctx context.Context, destdir string, repo *types.Repository) error {
+	if httpClient == nil {
+		httpClient = http.DefaultClient //nolint:revive
+	}
+	return func(ctx context.Context, destdir string, repo *types.Repository) error {
+		ri := repo.ModuleIndexOf(types.RootModule)
+		if ri >= 0 {
+			if _, ok := repo.Modules[ri].Languages[types.LanguageHugo]; ok {
+				return nil // root module has hugo language, skip Golang parsing
+			}
 		}
-	}
-	if ri < 0 {
-		return nil // Golang parsing goes exclusively through root, either by go.work indicating all modules or go.mod
-	}
+		if ri < 0 {
+			return nil // Golang parsing goes exclusively through root, either by go.work indicating all modules or go.mod
+		}
 
-	// read go.work first
-	if err := gowork(ctx, destdir, repo); err != nil {
-		return err // already wrapped
+		// read go.work first
+		if err := gowork(ctx, httpClient, destdir, repo); err != nil {
+			return err // already wrapped
+		}
+		// still, try to read a go.mod (it will override go.work data but it's fine since only Go and Toolchain are used)
+		if err := gomod(ctx, httpClient, destdir, repo); err != nil {
+			return err // already wrapped
+		}
+		return nil
 	}
-	// still, try to read a go.mod (it will override go.work data but it's fine since only Go and Toolchain are used)
-	if err := gomod(ctx, destdir, repo); err != nil {
-		return err // already wrapped
-	}
-	return nil
 }
 
-var _ engine.Parser[types.Repository] = ParserGolang // ensure interface is implemented
+var _ engine.Parser[types.Repository] = ParserGolang(nil) // ensure interface is implemented
 
 // gowork reads destdir go.work (if it exists) and its 'uses' go.mod.
-func gowork(_ context.Context, destdir string, repo *types.Repository) error {
+func gowork(ctx context.Context, httpClient *http.Client, destdir string, repo *types.Repository) error {
 	ri := repo.ModuleIndexOf(types.RootModule)
 
 	work, err := parser.ReadGowork(destdir)
@@ -72,6 +65,12 @@ func gowork(_ context.Context, destdir string, repo *types.Repository) error {
 		return nil
 	}
 	engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGowork)
+
+	image, err := goImage(ctx, httpClient, work.Go, work.Toolchain)
+	if err != nil {
+		engine.GetLogger().Warnf("failed to fetch golang image for '%s', using default one: %v", parser.FileGowork, err)
+	}
+	work.ContainerImage = image
 	repo.Modules[ri].SetLanguage(types.LanguageGo, work)
 
 	// each 'use' directive declares a go module, it's the only way for kickr to know about them
@@ -101,7 +100,7 @@ func gowork(_ context.Context, destdir string, repo *types.Repository) error {
 }
 
 // gomod reads destdir go.mod (if it exists) and its cmd directory.
-func gomod(_ context.Context, destdir string, repo *types.Repository) error {
+func gomod(ctx context.Context, httpClient *http.Client, destdir string, repo *types.Repository) error {
 	ri := repo.ModuleIndexOf(types.RootModule)
 
 	mod, err := parser.ReadGomod(destdir)
@@ -112,6 +111,12 @@ func gomod(_ context.Context, destdir string, repo *types.Repository) error {
 		return nil
 	}
 	engine.GetLogger().Infof("golang detected, file '%s' is present and valid", parser.FileGomod)
+
+	image, err := goImage(ctx, httpClient, mod.Go, mod.Toolchain)
+	if err != nil {
+		engine.GetLogger().Warnf("failed to fetch golang image for '%s', using default one: %v", parser.FileGomod, err)
+	}
+	mod.ContainerImage = image
 	repo.Modules[ri].SetLanguage(types.LanguageGo, mod)
 
 	// parse cmd directory only if there's a go.mod for base directory
@@ -124,4 +129,17 @@ func gomod(_ context.Context, destdir string, repo *types.Repository) error {
 	}
 	repo.Modules[ri].SetExecutables(executables)
 	return nil
+}
+
+// goImage fetches the golang image matching toolchain (or goversion when toolchain isn't set) and returns it pinned by digest.
+func goImage(ctx context.Context, httpClient *http.Client, goversion, toolchain string) (string, error) {
+	version := goversion
+	if toolchain != "" && toolchain != "default" {
+		version = toolchain
+	}
+	image, err := generator.FetchContainerImage(ctx, httpClient, GoImage, version+"-trixie")
+	if err != nil {
+		return "", fmt.Errorf("fetch image: %w", err)
+	}
+	return image, nil
 }

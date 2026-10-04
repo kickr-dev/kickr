@@ -15,10 +15,12 @@ Example:
 		}
 		config.EnsureDefaults()
 
+		client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
+
 		// run generation
 		result, err := engine.Generate(ctx, destdir, &types.KickrWrapper{Kickr: config},
-			[]engine.Parser[types.Repository]{generate.ParserGit, generate.ParserGolang, generate.ParserNode, generate.ParserChart},
-			[]engine.Generator[types.Repository]{generate.GeneratorGitignore, generate.GeneratorLicense})
+			[]engine.Parser[types.Repository]{generate.ParserGit, generate.ParserGolang(client), generate.ParserNode, generate.ParserChart},
+			[]engine.Generator[types.Repository]{generate.GeneratorGitignore(client), generate.GeneratorLicense(client)})
 		// handle err
 	}
 */

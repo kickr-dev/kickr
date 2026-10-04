@@ -225,12 +225,18 @@ hugo-build:
     GIT_DEPTH: "0" # fetch all history for .GitInfo and .Lastmod
     GIT_SUBMODULE_STRATEGY: recursive # fetch Hugo themes
 {{- if eq (len $hugo_buildable_modules) 1 }}
+{{- with (get $firstnode.Languages "hugo").ContainerImage }}
+    HUGO_IMAGE: {{ . }}
+{{- end }}
     HUGO_PROJECT_DIR: {{ $firstnode.Dir }}
 {{- else }}
   parallel:
     matrix:
-{{- range $hugo_buildable_modules }}
-      - HUGO_PROJECT_DIR: {{ .Dir }}
+{{- range $module := $hugo_buildable_modules }}
+      - HUGO_PROJECT_DIR: {{ $module.Dir }}
+{{- with (get $module.Languages "hugo").ContainerImage }}
+        HUGO_IMAGE: {{ . }}
+{{- end }}
 {{- end }}
 {{- end }}
   rules:

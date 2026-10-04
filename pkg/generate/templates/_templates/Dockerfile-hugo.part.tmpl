@@ -1,11 +1,16 @@
 {{- define "hugo" }}
 
 {{- $maintainer := index .Parent.Config.Maintainers 0 }}
+{{- $specifics := get .Languages "hugo" }}
 
 #############################
 #        STAGE BUILD        #
 #############################
+{{- if $specifics.ContainerImage }}
+FROM {{ $specifics.ContainerImage }} AS build
+{{- else }}
 FROM ghcr.io/gohugoio/hugo:v0.167.0@sha256:7bb99a126eddeea8fbfaacedc5ef6708805411bdeaa01e668405a137fd02d048 AS build
+{{- end }}
 
 WORKDIR /app
 

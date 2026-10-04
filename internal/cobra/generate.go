@@ -50,7 +50,6 @@ func generators() []engine.Generator[types.Repository] {
 		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
 		engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
 		engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
-
 	}
 }
 
@@ -98,14 +97,15 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 
 			// run generation
 			engine.Configure(engine.WithForce(force), engine.WithLogger(logger))
+			client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
 			parsers := []engine.Parser[types.Repository]{
 				// must be kept first (global parsing)
 				generate.ParserGit,
 				generate.ParserModules,
 
 				generate.ParserGlob,
-				generate.ParserHugo,
-				generate.ParserGolang,
+				generate.ParserHugo(client),
+				generate.ParserGolang(client),
 				generate.ParserNode,
 				generate.ParserTerraform,
 

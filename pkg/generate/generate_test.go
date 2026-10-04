@@ -3,6 +3,7 @@ package generate_test
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
@@ -14,6 +15,7 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/parser"
+	"github.com/jarcoal/httpmock"
 	compare "github.com/kilianpaquier/compare/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -1515,6 +1517,10 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 		destdir = assertdir
 	}
 
+	// lookups fail without responder, rendering kickr default images.
+	httpmock.Activate()
+	t.Cleanup(httpmock.DeactivateAndReset)
+
 	// Act
 	err := engine.Generate(ctx, destdir, repo,
 		slices.Concat(parsers, []engine.Parser[types.Repository]{
@@ -1524,8 +1530,8 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 			generate.ParserModules,
 
 			generate.ParserGlob,
-			generate.ParserHugo,
-			generate.ParserGolang,
+			generate.ParserHugo(http.DefaultClient),
+			generate.ParserGolang(http.DefaultClient),
 			generate.ParserNode,
 			generate.ParserTerraform,
 
