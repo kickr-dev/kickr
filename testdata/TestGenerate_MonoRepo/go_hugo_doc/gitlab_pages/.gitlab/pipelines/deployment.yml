@@ -51,3 +51,6 @@ pages:
   dependencies:
     - hugo-build
   when: manual
+
+docker-hadolint:
+  needs: []

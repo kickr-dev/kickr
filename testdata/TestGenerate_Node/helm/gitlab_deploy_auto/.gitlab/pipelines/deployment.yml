@@ -25,6 +25,9 @@ include:
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       staging-app-name: $HELM_BASE_APP_NAME
 
+helm-lint:
+  needs: []
+
 helm-review:
   rules:
     - if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'

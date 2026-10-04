@@ -30,3 +30,6 @@ include:
         DOCKER_FILE: backend/Dockerfile
       - DOCKER_IMAGE_NAME: frontend
         DOCKER_FILE: frontend/Dockerfile
+
+docker-hadolint:
+  needs: []

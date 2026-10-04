@@ -24,3 +24,6 @@ include:
       integ-app-name: $HELM_BASE_APP_NAME
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       staging-app-name: $HELM_BASE_APP_NAME
+
+helm-lint:
+  needs: []

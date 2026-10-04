@@ -51,3 +51,6 @@ pages:
   dependencies:
     - node-build
   when: manual
+
+docker-hadolint:
+  needs: []

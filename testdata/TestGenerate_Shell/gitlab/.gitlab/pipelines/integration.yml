@@ -28,7 +28,9 @@ include:
       mr_comment: false
       score_point: true
       score_push: true
-      stage: build
+
+bash-shellcheck:
+  needs: []
 
 plumber:
   rules:

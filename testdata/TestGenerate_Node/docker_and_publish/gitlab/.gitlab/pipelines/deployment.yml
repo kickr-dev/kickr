@@ -22,3 +22,6 @@ include:
       semrel-release-disabled: true # handled by docker build and push jobs to avoid too much dependency on semantic-release
       snapshot-image: "${CI_REGISTRY}/${CI_PROJECT_PATH}/snapshot:$APP_VERSION"
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
+
+docker-hadolint:
+  needs: []

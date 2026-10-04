@@ -108,6 +108,12 @@ include:{{ if not $has_include }} []{{ end }}
   - local: .gitlab/deployment.overrides.yml
 {{- end }}
 
+{{- if .Config.Helm }}
+
+helm-lint:
+  needs: []
+{{- end }}
+
 {{- if and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
 
 helm-review:
@@ -148,11 +154,15 @@ helm-cleanup-review:
         DOCKER_FILE: {{ .Dir }}/Dockerfile
 {{- end }}
 {{- end }}
+
+docker-hadolint:
+  needs: []
 {{- end }}
 
 {{- if gt (len $terraform_publish_modules) 0 }}
 
 tf-docs:
+  needs: []
 {{- if eq (len $terraform_publish_modules) 1 }}
   variables:
     TF_PROJECT_DIR: {{ (first $terraform_publish_modules).Dir }}

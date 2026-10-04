@@ -31,7 +31,6 @@ include:
       mr_comment: false
       score_point: true
       score_push: true
-      stage: build
 
   # SonarQube template
   # https://gitlab.com/to-be-continuous/sonar
@@ -45,8 +44,17 @@ include:
       quality-gate-enabled: true
   - local: .gitlab/integration.overrides.yml
 
+go-ci-lint:
+  needs: []
+
 go-govulncheck:
   allow_failure: true
+
+go-mod-outdated:
+  rules: [when: never]
+
+go-test:
+  needs: []
 
 go-build:
   rules: [when: never]

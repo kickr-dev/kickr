@@ -65,6 +65,7 @@ include:{{ if not $has_include }} []{{ end }}
       build-disabled: {{ eq (len $node_buildable_modules) 0 }}
       lint-enabled: true
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+      outdated-disabled: true
 {{- if eq (len $node_buildable_modules) 1 }}
       project-dir: {{ (first $node_buildable_modules).Dir }}
 {{- end }}
@@ -85,7 +86,6 @@ include:{{ if not $has_include }} []{{ end }}
       mr_comment: false
       score_point: true
       score_push: true
-      stage: build
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}
@@ -124,10 +124,25 @@ pre-commit:
 {{- end }}
 {{- end }}
 
+{{- if $shell }}
+
+bash-shellcheck:
+  needs: []
+{{- end }}
+
 {{- if gt (len $go_modules) 0 }}
+
+go-ci-lint:
+  needs: []
 
 go-govulncheck:
   allow_failure: true
+
+go-mod-outdated:
+  rules: [when: never]
+
+go-test:
+  needs: []
 
 {{- if gt (len .Executables.Clis) 0 }}
 
@@ -151,6 +166,10 @@ go-build:
 
 go-build:
   rules: [when: never]
+{{- else }}
+
+go-build-test:
+  needs: []
 {{- end }}
 {{- end }}
 
@@ -166,7 +185,14 @@ go-build:
 {{- end }}
 
 node-audit:
+  needs: []
   allow_failure: true
+
+node-lint:
+  needs: []
+
+node-sbom:
+  needs: []
 
 {{- if gt (len $node_buildable_modules) 0 }}
 

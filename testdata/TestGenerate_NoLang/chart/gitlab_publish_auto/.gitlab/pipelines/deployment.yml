@@ -21,3 +21,6 @@ include:
       semrel-release-disabled: true # version is handled manually
       staging-enabled: false
       test-enabled: false
+
+helm-lint:
+  needs: []

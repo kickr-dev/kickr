@@ -21,6 +21,7 @@ include:
       build-disabled: true
       lint-enabled: true
       lint-args: run lint --ignore-pattern .bun --ignore-pattern .npm --ignore-pattern .yarn
+      outdated-disabled: true
       publish-enabled: false
 
   # Plumber template
@@ -35,10 +36,18 @@ include:
       mr_comment: false
       score_point: true
       score_push: true
-      stage: build
+
+go-ci-lint:
+  needs: []
 
 go-govulncheck:
   allow_failure: true
+
+go-mod-outdated:
+  rules: [when: never]
+
+go-test:
+  needs: []
 
 go-build:
   image:
@@ -58,7 +67,14 @@ go-build:
     expire_in: 1 day
 
 node-audit:
+  needs: []
   allow_failure: true
+
+node-lint:
+  needs: []
+
+node-sbom:
+  needs: []
 
 plumber:
   rules:

@@ -25,10 +25,18 @@ include:
       mr_comment: false
       score_point: true
       score_push: true
-      stage: build
+
+go-ci-lint:
+  needs: []
 
 go-govulncheck:
   allow_failure: true
+
+go-mod-outdated:
+  rules: [when: never]
+
+go-test:
+  needs: []
 
 go-build:
   image:

@@ -47,3 +47,9 @@ include:
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       staging-app-name: $HELM_BASE_APP_NAME
   - local: .gitlab/deployment.overrides.yml
+
+helm-lint:
+  needs: []
+
+docker-hadolint:
+  needs: []
