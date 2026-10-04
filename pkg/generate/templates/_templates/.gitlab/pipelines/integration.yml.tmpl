@@ -85,7 +85,6 @@ include:{{ if not $has_include }} []{{ end }}
       mr_comment: false
       score_point: true
       score_push: true
-      stage: build
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}

@@ -26,7 +26,6 @@ include:
       mr_comment: false
       score_point: true
       score_push: true
-      stage: build
 
 node-audit:
   allow_failure: true

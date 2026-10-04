@@ -18,7 +18,6 @@ include:
     GIT_DEPTH: "0"
 
 semantic-release-info:
-  stage: build
   script:
     - DESCRIBE=$(git describe --tags || echo "v1.0.0")
     - echo "SEMREL_INFO_NEXT_VERSION=v${DESCRIBE#v}" >> "$SEMREL_CONFIG_DIR/semrel.out.env"
