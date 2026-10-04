@@ -55,10 +55,6 @@ go-mod-outdated:
 go-test:
   needs: []
 
-plumber:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF || $CI_COMMIT_REF_NAME =~ $PROD_REF'
-
 hugo-build:
   image:
     name: $HUGO_IMAGE
@@ -82,3 +78,7 @@ hugo-build:
     paths:
       - $HUGO_PROJECT_DIR/$BUILD_DIR
     expire_in: 1 day
+
+plumber:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF || $CI_COMMIT_REF_NAME =~ $PROD_REF'
