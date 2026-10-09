@@ -5,7 +5,7 @@ include:
 
   # Terraform template
   # https://gitlab.com/to-be-continuous/terraform
-  - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/5b715875b2edc25c3572d89d968dcbd11cb1115d/templates/gitlab-ci-terraform.yml # 9.5.0
+  - remote: https://gitlab.com/to-be-continuous/terraform/-/raw/4c645b82df1b85dd98128305c2566f420284c41f/templates/gitlab-ci-terraform.yml # 9.5.1
     inputs:
       docs-enabled: true
       docs-extra-opts: --output-check
