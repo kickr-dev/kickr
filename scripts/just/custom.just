@@ -8,4 +8,4 @@ ua:
 
 # update all testdata files with current Go updated code (no binary involved).
 testdata:
-  @TESTDATA=1 go test ./... -run ^TestGenerate_ -count 1 -timeout=15s
+  @TESTDATA=1 go test ./pkg/generate -run ^TestGenerate_ -count 1 -timeout=15s
