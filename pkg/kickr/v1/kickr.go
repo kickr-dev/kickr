@@ -27,6 +27,7 @@ type Kickr struct {
 	//
 	// Enums:
 	//  - code-of-conduct
+	//  - contributing
 	//  - pre-commit
 	//  - renovate
 	//  - shell

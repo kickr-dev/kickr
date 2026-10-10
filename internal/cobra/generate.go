@@ -31,6 +31,7 @@ func generators() []engine.Generator[types.Repository] {
 
 	return []engine.Generator[types.Repository]{
 		generate.GeneratorCodeOfConduct(client), // code of conduct
+		generate.GeneratorCONTRIBUTING,          // contributing
 		generate.GeneratorGitignore(client),     // gitignore
 		generate.GeneratorLicense(client),       // license
 		generate.GeneratorREADME,                // readme

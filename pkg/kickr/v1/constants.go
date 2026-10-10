@@ -23,6 +23,7 @@ const (
 
 const (
 	ExcludeCodeOfConduct = "code-of-conduct"
+	ExcludeContributing  = "contributing"
 	ExcludePreCommit     = "pre-commit"
 	ExcludeRenovate      = "renovate"
 	ExcludeShell         = "shell"

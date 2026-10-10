@@ -70,7 +70,7 @@ func TestGeneratorREADME(t *testing.T) {
 
 	t.Run("not_forced", func(t *testing.T) {
 		// tests under this package are run with --force by default to ensure all testdata are regenerated when needed
-		// those two tests must be run without the option to ensure a current content is kept
+		// tests below must be run without the option to ensure a current content is kept
 		logger := engine.GetLogger()
 		engine.Configure(engine.WithForce(false), engine.WithLogger(logger))
 		t.Cleanup(func() { engine.Configure(engine.WithForce(true), engine.WithLogger(logger)) })
