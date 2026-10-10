@@ -61,9 +61,11 @@ netlify-deploy-review:
     - "hugo-build: [website]"
     - semantic-release-info
   rules:
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+      when: never
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+    - if: '$CI_COMMIT_TAG'
       when: never
     - when: manual
       allow_failure: true
@@ -76,13 +78,7 @@ netlify-cleanup-review:
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
-      when: never
-    - when: manual
-      allow_failure: true
+  rules: !references [netlify-deploy-review, rules]
 
 netlify-deploy-production:
   extends: .netlify-deploy

@@ -61,9 +61,11 @@ netlify-deploy-review-docs:
     - "hugo-build: [docs]"
     - semantic-release-info
   rules:
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+      when: never
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+    - if: '$CI_COMMIT_TAG'
       when: never
     - when: manual
       allow_failure: true
@@ -77,13 +79,7 @@ netlify-cleanup-review-docs:
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
-      when: never
-    - when: manual
-      allow_failure: true
+  rules: !references [netlify-deploy-review-docs, rules]
 
 netlify-deploy-production-docs:
   extends: .netlify-deploy
@@ -114,9 +110,11 @@ netlify-deploy-review-website:
     - "hugo-build: [website]"
     - semantic-release-info
   rules:
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+      when: never
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+    - if: '$CI_COMMIT_TAG'
       when: never
     - when: manual
       allow_failure: true
@@ -130,13 +128,7 @@ netlify-cleanup-review-website:
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
-      when: never
-    - when: manual
-      allow_failure: true
+  rules: !references [netlify-deploy-review-website, rules]
 
 netlify-deploy-production-website:
   extends: .netlify-deploy

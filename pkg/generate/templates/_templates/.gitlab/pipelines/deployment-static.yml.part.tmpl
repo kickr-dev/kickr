@@ -68,9 +68,11 @@ netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
 {{- end }}
     - semantic-release-info
   rules:
+    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+      when: never
     - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
       when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
+    - if: '$CI_COMMIT_TAG'
       when: never
     - when: manual
       allow_failure: true
@@ -86,13 +88,7 @@ netlify-cleanup-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $PROD_REF'
-      when: never
-    - if: '$NETLIFY_REVIEW_ENABLED == "false"'
-      when: never
-    - when: manual
-      allow_failure: true
+  rules: !references [netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}, rules]
 
 netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   extends: .netlify-deploy
