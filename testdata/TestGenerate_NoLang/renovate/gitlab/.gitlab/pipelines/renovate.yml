@@ -14,15 +14,13 @@ renovate-validator:
   rules: [when: never] # validates projects configurations and not server configurations
 
 renovate-depcheck:
-  timeout: 30 minutes
   needs: []
   rules:
     - if: $RENOVATE_DISABLED == 'true'
       when: never
-    # see https://gitlab.com/to-be-continuous/renovate/-/blob/master/templates/gitlab-ci-renovate.yml?ref_type=heads#L348
-    # update mode only with schedule triggering
-    - if: $CI_PIPELINE_SOURCE == 'schedule'
+    # see https://gitlab.com/to-be-continuous/renovate/-/blob/master/templates/gitlab-ci-renovate.yml?ref_type=heads#L418
+    # not dry run on schedule
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
       variables:
         RENOVATE_DRY_RUN: "false"
-    # dry run with web triggering
-    - if: $CI_PIPELINE_SOURCE == 'web'
+    - if: $RENOVATE_TOKEN
