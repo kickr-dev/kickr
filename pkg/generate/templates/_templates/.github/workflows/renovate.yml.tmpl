@@ -54,7 +54,7 @@ jobs:
         with:
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
-      - uses: renovatebot/github-action@1cd96b855fee0da6f230617e89dbff0e06ea393a # v46.3.5
+      - uses: renovatebot/github-action@230ce922b08968d0a4f6f70f295601daff09ef1d # v46.3.7
         with:
 <<- if has "renovate:github-app" .Config.GitHub.Options >>
           token: ${{ steps.app_token.outputs.token }}

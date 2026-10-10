@@ -40,12 +40,12 @@ jobs:
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.16.4
+          terraform_version: 1.16.5
 <<- else >>
       - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.12.6
+          tofu_version: 1.13.1
 <<- end >>
       - run: << $terraform_cmd >> fmt -check
       - run: << $terraform_cmd >> init -backend=false
@@ -95,7 +95,7 @@ jobs:
           egress-policy: audit
 <<- end >>
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: terraform-linters/setup-tflint@1cf010d3c7aef302051ccdb68c14c5dc2efa34ef # v6.3.1
+      - uses: terraform-linters/setup-tflint@6ffdbaa3be476b3431f7275c26966ef32ff60337 # v6.3.2
         with:
           # renovate: datasource=github-tags packageName=terraform-linters/tflint depName=tflint
           tflint_version: v0.64.0
@@ -146,12 +146,12 @@ jobs:
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           # renovate: datasource=github-tags packageName=hashicorp/terraform depName=terraform
-          terraform_version: 1.16.4
+          terraform_version: 1.16.5
 <<- else >>
       - uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
         with:
           # renovate: datasource=github-tags packageName=opentofu/opentofu depName=opentofu
-          tofu_version: 1.12.6
+          tofu_version: 1.13.1
 <<- end >>
       - run: |-
           << $terraform_cmd >> init
