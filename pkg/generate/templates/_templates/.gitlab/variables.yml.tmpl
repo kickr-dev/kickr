@@ -41,7 +41,7 @@ variables:
 {{- end }}
 
 {{- if .Config.HasKickr }}
-  KICKR_IMAGE: ghcr.io/jdx/mise:2026.10.5@sha256:b71dc43c283ed85e04ce73a586bc004bd94ade5099c6011e8fb1c75d8b921663
+  KICKR_IMAGE: ghcr.io/jdx/mise:2026.10.7@sha256:66d03744d53f7da73eb3065b166151d48314c652985bdc420881376a4458aa67
 {{- end }}
 
 {{- if gt (len $netlify_modules) 0 }}
@@ -61,7 +61,7 @@ variables:
 {{- end }}
 
 {{- if has "renovate" .Config.GitLab.Options }}
-  RENOVATE_IMAGE: docker.io/renovate/renovate:44.132.5@sha256:2c801b47ce82c349453e554188abe4fa0b51bde333cfea54e67ad8a88d525087
+  RENOVATE_IMAGE: docker.io/renovate/renovate:44.134.1@sha256:79138db6b794ea9e00b52f3012e3d3912653214f3166bea537689196e5e91e21
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}
