@@ -1395,7 +1395,11 @@ func TestGenerate_MonoRepo(t *testing.T) {
 						BuildTool: kickr.BuildToolMake,
 						Docker:    &kickr.Docker{},
 						Exclude:   []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
-						Modules:   []kickr.Module{{Path: "backend"}, {Path: "frontend"}},
+						Modules: []kickr.Module{
+							{Path: ".", Exclude: []string{kickr.ModuleExcludeDocker}},
+							{Path: "backend"},
+							{Path: "frontend"},
+						},
 					}, tc.Config),
 				}
 

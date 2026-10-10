@@ -11,9 +11,10 @@ import (
 func Docker() []engine.Template[types.Module] {
 	return []engine.Template[types.Module]{
 		{
-			Delimiters: engine.DelimitersBracket(),
-			Globs:      engine.GlobsWithPart("Dockerfile"),
-			Out:        "Dockerfile",
+			Delimiters:  engine.DelimitersBracket(),
+			EmptyPolicy: engine.PolicyKeep,
+			Globs:       engine.GlobsWithPart("Dockerfile"),
+			Out:         "Dockerfile",
 			Remove: func(module types.Module) bool {
 				return !module.HasDocker()
 			},

@@ -82,16 +82,5 @@ func (m Module) HasBuildTool(tool string) bool {
 
 // HasDocker returns truthy when the module should have a Dockerfile.
 func (m Module) HasDocker() bool {
-	if m.Parent.Config.Docker == nil || slices.Contains(m.Config.Exclude, kickr.ModuleExcludeDocker) {
-		return false
-	}
-	if _, ok := m.Languages[LanguageGo]; ok {
-		return m.Binaries() > 0
-	}
-	for _, language := range []string{LanguageHugo, LanguageNode} {
-		if _, ok := m.Languages[language]; ok {
-			return true
-		}
-	}
-	return false
+	return m.Parent.Config.Docker != nil && !slices.Contains(m.Config.Exclude, kickr.ModuleExcludeDocker)
 }
