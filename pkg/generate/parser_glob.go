@@ -25,7 +25,7 @@ func ParserGlob(_ context.Context, destdir string, repo *types.Repository) error
 	}
 	for _, check := range checks {
 		matches := files.Glob(destdir, check.Glob,
-			files.GlobExcludedDirectories("node_modules", "testdata"),
+			files.GlobExcludedDirectories(".git", "node_modules", "testdata"),
 			files.GlobExcludedFiles("conventionalcommits-branch.sh"))
 		if len(matches) == 0 {
 			continue
