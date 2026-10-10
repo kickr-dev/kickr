@@ -98,7 +98,7 @@ netlify-cleanup-review:
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
-  rules: !references [netlify-deploy-review, rules]
+  rules: !reference [netlify-deploy-review, rules]
 
 netlify-deploy-production:
   extends: .netlify-deploy

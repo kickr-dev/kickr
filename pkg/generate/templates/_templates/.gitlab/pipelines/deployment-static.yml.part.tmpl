@@ -88,7 +88,7 @@ netlify-cleanup-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   environment:
     name: review${NETLIFY_ENVIRONMENT_NAMESPACE}/${CI_COMMIT_REF_NAME}
     action: stop
-  rules: !references [netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}, rules]
+  rules: !reference [netlify-deploy-review{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}, rules]
 
 netlify-deploy-production{{ if $netlify_multiple_modules }}-{{ .Slug }}{{ end }}:
   extends: .netlify-deploy
