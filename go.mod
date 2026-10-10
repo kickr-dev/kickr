@@ -15,7 +15,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20250828155816-225c06ed5fd9
 	github.com/jarcoal/httpmock v1.4.2
-	github.com/kickr-dev/engine v0.0.0-20261004180241-e48749ff044b
+	github.com/kickr-dev/engine v0.0.0-20261010123134-f030886d3e31
 	github.com/kilianpaquier/compare v1.1.3
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
@@ -69,7 +69,7 @@ require (
 	github.com/fxamacker/cbor/v2 v2.9.1 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.9.1 // indirect
+	github.com/go-git/go-billy/v5 v5.9.2 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
