@@ -1,4 +1,3 @@
-{{- if not .Content -}}
 # {{ .VCS.ProjectName }} <!-- omit in toc -->
 
 <div align="center">
@@ -8,8 +7,3 @@
 </div>
 
 ---
-{{ else -}}
-{{- $parts := regexSplit "(?s)<!-- BEGIN_KICKR_BADGES -->.*?<!-- END_KICKR_BADGES -->" .Content 2 }}
-{{- first $parts }}
-{{- if eq (len $parts) 2 }}{{ template "badges" . }}{{ last $parts }}{{- end }}
-{{- end -}}

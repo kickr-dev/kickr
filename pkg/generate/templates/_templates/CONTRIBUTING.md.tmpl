@@ -1,9 +1,3 @@
-{{- if not .Content -}}
 # Contributing
 
 {{ template "guidelines" . }}
-{{ else -}}
-{{- $parts := regexSplit "(?s)<!-- BEGIN_KICKR_GUIDELINES -->.*?<!-- END_KICKR_GUIDELINES -->" .Content 2 }}
-{{- first $parts }}
-{{- if eq (len $parts) 2 }}{{ template "guidelines" . }}{{ last $parts }}{{- end }}
-{{- end -}}
