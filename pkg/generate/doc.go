@@ -1,16 +1,16 @@
 /*
-Package generate exposes pre-defined parsers and generator for kickr repositories parsing to use with engine.Generate.
+Package generate exposes pre-defined parsers and generators for kickr repositories to use with engine.Generate.
 
 Example:
 
 	func main() {
 		ctx := context.Background()
 		destdir, _ := os.Getwd()
-		dest := filepath.Join(destdir, kickr.File)
+		filename := kickr.File(destdir)
 
 		// read configuration
 		var config kickr.Kickr
-		if err := files.ReadYAML(dest, &config, os.ReadFile); err != nil {
+		if err := files.ReadYAML(os.DirFS(destdir), filename, &config); err != nil {
 			logger.Fatal(err.Error())
 		}
 		config.EnsureDefaults()
@@ -18,8 +18,8 @@ Example:
 		client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
 
 		// run generation
-		result, err := engine.Generate(ctx, destdir, &types.KickrWrapper{Kickr: config},
-			[]engine.Parser[types.Repository]{generate.ParserGit, generate.ParserGolang(client), generate.ParserNode, generate.ParserChart},
+		err := engine.Generate(ctx, destdir, types.Repository{Config: config},
+			[]engine.Parser[types.Repository]{generate.ParserGit, generate.ParserModules, generate.ParserGolang(client), generate.ParserNode, generate.ParserHelm},
 			[]engine.Generator[types.Repository]{generate.GeneratorGitignore(client), generate.GeneratorLicense(client)})
 		// handle err
 	}
