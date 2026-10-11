@@ -252,7 +252,12 @@ func TestGenerate_NoLang(t *testing.T) {
 		t.Parallel()
 
 		cases := []testcase{
-			{Name: "disabled", Config: kickr.Kickr{Exclude: []string{kickr.ExcludeContributing, kickr.ExcludeSecurity}}},
+			{
+				Name: "disabled",
+				Config: kickr.Kickr{
+					Exclude: []string{kickr.ExcludeContributing, kickr.ExcludeReadme, kickr.ExcludeSecurity},
+				},
+			},
 			{Name: "enabled", Config: kickr.Kickr{}},
 		}
 		for _, tc := range cases {

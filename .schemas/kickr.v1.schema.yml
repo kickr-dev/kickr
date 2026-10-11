@@ -37,7 +37,7 @@ properties:
     description: Exclude part of Kickr generation.
     items:
       type: string
-      enum: [code-of-conduct, contributing, pre-commit, renovate, security, shell]
+      enum: [code-of-conduct, contributing, pre-commit, readme, renovate, security, shell]
 
   github:
     type: object

@@ -29,6 +29,7 @@ type Kickr struct {
 	//  - code-of-conduct
 	//  - contributing
 	//  - pre-commit
+	//  - readme
 	//  - renovate
 	//  - security
 	//  - shell

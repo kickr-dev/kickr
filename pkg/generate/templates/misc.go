@@ -36,6 +36,7 @@ func Misc() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart("README.md"),
 			Out:        "README.md",
+			Remove:     func(repo types.Repository) bool { return slices.Contains(repo.Config.Exclude, kickr.ExcludeReadme) },
 			Sections: []engine.Section{
 				{Begin: "<!-- BEGIN_KICKR_BADGES -->", End: "<!-- END_KICKR_BADGES -->"},
 			},

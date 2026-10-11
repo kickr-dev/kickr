@@ -25,6 +25,7 @@ const (
 	ExcludeCodeOfConduct = "code-of-conduct"
 	ExcludeContributing  = "contributing"
 	ExcludePreCommit     = "pre-commit"
+	ExcludeReadme        = "readme"
 	ExcludeRenovate      = "renovate"
 	ExcludeSecurity      = "security"
 	ExcludeShell         = "shell"
