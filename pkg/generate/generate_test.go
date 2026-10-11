@@ -33,9 +33,13 @@ type testcase struct {
 }
 
 func TestGenerate_NoLang(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	t.Run("chart", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{
 				Name:   "github",
@@ -70,6 +74,8 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -84,6 +90,8 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("kickr", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{
 				Name:   "github_github_app",
@@ -100,6 +108,8 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -114,6 +124,8 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("renovate", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{
 				Name:   "github_github_app",
@@ -138,6 +150,8 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -151,6 +165,8 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 
 		t.Run("templates", func(t *testing.T) {
+			t.Parallel()
+
 			// Arrange
 			tmpl := func(_ context.Context, destdir string, _ *types.Repository) error {
 				file, err := os.Create(filepath.Join(destdir, "template.tmpl"))
@@ -170,6 +186,8 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("plumber", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{
 				Name:   "disabled_github",
@@ -182,6 +200,8 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -196,6 +216,8 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("precommit", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "enabled_github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "enabled_gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
@@ -210,6 +232,8 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -225,6 +249,8 @@ func TestGenerate_NoLang(t *testing.T) {
 	})
 
 	t.Run("release", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{
 				Name:   "github",
@@ -257,6 +283,8 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -272,6 +300,8 @@ func TestGenerate_NoLang(t *testing.T) {
 }
 
 func TestGenerate_Shell(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	shell := func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -284,6 +314,8 @@ func TestGenerate_Shell(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.Name, func(t *testing.T) {
+			t.Parallel()
+
 			// Arrange
 			repo := types.Repository{
 				Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
@@ -295,12 +327,16 @@ func TestGenerate_Shell(t *testing.T) {
 	}
 
 	t.Run("precommit", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "disabled", Config: kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}},
 			{Name: "enabled", Config: kickr.Kickr{}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
@@ -314,9 +350,13 @@ func TestGenerate_Shell(t *testing.T) {
 }
 
 func TestGenerate_Golang(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	t.Run("cli", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		golang := func(provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -352,6 +392,8 @@ func TestGenerate_Golang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{Config: merge(t, kickr.Kickr{}, tc.Config)}
 
@@ -362,6 +404,8 @@ func TestGenerate_Golang(t *testing.T) {
 	})
 
 	t.Run("library", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		golang := func(platform string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -375,6 +419,8 @@ func TestGenerate_Golang(t *testing.T) {
 
 		for _, platform := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(platform, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: kickr.Kickr{
@@ -391,6 +437,8 @@ func TestGenerate_Golang(t *testing.T) {
 	})
 
 	t.Run("multiple_bin_helm", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		golang := func(provider string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -454,6 +502,8 @@ func TestGenerate_Golang(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -480,6 +530,8 @@ func TestGenerate_Golang(t *testing.T) {
 	})
 
 	t.Run("multiple_libraries", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		golang := func(platform string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -502,6 +554,8 @@ func TestGenerate_Golang(t *testing.T) {
 
 		for _, platform := range []string{parser.GitLab, parser.GitHub} {
 			t.Run(platform, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: kickr.Kickr{
@@ -519,6 +573,8 @@ func TestGenerate_Golang(t *testing.T) {
 }
 
 func TestGenerate_Hugo(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	hugo := func(hugodir string) engine.Parser[types.Repository] {
@@ -535,12 +591,16 @@ func TestGenerate_Hugo(t *testing.T) {
 	}
 
 	t.Run("no_website", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{Config: merge(t, kickr.Kickr{}, tc.Config)}
 
@@ -551,6 +611,8 @@ func TestGenerate_Hugo(t *testing.T) {
 	})
 
 	t.Run("hosting", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{
 				Name: "github_netlify_auto",
@@ -631,6 +693,8 @@ func TestGenerate_Hugo(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{}, tc.Config),
@@ -643,12 +707,16 @@ func TestGenerate_Hugo(t *testing.T) {
 	})
 
 	t.Run("docker", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Config),
@@ -661,12 +729,16 @@ func TestGenerate_Hugo(t *testing.T) {
 	})
 
 	t.Run("netlify_and_pages", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -686,9 +758,13 @@ func TestGenerate_Hugo(t *testing.T) {
 }
 
 func TestGenerate_Node(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	t.Run("package_managers", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		node := func(tc string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -699,6 +775,8 @@ func TestGenerate_Node(t *testing.T) {
 
 		for _, tc := range []string{"bun@1.1.6", "npm@7.0.0", "pnpm@9.0.0", "yarn@1.22.10"} {
 			t.Run(tc, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: kickr.Kickr{
@@ -714,6 +792,8 @@ func TestGenerate_Node(t *testing.T) {
 	})
 
 	t.Run("library", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -726,6 +806,8 @@ func TestGenerate_Node(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{Config: merge(t, kickr.Kickr{}, tc.Config)}
 
@@ -736,6 +818,8 @@ func TestGenerate_Node(t *testing.T) {
 	})
 
 	t.Run("hosting", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -822,6 +906,8 @@ func TestGenerate_Node(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -836,6 +922,8 @@ func TestGenerate_Node(t *testing.T) {
 	})
 
 	t.Run("helm", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -946,6 +1034,8 @@ func TestGenerate_Node(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -960,6 +1050,8 @@ func TestGenerate_Node(t *testing.T) {
 	})
 
 	t.Run("docker", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -972,6 +1064,8 @@ func TestGenerate_Node(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Config),
@@ -984,6 +1078,8 @@ func TestGenerate_Node(t *testing.T) {
 	})
 
 	t.Run("docker_and_publish", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		node := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, parser.FilePackageJSON),
@@ -1001,6 +1097,8 @@ func TestGenerate_Node(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Config),
@@ -1014,9 +1112,13 @@ func TestGenerate_Node(t *testing.T) {
 }
 
 func TestGenerate_Terraform(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	t.Run("multiple_modules", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		terraform := func(subdir string) func(ctx context.Context, destdir string, repo *types.Repository) error {
 			return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -1155,6 +1257,8 @@ func TestGenerate_Terraform(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{}, tc.Config),
@@ -1167,6 +1271,8 @@ func TestGenerate_Terraform(t *testing.T) {
 	})
 
 	t.Run("root_module", func(t *testing.T) {
+		t.Parallel()
+
 		// Arrange
 		terraform := func(_ context.Context, destdir string, _ *types.Repository) error {
 			return os.WriteFile(filepath.Join(destdir, "main.tf"), []byte(`terraform { backend "s3" {} }`+"\n"), files.RwRR)
@@ -1224,6 +1330,8 @@ func TestGenerate_Terraform(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{PreCommit: []string{kickr.PreCommitTerraform}}, tc.Config),
@@ -1237,6 +1345,8 @@ func TestGenerate_Terraform(t *testing.T) {
 }
 
 func TestGenerate_MonoRepo(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	golang := func(godir, cmd, provider string) engine.Parser[types.Repository] {
@@ -1302,6 +1412,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 	}
 
 	t.Run("go_node_doc", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github_netlify", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "github_pages", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
@@ -1310,6 +1422,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				provider, target, _ := strings.Cut(tc.Name, "_")
 				repo := types.Repository{
@@ -1329,6 +1443,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 	})
 
 	t.Run("go_hugo_doc", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github_netlify", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "github_pages", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
@@ -1337,6 +1453,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				provider, target, _ := strings.Cut(tc.Name, "_")
 				repo := types.Repository{
@@ -1356,6 +1474,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 	})
 
 	t.Run("node_hugo_doc", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github_netlify", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "github_pages", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
@@ -1364,6 +1484,8 @@ func TestGenerate_MonoRepo(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				_, target, _ := strings.Cut(tc.Name, "_")
 				repo := types.Repository{
@@ -1383,12 +1505,16 @@ func TestGenerate_MonoRepo(t *testing.T) {
 	})
 
 	t.Run("frontend_backend_docker", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -1410,12 +1536,16 @@ func TestGenerate_MonoRepo(t *testing.T) {
 	})
 
 	t.Run("go_self_terraform", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{Name: "github", Config: kickr.Kickr{BuildTool: kickr.BuildToolTask, GitHub: &kickr.GitHub{}}},
 			{Name: "gitlab", Config: kickr.Kickr{BuildTool: kickr.BuildToolJust, GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -1434,9 +1564,13 @@ func TestGenerate_MonoRepo(t *testing.T) {
 }
 
 func TestGenerate_MultiPlatforms(t *testing.T) {
+	t.Parallel()
+
 	ctx := t.Context()
 
 	t.Run("multiple_ci", func(t *testing.T) {
+		t.Parallel()
+
 		cases := []testcase{
 			{
 				Name: "github_primary",
@@ -1455,6 +1589,8 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
@@ -1522,8 +1658,7 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 	}
 
 	// lookups fail without responder, rendering kickr default images.
-	httpmock.Activate()
-	t.Cleanup(httpmock.DeactivateAndReset)
+	client := &http.Client{Transport: httpmock.NewMockTransport()}
 
 	// Act
 	err := engine.Generate(ctx, destdir, repo,
@@ -1534,8 +1669,8 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 			generate.ParserModules,
 
 			generate.ParserGlob,
-			generate.ParserHugo(http.DefaultClient),
-			generate.ParserGolang(http.DefaultClient),
+			generate.ParserHugo(client),
+			generate.ParserGolang(client),
 			generate.ParserNode,
 			generate.ParserTerraform,
 
