@@ -4,16 +4,16 @@
 {{- $placeholder_rules := "**[NOTE: The remedies and repairs outlined below are suggestions based on best practices in code of conduct enforcement. If your community has its own established enforcement process, be sure to edit this section to describe your own policies.]**" }}
 
 {{- $means_list := list }}
-{{- if eq .VCS.Platform "gitlab" }}{{- $means_list = append $means_list (printf "open an [issue](https://%s/%s/-/work_items)" .VCS.ProjectHost .VCS.ProjectPath) }}{{- end }}
-{{- if eq .VCS.Platform "github" }}{{- $means_list = append $means_list (printf "open an [issue](https://%s/%s/issues)" .VCS.ProjectHost .VCS.ProjectPath) }}{{- end }}
+{{- if eq .VCS.Platform "gitlab" }}{{- $means_list = append $means_list (printf "Open an [issue](https://%s/%s/-/work_items)." .VCS.ProjectHost .VCS.ProjectPath) }}{{- end }}
+{{- if eq .VCS.Platform "github" }}{{- $means_list = append $means_list (printf "Open an [issue](https://%s/%s/issues)." .VCS.ProjectHost .VCS.ProjectPath) }}{{- end }}
 
 {{- range .Maintainers }}
 {{- if and .Email .URL }}
-{{- $means_list = append $means_list (printf "contact [%s](mailto:%s) ([website](%s))" .Name .Email .URL) }}
+{{- $means_list = append $means_list (printf "Contact [%s](mailto:%s) ([website](%s))." .Name .Email .URL) }}
 {{- else if .Email }}
-{{- $means_list = append $means_list (printf "contact [%s](mailto:%s)" .Name .Email) }}
+{{- $means_list = append $means_list (printf "Contact [%s](mailto:%s)." .Name .Email) }}
 {{- else if .URL }}
-{{- $means_list = append $means_list (printf "contact [%s](%s)" .Name .URL) }}
+{{- $means_list = append $means_list (printf "Contact [%s](%s)." .Name .URL) }}
 {{- end }}
 {{- end }}
 
