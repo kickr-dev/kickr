@@ -7,7 +7,6 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
-	"path/filepath"
 	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
@@ -25,7 +24,7 @@ import (
 // Placeholders notes (**NOTE: ...**) within the raw code of conduct are replaced or removed based on kickr configuration.
 //
 // [Contributor Covenant 3.0]: https://www.contributor-covenant.org/version/3/0/code_of_conduct
-func GeneratorCodeOfConduct(httpClient *http.Client) func(ctx context.Context, destdir string, repo types.Repository) error {
+func GeneratorCodeOfConduct(httpClient *http.Client) func(ctx context.Context, root *os.Root, repo types.Repository) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
@@ -42,11 +41,10 @@ func GeneratorCodeOfConduct(httpClient *http.Client) func(ctx context.Context, d
 		Out:        generator.FileCodeOfConduct,
 	}
 
-	return func(ctx context.Context, destdir string, repo types.Repository) error {
-		dest := filepath.Join(destdir, generator.FileCodeOfConduct)
+	return func(ctx context.Context, root *os.Root, repo types.Repository) error {
 		if slices.Contains(repo.Config.Exclude, kickr.ExcludeCodeOfConduct) {
 			engine.GetLogger().Infof("skipping code of conduct generation, '%s' is excluded", kickr.ExcludeCodeOfConduct)
-			if err := os.Remove(dest); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			if err := root.Remove(generator.FileCodeOfConduct); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf("remove '%s': %w", generator.FileCodeOfConduct, err)
 			}
 			return nil
@@ -62,7 +60,7 @@ func GeneratorCodeOfConduct(httpClient *http.Client) func(ctx context.Context, d
 			Maintainers: repo.Config.Maintainers,
 			VCS:         repo.VCS,
 		}
-		if err := engine.ApplyTemplate(templates.FS(), destdir, template, d); err != nil {
+		if err := engine.ApplyTemplate(templates.FS(), root, template, d); err != nil {
 			return fmt.Errorf("apply template: %w", err)
 		}
 		return nil

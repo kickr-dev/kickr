@@ -18,6 +18,7 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
+	"github.com/kickr-dev/kickr/testutils"
 )
 
 const codeOfConduct = `## Reporting an Issue
@@ -51,7 +52,7 @@ func TestGeneratorCodeOfConduct_Exclude(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(dest, "file.txt"), files.RwxRxRxRx))
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "remove 'CODE_OF_CONDUCT.md'")
@@ -66,7 +67,7 @@ func TestGeneratorCodeOfConduct_Exclude(t *testing.T) {
 		require.NoError(t, f.Close())
 
 		// Act
-		err = gen(ctx, destdir, repo)
+		err = gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -88,7 +89,7 @@ func TestGeneratorCodeOfConduct_Download(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "error message"))
 
 		// Act
-		err := gen(ctx, t.TempDir(), types.Repository{})
+		err := gen(ctx, testutils.Root(t, t.TempDir()), types.Repository{})
 
 		// Assert
 		assert.ErrorContains(t, err, "fetch code of conduct")
@@ -116,7 +117,7 @@ func TestGeneratorCodeOfConduct_Download(t *testing.T) {
 		}
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -160,7 +161,7 @@ If an investigation by the Community Moderators finds that this Code of Conduct 
 		}
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)

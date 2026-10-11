@@ -69,7 +69,7 @@ func TestHelmTemplate(t *testing.T) {
 					},
 				},
 			}
-			require.NoError(t, generate(ctx, destdir, repo))
+			require.NoError(t, generate(ctx, testutils.Root(t, destdir), repo))
 			chartdir := filepath.Join(destdir, "chart")
 
 			// remove default values since we use custom ones

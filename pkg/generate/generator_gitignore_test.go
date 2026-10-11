@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/jarcoal/httpmock"
+	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/kickr-dev/engine/pkg/generator"
 	"github.com/kickr-dev/engine/pkg/parser"
 	compare "github.com/kilianpaquier/compare/pkg"
@@ -20,6 +21,7 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
+	"github.com/kickr-dev/kickr/testutils"
 )
 
 func TestGeneratorGitignore(t *testing.T) {
@@ -49,7 +51,7 @@ func TestGeneratorGitignore(t *testing.T) {
 		}
 
 		// Act
-		err := gen(ctx, t.TempDir(), repo)
+		err := gen(ctx, testutils.Root(t, t.TempDir()), repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "download gitignore")
@@ -83,7 +85,7 @@ func TestGeneratorGitignore(t *testing.T) {
 				}
 
 				// Act
-				err := gen(ctx, destdir, repo)
+				err := gen(ctx, testutils.Root(t, destdir), repo)
 
 				// Assert
 				require.NoError(t, err)
@@ -121,7 +123,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -160,7 +162,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -199,7 +201,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -223,6 +225,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 	t.Run("success_modules", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
+		require.NoError(t, os.Mkdir(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
 
 		t.Cleanup(httpmock.Reset)
 		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "go"),
@@ -238,7 +241,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -305,7 +308,7 @@ hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 				}
 
 				// Act
-				err := gen(ctx, destdir, repo)
+				err := gen(ctx, testutils.Root(t, destdir), repo)
 
 				// Assert
 				require.NoError(t, err)

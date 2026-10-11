@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"path/filepath"
+	"os"
 	"slices"
 	"strings"
 
@@ -23,7 +23,7 @@ import (
 // as some of them may be missing depending on kickr layout generation.
 //
 // [Gitignore API]: https://docs.gitignore.io/use/api
-func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destdir string, repo types.Repository) error {
+func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, root *os.Root, repo types.Repository) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
@@ -48,7 +48,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 		Out:            generator.FileGitignore,
 	}
 
-	return func(ctx context.Context, destdir string, repo types.Repository) error {
+	return func(ctx context.Context, root *os.Root, repo types.Repository) error {
 		// modules sharing the same languages share the same payload, no need to fetch it twice
 		ignores := make(map[string]string, len(repo.Modules))
 		errs := make([]error, 0, len(repo.Modules))
@@ -73,9 +73,17 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, destd
 				ignores[key] = string(body)
 			}
 
+			sub, err := root.OpenRoot(module.Dir())
+			if err != nil {
+				errs = append(errs, fmt.Errorf("open '%s': %w", module.Dir(), err))
+				continue
+			}
 			d := data{Module: module, Downloaded: ignores[key]}
-			if err := engine.ApplyTemplate(templates.FS(), filepath.Join(destdir, module.Dir()), template, d); err != nil {
+			if err := engine.ApplyTemplate(templates.FS(), sub, template, d); err != nil {
 				errs = append(errs, fmt.Errorf("apply template in '%s': %w", module.Dir(), err))
+			}
+			if err := sub.Close(); err != nil {
+				engine.GetLogger().Warnf("failed to close '%s': %v", module.Dir(), err)
 			}
 		}
 		return errors.Join(errs...)

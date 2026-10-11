@@ -7,7 +7,6 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
@@ -17,15 +16,15 @@ import (
 )
 
 // GeneratorLicense generates the license file for the project.
-func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir string, repo types.Repository) error {
+func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, root *os.Root, repo types.Repository) error {
 	if httpClient == nil {
 		httpClient = http.DefaultClient //nolint:revive
 	}
-	return func(ctx context.Context, destdir string, repo types.Repository) error {
-		dest := filepath.Join(destdir, "LICENSE")
+	return func(ctx context.Context, root *os.Root, repo types.Repository) error {
+		dest := "LICENSE"
 		if repo.Config.License == "" {
 			engine.GetLogger().Infof("skipping license generation, configuration doesn't have 'license' key")
-			if err := os.Remove(dest); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			if err := root.Remove(dest); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf("remove '%s': %w", "LICENSE", err)
 			}
 			return nil
@@ -45,7 +44,7 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 			return nil
 		}
 
-		if !engine.Forced() && files.Exists(dest) {
+		if _, err := root.Lstat(dest); err == nil && !engine.Forced() {
 			engine.GetLogger().Infof("not generating '%s' since it already exists", "LICENSE")
 			return nil
 		}
@@ -68,7 +67,7 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, destdir
 		if err != nil {
 			return fmt.Errorf("get license template '%s': %w", repo.Config.License, err)
 		}
-		if err := os.WriteFile(dest, []byte(template.Content), files.RwRR); err != nil { //nolint:gosec
+		if err := root.WriteFile(dest, []byte(template.Content), files.RwRR); err != nil {
 			return fmt.Errorf("write license file: %w", err)
 		}
 		return nil

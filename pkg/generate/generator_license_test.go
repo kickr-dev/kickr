@@ -18,6 +18,7 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
+	"github.com/kickr-dev/kickr/testutils"
 )
 
 const license = "LICENSE"
@@ -36,7 +37,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(dest, "file.txt"), files.RwxRxRxRx))
 
 		// Act
-		err := gen(ctx, destdir, types.Repository{})
+		err := gen(ctx, testutils.Root(t, destdir), types.Repository{})
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("remove '%s'", license))
@@ -48,7 +49,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		dest := filepath.Join(destdir, license)
 
 		// Act
-		err := gen(ctx, destdir, types.Repository{})
+		err := gen(ctx, testutils.Root(t, destdir), types.Repository{})
 
 		// Assert
 		require.NoError(t, err)
@@ -64,7 +65,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, destdir, types.Repository{})
+		err = gen(ctx, testutils.Root(t, destdir), types.Repository{})
 
 		// Assert
 		require.NoError(t, err)
@@ -88,7 +89,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "error message"))
 
 		// Act
-		err := gen(ctx, t.TempDir(), types.Repository{Config: kickr.Kickr{License: "mit"}})
+		err := gen(ctx, testutils.Root(t, t.TempDir()), types.Repository{Config: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		assert.ErrorContains(t, err, "get license template 'mit'")
@@ -107,7 +108,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, destdir, types.Repository{Config: kickr.Kickr{License: "mit"}})
+		err = gen(ctx, testutils.Root(t, destdir), types.Repository{Config: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		require.NoError(t, err)
@@ -131,7 +132,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		}
 
 		// Act
-		err := gen(ctx, destdir, repo)
+		err := gen(ctx, testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
