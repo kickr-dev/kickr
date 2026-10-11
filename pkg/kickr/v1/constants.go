@@ -26,6 +26,7 @@ const (
 	ExcludeContributing  = "contributing"
 	ExcludePreCommit     = "pre-commit"
 	ExcludeRenovate      = "renovate"
+	ExcludeSecurity      = "security"
 	ExcludeShell         = "shell"
 )
 

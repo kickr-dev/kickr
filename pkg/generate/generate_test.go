@@ -248,6 +248,28 @@ func TestGenerate_NoLang(t *testing.T) {
 		}
 	})
 
+	t.Run("conventions", func(t *testing.T) {
+		t.Parallel()
+
+		cases := []testcase{
+			{Name: "disabled", Config: kickr.Kickr{Exclude: []string{kickr.ExcludeContributing, kickr.ExcludeSecurity}}},
+			{Name: "enabled", Config: kickr.Kickr{}},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
+				// Arrange
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
+				}
+
+				// Act & Assert
+				test(ctx, t, repo)
+			})
+		}
+	})
+
 	t.Run("release", func(t *testing.T) {
 		t.Parallel()
 

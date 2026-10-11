@@ -44,6 +44,7 @@ func Misc() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"SECURITY.md" + engine.TmplExtension},
 			Out:        "SECURITY.md",
+			Remove:     func(repo types.Repository) bool { return slices.Contains(repo.Config.Exclude, kickr.ExcludeSecurity) },
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),

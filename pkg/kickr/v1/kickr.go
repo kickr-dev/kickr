@@ -30,6 +30,7 @@ type Kickr struct {
 	//  - contributing
 	//  - pre-commit
 	//  - renovate
+	//  - security
 	//  - shell
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
