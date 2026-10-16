@@ -105,12 +105,12 @@ jobs:
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-          version: v2026.10.3
+          version: v2026.10.7
           install: false
           cache: true
       - run: |-
           # renovate: datasource=golang-version packageName=golang/go depName=golang
-          - mise use -g golang@1.27.1
+          - mise use -g golang@1.27.2
           # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
           - mise use -g hugo-extended@0.167.0
           # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
@@ -126,7 +126,7 @@ jobs:
           path: ${{ matrix.directory }}/dist
           retention-days: 1
       - if: ${{ !endsWith(matrix.artifact, '-pages') }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.directory }}/dist
@@ -163,7 +163,7 @@ jobs:
           path: ${{ matrix.directory }}/dist
           retention-days: 1
       - if: ${{ !endsWith(matrix.artifact, '-pages') }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.directory }}/dist

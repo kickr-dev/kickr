@@ -92,7 +92,7 @@ jobs:
           # renovate: datasource=github-tags packageName=actions/python-versions
           python-version: 3.13.7
       # https://github.com/marketplace/actions/helm-chart-testing
-      - uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
+      - uses: helm/chart-testing-action@720270857a28afd41e2426521a7801db09e9b510 # v2.9.0
       - id: changed
         run: |-
           changed=$(ct list-changed --chart-dirs "$HELM_CHART_DIR" --target-branch "$TARGET_BRANCH")
