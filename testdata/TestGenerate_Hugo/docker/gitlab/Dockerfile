@@ -3,7 +3,7 @@
 #############################
 #        STAGE BUILD        #
 #############################
-FROM ghcr.io/gohugoio/hugo:v0.167.0@sha256:7bb99a126eddeea8fbfaacedc5ef6708805411bdeaa01e668405a137fd02d048 AS build
+FROM ghcr.io/gohugoio/hugo:v0.168.0@sha256:1fb8fe7f417abd5802d86747d297728aa48078d763159e7dff6559fe3f8bb8e7 AS build
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN hugo build --gc --destination dist
 #############################
 #         STAGE RUN         #
 #############################
-FROM nginx:1.31.6-alpine3.24@sha256:adad2ae9204d0fd7a34f40299bc838c3782be1293b10005eac4315ff5a1abf4e
+FROM nginx:1.31.7-alpine3.24@sha256:892bb2152464f0c5d8972593a5f5afaf8054552580b699d95f8ff4af08c2d33d
 
 LABEL org.opencontainers.image.authors="kilianpaquier"
 LABEL org.opencontainers.image.vendor="kilianpaquier"
