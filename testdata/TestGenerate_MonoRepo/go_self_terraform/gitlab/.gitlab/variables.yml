@@ -10,18 +10,18 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
-  SEMREL_IMAGE: docker.io/library/node:26.11.1-alpine3.23@sha256:f1394b3ffc021bc3f4aaf363e70a8d9667f7a9a63538bc824d7cc583129fffad
-  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.5.20@sha256:1154cac2073d49cd313f6245bc4e25a4df7636194f39e8093da80376017f4988
+  SEMREL_IMAGE: docker.io/library/node:26.12.1-alpine3.23@sha256:bc2b334006f15c7167bbeb2f08f28c2df883f7594a0470e04454ebe7560cfe68
+  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.4@sha256:5d198d3d939535f4fbf1cca7ee1b0ad80577a74dd3d27377b3ec0e012652dd56
 
-  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.14.0-alpine@sha256:25925c95ebdc7aee39ecc0e6f4f33ac27b9a91718bc65fdf18a1a5c4c9325ee4
-  GO_IMAGE: docker.io/library/golang:1.27.1-trixie@sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275ed5
-  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.179.0@sha256:93963d9295a366f59e4850127b1550400ee7b388f04fe144e4a1f6325d96e01b
-  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.18.3@sha256:b61a4eedf5e3b1d283792dade34ee0f8c6cce3e6f1f65851d3b397b8f8a75b6d
-  TF_IMAGE: ghcr.io/opentofu/opentofu:1.13.1@sha256:1df996fca13806a20d5a3d3ad54acdcf76bcb1aa4ac30b5ba169b9e4cecdbcc8
-  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.3.26@sha256:8e63f217cb084f1c1a067326a9cf6e37d54bdc82e5822210d50ca4e2f647dd93
+  GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.15.0-alpine@sha256:2ba875b990f1d8501ad4ec19be1ea0701e316ec3a4b764f7b129f62f01318bbf
+  GO_IMAGE: docker.io/library/golang:1.27.2-trixie@sha256:47667934874913a449b96faa7ef4777fa285d9ec29126ee80ed61c45b7cccf0e
+  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.181.0@sha256:81474464c1f07483ba0682a44787fd93c91397419762a04abe2bafaae396304b
+  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.19.0@sha256:b62e651c2fd9e7b1c94133a4e5d131187649e45aeeca137fbf4940f0f654ad08
+  TF_IMAGE: ghcr.io/opentofu/opentofu:1.13.2@sha256:25bdfbe87000b8a88d44c7ef0cca53381da95f6203f7aed1e8cf5b81ecbe18eb
+  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.3.30@sha256:4b65e89f1fde292249fc0aa0d0db43302c036dfe39f7370b2d3517571082b894
   TF_DOCS_IMAGE: quay.io/terraform-docs/terraform-docs:0.24.0-amd64@sha256:16990b28302390f7c4ae398b371a46762b6b3eb8534e75eeee8185caa8029b8c
   TF_INFRACOST_IMAGE: docker.io/infracost/infracost:0.10.46@sha256:b19f83e23b43ac0189d5153eaa9ac38c1b2cebb1f38c0f2b1ac93f56be9e35cb
   TF_PUBLISH_IMAGE: docker.io/curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777
-  TF_TFLINT_IMAGE: ghcr.io/terraform-linters/tflint:v0.64.0@sha256:1c595f42d794c32c45a6ea8b58655fd66433d4ca3b1bc631c574a48d120bd19f
+  TF_TFLINT_IMAGE: ghcr.io/terraform-linters/tflint:v0.65.0@sha256:2788f4d4fc663c0e953b011b01bf443fe5bfce7587ee916e588e6057b85d6359
   TF_TFSEC_IMAGE: docker.io/aquasec/tfsec-ci:v1.28.14@sha256:9c7edeef0f4ba5b96cb7456d35196cc7c36b70d0af72117d413fad39b85e5ba3
-  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222

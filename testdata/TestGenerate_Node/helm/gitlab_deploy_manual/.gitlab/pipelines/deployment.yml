@@ -5,7 +5,7 @@ include:
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - remote: https://gitlab.com/to-be-continuous/helm/-/raw/e5636d90883f5969a4d6a35042bc74080f5ec276/templates/gitlab-ci-helm.yml # 9.7.0
+  - remote: https://gitlab.com/to-be-continuous/helm/-/raw/c974755ae7b97cd4164a8c5ac0d52d85ac0766b4/templates/gitlab-ci-helm.yml # 9.7.2
     inputs:
       chart-dir: chart/
       integ-enabled: true

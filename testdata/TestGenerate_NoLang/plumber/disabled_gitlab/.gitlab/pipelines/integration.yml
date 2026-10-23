@@ -5,6 +5,6 @@ include:
 
   # pre-commit template
   # https://gitlab.com/to-be-continuous/pre-commit
-  - remote: https://gitlab.com/to-be-continuous/pre-commit/-/raw/545565bb99ba3b932c9f1f244d446d5ff3f77b40/templates/gitlab-ci-pre-commit.yml # 1.6.0
+  - remote: https://gitlab.com/to-be-continuous/pre-commit/-/raw/50e22ece81358c673c8d33b79185d5563bdc1d39/templates/gitlab-ci-pre-commit.yml # 1.8.0
     inputs:
       pre-commit-file: .pre-commit-config.yaml
