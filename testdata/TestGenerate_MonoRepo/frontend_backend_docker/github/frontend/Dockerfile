@@ -3,7 +3,7 @@
 #############################
 #        STAGE BUILD        #
 #############################
-FROM node:26.12.0-alpine3.23@sha256:2ae3a23c9c5d2129398f4844c7c43400c061faf6973852f0fa837323bff9a5a8 AS build
+FROM node:26.12.1-alpine3.23@sha256:bc2b334006f15c7167bbeb2f08f28c2df883f7594a0470e04454ebe7560cfe68 AS build
 
 ARG APP_VERSION=v0.0.0
 
@@ -17,7 +17,7 @@ RUN bun install --frozen-lockfile && \
 #############################
 #         STAGE RUN         #
 #############################
-FROM nginx:1.31.7-alpine3.24@sha256:892bb2152464f0c5d8972593a5f5afaf8054552580b699d95f8ff4af08c2d33d
+FROM nginx:1.31.8-alpine3.24@sha256:1ef7ca94d7879df82421428ce13bd1eaa412404953859cf7a5b6512c25e67a60
 
 LABEL org.opencontainers.image.authors="kilianpaquier"
 LABEL org.opencontainers.image.vendor="kilianpaquier"
