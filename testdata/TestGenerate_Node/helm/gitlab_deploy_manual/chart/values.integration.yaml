@@ -1,0 +1,2 @@
+# Helm values overrides for 'integration' environment, merged over values.yaml at deploy.
+# yaml-language-server: $schema=values.schema.json

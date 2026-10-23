@@ -25,6 +25,11 @@ func (k Kickr) HasHelmDeploy() bool {
 	return k.Helm != nil && k.Helm.Deploy != ""
 }
 
+// IsHelmLibrary returns truthy in case the configuration has helm chart generation enabled with a library chart type.
+func (k Kickr) IsHelmLibrary() bool {
+	return k.Helm != nil && k.Helm.Type == HelmTypeLibrary
+}
+
 // HasPlumber returns truthy in case Plumber analysis is enabled on either platform.
 func (k Kickr) HasPlumber() bool {
 	if k.GitHub != nil && !slices.Contains(k.GitHub.Exclude, GitHubExcludePlumber) {
@@ -121,6 +126,7 @@ func (k *Kickr) EnsureDefaults() {
 
 	if k.Helm != nil {
 		slices.Sort(k.Helm.Environments)
+		slices.Sort(k.Helm.Exclude)
 	}
 
 	// sort modules per path

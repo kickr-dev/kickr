@@ -23,16 +23,16 @@ type Kickr struct {
 	// Docker defines the general Docker configuration.
 	Docker *Docker `json:"docker,omitempty" yaml:"docker,omitempty"`
 
-	// Exclude defines the part of Kickr generation to exclude.
+	// Exclude defines the parts of Kickr generation to skip.
 	//
 	// Enums:
-	//  - code-of-conduct
-	//  - contributing
-	//  - pre-commit
-	//  - readme
-	//  - renovate
-	//  - security
-	//  - shell
+	//  - code-of-conduct: Skips CODE_OF_CONDUCT.md and its mention in CONTRIBUTING.md.
+	//  - contributing: Skips CONTRIBUTING.md.
+	//  - pre-commit: Skips .pre-commit-config.yaml and its CI jobs.
+	//  - readme: Skips README.md.
+	//  - renovate: Skips renovate.json and the local Renovate configuration.
+	//  - security: Skips SECURITY.md.
+	//  - shell: Skips shellcheck on shell scripts, in pre-commit and CI.
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
 	// GitHub enables GitHub Actions with options to tune behaviors.
@@ -71,10 +71,10 @@ type Kickr struct {
 	// Otherwise every module must be declared, the repository root included as '.'.
 	Modules []Module `json:"modules,omitempty" yaml:"modules,omitempty"`
 
-	// Options defines available options to tune Kickr generation.
+	// Options defines the options to tune Kickr generation.
 	//
 	// Enums:
-	//  - renovate:overrides
+	//  - renovate:overrides: Adds configs/renovate/local.json for repository-specific Renovate rules.
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
 
 	// Platform defines the source code hosting platform (GitHub, GitLab, Gitea, Bitbucket).
@@ -99,12 +99,12 @@ type Kickr struct {
 	// and the top comment indicating that it's generated can be removed to avoid being overridden.
 	//
 	// Enums:
-	//  - auto-commit
-	//  - conventional-commits
-	//  - gitflow-branches
-	//  - golangci-lint
-	//  - gomod-tidy
-	//  - terraform
+	//  - auto-commit: Commits pre-commit autofixes back from GitHub Actions.
+	//  - conventional-commits: Checks commit messages and branch commits with commitizen.
+	//  - gitflow-branches: Blocks commits on branches outside gitflow naming.
+	//  - golangci-lint: Adds the golangci-lint hook, always on without CI.
+	//  - gomod-tidy: Runs go mod tidy before each commit.
+	//  - terraform: Adds fmt, validate, tflint and trivy hooks, always on without CI.
 	PreCommit []string `json:"pre-commit,omitempty" yaml:"pre-commit,omitempty"`
 }
 
@@ -123,11 +123,11 @@ type Module struct {
 	//  - apps/api
 	Path string `json:"path,omitempty" yaml:"path,omitempty"`
 
-	// Exclude defines available options to remove from this module generation.
+	// Exclude defines the parts of this module generation to skip.
 	//
 	// Enums:
-	//  - build_tool
-	//  - docker
+	//  - build_tool: Skips the build tool automation file (Makefile, Taskfile or Justfile).
+	//  - docker: Skips the Dockerfile.
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
 	// Deployment defines where and how the module is deployed.
@@ -230,27 +230,27 @@ type Docker struct {
 
 // GitHub enables GitHub Actions with options to tune behaviors.
 type GitHub struct {
-	// Exclude defines available options to remove from GitHub Actions generation.
+	// Exclude defines the parts of GitHub Actions generation to skip.
 	//
 	// Enums:
-	//  - plumber
-	//  - pre-commit
+	//  - plumber: Skips the Plumber pipeline compliance workflow.
+	//  - pre-commit: Skips the pre-commit job.
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
-	// Options defines available options to tune GitHub Actions.
+	// Options defines the options to tune GitHub Actions.
 	//
 	// Enums:
-	//  - codecov
-	//  - codeql
-	//  - harden-runner
-	//  - kickr:github-app
-	//  - kickr:personal-token
-	//  - labeler
-	//  - ossf-scorecard
-	//  - renovate:github-app
-	//  - renovate:personal-token
-	//  - sonarqube
-	//  - step-security-actions
+	//  - codecov: Adds .codecov.yml and uploads coverage to Codecov.
+	//  - codeql: Adds the CodeQL analysis workflow.
+	//  - harden-runner: Adds the StepSecurity harden-runner step to every job.
+	//  - kickr:github-app: Adds the kickr layout update workflow, authenticated with a GitHub App.
+	//  - kickr:personal-token: Adds the kickr layout update workflow, authenticated with a personal token.
+	//  - labeler: Labels pull requests by changed paths.
+	//  - ossf-scorecard: Adds the OpenSSF Scorecard workflow.
+	//  - renovate:github-app: Adds a self-hosted Renovate workflow, authenticated with a GitHub App.
+	//  - renovate:personal-token: Adds a self-hosted Renovate workflow, authenticated with a personal token.
+	//  - sonarqube: Adds sonar.properties and the SonarQube analysis.
+	//  - step-security-actions: Uses StepSecurity maintained forks of third-party actions.
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
 
 	// Release tunes various configuration on the releasing part.
@@ -259,21 +259,21 @@ type GitHub struct {
 
 // GitLab enables GitLab CICD with options to tune behaviors.
 type GitLab struct {
-	// Exclude defines available options to remove from GitLab CICD generation.
+	// Exclude defines the parts of GitLab CICD generation to skip.
 	//
 	// Enums:
-	//  - plumber
-	//  - pre-commit
+	//  - plumber: Skips the Plumber pipeline compliance job.
+	//  - pre-commit: Skips the pre-commit job.
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
-	// Options defines available options to tune GitLab CICD jobs.
+	// Options defines the options to tune GitLab CICD.
 	//
 	// Enums:
-	//  - kickr
-	//  - overrides:deployment
-	//  - overrides:integration
-	//  - renovate
-	//  - sonarqube
+	//  - kickr: Adds the kickr layout update job.
+	//  - overrides:deployment: Adds .gitlab/deployment.overrides.yml, included in the deployment pipeline.
+	//  - overrides:integration: Adds .gitlab/integration.overrides.yml, included in the integration pipeline.
+	//  - renovate: Adds a self-hosted Renovate job.
+	//  - sonarqube: Adds sonar.properties and the SonarQube analysis.
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
 
 	// Release tunes various configuration on the releasing part.
@@ -284,6 +284,21 @@ type GitLab struct {
 //
 // With 'ci' enabled, control how and when shall the Helm Chart be published or deployed alongside on which environments.
 type Helm struct {
+	// Exclude defines the parts of the Helm Chart generation to skip.
+	//
+	// Enums:
+	//  - workload: Skips the workload chart dependency, application template and values, and stops regenerating values.schema.json.
+	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
+
+	// Type defines the Helm Chart type.
+	//
+	// A library chart is never deployed, so it's not compatible with 'deploy' and 'environments'.
+	//
+	// Enums:
+	//  - application: Generates a deployable chart, rendering Kubernetes resources from its templates.
+	//  - library: Generates only Chart.yaml, .helmignore and an empty values.yaml, for named templates shared with other charts.
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+
 	// Deploy defines the Helm Chart deployment strategy (automatic or manual).
 	//
 	// Not providing this property will mean 'never' as strategy, no deployment job will be generated.
@@ -360,20 +375,20 @@ type Maintainer struct {
 //
 // From automatic releasing to how the authentication should be made with which semantic-release plugins.
 type Release struct {
-	// Auth defines the authentication method to create releases through the current VCS platform API.
+	// Auth defines the authentication method to create releases through the GitHub API.
 	//
 	// Enums:
-	//  - github-app
-	//  - github-token
-	//  - personal-token
+	//  - github-app: Creates a token from a GitHub App.
+	//  - github-token: Uses the workflow GITHUB_TOKEN.
+	//  - personal-token: Uses a personal access token secret.
 	Auth string `json:"auth,omitempty" yaml:"auth,omitempty"`
 
 	// Auto defines whether the release job should be executed automatically (or not).
 	Auto bool `json:"auto,omitempty" yaml:"auto,omitempty"`
 
-	// Options to add in release job / release configuration.
+	// Options defines the options to add to the release job and configuration.
 	//
 	// Enums:
-	//  - backmerge
+	//  - backmerge: Merges the release back into other branches with semantic-release-backmerge.
 	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
 }

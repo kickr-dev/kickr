@@ -43,9 +43,9 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, root 
 
 	template := engine.Template[data]{
 		Delimiters:     engine.DelimitersBracket(),
-		GeneratePolicy: engine.PolicyAlways,
 		Globs:          []string{generator.FileGitignore + engine.TmplExtension},
 		Out:            generator.FileGitignore,
+		GeneratePolicy: engine.StaticPolicy[data](engine.PolicyAlways),
 	}
 
 	return func(ctx context.Context, root *os.Root, repo types.Repository) error {

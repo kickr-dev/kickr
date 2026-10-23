@@ -15,10 +15,10 @@ func Golang() []engine.Template[types.Module] {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join("internal", "build", "build.go"+engine.TmplExtension)},
 			Out:        path.Join("internal", "build", "build.go"),
-			Remove: func(module types.Module) bool {
+			GeneratePolicy: engine.RemoveIf(func(module types.Module) bool {
 				_, ok := module.Languages[types.LanguageGo]
 				return !ok || module.Binaries() == 0
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }
@@ -30,22 +30,22 @@ func RepositoryGolang() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{".golangci.yml" + engine.TmplExtension},
 			Out:        ".golangci.yml",
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return len(repo.ModulesWith(types.LanguageGo)) == 0
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{".goreleaser.yml" + engine.TmplExtension},
 			Out:        ".goreleaser.yml",
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				for _, module := range repo.ModulesWith(types.LanguageGo) {
 					if len(module.Clis) > 0 {
 						return false
 					}
 				}
 				return true
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }

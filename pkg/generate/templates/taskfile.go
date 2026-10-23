@@ -16,23 +16,23 @@ func Taskfile() []engine.Template[types.Module] {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{"Taskfile.yml" + engine.TmplExtension},
 			Out:        "Taskfile.yml",
-			Remove: func(module types.Module) bool {
+			GeneratePolicy: engine.RemoveIf(func(module types.Module) bool {
 				if module.Dir() == types.RootModule && !module.Parent.HasBuildTool(kickr.BuildToolTask) {
 					return true
 				}
 				return !module.HasBuildTool(kickr.BuildToolTask)
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      engine.GlobsWithPart(path.Join("scripts", "task", "build.yml")),
 			Out:        path.Join("scripts", "task", "build.yml"),
-			Remove: func(module types.Module) bool {
+			GeneratePolicy: engine.RemoveIf(func(module types.Module) bool {
 				_, hugo := module.Languages[types.LanguageHugo]
 				_, ok := module.Languages[types.LanguageGo]
 				_, terraform := module.Languages[types.LanguageTerraform]
 				return !module.HasBuildTool(kickr.BuildToolTask) || (!module.HasDocker() && !hugo && !ok && !terraform) //nolint:revive
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }
@@ -44,20 +44,20 @@ func RepositoryTaskfile() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join("scripts", "task", "clean.yml") + engine.TmplExtension},
 			Out:        path.Join("scripts", "task", "clean.yml"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return !repo.HasBuildTool(kickr.BuildToolTask)
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join("scripts", "task", "lint.yml") + engine.TmplExtension},
 			Out:        path.Join("scripts", "task", "lint.yml"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				if len(repo.ModulesWith(types.LanguageGo)) == 0 && len(repo.ModulesWith(types.LanguageTerraform)) == 0 {
 					return true
 				}
 				return !repo.HasBuildTool(kickr.BuildToolTask)
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }

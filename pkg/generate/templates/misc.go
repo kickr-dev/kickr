@@ -25,42 +25,48 @@ func Misc() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart("CONTRIBUTING.md"),
 			Out:        "CONTRIBUTING.md",
-			Remove: func(repo types.Repository) bool {
-				return slices.Contains(repo.Config.Exclude, kickr.ExcludeContributing)
-			},
 			Sections: []engine.Section{
 				{Begin: "<!-- BEGIN_KICKR_GUIDELINES -->", End: "<!-- END_KICKR_GUIDELINES -->"},
 			},
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+				return slices.Contains(repo.Config.Exclude, kickr.ExcludeContributing)
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      engine.GlobsWithPart("README.md"),
 			Out:        "README.md",
-			Remove:     func(repo types.Repository) bool { return slices.Contains(repo.Config.Exclude, kickr.ExcludeReadme) },
 			Sections: []engine.Section{
 				{Begin: "<!-- BEGIN_KICKR_BADGES -->", End: "<!-- END_KICKR_BADGES -->"},
 			},
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+				return slices.Contains(repo.Config.Exclude, kickr.ExcludeReadme)
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"SECURITY.md" + engine.TmplExtension},
 			Out:        "SECURITY.md",
-			Remove:     func(repo types.Repository) bool { return slices.Contains(repo.Config.Exclude, kickr.ExcludeSecurity) },
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+				return slices.Contains(repo.Config.Exclude, kickr.ExcludeSecurity)
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".pre-commit-config.yaml" + engine.TmplExtension},
 			Out:        ".pre-commit-config.yaml",
-			Remove:     func(repo types.Repository) bool { return slices.Contains(repo.Config.Exclude, kickr.ExcludePreCommit) },
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+				return slices.Contains(repo.Config.Exclude, kickr.ExcludePreCommit)
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join("scripts", "sh", "conventionalcommits-branch.sh"+engine.TmplExtension)},
 			Mode:       files.RwxRxRxRx,
 			Out:        path.Join("scripts", "sh", "conventionalcommits-branch.sh"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return slices.Contains(repo.Config.Exclude, kickr.ExcludePreCommit) || !slices.Contains(repo.Config.PreCommit, kickr.PreCommitConventionalCommits)
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }

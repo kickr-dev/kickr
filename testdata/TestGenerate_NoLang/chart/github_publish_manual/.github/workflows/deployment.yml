@@ -104,7 +104,7 @@ jobs:
         env:
           HELM_CHART_PATH: ${{ github.event.repository.name }}-${{ needs.version.outputs.version }}.tgz
           HELM_DRY_RUN: ${{ inputs.helm_push != 'full' }}
-          HELM_PUBLISH_URL: chartmuseum.example.com/path/to
+          HELM_PUBLISH_URL: chartmuseum.example.com/path/to/kickr
           HELM_REGISTRY: chartmuseum.example.com
           HELM_REPO_ACCESS_TOKEN: ${{ secrets.HELM_REPO_ACCESS_TOKEN || secrets.HELM_REPO_PASSWORD }}
           HELM_REPO_AUTH_HEADER: ${{ secrets.HELM_REPO_AUTH_HEADER }}

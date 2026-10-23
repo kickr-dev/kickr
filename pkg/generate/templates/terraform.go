@@ -18,15 +18,15 @@ func Terraform() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{".terraform-docs.yml" + engine.TmplExtension},
 			Out:        ".terraform-docs.yml",
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return len(repo.ModulesWithTerraformPublish()) == 0
-			},
+			}, engine.PolicyDefault),
 		},
 		{
-			Delimiters: engine.DelimitersBracket(),
-			Globs:      []string{".tflint.hcl" + engine.TmplExtension},
-			Out:        ".tflint.hcl",
-			Remove:     noTerraform,
+			Delimiters:     engine.DelimitersBracket(),
+			Globs:          []string{".tflint.hcl" + engine.TmplExtension},
+			Out:            ".tflint.hcl",
+			GeneratePolicy: engine.RemoveIf(noTerraform, engine.PolicyDefault),
 		},
 	}
 }

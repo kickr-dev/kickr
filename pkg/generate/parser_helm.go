@@ -3,23 +3,21 @@ package generate
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/parser"
+	"gitlab.com/kickr-dev/workload"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
-// ParserHelm parses the helm chart
-// and sets helm language in config by merging the config
-// and .kickr overrides in chart fodler.
+// ParserHelm sets the helm language on the root module with the Helm Chart values
+// (description, maintainers and the executables of every module deployed with helm).
 //
-// Note, since it does marshal input configuration in JSON
-// and merges it with <destdir>/chart/.kickr, this parser should be the last one called
+// Note, since it reads modules executables, this parser should be the last one called
 // to ensure the configuration is in a final state.
-func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error {
+func ParserHelm(_ context.Context, _ string, repo *types.Repository) error {
 	if repo.Config.Helm == nil {
 		return nil
 	}
@@ -54,6 +52,7 @@ func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error
 			}
 			return kickr.Docker{}
 		}(),
+		"workloadVersion": workload.Version(),
 
 		"clis":    executables(func(m types.Module) map[string]any { return m.Clis }),
 		"crons":   executables(func(m types.Module) map[string]any { return m.Crons }),
@@ -65,7 +64,8 @@ func ParserHelm(_ context.Context, destdir string, repo *types.Repository) error
 		"projectPath": repo.VCS.ProjectPath,
 	}
 
-	values, err := parser.MergeValues(base, filepath.Join(destdir, "chart", kickr.CustomValues))
+	// Templates read values with their json names (e.g. docker.registry).
+	values, err := parser.MergeValues(base)
 	if err != nil {
 		return fmt.Errorf("merge values: %w", err)
 	}

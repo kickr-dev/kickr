@@ -11,6 +11,7 @@ import (
 	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/spf13/cobra"
+	"gitlab.com/kickr-dev/workload"
 
 	schemas "github.com/kickr-dev/kickr/.schemas"
 	"github.com/kickr-dev/kickr/pkg/generate"
@@ -43,6 +44,7 @@ func generators() []engine.Generator[types.Repository] {
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Plumber(), templates.Sonar())),         // analysis
 		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
+		engine.GeneratorTemplates(workload.FS(), templates.ValuesSchema()),                                                            // values schema
 		engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
 		engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
 		engine.GeneratorTemplates(templates.FS(), templates.RepositoryTaskfile()),                                                     // taskfile
@@ -109,7 +111,7 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 				generate.ParserNode,
 				generate.ParserTerraform,
 
-				// must be kept last since it marshals config and merges it with chart overrides
+				// must be kept last since it reads modules executables
 				generate.ParserHelm,
 			}
 

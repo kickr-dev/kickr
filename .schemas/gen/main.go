@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -18,7 +19,13 @@ func run() error {
 		return fmt.Errorf("get wd: %w", err)
 	}
 
-	entries, err := os.ReadDir(dir)
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return fmt.Errorf("open root: %w", err)
+	}
+	defer root.Close()
+
+	entries, err := fs.ReadDir(root.FS(), ".")
 	if err != nil {
 		return fmt.Errorf("read dir: %w", err)
 	}
@@ -30,7 +37,7 @@ func run() error {
 			continue // ignore non-ya?ml files
 		}
 
-		in, err := os.ReadFile(filename)
+		in, err := root.ReadFile(filename)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("read file: %w", err))
 			continue
@@ -42,7 +49,7 @@ func run() error {
 			continue
 		}
 
-		if err := os.WriteFile(strings.TrimSuffix(filename, filepath.Ext(filename))+".json", out, 0o644); err != nil {
+		if err := root.WriteFile(strings.TrimSuffix(filename, filepath.Ext(filename))+".json", out, 0o644); err != nil {
 			errs = append(errs, fmt.Errorf("write file: %w", err))
 			continue
 		}

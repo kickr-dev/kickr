@@ -7,7 +7,7 @@ include:
   # https://gitlab.com/to-be-continuous/helm
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/c974755ae7b97cd4164a8c5ac0d52d85ac0766b4/templates/gitlab-ci-helm.yml # 9.7.2
     inputs:
-      chart-dir: chart/
+      chart-dir: chart
       integ-enabled: true
       package-args: package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update
       prod-enabled: false
@@ -22,6 +22,7 @@ include:
       test-enabled: false
       deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION"
       integ-app-name: $HELM_BASE_APP_NAME
+      integ-values: chart/values.integration.yaml
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       staging-app-name: $HELM_BASE_APP_NAME
 

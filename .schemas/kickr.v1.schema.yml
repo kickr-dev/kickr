@@ -34,18 +34,31 @@ properties:
 
   exclude:
     type: array
-    description: Exclude part of Kickr generation.
+    description: |-
+      Parts of Kickr generation to skip.
+
+      - 'code-of-conduct': Skips CODE_OF_CONDUCT.md and its mention in CONTRIBUTING.md.
+      - 'contributing': Skips CONTRIBUTING.md.
+      - 'pre-commit': Skips .pre-commit-config.yaml and its CI jobs.
+      - 'readme': Skips README.md.
+      - 'renovate': Skips renovate.json and the local Renovate configuration.
+      - 'security': Skips SECURITY.md.
+      - 'shell': Skips shellcheck on shell scripts, in pre-commit and CI.
     items:
       type: string
       enum: [code-of-conduct, contributing, pre-commit, readme, renovate, security, shell]
 
   github:
     type: object
-    description: Enable GitLab Actions with options to tune behaviors.
+    description: Enable GitHub Actions with options to tune behaviors.
     additionalProperties: false
     properties:
       exclude:
-        description: Available options to remove from GitHub Actions generation.
+        description: |-
+          Parts of GitHub Actions generation to skip.
+
+          - 'plumber': Skips the Plumber pipeline compliance workflow.
+          - 'pre-commit': Skips the pre-commit job.
         type: array
         items:
           type: string
@@ -53,7 +66,20 @@ properties:
             - plumber
             - pre-commit
       options:
-        description: Available options to tune GitHub Actions.
+        description: |-
+          Options to tune GitHub Actions.
+
+          - 'codecov': Adds .codecov.yml and uploads coverage to Codecov.
+          - 'codeql': Adds the CodeQL analysis workflow.
+          - 'harden-runner': Adds the StepSecurity harden-runner step to every job.
+          - 'kickr:github-app': Adds the kickr layout update workflow, authenticated with a GitHub App.
+          - 'kickr:personal-token': Adds the kickr layout update workflow, authenticated with a personal token.
+          - 'labeler': Labels pull requests by changed paths.
+          - 'ossf-scorecard': Adds the OpenSSF Scorecard workflow.
+          - 'renovate:github-app': Adds a self-hosted Renovate workflow, authenticated with a GitHub App.
+          - 'renovate:personal-token': Adds a self-hosted Renovate workflow, authenticated with a personal token.
+          - 'sonarqube': Adds sonar.properties and the SonarQube analysis.
+          - 'step-security-actions': Uses StepSecurity maintained forks of third-party actions.
         type: array
         items:
           type: string
@@ -75,7 +101,12 @@ properties:
           auth:
             type: string
             enum: [github-app, github-token, personal-token]
-            description: Authentication method to create releases through the current VCS platform API.
+            description: |-
+              Authentication method to create releases through the GitHub API.
+
+              - 'github-app': Creates a token from a GitHub App.
+              - 'github-token': Uses the workflow GITHUB_TOKEN.
+              - 'personal-token': Uses a personal access token secret.
         allOf:
           - $ref: "#/$defs/ci/release"
 
@@ -85,7 +116,11 @@ properties:
     additionalProperties: false
     properties:
       exclude:
-        description: Available options to remove from GitLab CICD generation.
+        description: |-
+          Parts of GitLab CICD generation to skip.
+
+          - 'plumber': Skips the Plumber pipeline compliance job.
+          - 'pre-commit': Skips the pre-commit job.
         type: array
         items:
           type: string
@@ -93,7 +128,14 @@ properties:
             - plumber
             - pre-commit
       options:
-        description: Available options to GitLab CICD jobs.
+        description: |-
+          Options to tune GitLab CICD.
+
+          - 'kickr': Adds the kickr layout update job.
+          - 'overrides:deployment': Adds .gitlab/deployment.overrides.yml, included in the deployment pipeline.
+          - 'overrides:integration': Adds .gitlab/integration.overrides.yml, included in the integration pipeline.
+          - 'renovate': Adds a self-hosted Renovate job.
+          - 'sonarqube': Adds sonar.properties and the SonarQube analysis.
         type: array
         items:
           type: string
@@ -182,7 +224,10 @@ properties:
 
   options:
     type: array
-    description: Available options to tune Kickr generation.
+    description: |-
+      Options to tune Kickr generation.
+
+      - 'renovate:overrides': Adds configs/renovate/local.json for repository-specific Renovate rules.
     items:
       type: string
       enum: [renovate:overrides]
@@ -207,6 +252,13 @@ properties:
 
       In case a specific hook, not implemented, must be provided, then '.pre-commit-config.yaml' file can be modified
       and the top comment indicating that it's generated can be removed to avoid being overridden.
+
+      - 'auto-commit': Commits pre-commit autofixes back from GitHub Actions.
+      - 'conventional-commits': Checks commit messages and branch commits with commitizen.
+      - 'gitflow-branches': Blocks commits on branches outside gitflow naming.
+      - 'golangci-lint': Adds the golangci-lint hook, always on without CI.
+      - 'gomod-tidy': Runs go mod tidy before each commit.
+      - 'terraform': Adds fmt, validate, tflint and trivy hooks, always on without CI.
     items:
       type: string
       enum:
@@ -358,6 +410,27 @@ $defs:
       General Helm configuration. By providing this property an Helm Chart will be generated.
 
       With 'ci' enabled, control how and when shall the Helm Chart be published or deployed alongside on which environments.
+    properties:
+      exclude:
+        type: array
+        description: |-
+          Parts of the Helm Chart generation to skip.
+
+          - 'workload': Skips the workload chart dependency, application template and values, and stops regenerating values.schema.json.
+        items:
+          type: string
+          enum: [workload]
+      type:
+        type: string
+        description: |-
+          Helm Chart type.
+
+          - 'application': Generates a deployable chart, rendering Kubernetes resources from its templates.
+          - 'library': Generates only Chart.yaml, .helmignore and an empty values.yaml, for named templates shared with other charts.
+
+          A library chart is never deployed, so it's not compatible with 'deploy' and 'environments'.
+        enum: [application, library]
+        default: application
 
   module:
     type: object
@@ -376,7 +449,11 @@ $defs:
         examples: [".", docs, apps/api]
       exclude:
         type: array
-        description: Available options to remove from this module generation.
+        description: |-
+          Parts of this module generation to skip.
+
+          - 'build_tool': Skips the build tool automation file (Makefile, Taskfile or Justfile).
+          - 'docker': Skips the Dockerfile.
         items:
           type: string
           enum: [build_tool, docker]
@@ -430,6 +507,17 @@ $defs:
         publish: [path, registry]
         path: [registry]
         registry: [path]
+      # a library chart is never deployed, only published
+      if:
+        required: [type]
+        properties:
+          type:
+            const: library
+      then:
+        not:
+          anyOf:
+            - required: [deploy]
+            - required: [environments]
       properties:
         deploy:
           type: string
@@ -547,7 +635,10 @@ $defs:
           description: Whether the release job should be executed automatically (or not).
         options:
           type: array
-          description: Options to add in release job / release configuration.
+          description: |-
+            Options to add to the release job and configuration.
+
+            - 'backmerge': Merges the release back into other branches with semantic-release-backmerge.
           items:
             type: string
             enum: [backmerge]

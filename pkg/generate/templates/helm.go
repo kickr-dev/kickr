@@ -2,7 +2,7 @@ package templates
 
 import (
 	"path"
-	"path/filepath"
+	"slices"
 
 	engine "github.com/kickr-dev/engine/pkg"
 
@@ -11,61 +11,95 @@ import (
 )
 
 // Chart returns the slice of templates related to helm chart generation.
+//
+// An existing Chart.yaml is kept as is, except for its kickr sections (description, workload dependency and maintainers), which are regenerated.
 func Chart() (templates []engine.Template[types.Repository]) {
-	tmplfiles := []string{
-		path.Join("chart", "templates", "_helpers.tpl"),
-		path.Join("chart", "templates", "configmap.yaml"),
-		path.Join("chart", "templates", "cronjob.yaml"),
-		path.Join("chart", "templates", "deployment.yaml"),
-		path.Join("chart", "templates", "hpa.yaml"),
-		path.Join("chart", "templates", "job.yaml"),
-		path.Join("chart", "templates", "service.yaml"),
-		path.Join("chart", "templates", "serviceaccount.yaml"),
-	}
-	for _, src := range tmplfiles {
-		templates = append(templates, engine.Template[types.Repository]{
-			Delimiters: engine.DelimitersChevron(),
-			Globs:      []string{src + engine.TmplExtension},
-			Out:        src,
-			Remove: func(repo types.Repository) bool {
-				return repo.Config.Helm == nil
-			},
-		})
-	}
+	application := path.Join("chart", "templates", "application.yaml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersChevron(),
+		Globs:      []string{application + engine.TmplExtension},
+		Out:        application,
+		GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+			return repo.Config.Helm == nil || repo.Config.IsHelmLibrary() || slices.Contains(repo.Config.Helm.Exclude, kickr.HelmExcludeWorkload)
+		}, engine.PolicyDefault),
+	})
 
-	chartfiles := []string{
-		path.Join("chart", kickr.CustomValues),
-		path.Join("chart", ".helmignore"),
-		path.Join("chart", "Chart.yaml"),
+	helmignore := path.Join("chart", ".helmignore")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      []string{helmignore + engine.TmplExtension},
+		Out:        helmignore,
+		GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+			return repo.Config.Helm == nil
+		}, engine.PolicyDefault),
+	})
+
+	chart := path.Join("chart", "Chart.yaml")
+	templates = append(templates, engine.Template[types.Repository]{
+		Delimiters: engine.DelimitersBracket(),
+		Globs:      []string{chart + engine.TmplExtension},
+		Out:        chart,
+		Sections: []engine.Section{
+			{Begin: "# BEGIN_KICKR_DESCRIPTION", End: "# END_KICKR_DESCRIPTION"},
+			{Begin: "# BEGIN_KICKR_WORKLOAD", End: "# END_KICKR_WORKLOAD"},
+			{Begin: "# BEGIN_KICKR_MAINTAINERS", End: "# END_KICKR_MAINTAINERS"},
+		},
+		GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+			return repo.Config.Helm == nil
+		}, engine.PolicyDefault),
+	})
+
+	valuesfiles := []string{
+		path.Join("chart", "values.integration.yaml"),
+		path.Join("chart", "values.production.yaml"),
+		path.Join("chart", "values.review.yaml"),
+		path.Join("chart", "values.staging.yaml"),
 	}
-	for _, src := range chartfiles {
+	for _, src := range valuesfiles {
 		templates = append(templates, engine.Template[types.Repository]{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{src + engine.TmplExtension},
 			Out:        src,
-			Remove: func(repo types.Repository) bool {
-				return repo.Config.Helm == nil
-			},
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+				return repo.Config.Helm == nil || repo.Config.IsHelmLibrary()
+			}, engine.PolicyDefault),
 		})
 	}
 	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters:  engine.DelimitersBracket(),
-		EmptyPolicy: engine.PolicyKeep,
-		Globs:       []string{path.Join("chart", "charts", ".gitkeep") + engine.TmplExtension},
-		Out:         filepath.Join("chart", "charts", ".gitkeep"),
-		Remove: func(repo types.Repository) bool {
-			return repo.Config.Helm == nil
-		},
-	})
-
-	templates = append(templates, engine.Template[types.Repository]{
-		Delimiters: engine.DelimitersBracket(),
-		Globs:      engine.GlobsWithPart(path.Join("chart", "values.yaml")),
-		Out:        path.Join("chart", "values.yaml"),
-		Remove: func(repo types.Repository) bool {
-			return repo.Config.Helm == nil
+		EmptyPolicy: engine.PolicyKeepEmpty, // library and workload excluded charts get an empty values.yaml
+		Globs:       []string{path.Join("chart", "values.yaml") + engine.TmplExtension},
+		Out:         path.Join("chart", "values.yaml"),
+		GeneratePolicy: func(out string, repo types.Repository) engine.GeneratePolicy {
+			if repo.Config.Helm == nil {
+				return engine.PolicyRemove
+			}
+			if repo.Config.IsHelmLibrary() || slices.Contains(repo.Config.Helm.Exclude, kickr.HelmExcludeWorkload) {
+				return engine.SkipIfExists(out, engine.PolicyDefault)
+			}
+			return engine.PolicyDefault
 		},
 	})
 
 	return templates
+}
+
+// ValuesSchema returns the template of the helm chart values schema, to be used with the workload chart filesystem.
+func ValuesSchema() []engine.Template[types.Repository] {
+	return []engine.Template[types.Repository]{
+		{
+			Delimiters: engine.DelimitersChevron(),
+			Globs:      []string{path.Join("chart", kickr.ValuesSchema)},
+			Out:        path.Join("chart", kickr.ValuesSchema),
+			GeneratePolicy: func(_ string, repo types.Repository) engine.GeneratePolicy {
+				if repo.Config.Helm == nil {
+					return engine.PolicyRemove
+				}
+				if repo.Config.IsHelmLibrary() || slices.Contains(repo.Config.Helm.Exclude, kickr.HelmExcludeWorkload) {
+					return engine.PolicySkip // the chart may ship its own schema
+				}
+				return engine.PolicyAlways // JSON can't hold the generated notice
+			},
+		},
+	}
 }

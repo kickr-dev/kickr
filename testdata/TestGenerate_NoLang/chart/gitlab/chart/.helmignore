@@ -26,3 +26,12 @@
 .idea/
 *.tmproj
 .vscode/
+
+# Chart testing values (https://github.com/helm/chart-testing)
+ci/
+
+# Library rendering tests
+tests/
+
+# Environment values overrides
+values.*.yaml

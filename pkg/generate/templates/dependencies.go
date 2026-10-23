@@ -17,54 +17,56 @@ func Renovate() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"renovate.json" + engine.TmplExtension},
 			Out:        "renovate.json",
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return slices.Contains(repo.Config.Exclude, kickr.ExcludeRenovate)
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join("configs", "renovate", "local.json"+engine.TmplExtension)},
 			Out:        path.Join("configs", "renovate", "local.json"),
-			Remove: func(repo types.Repository) bool {
-				return slices.Contains(repo.Config.Exclude, kickr.ExcludeRenovate) ||
-					!slices.Contains(repo.Config.Options, kickr.OptionsRenovateOverrides)
+			GeneratePolicy: func(out string, repo types.Repository) engine.GeneratePolicy {
+				if slices.Contains(repo.Config.Exclude, kickr.ExcludeRenovate) || !slices.Contains(repo.Config.Options, kickr.OptionsRenovateOverrides) {
+					return engine.PolicyRemove
+				}
+				return engine.SkipIfExists(out, engine.PolicyDefault)
 			},
 		},
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{path.Join(".github", "workflows", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "workflows", "renovate.yml"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitHub == nil || !slices.ContainsFunc(repo.Config.GitHub.Options, func(o string) bool {
 					return o == kickr.GitHubOptionsRenovateGitHubApp || o == kickr.GitHubOptionsRenovatePersonalToken
 				})
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".github", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".github", "renovate.json"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitHub == nil || !slices.ContainsFunc(repo.Config.GitHub.Options, func(o string) bool {
 					return o == kickr.GitHubOptionsRenovateGitHubApp || o == kickr.GitHubOptionsRenovatePersonalToken
 				})
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".gitlab", "pipelines", "renovate.yml"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "pipelines", "renovate.yml"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitLab == nil || !slices.Contains(repo.Config.GitLab.Options, kickr.GitLabOptionsRenovate)
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".gitlab", "renovate.json"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "renovate.json"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitLab == nil || !slices.Contains(repo.Config.GitLab.Options, kickr.GitLabOptionsRenovate)
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }

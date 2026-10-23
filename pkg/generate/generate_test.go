@@ -19,6 +19,7 @@ import (
 	compare "github.com/kilianpaquier/compare/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/kickr-dev/workload"
 
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
@@ -46,6 +47,10 @@ func TestGenerate_NoLang(t *testing.T) {
 				Config: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{}},
 			},
 			{
+				Name:   "github_library",
+				Config: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto, Type: kickr.HelmTypeLibrary}},
+			},
+			{
 				Name:   "github_publish_auto",
 				Config: kickr.Kickr{GitHub: &kickr.GitHub{}, Helm: &kickr.Helm{Publish: kickr.HelmPublishAuto}},
 			},
@@ -59,6 +64,29 @@ func TestGenerate_NoLang(t *testing.T) {
 			{
 				Name:   "gitlab",
 				Config: kickr.Kickr{GitLab: &kickr.GitLab{}, Helm: &kickr.Helm{}},
+			},
+			{
+				Name: "gitlab_exclude_workload",
+				Config: kickr.Kickr{
+					GitLab: &kickr.GitLab{},
+					Helm: &kickr.Helm{
+						Deploy:       kickr.HelmDeployAuto,
+						Environments: []string{kickr.EnvironmentReview},
+						Exclude:      []string{kickr.HelmExcludeWorkload},
+					},
+				},
+			},
+			{
+				Name: "gitlab_library",
+				Config: kickr.Kickr{
+					GitLab: &kickr.GitLab{},
+					Helm: &kickr.Helm{
+						Path:     "kickr-dev/charts",
+						Publish:  kickr.HelmPublishAuto,
+						Registry: "oci://registry.gitlab.com",
+						Type:     kickr.HelmTypeLibrary,
+					},
+				},
 			},
 			{
 				Name:   "gitlab_publish_auto",
@@ -77,14 +105,89 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeRenovate},
-					}, tc.Config),
-				}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo)
+			})
+		}
+	})
+
+	t.Run("chart_existing", func(t *testing.T) {
+		t.Parallel()
+
+		values := func(_ context.Context, destdir string, _ *types.Repository) error {
+			if err := os.MkdirAll(filepath.Join(destdir, "chart"), files.RwxRxRxRx); err != nil {
+				return err
+			}
+			return os.WriteFile(filepath.Join(destdir, "chart", "values.yaml"), []byte("# hand-written values\n"), files.RwRR)
+		}
+
+		cases := []testcase{
+			// values kept since it's a library chart
+			{
+				Name:   "library",
+				Config: kickr.Kickr{Helm: &kickr.Helm{Type: kickr.HelmTypeLibrary}},
+			},
+			// values overridden since it's using workload chart
+			{
+				Name:   "workload",
+				Config: kickr.Kickr{Helm: &kickr.Helm{}},
+			},
+			// values kept since it's not using workload chart
+			{
+				Name:   "exclude_workload",
+				Config: kickr.Kickr{Helm: &kickr.Helm{Exclude: []string{kickr.HelmExcludeWorkload}}},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
+				// Arrange
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
+
+				// Act & Assert
+				test(ctx, t, repo, values)
+			})
+		}
+	})
+
+	t.Run("overrides_existing", func(t *testing.T) {
+		t.Parallel()
+
+		overrides := func(_ context.Context, destdir string, _ *types.Repository) error {
+			if err := os.MkdirAll(filepath.Join(destdir, ".gitlab"), files.RwxRxRxRx); err != nil {
+				return err
+			}
+			for _, name := range []string{"deployment.overrides.yml", "integration.overrides.yml"} {
+				if err := os.WriteFile(filepath.Join(destdir, ".gitlab", name), []byte("# hand-written overrides\n"), files.RwRR); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+
+		cases := []testcase{
+			{
+				Name: "gitlab",
+				Config: kickr.Kickr{
+					GitLab: &kickr.GitLab{
+						Options: []string{kickr.GitLabOptionsOverridesDeployment, kickr.GitLabOptionsOverridesIntegration},
+					},
+					Helm: &kickr.Helm{},
+				},
+			},
+		}
+		for _, tc := range cases {
+			t.Run(tc.Name, func(t *testing.T) {
+				t.Parallel()
+
+				// Arrange
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
+
+				// Act & Assert
+				test(ctx, t, repo, overrides)
 			})
 		}
 	})
@@ -111,11 +214,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeShell},
-					}, tc.Config),
-				}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeShell}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo)
@@ -153,11 +252,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeShell},
-					}, tc.Config),
-				}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeShell}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo)
@@ -204,9 +299,7 @@ func TestGenerate_NoLang(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeRenovate, kickr.ExcludeShell},
-					}, tc.Config),
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate, kickr.ExcludeShell}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -313,11 +406,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeRenovate},
-					}, tc.Config),
-				}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo)
@@ -344,9 +433,7 @@ func TestGenerate_Shell(t *testing.T) {
 			t.Parallel()
 
 			// Arrange
-			repo := types.Repository{
-				Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
-			}
+			repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
 
 			// Act & Assert
 			test(ctx, t, repo, shell)
@@ -365,9 +452,7 @@ func TestGenerate_Shell(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
-				}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo, shell)
@@ -1701,7 +1786,7 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 			generate.ParserNode,
 			generate.ParserTerraform,
 
-			// must be kept last since it marshals repo and merges it with chart overrides
+			// must be kept last since it reads modules executables
 			generate.ParserHelm,
 		}),
 		[]engine.Generator[types.Repository]{
@@ -1714,6 +1799,7 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Plumber(), templates.Sonar())),         // analysis
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
+			engine.GeneratorTemplates(workload.FS(), templates.ValuesSchema()),                                                            // values schema
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryTaskfile()),                                                     // taskfile

@@ -266,6 +266,25 @@ func TestValidate_Errors(t *testing.T) {
 			ErrContains: []string{"at '/github': missing property 'release'", "at '/gitlab': missing property 'release'"},
 		},
 
+		// helm library
+		{
+			Name: "helm_library_deploy",
+			Config: merge(t, kickr.Kickr{
+				GitHub: &kickr.GitHub{},
+				Helm: &kickr.Helm{
+					Deploy:       kickr.HelmDeployAuto,
+					Environments: []string{kickr.EnvironmentStaging},
+					Type:         kickr.HelmTypeLibrary,
+				},
+			}),
+			ErrContains: []string{"at '/helm': 'not' failed"},
+		},
+		{
+			Name:        "helm_type_invalid",
+			Config:      merge(t, kickr.Kickr{Helm: &kickr.Helm{Type: "invalid"}}),
+			ErrContains: []string{"at '/helm/type': value must be one of 'application', 'library'"},
+		},
+
 		// structural allOf / contains
 		{
 			Name: "modules_two_pages_targets",
@@ -374,6 +393,14 @@ func TestValidate(t *testing.T) {
 				Publish:      kickr.HelmPublishAuto,
 				Path:         "kickr-dev/kickr",
 				Registry:     "ghcr.io",
+			},
+		}),
+		platforms(t, "helm_library_publish", kickr.Kickr{
+			Helm: &kickr.Helm{
+				Publish:  kickr.HelmPublishAuto,
+				Path:     "kickr-dev/workload",
+				Registry: "oci://registry.gitlab.com",
+				Type:     kickr.HelmTypeLibrary,
 			},
 		}),
 		platforms(t, "module_deployment_pages", kickr.Kickr{

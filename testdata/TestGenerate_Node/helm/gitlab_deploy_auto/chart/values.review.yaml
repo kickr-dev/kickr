@@ -1,0 +1,2 @@
+# Helm values overrides for 'review' environment, merged over values.yaml at deploy.
+# yaml-language-server: $schema=values.schema.json

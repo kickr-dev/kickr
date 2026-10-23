@@ -61,16 +61,16 @@ include:{{ if not $has_include }} []{{ end }}
   # https://gitlab.com/to-be-continuous/helm
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/c974755ae7b97cd4164a8c5ac0d52d85ac0766b4/templates/gitlab-ci-helm.yml # 9.7.2
     inputs:
-      chart-dir: chart/
+      chart-dir: chart
       integ-enabled: {{ and .Config.HasHelmDeploy (has "integration" .Config.Helm.Environments) }}
-      package-args: package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update
+      package-args: package --version "$APP_VERSION"{{ if not .Config.IsHelmLibrary }} --app-version "$APP_VERSION"{{ end }} --dependency-update
       prod-enabled: {{ and .Config.HasHelmDeploy (has "production" .Config.Helm.Environments) }}
       publish-method: {{ .Config.HasHelmPublish | ternary "push" "disabled" }}
       publish-on: {{ .Config.HasHelmPublish | ternary "all" "none" }}
       publish-snapshot-enabled: false
       publish-strategy: {{ .Config.Helm.Publish | default "none" }}
 {{- if .Config.HasHelmPublish }}
-      publish-url: {{ $registry }}/{{ trimSuffix (print "/" .VCS.ProjectName) $path }}
+      publish-url: {{ $registry }}/{{ $path }}
 {{- end }}
       review-enabled: {{ and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
       scripts-dir: chart/hooks/
@@ -80,11 +80,21 @@ include:{{ if not $has_include }} []{{ end }}
 {{- if .Config.HasHelmDeploy }}
       deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION"
       integ-app-name: $HELM_BASE_APP_NAME
+{{- if has "integration" .Config.Helm.Environments }}
+      integ-values: chart/values.integration.yaml
+{{- end }}
 {{- if has "production" .Config.Helm.Environments }}
       prod-deploy-strategy: {{ .Config.Helm.Deploy }}
+      prod-values: chart/values.production.yaml
 {{- end }}
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
+{{- if has "review" .Config.Helm.Environments }}
+      review-values: chart/values.review.yaml
+{{- end }}
       staging-app-name: $HELM_BASE_APP_NAME
+{{- if has "staging" .Config.Helm.Environments }}
+      staging-values: chart/values.staging.yaml
+{{- end }}
 {{- end }}
 {{- end }}
 

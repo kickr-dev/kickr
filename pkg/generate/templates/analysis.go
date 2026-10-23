@@ -17,9 +17,9 @@ func CodeCov() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".codecov.yml" + engine.TmplExtension},
 			Out:        ".codecov.yml",
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitHub == nil || !slices.Contains(repo.Config.GitHub.Options, kickr.GitHubOptionsCodecov)
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }
@@ -31,17 +31,17 @@ func Plumber() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".github", "plumber.yml"+engine.TmplExtension)},
 			Out:        path.Join(".github", "plumber.yml"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitHub == nil || slices.Contains(repo.Config.GitHub.Exclude, kickr.GitHubExcludePlumber)
-			},
+			}, engine.PolicyDefault),
 		},
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".gitlab", "plumber.yml"+engine.TmplExtension)},
 			Out:        path.Join(".gitlab", "plumber.yml"),
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitLab == nil || slices.Contains(repo.Config.GitLab.Exclude, kickr.GitLabExcludePlumber)
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }
@@ -53,9 +53,9 @@ func Sonar() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{"sonar.properties" + engine.TmplExtension},
 			Out:        "sonar.properties",
-			Remove: func(repo types.Repository) bool {
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return !repo.Config.HasSonarQube()
-			},
+			}, engine.PolicyDefault),
 		},
 	}
 }

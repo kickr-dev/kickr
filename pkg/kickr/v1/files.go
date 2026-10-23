@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	// CustomValues is the name of Kickr custom Helm Chart values.
-	CustomValues = "values.kickr.yaml"
+	// ValuesSchema is the name of the Helm Chart values schema file.
+	ValuesSchema = "values.schema.json"
 
 	// Schema is the name of Kickr schema file to use for configurations validation.
 	Schema = "kickr.v1.schema.json"

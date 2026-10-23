@@ -1,0 +1,6 @@
+{{- if and .Config.HasHelmDeploy (has "production" .Config.Helm.Environments) -}}
+# Helm values overrides for 'production' environment, merged over values.yaml at deploy.
+{{- if not (has "workload" .Config.Helm.Exclude) }}
+# yaml-language-server: $schema=values.schema.json
+{{- end }}
+{{- end }}

@@ -79,6 +79,15 @@ const (
 )
 
 const (
+	HelmExcludeWorkload = "workload"
+)
+
+const (
+	HelmTypeApplication = "application"
+	HelmTypeLibrary     = "library"
+)
+
+const (
 	LicenseAGPL30     = "agpl-3.0"
 	LicenseApache20   = "apache-2.0"
 	LicenseBSD2Clause = "bsd-2-clause"
