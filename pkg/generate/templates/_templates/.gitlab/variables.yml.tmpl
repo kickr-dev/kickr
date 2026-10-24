@@ -15,7 +15,7 @@
 {{- $pages_modules := .ModulesWithDeployment "pages" }}
 
 variables:
-  RELEASE_REF: /^v\d+\.\d+\.\d+$/
+  RELEASE_REF: /^v\d+\.\d+\.\d+(-[a-z]+\.\d+)?$/
   PROD_REF: /^(main|v\d+(\.\d+)?\.x)$/
   INTEG_REF: /^(alpha|beta|dev|develop|next|rc|staging)$/
 
