@@ -3,8 +3,8 @@ package types //nolint:revive
 import (
 	"slices"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/parser"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )

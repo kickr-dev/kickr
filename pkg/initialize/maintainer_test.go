@@ -5,9 +5,9 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
-	engine "github.com/kickr-dev/engine/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	engine "gitlab.com/kickr-dev/engine/pkg"
 
 	"github.com/kickr-dev/kickr/pkg/initialize"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"

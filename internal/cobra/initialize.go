@@ -1,9 +1,9 @@
 package cobra
 
 import (
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/spf13/cobra"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/files"
 
 	"github.com/kickr-dev/kickr/pkg/initialize"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"

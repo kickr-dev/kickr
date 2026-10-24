@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"slices"
 
-	engine "github.com/kickr-dev/engine/pkg"
+	engine "gitlab.com/kickr-dev/engine/pkg"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	"github.com/kickr-dev/kickr/pkg/kickr/v1"

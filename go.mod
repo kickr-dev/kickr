@@ -4,7 +4,7 @@ go 1.26.0
 
 toolchain go1.27.3
 
-// replace github.com/kickr-dev/engine => ../engine
+// replace gitlab.com/kickr-dev/engine => ../engine
 
 replace gitlab.com/kickr-dev/workload => ../workload
 
@@ -17,11 +17,11 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/terraform-config-inspect v0.0.0-20260904064934-75d64de68c31
 	github.com/jarcoal/httpmock v1.4.2
-	github.com/kickr-dev/engine v0.0.0-20261023192246-653e9f2a4daf
 	github.com/kilianpaquier/compare v1.1.3
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	gitlab.com/gitlab-org/api/client-go/v3 v3.27.0
+	gitlab.com/kickr-dev/engine v0.1.0
 	gitlab.com/kickr-dev/workload v0.0.0-00010101000000-000000000000
 )
 

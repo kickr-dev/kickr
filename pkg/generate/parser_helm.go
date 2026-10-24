@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/parser"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 	"gitlab.com/kickr-dev/workload"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"

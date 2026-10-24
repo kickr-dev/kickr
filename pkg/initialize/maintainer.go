@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	huh "charm.land/huh/v2"
-	engine "github.com/kickr-dev/engine/pkg"
+	engine "gitlab.com/kickr-dev/engine/pkg"
 
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )

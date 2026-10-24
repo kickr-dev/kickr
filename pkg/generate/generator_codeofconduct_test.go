@@ -8,12 +8,12 @@ import (
 	"testing"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/kickr-dev/engine/pkg/files"
-	"github.com/kickr-dev/engine/pkg/generator"
-	"github.com/kickr-dev/engine/pkg/parser"
 	compare "github.com/kilianpaquier/compare/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/kickr-dev/engine/pkg/files"
+	"gitlab.com/kickr-dev/engine/pkg/generator"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"

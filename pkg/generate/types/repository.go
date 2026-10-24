@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/kickr-dev/engine/pkg/parser"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/kickr/v1"
 )

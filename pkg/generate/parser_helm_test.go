@@ -3,9 +3,9 @@ package generate_test
 import (
 	"testing"
 
-	"github.com/kickr-dev/engine/pkg/parser"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 	"gitlab.com/kickr-dev/workload"
 
 	"github.com/kickr-dev/kickr/pkg/generate"

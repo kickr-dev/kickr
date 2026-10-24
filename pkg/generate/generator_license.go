@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/files"
 	gitlab "gitlab.com/gitlab-org/api/client-go/v3"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/files"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )

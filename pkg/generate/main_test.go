@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	log "charm.land/log/v2"
-	engine "github.com/kickr-dev/engine/pkg"
+	engine "gitlab.com/kickr-dev/engine/pkg"
 )
 
 func TestMain(m *testing.M) {

@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/files"
-	"github.com/kickr-dev/engine/pkg/parser"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/files"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )

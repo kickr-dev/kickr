@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gitlab.com/kickr-dev/engine/pkg/files"
 
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"

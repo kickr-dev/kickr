@@ -1,3 +1,3 @@
-module github.com/kickr-dev/engine
+module gitlab.com/kickr-dev/engine
 
 go 1.23

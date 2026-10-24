@@ -9,8 +9,8 @@ import (
 	"slices"
 	"strings"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/generator"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/generator"
 
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
 	"github.com/kickr-dev/kickr/pkg/generate/types"

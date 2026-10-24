@@ -9,9 +9,9 @@ import (
 	"os"
 	"slices"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/generator"
-	"github.com/kickr-dev/engine/pkg/parser"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/generator"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
 	"github.com/kickr-dev/kickr/pkg/generate/types"

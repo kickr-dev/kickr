@@ -3,7 +3,7 @@ package kickr
 import (
 	"path/filepath"
 
-	"github.com/kickr-dev/engine/pkg/files"
+	"gitlab.com/kickr-dev/engine/pkg/files"
 )
 
 const (

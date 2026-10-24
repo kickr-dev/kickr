@@ -4,8 +4,8 @@ import (
 	"context"
 	"path/filepath"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/files"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/files"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )

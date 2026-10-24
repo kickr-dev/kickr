@@ -8,9 +8,9 @@ import (
 	"slices"
 	"strconv"
 
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/files"
 	"github.com/spf13/cobra"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/files"
 	"gitlab.com/kickr-dev/workload"
 
 	schemas "github.com/kickr-dev/kickr/.schemas"

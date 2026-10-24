@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/go-git/go-git/v5"
-	engine "github.com/kickr-dev/engine/pkg"
-	"github.com/kickr-dev/engine/pkg/parser"
+	engine "gitlab.com/kickr-dev/engine/pkg"
+	"gitlab.com/kickr-dev/engine/pkg/parser"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
