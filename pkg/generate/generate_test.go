@@ -1173,6 +1173,7 @@ func TestGenerate_Node(t *testing.T) {
 		cases := []testcase{
 			{Name: "github", Config: kickr.Kickr{GitHub: &kickr.GitHub{}}},
 			{Name: "gitlab", Config: kickr.Kickr{GitLab: &kickr.GitLab{}}},
+			{Name: "gitlab_auto", Config: kickr.Kickr{Docker: &kickr.Docker{Auto: true}, GitLab: &kickr.GitLab{}}},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {

@@ -26,10 +26,10 @@ include:
         --label 'org.opencontainers.image.version=$APP_VERSION'
       build-tool: buildah
       healthcheck-disabled: true # https://docs.docker.com/reference/dockerfile/#healthcheck
+      prod-publish-strategy: manual
       release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>
-      release-image: "registry.example.com/path/to/image:$APP_VERSION"
-      semrel-release-disabled: true # handled by docker build and push jobs to avoid too much dependency on semantic-release
-      snapshot-image: "registry.example.com/path/to/image/snapshot:$APP_VERSION"
+      release-extra-tags-pattern: ^v?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$
+      semrel-release-disabled: true # avoid too much dependency on semantic-release
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 
   # Helm template
@@ -63,3 +63,20 @@ helm-lint:
 
 docker-hadolint:
   needs: []
+
+.docker-publish:
+  # see https://gitlab.com/to-be-continuous/docker/-/blob/main/templates/gitlab-ci-docker.yml?ref_type=heads#L1518
+  rules:
+    - if: '$DOCKER_PUBLISH_ON == "tag" && $CI_COMMIT_TAG !~ $RELEASE_REF'
+      when: never
+    - if: '$DOCKER_PUBLISH_ON == "prod" && $CI_COMMIT_REF_NAME !~ $PROD_REF'
+      when: never
+    - if: '$DOCKER_PUBLISH_ON == "protected" && $CI_COMMIT_REF_PROTECTED != "true"'
+      when: never
+
+docker-publish:
+  rules:
+    - !reference [.docker-publish, rules]
+    - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "manual"'
+      when: manual
+    - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "auto"'

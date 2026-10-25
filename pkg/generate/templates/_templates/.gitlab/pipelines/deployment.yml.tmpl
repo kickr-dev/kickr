@@ -32,9 +32,6 @@ include:{{ if not $has_include }} []{{ end }}
 {{- $maintainers = append $maintainers (ne .Email "" | ternary (dict "name" .Name "email" .Email) (dict "name" .Name)) }}
 {{- end }}
 
-{{- $registry := .Config.Docker.Registry | default "${CI_REGISTRY}" }}
-{{- $path := .Config.Docker.Path | default "${CI_PROJECT_PATH}" }}
-
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
   - remote: https://gitlab.com/to-be-continuous/docker/-/raw/ad253fc7bf6a8d1a53111d09b7bad19f4b5c65b9/templates/gitlab-ci-docker.yml # 8.5.1
@@ -69,10 +66,10 @@ include:{{ if not $has_include }} []{{ end }}
       file: {{ $firstnode.Dir }}/Dockerfile
 {{- end }}
       healthcheck-disabled: true # https://docs.docker.com/reference/dockerfile/#healthcheck
+      prod-publish-strategy: {{ .Config.Docker.Auto | ternary "auto" "manual" }}
       release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>
-      release-image: "{{ $registry }}/{{ $path }}{{ if gt (len $docker_modules) 1 }}/${DOCKER_IMAGE_NAME}{{ end }}:$APP_VERSION"
-      semrel-release-disabled: true # handled by docker build and push jobs to avoid too much dependency on semantic-release
-      snapshot-image: "{{ $registry }}/{{ $path }}{{ if gt (len $docker_modules) 1 }}/${DOCKER_IMAGE_NAME}{{ end }}/snapshot:$APP_VERSION"
+      release-extra-tags-pattern: ^v?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$
+      semrel-release-disabled: true # avoid too much dependency on semantic-release
       trivy-args: --ignore-unfixed --exit-code 1 --exit-on-eol 1
 {{- end }}
 
@@ -208,6 +205,23 @@ helm-lint:
 
 docker-hadolint:
   needs: []
+
+.docker-publish:
+  # see https://gitlab.com/to-be-continuous/docker/-/blob/main/templates/gitlab-ci-docker.yml?ref_type=heads#L1518
+  rules:
+    - if: '$DOCKER_PUBLISH_ON == "tag" && $CI_COMMIT_TAG !~ $RELEASE_REF'
+      when: never
+    - if: '$DOCKER_PUBLISH_ON == "prod" && $CI_COMMIT_REF_NAME !~ $PROD_REF'
+      when: never
+    - if: '$DOCKER_PUBLISH_ON == "protected" && $CI_COMMIT_REF_PROTECTED != "true"'
+      when: never
+
+docker-publish:
+  rules:
+    - !reference [.docker-publish, rules]
+    - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "manual"'
+      when: manual
+    - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "auto"'
 {{- end }}
 
 {{- if gt (len $terraform_publish_modules) 0 }}
