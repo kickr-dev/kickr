@@ -1,0 +1,2 @@
+# Helm values overrides for all environments, merged over values.yaml and under values.<env>.yaml at deploy.
+# yaml-language-server: $schema=https://gitlab.com/kickr-dev/workload/-/raw/main/chart/values.schema.json

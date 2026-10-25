@@ -50,6 +50,7 @@ func Chart() (templates []engine.Template[types.Repository]) {
 	})
 
 	valuesfiles := []string{
+		path.Join("chart", "values.default.yaml"),
 		path.Join("chart", "values.integration.yaml"),
 		path.Join("chart", "values.production.yaml"),
 		path.Join("chart", "values.review.yaml"),

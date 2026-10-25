@@ -21,7 +21,8 @@ include:
       semrel-release-disabled: false
       staging-enabled: false
       test-enabled: false
-      deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION"
+      common-values: chart/values.default.yaml
+      deploy-args: upgrade --install --version "$APP_VERSION" --set "appVersion=$APP_VERSION"
       integ-app-name: $HELM_BASE_APP_NAME
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       review-values: chart/values.review.yaml

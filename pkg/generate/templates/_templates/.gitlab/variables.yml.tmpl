@@ -43,9 +43,12 @@ variables:
 {{- end }}
 
 {{- if .Config.HasHelmPublish }}
+{{- $helm_registry := .Config.Helm.Registry | default "oci://${CI_REGISTRY}" }}
+{{- $helm_path := .Config.Helm.Path | default "${CI_PROJECT_PATH}/charts" }}
 
-  HELM_RELEASE_REGISTRY: {{ .Config.Helm.Registry | default "oci://${CI_REGISTRY}" }}/{{ .Config.Helm.Path | default "${CI_PROJECT_PATH}/charts" }}
-  HELM_SNAPSHOT_REGISTRY: ${HELM_RELEASE_REGISTRY}/snapshot
+  # helm push always appends the chart name to the registry reference
+  HELM_RELEASE_REGISTRY: {{ $helm_registry }}/{{ trimSuffix (print "/" .VCS.ProjectName) $helm_path }}
+  HELM_SNAPSHOT_REGISTRY: {{ $helm_registry }}/{{ $helm_path }}/snapshot
   HELM_PUBLISH_URL: $HELM_RELEASE_REGISTRY
 {{- end }}
 

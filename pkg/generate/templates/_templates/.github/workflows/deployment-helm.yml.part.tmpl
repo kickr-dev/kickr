@@ -1,9 +1,10 @@
 jobs:
 <<- define "helm" >>
 
-<<- $registry := .Config.Helm.Registry | default "oci://ghcr.io" >>
-<<- $path := .Config.Helm.Path | default .VCS.ProjectPath >>
-<<- $ghcr := and (eq $registry "oci://ghcr.io") (eq $path .VCS.ProjectPath) >>
+<<- $helm_registry := .Config.Helm.Registry | default "oci://ghcr.io" >>
+<<- $helm_path := .Config.Helm.Path | default .VCS.ProjectPath >>
+<<- $helm_publish_path := trimSuffix (print "/" .VCS.ProjectName) $helm_path >>
+<<- $ghcr := and (eq $helm_registry "oci://ghcr.io") (eq $helm_path .VCS.ProjectPath) >>
 
 <<- $has_docker := .HasDocker >>
 
@@ -40,20 +41,20 @@ jobs:
           HELM_CHART_DIR: chart/
           APP_VERSION: ${{ needs.version.outputs.version }}
       - run: |-
-<<- if not (hasPrefix "oci://" $registry) >>
+<<- if not (hasPrefix "oci://" $helm_registry) >>
           helm plugin install https://github.com/chartmuseum/helm-push
 <<- end >>
           helm registry login "$HELM_REGISTRY" -u "$HELM_REPO_USERNAME" -p "$HELM_REPO_ACCESS_TOKEN"
           if [ "$HELM_DRY_RUN" = "false" ]; then
-            helm << hasPrefix "oci://" $registry | ternary "push" "cm-push" >> "$HELM_CHART_PATH" "$HELM_PUBLISH_URL"
+            helm << hasPrefix "oci://" $helm_registry | ternary "push" "cm-push" >> "$HELM_CHART_PATH" "$HELM_PUBLISH_URL"
           else
             echo "should push $HELM_CHART_PATH to $HELM_PUBLISH_URL"
           fi
         env:
           HELM_CHART_PATH: ${{ github.event.repository.name }}-${{ needs.version.outputs.version }}.tgz
           HELM_DRY_RUN: ${{ inputs.helm_push != 'full' }}
-          HELM_PUBLISH_URL: << $registry >>/<< .Config.Helm.Path | default .VCS.ProjectPath >>
-          HELM_REGISTRY: << trimPrefix "oci://" $registry >>
+          HELM_PUBLISH_URL: << $helm_registry >>/<< $helm_publish_path >>
+          HELM_REGISTRY: << trimPrefix "oci://" $helm_registry >>
 <<- if $ghcr >>
           HELM_REPO_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HELM_REPO_USERNAME: ${{ github.repository_owner }}
@@ -126,7 +127,7 @@ jobs:
           version: v4.3.1
       - shell: bash
         run: |-
-          args=(--install --kube-context "$ENVIRONMENT" --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" -f "$HELM_CHART_DIR/values.$ENVIRONMENT.yaml" --set "appVersion=$APP_VERSION")
+          args=(--install --kube-context "$ENVIRONMENT" --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.default.yaml" -f "$HELM_CHART_DIR/values.$ENVIRONMENT.yaml" --set "appVersion=$APP_VERSION")
           [ -z "$HELM_ARGS" ] || args+=("$HELM_ARGS")
           [ -z "$HELM_DRY_RUN" ] || args+=("$HELM_DRY_RUN")
 
@@ -141,7 +142,7 @@ jobs:
           HELM_ARGS: ${{ vars.HELM_ARGS }}
           HELM_CHART_DIR: chart/
 <<- if .Config.HasHelmPublish >>
-          HELM_CHART_URL: << $registry >>/<< $path >>
+          HELM_CHART_URL: << $helm_registry >>/<< $helm_publish_path >>/<< .VCS.ProjectName >>
 <<- end >>
           HELM_DRY_RUN: ${{ inputs.helm_deploy }}
           APP_VERSION: ${{ needs.version.outputs.version }}

@@ -95,7 +95,8 @@ include:{{ if not $has_include }} []{{ end }}
       staging-enabled: {{ and .Config.HasHelmDeploy (has "staging" .Config.Helm.Environments) }}
       test-enabled: false
 {{- if .Config.HasHelmDeploy }}
-      deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml"{{ if not (has "workload" .Config.Helm.Exclude) }} --set "appVersion=$APP_VERSION"{{ end }}
+      common-values: chart/values.default.yaml
+      deploy-args: upgrade --install --version "$APP_VERSION"{{ if not (has "workload" .Config.Helm.Exclude) }} --set "appVersion=$APP_VERSION"{{ end }}
       integ-app-name: $HELM_BASE_APP_NAME
 {{- if has "integration" .Config.Helm.Environments }}
       integ-values: chart/values.integration.yaml

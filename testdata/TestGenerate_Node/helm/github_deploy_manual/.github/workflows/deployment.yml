@@ -142,7 +142,7 @@ jobs:
           version: v4.3.1
       - shell: bash
         run: |-
-          args=(--install --kube-context "$ENVIRONMENT" --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" -f "$HELM_CHART_DIR/values.$ENVIRONMENT.yaml" --set "appVersion=$APP_VERSION")
+          args=(--install --kube-context "$ENVIRONMENT" --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.default.yaml" -f "$HELM_CHART_DIR/values.$ENVIRONMENT.yaml" --set "appVersion=$APP_VERSION")
           [ -z "$HELM_ARGS" ] || args+=("$HELM_ARGS")
           [ -z "$HELM_DRY_RUN" ] || args+=("$HELM_DRY_RUN")
 

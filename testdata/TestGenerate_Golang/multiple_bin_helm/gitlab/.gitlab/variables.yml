@@ -16,8 +16,9 @@ variables:
   DOCKER_RELEASE_IMAGE: "${DOCKER_RELEASE_REGISTRY}:${APP_VERSION}"
   DOCKER_SNAPSHOT_IMAGE: "${DOCKER_SNAPSHOT_REGISTRY}:${APP_VERSION}"
 
+  # helm push always appends the chart name to the registry reference
   HELM_RELEASE_REGISTRY: chartmuseum.example.com/path/to/repository
-  HELM_SNAPSHOT_REGISTRY: ${HELM_RELEASE_REGISTRY}/snapshot
+  HELM_SNAPSHOT_REGISTRY: chartmuseum.example.com/path/to/repository/snapshot
   HELM_PUBLISH_URL: $HELM_RELEASE_REGISTRY
 
   ####################################

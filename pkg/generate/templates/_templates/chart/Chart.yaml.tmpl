@@ -29,7 +29,7 @@ dependencies:{{ if has "workload" .Config.Helm.Exclude }} []{{ else }}
   # BEGIN_KICKR_WORKLOAD
   - name: workload
     version: 0.1.0
-    repository: oci://registry.gitlab.com/kickr-dev/workload
+    repository: oci://registry.gitlab.com/kickr-dev
   # END_KICKR_WORKLOAD
 {{- end }}
 {{- end }}
