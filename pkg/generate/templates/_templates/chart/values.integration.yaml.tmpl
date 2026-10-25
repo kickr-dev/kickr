@@ -1,6 +1,6 @@
 {{- if and .Config.HasHelmDeploy (has "integration" .Config.Helm.Environments) -}}
 # Helm values overrides for 'integration' environment, merged over values.yaml at deploy.
 {{- if not (has "workload" .Config.Helm.Exclude) }}
-# yaml-language-server: $schema=values.schema.json
+# yaml-language-server: $schema=https://gitlab.com/kickr-dev/workload/-/raw/main/chart/values.schema.json
 {{- end }}
 {{- end }}

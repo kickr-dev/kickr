@@ -6,8 +6,6 @@ toolchain go1.27.3
 
 // replace gitlab.com/kickr-dev/engine => ../engine
 
-replace gitlab.com/kickr-dev/workload => ../workload
-
 require (
 	charm.land/bubbletea/v2 v2.1.0
 	charm.land/huh/v2 v2.0.3
@@ -22,7 +20,6 @@ require (
 	github.com/stretchr/testify v1.12.1
 	gitlab.com/gitlab-org/api/client-go/v3 v3.27.0
 	gitlab.com/kickr-dev/engine v0.1.0
-	gitlab.com/kickr-dev/workload v0.0.0-00010101000000-000000000000
 )
 
 require (

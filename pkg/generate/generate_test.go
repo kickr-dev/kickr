@@ -19,7 +19,6 @@ import (
 	engine "gitlab.com/kickr-dev/engine/pkg"
 	"gitlab.com/kickr-dev/engine/pkg/files"
 	"gitlab.com/kickr-dev/engine/pkg/parser"
-	"gitlab.com/kickr-dev/workload"
 
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/templates"
@@ -1800,7 +1799,6 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Plumber(), templates.Sonar())),         // analysis
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
-			engine.GeneratorTemplates(workload.FS(), templates.ValuesSchema()),                                                            // values schema
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryTaskfile()),                                                     // taskfile

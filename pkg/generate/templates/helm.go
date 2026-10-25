@@ -83,23 +83,3 @@ func Chart() (templates []engine.Template[types.Repository]) {
 
 	return templates
 }
-
-// ValuesSchema returns the template of the helm chart values schema, to be used with the workload chart filesystem.
-func ValuesSchema() []engine.Template[types.Repository] {
-	return []engine.Template[types.Repository]{
-		{
-			Delimiters: engine.DelimitersChevron(),
-			Globs:      []string{path.Join("chart", kickr.ValuesSchema)},
-			Out:        path.Join("chart", kickr.ValuesSchema),
-			GeneratePolicy: func(_ string, repo types.Repository) engine.GeneratePolicy {
-				if repo.Config.Helm == nil {
-					return engine.PolicyRemove
-				}
-				if repo.Config.IsHelmLibrary() || slices.Contains(repo.Config.Helm.Exclude, kickr.HelmExcludeWorkload) {
-					return engine.PolicySkip // the chart may ship its own schema
-				}
-				return engine.PolicyAlways // JSON can't hold the generated notice
-			},
-		},
-	}
-}

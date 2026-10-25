@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/kickr-dev/engine/pkg/parser"
-	"gitlab.com/kickr-dev/workload"
 
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
@@ -26,9 +25,8 @@ func TestParserChart(t *testing.T) {
 				{
 					Directory: types.RootModule,
 					Languages: map[string]any{types.LanguageHelm: map[string]any{
-						"description":     "a description",
-						"docker":          map[string]any{},
-						"workloadVersion": workload.Version(),
+						"description": "a description",
+						"docker":      map[string]any{},
 
 						"clis":    map[string]any{},
 						"crons":   map[string]any{},
@@ -70,9 +68,8 @@ func TestParserChart(t *testing.T) {
 					Config:      kickr.Module{Path: types.RootModule, Deployment: &kickr.Deployment{Target: kickr.DeploymentTargetHelm}},
 					Executables: parser.Executables{Workers: map[string]any{"main": struct{}{}}},
 					Languages: map[string]any{types.LanguageHelm: map[string]any{
-						"description":     "",
-						"docker":          map[string]any{},
-						"workloadVersion": workload.Version(),
+						"description": "",
+						"docker":      map[string]any{},
 
 						"clis":  map[string]any{},
 						"crons": map[string]any{},

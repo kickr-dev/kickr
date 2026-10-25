@@ -6,7 +6,6 @@ import (
 
 	engine "gitlab.com/kickr-dev/engine/pkg"
 	"gitlab.com/kickr-dev/engine/pkg/parser"
-	"gitlab.com/kickr-dev/workload"
 
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
@@ -52,7 +51,6 @@ func ParserHelm(_ context.Context, _ string, repo *types.Repository) error {
 			}
 			return kickr.Docker{}
 		}(),
-		"workloadVersion": workload.Version(),
 
 		"clis":    executables(func(m types.Module) map[string]any { return m.Clis }),
 		"crons":   executables(func(m types.Module) map[string]any { return m.Crons }),
