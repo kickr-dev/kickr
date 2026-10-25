@@ -5,7 +5,7 @@ import (
 	"io/fs"
 )
 
-//go:generate go run ./gen/main.go
+//go:generate go run github.com/mikefarah/yq/v4@v4.54.1 --output-format json --indent 0 --split-exp "\"kickr.v1.schema.json\"" kickr.v1.schema.yml
 
 //go:embed *.json
 var embedded embed.FS
