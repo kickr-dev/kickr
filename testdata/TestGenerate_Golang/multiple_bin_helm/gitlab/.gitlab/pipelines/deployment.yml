@@ -11,10 +11,19 @@ include:
         --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
         --build-arg GIT_COMMIT=$CI_COMMIT_SHA
         --build-arg APP_VERSION=$APP_VERSION
-        --label org.opencontainers.image.created=$CI_JOB_STARTED_AT
-        --label org.opencontainers.image.ref.name=$CI_COMMIT_REF_NAME
-        --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-        --label org.opencontainers.image.version=$APP_VERSION
+        --label 'io.artifacthub.package.maintainers=[{"name":"kilianpaquier"}]'
+        --label 'io.artifacthub.package.readme-url=${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/README.md'
+        --label "org.opencontainers.image.authors=kilianpaquier"
+        --label 'org.opencontainers.image.created=$CI_JOB_STARTED_AT'
+        --label "org.opencontainers.image.description=A useful project description"
+        --label 'org.opencontainers.image.documentation=$CI_PROJECT_URL'
+        --label 'org.opencontainers.image.ref.name=$APP_VERSION'
+        --label 'org.opencontainers.image.revision=$CI_COMMIT_SHA'
+        --label 'org.opencontainers.image.source=$CI_PROJECT_URL'
+        --label 'org.opencontainers.image.title=kickr'
+        --label 'org.opencontainers.image.url=$CI_PROJECT_URL'
+        --label 'org.opencontainers.image.vendor=$CI_PROJECT_ROOT_NAMESPACE'
+        --label 'org.opencontainers.image.version=$APP_VERSION'
       build-tool: buildah
       healthcheck-disabled: true # https://docs.docker.com/reference/dockerfile/#healthcheck
       release-extra-tags: latest \\g<major> \\g<major>.\\g<minor>

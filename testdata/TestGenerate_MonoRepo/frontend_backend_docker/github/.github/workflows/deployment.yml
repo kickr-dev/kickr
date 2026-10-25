@@ -98,9 +98,11 @@ jobs:
         include:
           - directory: backend
             path: kickr-dev/kickr/backend
+            title: kickr/backend
             name: (backend)
           - directory: frontend
             path: kickr-dev/kickr/frontend
+            title: kickr/frontend
             name: (frontend)
     permissions:
       packages: write
@@ -129,10 +131,18 @@ jobs:
         with:
           images: ${{ steps.image.outputs.image }}
           labels: |
+            io.artifacthub.package.maintainers=[{"name":"kilianpaquier"}]
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/README.md
             org.opencontainers.image.created={{date 'YYYY-MM-DDTHH:mm:ssZ'}}
-            org.opencontainers.image.ref.name=${{ github.ref_name }}
+            org.opencontainers.image.ref.name=${{ needs.version.outputs.version }}
             org.opencontainers.image.version=${{ needs.version.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.authors=kilianpaquier
+            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.title=${{ matrix.title }}
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.vendor=${{ github.repository_owner }}
           tags: |
             type=semver,enable=true,pattern={{raw}},value=${{ needs.version.outputs.version }}
             type=semver,enable=${{ steps.image.outputs.stable }},pattern=v{{major}}.{{minor}},value=${{ needs.version.outputs.version }}

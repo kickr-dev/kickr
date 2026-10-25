@@ -4,6 +4,12 @@ jobs:
 <<- $registry := .Config.Docker.Registry | default "ghcr.io" >>
 <<- $path := .Config.Docker.Path | default .VCS.ProjectPath >>
 <<- $ghcr := and (eq $registry "ghcr.io") (eq $path .VCS.ProjectPath) >>
+<<- $authors := list >>
+<<- $maintainers := list >>
+<<- range .Config.Maintainers >>
+<<- $authors = append $authors (print .Name (ne .Email "" | ternary (printf " <%s>" .Email) "")) >>
+<<- $maintainers = append $maintainers (ne .Email "" | ternary (dict "name" .Name "email" .Email) (dict "name" .Name)) >>
+<<- end >>
 
   docker-build:
     name: Docker Build ${{ matrix.name }}
@@ -17,6 +23,7 @@ jobs:
 <<- if .HasDocker >>
           - directory: << .Dir >>
             path: << $path >><< with .Slug >>/<< . >><< end >>
+            title: << .Parent.VCS.ProjectName >><< with .Slug >>/<< . >><< end >>
 <<- if ne .Dir "." >>
             name: << printf "(%s)" .Dir >>
 <<- end >>
@@ -57,10 +64,27 @@ jobs:
         with:
           images: ${{ steps.image.outputs.image }}
           labels: |
+<<- if .Config.License >>
+            io.artifacthub.package.license=<< upper .Config.License >>
+<<- end >>
+            io.artifacthub.package.maintainers=<< toJson $maintainers >>
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/README.md
             org.opencontainers.image.created={{date 'YYYY-MM-DDTHH:mm:ssZ'}}
-            org.opencontainers.image.ref.name=${{ github.ref_name }}
+            org.opencontainers.image.ref.name=${{ needs.version.outputs.version }}
             org.opencontainers.image.version=${{ needs.version.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.authors=<< join ", " $authors >>
+<<- if .Config.Description >>
+            org.opencontainers.image.description=<< .Config.Description >>
+<<- end >>
+            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}
+<<- if .Config.License >>
+            org.opencontainers.image.licenses=<< upper .Config.License >>
+<<- end >>
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.title=${{ matrix.title }}
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.vendor=${{ github.repository_owner }}
           tags: |
             type=semver,enable=true,pattern={{raw}},value=${{ needs.version.outputs.version }}
             type=semver,enable=${{ steps.image.outputs.stable }},pattern=v{{major}}.{{minor}},value=${{ needs.version.outputs.version }}

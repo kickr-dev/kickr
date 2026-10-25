@@ -3,7 +3,7 @@
 {{- $specifics := get .Languages "node" }}
 {{- $manager := cutAfter $specifics.PackageManager "@" }}
 
-{{- $maintainer := index .Parent.Config.Maintainers 0 }}
+ARG BASE_IMAGE=nginx:1.31.8-alpine3.24@sha256:1ef7ca94d7879df82421428ce13bd1eaa412404953859cf7a5b6512c25e67a60
 
 #############################
 #        STAGE BUILD        #
@@ -22,21 +22,9 @@ RUN {{ $manager }} {{ eq $manager "npm" | ternary "ci" "install --frozen-lockfil
 #############################
 #         STAGE RUN         #
 #############################
-FROM nginx:1.31.8-alpine3.24@sha256:1ef7ca94d7879df82421428ce13bd1eaa412404953859cf7a5b6512c25e67a60
-
-LABEL org.opencontainers.image.authors="{{ $maintainer.Name }}{{ if $maintainer.Email }} <{{ $maintainer.Email }}>{{ end }}"
-LABEL org.opencontainers.image.vendor="{{ $maintainer.Name }}"
-
-LABEL org.opencontainers.image.title="{{ .Parent.VCS.ProjectName }}{{ with .Slug }}/{{ . }}{{ end }}"
-{{- if .Parent.Config.Description }}
-LABEL org.opencontainers.image.description="{{ .Parent.Config.Description }}"
-{{- end }}
-{{- if .Parent.Config.License }}
-LABEL org.opencontainers.image.licenses="{{ upper .Parent.Config.License }}"
-{{- end }}
-LABEL org.opencontainers.image.url="{{ print .Parent.VCS.ProjectHost "/" .Parent.VCS.ProjectPath }}"
-LABEL org.opencontainers.image.source="{{ print .Parent.VCS.ProjectHost "/" .Parent.VCS.ProjectPath }}"
-LABEL org.opencontainers.image.documentation="{{ print .Parent.VCS.ProjectHost "/" .Parent.VCS.ProjectPath }}"
+FROM ${BASE_IMAGE}
+ARG BASE_IMAGE
+LABEL org.opencontainers.image.base.name="${BASE_IMAGE}"
 
 WORKDIR /app
 

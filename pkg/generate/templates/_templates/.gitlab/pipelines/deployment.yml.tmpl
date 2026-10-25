@@ -8,7 +8,6 @@
 {{- if eq .Config.Terraform.Publish "gitlab" }}{{- $terraform_gitlab_publish_modules = append $terraform_gitlab_publish_modules . }}{{- end }}
 {{- end }}
 
-{{- $has_docker := .HasDocker }}
 {{- $docker_modules := list }}
 {{- range .Modules }}{{- if .HasDocker }}{{- $docker_modules = append $docker_modules . }}{{- end }}{{- end }}
 
@@ -19,13 +18,19 @@
 {{- $helm_review := and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
 
 {{- $merge_train := or $helm_review (gt (len $netlify_modules) 0) (gt (len $terraform_apply_modules) 0) }}
-{{- $has_include := or $has_docker .Config.Helm (gt (len $terraform_modules) 0) }}
+{{- $has_include := or .HasDocker .Config.Helm (gt (len $terraform_modules) 0) }}
 
 ---
 include:{{ if not $has_include }} []{{ end }}
 
-{{- if $has_docker }}
+{{- if .HasDocker }}
 {{- $firstnode := first $docker_modules }}
+{{- $authors := list }}
+{{- $maintainers := list }}
+{{- range .Config.Maintainers }}
+{{- $authors = append $authors (print .Name (ne .Email "" | ternary (printf " <%s>" .Email) "")) }}
+{{- $maintainers = append $maintainers (ne .Email "" | ternary (dict "name" .Name "email" .Email) (dict "name" .Name)) }}
+{{- end }}
 
 {{- $registry := .Config.Docker.Registry | default "${CI_REGISTRY}" }}
 {{- $path := .Config.Docker.Path | default "${CI_PROJECT_PATH}" }}
@@ -38,10 +43,27 @@ include:{{ if not $has_include }} []{{ end }}
         --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
         --build-arg GIT_COMMIT=$CI_COMMIT_SHA
         --build-arg APP_VERSION=$APP_VERSION
-        --label org.opencontainers.image.created=$CI_JOB_STARTED_AT
-        --label org.opencontainers.image.ref.name=$CI_COMMIT_REF_NAME
-        --label org.opencontainers.image.revision=$CI_COMMIT_SHA
-        --label org.opencontainers.image.version=$APP_VERSION
+{{- if .Config.License }}
+        --label 'io.artifacthub.package.license={{ upper .Config.License }}'
+{{- end }}
+        --label 'io.artifacthub.package.maintainers={{ toJson $maintainers }}'
+        --label 'io.artifacthub.package.readme-url=${CI_PROJECT_URL}/-/raw/${CI_COMMIT_SHA}/README.md'
+        --label "org.opencontainers.image.authors={{ join ", " $authors }}"
+        --label 'org.opencontainers.image.created=$CI_JOB_STARTED_AT'
+{{- if .Config.Description }}
+        --label "org.opencontainers.image.description={{ .Config.Description }}"
+{{- end }}
+        --label 'org.opencontainers.image.documentation=$CI_PROJECT_URL'
+{{- if .Config.License }}
+        --label 'org.opencontainers.image.licenses={{ upper .Config.License }}'
+{{- end }}
+        --label 'org.opencontainers.image.ref.name=$APP_VERSION'
+        --label 'org.opencontainers.image.revision=$CI_COMMIT_SHA'
+        --label 'org.opencontainers.image.source=$CI_PROJECT_URL'
+        --label 'org.opencontainers.image.title={{ .VCS.ProjectName }}{{ if gt (len $docker_modules) 1 }}/${DOCKER_IMAGE_NAME}{{ end }}'
+        --label 'org.opencontainers.image.url=$CI_PROJECT_URL'
+        --label 'org.opencontainers.image.vendor=$CI_PROJECT_ROOT_NAMESPACE'
+        --label 'org.opencontainers.image.version=$APP_VERSION'
       build-tool: buildah
 {{- if and (eq (len $docker_modules) 1) (ne $firstnode.Dir ".") }}
       file: {{ $firstnode.Dir }}/Dockerfile
@@ -172,7 +194,7 @@ helm-lint:
 
 {{- if $static }}{{ template "static" . }}{{- end }}
 
-{{- if $has_docker }}
+{{- if .HasDocker }}
 {{- if gt (len $docker_modules) 1 }}
 
 .docker-base:
