@@ -104,7 +104,9 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate}}, tc.Config),
+				}
 
 				// Act & Assert
 				test(ctx, t, repo)
@@ -144,7 +146,9 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate}}, tc.Config),
+				}
 
 				// Act & Assert
 				test(ctx, t, repo, values)
@@ -183,7 +187,9 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate}}, tc.Config),
+				}
 
 				// Act & Assert
 				test(ctx, t, repo, overrides)
@@ -213,7 +219,9 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeShell}}, tc.Config)}
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeShell}}, tc.Config),
+				}
 
 				// Act & Assert
 				test(ctx, t, repo)
@@ -251,7 +259,9 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeShell}}, tc.Config)}
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeShell}}, tc.Config),
+				}
 
 				// Act & Assert
 				test(ctx, t, repo)
@@ -271,7 +281,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			}
 
 			repo := types.Repository{
-				Config: kickr.Kickr{},
+				Config: kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}},
 			}
 
 			// Act & Assert
@@ -298,7 +308,9 @@ func TestGenerate_NoLang(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate, kickr.ExcludeShell}}, tc.Config),
+					Config: merge(t, kickr.Kickr{
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate, kickr.ExcludeShell},
+					}, tc.Config),
 				}
 
 				// Act & Assert
@@ -329,8 +341,12 @@ func TestGenerate_NoLang(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude:   []string{kickr.ExcludeRenovate},
-						PreCommit: []string{kickr.PreCommitAutoCommit, kickr.PreCommitGitflowBranches, kickr.PreCommitConventionalCommits},
+						Exclude: []string{kickr.ExcludeRenovate},
+						PreCommit: []string{
+							kickr.PreCommitAutoCommit,
+							kickr.PreCommitGitflowBranches,
+							kickr.PreCommitConventionalCommits,
+						},
 					}, tc.Config),
 				}
 
@@ -358,7 +374,7 @@ func TestGenerate_NoLang(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config),
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -405,7 +421,9 @@ func TestGenerate_NoLang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
+				repo := types.Repository{
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate}}, tc.Config),
+				}
 
 				// Act & Assert
 				test(ctx, t, repo)
@@ -506,7 +524,7 @@ func TestGenerate_Golang(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{}, tc.Config)}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo, golang(tc.Name))
@@ -713,7 +731,7 @@ func TestGenerate_Hugo(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{}, tc.Config)}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo, hugo(""))
@@ -808,7 +826,7 @@ func TestGenerate_Hugo(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{}, tc.Config),
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -830,7 +848,7 @@ func TestGenerate_Hugo(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Config),
+					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}, Exclude: []string{kickr.ExcludePreCommit}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -891,6 +909,7 @@ func TestGenerate_Node(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: kickr.Kickr{
+						Exclude:  []string{kickr.ExcludePreCommit},
 						GitHub:   &kickr.GitHub{},
 						Platform: parser.GitHub,
 					},
@@ -920,7 +939,7 @@ func TestGenerate_Node(t *testing.T) {
 				t.Parallel()
 
 				// Arrange
-				repo := types.Repository{Config: merge(t, kickr.Kickr{}, tc.Config)}
+				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config)}
 
 				// Act & Assert
 				test(ctx, t, repo, node)
@@ -1022,7 +1041,7 @@ func TestGenerate_Node(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeRenovate},
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 					}, tc.Config),
 				}
 
@@ -1150,7 +1169,7 @@ func TestGenerate_Node(t *testing.T) {
 				// Arrange
 				repo := types.Repository{
 					Config: merge(t, kickr.Kickr{
-						Exclude: []string{kickr.ExcludeRenovate},
+						Exclude: []string{kickr.ExcludePreCommit, kickr.ExcludeRenovate},
 					}, tc.Config),
 				}
 
@@ -1180,7 +1199,7 @@ func TestGenerate_Node(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Config),
+					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}, Exclude: []string{kickr.ExcludePreCommit}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -1213,7 +1232,7 @@ func TestGenerate_Node(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}}, tc.Config),
+					Config: merge(t, kickr.Kickr{Docker: &kickr.Docker{}, Exclude: []string{kickr.ExcludePreCommit}}, tc.Config),
 				}
 
 				// Act & Assert
@@ -1373,7 +1392,7 @@ func TestGenerate_Terraform(t *testing.T) {
 
 				// Arrange
 				repo := types.Repository{
-					Config: merge(t, kickr.Kickr{}, tc.Config),
+					Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config),
 				}
 
 				// Act & Assert

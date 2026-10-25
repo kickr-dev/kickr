@@ -55,6 +55,11 @@ func Misc() []engine.Template[types.Repository] {
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{".pre-commit-config.yaml" + engine.TmplExtension},
 			Out:        ".pre-commit-config.yaml",
+			Sections: []engine.Section{
+				{Begin: "# BEGIN_KICKR_HOOK_TYPES", End: "# END_KICKR_HOOK_TYPES"},
+				{Begin: "# BEGIN_KICKR_STAGES", End: "# END_KICKR_STAGES"},
+				{Begin: "# BEGIN_KICKR_HOOKS", End: "# END_KICKR_HOOKS"},
+			},
 			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return slices.Contains(repo.Config.Exclude, kickr.ExcludePreCommit)
 			}, engine.PolicyDefault),

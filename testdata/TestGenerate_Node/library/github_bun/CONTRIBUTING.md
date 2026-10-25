@@ -34,11 +34,6 @@ A `!` after type/scope, or a `BREAKING CHANGE:` footer, forces a major release r
 | `style`    | Formatting, no code meaning change      | none    |
 | `test`     | Adding or fixing tests                  | none    |
 
-## Pre-commit hooks
-
-This repo uses [pre-commit](https://pre-commit.com).
-Install it and run `pre-commit install` once, hooks then run automatically on commit.
-
 ## Code review
 
 Every change goes through review before merge.

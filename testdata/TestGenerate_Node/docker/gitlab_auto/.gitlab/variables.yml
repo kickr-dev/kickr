@@ -25,7 +25,6 @@ variables:
   SEMREL_IMAGE: docker.io/library/node:26.12.1-alpine3.23@sha256:bc2b334006f15c7167bbeb2f08f28c2df883f7594a0470e04454ebe7560cfe68
   ORAS_IMAGE: ghcr.io/oras-project/oras:v1.3.6@sha256:9cfb578be975b762fd898b9d004243d8003aeb807a3e15b2ed212cdd1326c9eb
   PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.4@sha256:5d198d3d939535f4fbf1cca7ee1b0ad80577a74dd3d27377b3ec0e012652dd56
-  PRE_COMMIT_IMAGE: docker.io/library/python:3.15.0-alpine3.23@sha256:d64bc17e0dff27c5c4a31f616450d032aa73d6325855127ce3a305bf1384c8d5
 
   DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.43.5@sha256:c4b3dc4cecef4dfa87e5a4bc6cde732f9a4d6fff171113d927f68ec7ac3fc40a
   DOCKER_DIND_IMAGE: docker.io/library/docker:29.9.2-dind@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977

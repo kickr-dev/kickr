@@ -3,12 +3,6 @@
 ---
 include:
 
-  # pre-commit template
-  # https://gitlab.com/to-be-continuous/pre-commit
-  - remote: https://gitlab.com/to-be-continuous/pre-commit/-/raw/50e22ece81358c673c8d33b79185d5563bdc1d39/templates/gitlab-ci-pre-commit.yml # 1.8.0
-    inputs:
-      pre-commit-file: .pre-commit-config.yaml
-
   # Node.js template
   # https://gitlab.com/to-be-continuous/node
   - remote: https://gitlab.com/to-be-continuous/node/-/raw/1fdebb262a573058989e3a4fc3fd47899edd9b4c/templates/gitlab-ci-node.yml # 5.4.0
