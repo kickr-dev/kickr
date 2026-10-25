@@ -42,6 +42,13 @@ variables:
   DOCKER_SNAPSHOT_IMAGE: "${DOCKER_SNAPSHOT_REGISTRY}{{ $name }}:${APP_VERSION}"
 {{- end }}
 
+{{- if .Config.HasHelmPublish }}
+
+  HELM_RELEASE_REGISTRY: {{ .Config.Helm.Registry | default "oci://${CI_REGISTRY}" }}/{{ .Config.Helm.Path | default "${CI_PROJECT_PATH}/charts" }}
+  HELM_SNAPSHOT_REGISTRY: ${HELM_RELEASE_REGISTRY}/snapshot
+  HELM_PUBLISH_URL: $HELM_RELEASE_REGISTRY
+{{- end }}
+
   ####################################
   #
   # Job images, pinned by digest

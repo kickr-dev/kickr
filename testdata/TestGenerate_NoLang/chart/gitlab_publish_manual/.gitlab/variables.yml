@@ -10,6 +10,10 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
+  HELM_RELEASE_REGISTRY: chartmuseum.example.com/path/to/kickr
+  HELM_SNAPSHOT_REGISTRY: ${HELM_RELEASE_REGISTRY}/snapshot
+  HELM_PUBLISH_URL: $HELM_RELEASE_REGISTRY
+
   ####################################
   #
   # Job images, pinned by digest

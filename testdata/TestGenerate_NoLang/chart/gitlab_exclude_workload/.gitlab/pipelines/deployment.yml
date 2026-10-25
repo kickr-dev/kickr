@@ -9,18 +9,19 @@ include:
     inputs:
       chart-dir: chart
       integ-enabled: false
-      package-args: package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update
+      package-args: package --app-version "$APP_VERSION" --dependency-update
       prod-enabled: false
       publish-method: disabled
       publish-on: none
       publish-snapshot-enabled: false
+      publish-snapshot-suffix: $CI_COMMIT_REF_SLUG
       publish-strategy: none
       review-enabled: true
-      scripts-dir: chart/hooks/
-      semrel-release-disabled: true # version is handled manually
+      scripts-dir: chart/hooks
+      semrel-release-disabled: false
       staging-enabled: false
       test-enabled: false
-      deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml" --set "appVersion=$APP_VERSION"
+      deploy-args: upgrade --install --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.yaml"
       integ-app-name: $HELM_BASE_APP_NAME
       review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       review-values: chart/values.review.yaml
@@ -43,3 +44,11 @@ workflow:
 
 helm-lint:
   needs: []
+
+helm-package:
+  before_script:
+    - !reference [.helm-base, before_script]
+    - add_helm_repositories
+    # helm chart versions are conventionally plain semver without the 'v' prefix
+    - export CI_COMMIT_TAG="${CI_COMMIT_TAG#v}"
+    - export SEMREL_INFO_NEXT_VERSION="${SEMREL_INFO_NEXT_VERSION#v}"
