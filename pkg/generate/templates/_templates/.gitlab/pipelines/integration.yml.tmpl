@@ -16,7 +16,7 @@
 {{- $plumber := not (has "plumber" .Config.GitLab.Exclude) }}
 {{- $shell := and (not (has "shell" .Config.Exclude)) (.HasGlob "shell") }}
 
-{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) $plumber (has "sonarqube" .Config.GitLab.Options) (has "overrides:integration" .Config.GitLab.Options) }}
+{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) $plumber (has "sonarqube" .Config.GitLab.Options) }}
 
 ---
 include:{{ if not $has_include }} []{{ end }}
@@ -100,10 +100,6 @@ include:{{ if not $has_include }} []{{ end }}
         -Dsonar.links.ci=$CI_PROJECT_URL/-/pipelines
         -Dsonar.links.issue=$CI_PROJECT_URL/-/work_items
       quality-gate-enabled: true
-{{- end }}
-
-{{- if has "overrides:integration" .Config.GitLab.Options }}
-  - local: .gitlab/integration.overrides.yml
 {{- end }}
 
 {{- if and $precommit (or (has "conventional-commits" .Config.PreCommit) (has "gitflow-branches" .Config.PreCommit)) }}

@@ -4,8 +4,13 @@
 {{- $netlify_modules := .ModulesWithDeployment "netlify" }}
 {{- $pages_modules := .ModulesWithDeployment "pages" }}
 
+{{- $has_deployment := or .HasDocker .Config.Helm (gt (len $terraform_modules) 0) (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) }}
+
 ---
 include:
+{{- if has "renovate" .Config.GitLab.Options }}
+  - local: .gitlab/pipelines/renovate.yml
+{{- end }}
   - local: .gitlab/pipelines/semantic-release.yml
     rules:
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -18,7 +23,7 @@ include:
       - if: '$CI_COMMIT_TAG'
         when: never
       - when: always
-{{- if or .HasDocker .Config.Helm (gt (len $terraform_modules) 0) (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) }}
+{{- if $has_deployment }}
   - local: .gitlab/pipelines/deployment.yml
     rules:
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
@@ -28,10 +33,23 @@ include:
 {{- if has "kickr" .Config.GitLab.Options }}
   - local: .gitlab/pipelines/kickr.yml
 {{- end }}
-{{- if has "renovate" .Config.GitLab.Options }}
-  - local: .gitlab/pipelines/renovate.yml
-{{- end }}
   - local: .gitlab/variables.yml
+{{- if has "overrides:integration" .Config.GitLab.Options }}
+  - local: .gitlab/integration.overrides.yml
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        when: never
+      - if: '$CI_COMMIT_TAG'
+        when: never
+      - when: always
+{{- end }}
+{{- if and $has_deployment (has "overrides:deployment" .Config.GitLab.Options) }}
+  - local: .gitlab/deployment.overrides.yml
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+        when: never
+      - when: always
+{{- end }}
 
 # secret variables
 # (define the variables below in your GitLab group/project variables)

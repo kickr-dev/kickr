@@ -132,9 +132,6 @@ include:{{ if not $has_include }} []{{ end }}
       trivy-args: --disable-telemetry --skip-version-check . --ignorefile $CI_PROJECT_DIR/.trivyignore.yaml
       validate-enabled: true
 {{- end }}
-{{- if has "overrides:deployment" .Config.GitLab.Options }}
-  - local: .gitlab/deployment.overrides.yml
-{{- end }}
 
 {{- if $merge_train }}
 
@@ -268,9 +265,9 @@ tf-deploy{{ with .Slug }}-{{ . }}{{ end }}:
           staging-plan-enabled: {{ has "staging" .Config.Terraform.Environments }}
           tflint-disabled: true
           trivy-disabled: true
+      - local: .gitlab/variables.yml
 {{- if has "overrides:deployment" $.Config.GitLab.Options }}
       - local: .gitlab/deployment.overrides.yml
 {{- end }}
-      - local: .gitlab/variables.yml
 {{- end }}
 {{- end }}
