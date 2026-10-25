@@ -16,6 +16,7 @@
 {{- $static := or (gt (len $netlify_modules) 0) (gt (len $pages_modules) 0) }}
 
 {{- $helm_review := and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
+{{- $helm_oci_publish := and .Config.HasHelmPublish (hasPrefix "oci://" (.Config.Helm.Registry | default "oci://")) }}
 
 {{- $merge_train := or $helm_review (gt (len $netlify_modules) 0) (gt (len $terraform_apply_modules) 0) }}
 {{- $has_include := or .HasDocker .Config.Helm (gt (len $terraform_modules) 0) }}
@@ -179,6 +180,22 @@ workflow:
     - when: always
 {{- end }}
 
+{{- if or .HasDocker $helm_oci_publish }}
+
+.artifacthub:
+  stage: publish
+  image:
+    name: $ORAS_IMAGE
+    entrypoint: [""]
+  script:
+    - oci_ref="${repository#oci://}"
+    - echo "$password" | oras login "${oci_ref%%/*}" -u "$username" --password-stdin
+    - |
+      oras push "$oci_ref:artifacthub.io" \
+        --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+        "$artifacthub_file:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml"
+{{- end }}
+
 {{- if $static }}{{ template "static" . }}{{- end }}
 
 {{- if .HasDocker }}
@@ -212,6 +229,35 @@ docker-publish:
     - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "manual"'
       when: manual
     - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "auto"'
+
+{{- $multiple := gt (len $docker_modules) 1 }}
+
+docker-artifacthub:
+  extends: .artifacthub
+  needs:
+    - docker-publish
+{{- if not $multiple }}
+  variables:
+    ARTIFACTHUB_FILE: {{ clean (print (first $docker_modules).Dir "/artifacthub-repo.yml") }}
+{{- else }}
+  parallel:
+    matrix:
+{{- range $docker_modules }}
+      - DOCKER_IMAGE_NAME: {{ .Slug | default ("" | quote) }}
+        ARTIFACTHUB_FILE: {{ clean (print .Dir "/artifacthub-repo.yml") }}
+{{- end }}
+{{- end }}
+  before_script:
+    - artifacthub_file="$ARTIFACTHUB_FILE"
+    - repository="${DOCKER_RELEASE_REGISTRY}{{ if $multiple }}/${DOCKER_IMAGE_NAME}{{ end }}"
+    - username="${DOCKER_REGISTRY_RELEASE_USER:-${DOCKER_REGISTRY_USER:-$CI_REGISTRY_USER}}"
+    - password="${DOCKER_REGISTRY_RELEASE_PASSWORD:-${DOCKER_REGISTRY_PASSWORD:-$CI_REGISTRY_PASSWORD}}"
+  rules:
+    - !reference [.docker-publish, rules]
+    - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "manual" || $DOCKER_PROD_PUBLISH_STRATEGY == "auto"'
+      exists:
+        # workaround https://gitlab.com/gitlab-org/gitlab/-/issues/451764
+        - $ARTIFACTHUB_FILE
 {{- end }}
 
 {{- if .Config.Helm }}
@@ -252,6 +298,24 @@ helm-publish:
     - if: '$HELM_PUBLISH_STRATEGY == "manual"'
       when: manual
     - if: '$HELM_PUBLISH_STRATEGY == "auto"'
+{{- if $helm_oci_publish }}
+
+helm-artifacthub:
+  extends: .artifacthub
+  needs:
+    - helm-package
+    - helm-publish
+  before_script:
+    - artifacthub_file="$HELM_CHART_DIR/artifacthub-repo.yml"
+    - repository="$HELM_RELEASE_REGISTRY/$helm_package_name"
+    - username="${HELM_PUBLISH_USER:-$CI_REGISTRY_USER}"
+    - password="${HELM_PUBLISH_PASSWORD:-$CI_REGISTRY_PASSWORD}"
+  rules:
+    - !reference [.helm-publish, rules]
+    - if: '$HELM_PUBLISH_STRATEGY == "manual" || $HELM_PUBLISH_STRATEGY == "auto"'
+      exists:
+        - $HELM_CHART_DIR/artifacthub-repo.yml
+{{- end }}
 {{- end }}
 
 {{- if gt (len $terraform_publish_modules) 0 }}

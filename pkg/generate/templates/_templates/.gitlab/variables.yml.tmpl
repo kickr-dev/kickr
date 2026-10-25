@@ -74,6 +74,10 @@ variables:
   NETLIFY_IMAGE: docker.io/library/node:26.13.0-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374
 {{- end }}
 
+{{- if or .HasDocker .Config.HasHelmPublish }}
+  ORAS_IMAGE: ghcr.io/oras-project/oras:v1.3.6@sha256:9cfb578be975b762fd898b9d004243d8003aeb807a3e15b2ed212cdd1326c9eb
+{{- end }}
+
 {{- if gt (len $pages_modules) 0 }}
   PAGES_IMAGE: docker.io/library/debian:trixie-slim@sha256:b6e2a152f22a40ff69d92cb397223c906017e1391a73c952b588e51af8883bf8
 {{- end }}

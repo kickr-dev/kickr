@@ -22,6 +22,19 @@ include:
       staging-enabled: false
       test-enabled: false
 
+.artifacthub:
+  stage: publish
+  image:
+    name: $ORAS_IMAGE
+    entrypoint: [""]
+  script:
+    - oci_ref="${repository#oci://}"
+    - echo "$password" | oras login "${oci_ref%%/*}" -u "$username" --password-stdin
+    - |
+      oras push "$oci_ref:artifacthub.io" \
+        --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+        "$artifacthub_file:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml"
+
 helm-lint:
   needs: []
 
@@ -53,3 +66,19 @@ helm-publish:
     - if: '$HELM_PUBLISH_STRATEGY == "manual"'
       when: manual
     - if: '$HELM_PUBLISH_STRATEGY == "auto"'
+
+helm-artifacthub:
+  extends: .artifacthub
+  needs:
+    - helm-package
+    - helm-publish
+  before_script:
+    - artifacthub_file="$HELM_CHART_DIR/artifacthub-repo.yml"
+    - repository="$HELM_RELEASE_REGISTRY/$helm_package_name"
+    - username="${HELM_PUBLISH_USER:-$CI_REGISTRY_USER}"
+    - password="${HELM_PUBLISH_PASSWORD:-$CI_REGISTRY_PASSWORD}"
+  rules:
+    - !reference [.helm-publish, rules]
+    - if: '$HELM_PUBLISH_STRATEGY == "manual" || $HELM_PUBLISH_STRATEGY == "auto"'
+      exists:
+        - $HELM_CHART_DIR/artifacthub-repo.yml

@@ -46,6 +46,19 @@ workflow:
     - !reference [.kickr-workflow-rules, default]
     - when: always
 
+.artifacthub:
+  stage: publish
+  image:
+    name: $ORAS_IMAGE
+    entrypoint: [""]
+  script:
+    - oci_ref="${repository#oci://}"
+    - echo "$password" | oras login "${oci_ref%%/*}" -u "$username" --password-stdin
+    - |
+      oras push "$oci_ref:artifacthub.io" \
+        --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+        "$artifacthub_file:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml"
+
 .netlify-deploy:
   image: $NETLIFY_IMAGE
   stage: deploy
@@ -150,3 +163,21 @@ docker-publish:
     - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "manual"'
       when: manual
     - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "auto"'
+
+docker-artifacthub:
+  extends: .artifacthub
+  needs:
+    - docker-publish
+  variables:
+    ARTIFACTHUB_FILE: artifacthub-repo.yml
+  before_script:
+    - artifacthub_file="$ARTIFACTHUB_FILE"
+    - repository="${DOCKER_RELEASE_REGISTRY}"
+    - username="${DOCKER_REGISTRY_RELEASE_USER:-${DOCKER_REGISTRY_USER:-$CI_REGISTRY_USER}}"
+    - password="${DOCKER_REGISTRY_RELEASE_PASSWORD:-${DOCKER_REGISTRY_PASSWORD:-$CI_REGISTRY_PASSWORD}}"
+  rules:
+    - !reference [.docker-publish, rules]
+    - if: '$DOCKER_PROD_PUBLISH_STRATEGY == "manual" || $DOCKER_PROD_PUBLISH_STRATEGY == "auto"'
+      exists:
+        # workaround https://gitlab.com/gitlab-org/gitlab/-/issues/451764
+        - $ARTIFACTHUB_FILE
