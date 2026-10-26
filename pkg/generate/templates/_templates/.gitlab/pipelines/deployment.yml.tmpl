@@ -81,38 +81,41 @@ include:{{ if not $has_include }} []{{ end }}
   - remote: https://gitlab.com/to-be-continuous/helm/-/raw/c974755ae7b97cd4164a8c5ac0d52d85ac0766b4/templates/gitlab-ci-helm.yml # 9.7.2
     inputs:
       chart-dir: chart
-      integ-enabled: {{ and .Config.HasHelmDeploy (has "integration" .Config.Helm.Environments) }}
       package-args: package{{ if not .Config.IsHelmLibrary }} --app-version "$APP_VERSION"{{ end }} --dependency-update
-      prod-enabled: {{ and .Config.HasHelmDeploy (has "production" .Config.Helm.Environments) }}
-      publish-method: {{ .Config.HasHelmPublish | ternary "auto" "disabled" }}
-      publish-on: {{ .Config.HasHelmPublish | ternary "tag" "none" }}
-      publish-snapshot-enabled: {{ .Config.HasHelmPublish }}
-      publish-snapshot-suffix: $CI_COMMIT_REF_SLUG
-      publish-strategy: {{ .Config.Helm.Publish | default "none" }}
-      review-enabled: {{ and .Config.HasHelmDeploy (has "review" .Config.Helm.Environments) }}
       scripts-dir: chart/hooks
       semrel-release-disabled: false
-      staging-enabled: {{ and .Config.HasHelmDeploy (has "staging" .Config.Helm.Environments) }}
       test-enabled: false
 {{- if .Config.HasHelmDeploy }}
       common-values: chart/values.default.yaml
       deploy-args: upgrade --install --version "$APP_VERSION"{{ if not (has "workload" .Config.Helm.Exclude) }} --set "appVersion=$APP_VERSION"{{ end }}
-      integ-app-name: $HELM_BASE_APP_NAME
+      integ-enabled: {{ has "integration" .Config.Helm.Environments }}
 {{- if has "integration" .Config.Helm.Environments }}
+      integ-app-name: $HELM_BASE_APP_NAME
       integ-values: chart/values.integration.yaml
 {{- end }}
+      prod-enabled: {{ has "production" .Config.Helm.Environments }}
 {{- if has "production" .Config.Helm.Environments }}
       prod-deploy-strategy: {{ .Config.Helm.Deploy }}
       prod-values: chart/values.production.yaml
 {{- end }}
-      review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
+      review-enabled: {{ has "review" .Config.Helm.Environments }}
 {{- if has "review" .Config.Helm.Environments }}
+      review-app-name: $HELM_BASE_APP_NAME-$APP_VERSION
       review-values: chart/values.review.yaml
 {{- end }}
-      staging-app-name: $HELM_BASE_APP_NAME
+      staging-enabled: {{ has "staging" .Config.Helm.Environments }}
 {{- if has "staging" .Config.Helm.Environments }}
+      staging-app-name: $HELM_BASE_APP_NAME
       staging-values: chart/values.staging.yaml
 {{- end }}
+{{- end }}
+{{- if .Config.HasHelmPublish }}
+      publish-on: tag
+      publish-snapshot-enabled: true
+      publish-snapshot-suffix: $CI_COMMIT_REF_SLUG
+      publish-strategy: {{ .Config.Helm.Publish }}
+{{- else }}
+      publish-method: disabled
 {{- end }}
 {{- end }}
 
@@ -268,6 +271,16 @@ docker-artifacthub:
 
 helm-lint:
   needs: []
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    # see https://gitlab.com/to-be-continuous/helm/-/blob/main/templates/gitlab-ci-helm.yml?ref_type=heads#L1303
+    - if: '$HELM_LINT_DISABLED == "true"'
+      when: never
+    - exists:
+        - "$HELM_CHART_DIR/Chart.yaml"
+        # workaround https://gitlab.com/gitlab-org/gitlab/-/issues/451764
+        - "Chart.yaml"
 
 helm-package:
 {{- if .Config.HasHelmPublish }}
