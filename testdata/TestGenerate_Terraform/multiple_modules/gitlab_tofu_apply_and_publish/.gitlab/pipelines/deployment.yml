@@ -10,6 +10,7 @@ include:
       docs-enabled: true
       docs-extra-opts: --output-check
       fmt-enabled: true
+      module-files: "*.tf *.tftpl *.tpl LICENSE README.md examples/*/*.tf examples/*/README.md modules/*/*.tf modules/*/*.tftpl modules/*/*.tpl modules/*/README.md"
       environment-namespace: /modules-two
       gitlab-backend-disabled: false
       integ-enabled: false

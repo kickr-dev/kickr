@@ -127,6 +127,9 @@ include:{{ if not $has_include }} []{{ end }}
       docs-extra-opts: --output-check
 {{- end }}
       fmt-enabled: true
+{{- if gt (len $terraform_gitlab_publish_modules) 0 }}
+      module-files: "*.tf *.tftpl *.tpl LICENSE README.md examples/*/*.tf examples/*/README.md modules/*/*.tf modules/*/*.tftpl modules/*/*.tpl modules/*/README.md"
+{{- end }}
 {{- if eq (len $terraform_apply_modules) 1 }}
 {{- $apply := first $terraform_apply_modules }}
       environment-namespace: {{ ne $apply.Slug "" | ternary (print "/" $apply.Slug) ("" | quote) }}
