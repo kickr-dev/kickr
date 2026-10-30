@@ -6,6 +6,7 @@ const (
 	LanguageGo        = "go"
 	LanguageHelm      = "helm"
 	LanguageHugo      = "hugo"
+	LanguageJava      = "java"
 	LanguageNode      = "node"
 	LanguageTerraform = "terraform"
 )

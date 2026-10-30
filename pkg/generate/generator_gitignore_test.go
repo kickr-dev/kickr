@@ -41,7 +41,7 @@ func TestGeneratorGitignore(t *testing.T) {
 	t.Run("error_http_call", func(t *testing.T) {
 		// Arrange
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv"),
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "git", "visualstudiocode"),
 			httpmock.NewStringResponder(http.StatusInternalServerError, "some error"))
 
 		repo := types.Repository{
@@ -62,6 +62,7 @@ func TestGeneratorGitignore(t *testing.T) {
 		langs := map[string][]string{
 			types.LanguageGo:        {"go"},
 			types.LanguageHelm:      {"helm"},
+			types.LanguageJava:      {"intellij+all", "java"},
 			types.LanguageTerraform: {"terraform"},
 		}
 
@@ -69,7 +70,8 @@ func TestGeneratorGitignore(t *testing.T) {
 			t.Run(lang, func(t *testing.T) {
 				// Arrange
 				destdir := t.TempDir()
-				query := slices.Concat([]string{"dotenv"}, keys)
+				query := slices.Concat([]string{"dotenv", "git", "visualstudiocode"}, keys)
+				slices.Sort(query)
 
 				t.Cleanup(httpmock.Reset)
 				httpmock.RegisterResponder(http.MethodGet, mockURL(t, query...),
@@ -110,7 +112,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		destdir := t.TempDir()
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "hugo"),
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "git", "hugo", "visualstudiocode"),
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 		repo := types.Repository{
@@ -149,7 +151,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		destdir := t.TempDir()
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv"),
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "git", "visualstudiocode"),
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 		repo := types.Repository{
@@ -188,7 +190,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		destdir := t.TempDir()
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "node"),
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "git", "node", "visualstudiocode"),
 			httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 		repo := types.Repository{
@@ -228,9 +230,9 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		require.NoError(t, os.Mkdir(filepath.Join(destdir, "docs"), files.RwxRxRxRx))
 
 		t.Cleanup(httpmock.Reset)
-		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "go"),
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "git", "go", "visualstudiocode"),
 			httpmock.NewStringResponder(http.StatusOK, "go content"))
-		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "hugo"),
+		httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "git", "hugo", "visualstudiocode"),
 			httpmock.NewStringResponder(http.StatusOK, "hugo content"))
 
 		repo := types.Repository{
@@ -288,7 +290,7 @@ hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 				destdir := t.TempDir()
 
 				t.Cleanup(httpmock.Reset)
-				httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "go", "sonar", "sonarqube"),
+				httpmock.RegisterResponder(http.MethodGet, mockURL(t, "dotenv", "git", "go", "sonar", "sonarqube", "visualstudiocode"),
 					httpmock.NewStringResponder(http.StatusOK, "some content"))
 
 				repo := types.Repository{

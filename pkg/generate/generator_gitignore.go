@@ -37,6 +37,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, root 
 		types.LanguageGo:        {"go"},
 		types.LanguageHelm:      {"helm"},
 		types.LanguageHugo:      {"hugo"},
+		types.LanguageJava:      {"intellij+all", "java"},
 		types.LanguageNode:      {"node"},
 		types.LanguageTerraform: {"terraform"},
 	}
@@ -57,7 +58,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, root 
 			for language := range module.Languages {
 				query = append(query, parameters[language]...)
 			}
-			query = append(query, "dotenv")
+			query = append(query, "dotenv", "git", "visualstudiocode")
 			if module.Dir() == types.RootModule && repo.Config.HasSonarQube() { // sonar analyzes the whole repository from its root, wherever the analyzed code lives
 				query = append(query, "sonar", "sonarqube")
 			}
