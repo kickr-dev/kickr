@@ -34,7 +34,7 @@ jobs:
 <<- if has "harden-runner" .Config.GitHub.Options >>
       # https://docs.stepsecurity.io/harden-runner/workflow-runs
       # https://github.com/marketplace/actions/harden-runner
-      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+      - uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           disable-sudo-and-containers: false # docker use
           egress-policy: audit
@@ -54,7 +54,7 @@ jobs:
         with:
           token: ${{ steps.app_token.outputs.token }}
 <<- end >>
-      - uses: renovatebot/github-action@f0f41e5f2e706165f6814b1d0f0d0e319de7d1d9 # v46.3.8
+      - uses: renovatebot/github-action@a63d9a7bc606f7336fd20b47f2f32259a35e6213 # v46.3.9
         with:
 <<- if has "renovate:github-app" .Config.GitHub.Options >>
           token: ${{ steps.app_token.outputs.token }}
