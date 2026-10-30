@@ -9,14 +9,16 @@
 {{- $tag := index (regexSplit "\\." . -1) 0 }}
 {{- $tags = append $tags $tag }}
 {{- end }}
+{{- $majors := $tags | uniq | reverse }}
 
 | Version | Supported |
 | ------- | --------- |
-{{- range $index, $_ := $tags | uniq | reverse }}
+{{- if without $majors "v0" }}
+{{- range $index, $_ := $majors }}
 {{- if gt $index 2 }}{{ break }}{{- end }}{{- /* keep the first last two major tags only */}}
 | {{ . }}.x    | ✅         |
 {{- end }}
-{{- if eq (len $tags) 0 }}
+{{- else }}
 | Latest  | ✅         |
 {{- end }}
 | Older   | ❌         |
