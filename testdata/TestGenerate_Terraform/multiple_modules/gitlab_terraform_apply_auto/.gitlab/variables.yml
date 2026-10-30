@@ -12,14 +12,14 @@ variables:
 
   TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state${TF_ENVIRONMENT_NAMESPACE}_${ENV_TYPE}
 
-  SEMREL_IMAGE: docker.io/library/node:26.12.1-alpine3.23@sha256:bc2b334006f15c7167bbeb2f08f28c2df883f7594a0470e04454ebe7560cfe68
-  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.4@sha256:5d198d3d939535f4fbf1cca7ee1b0ad80577a74dd3d27377b3ec0e012652dd56
-  PRE_COMMIT_IMAGE: docker.io/library/python:3.15.0-alpine3.23@sha256:d64bc17e0dff27c5c4a31f616450d032aa73d6325855127ce3a305bf1384c8d5
-  TF_IMAGE: docker.io/hashicorp/terraform:1.16.6@sha256:bfffc1ded5fbf0a17beaaf22eb4793980abdb19d0761ff6a3a0efb2ab4d9b316
-  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.3.30@sha256:4b65e89f1fde292249fc0aa0d0db43302c036dfe39f7370b2d3517571082b894
+  SEMREL_IMAGE: docker.io/library/node:26.13.0-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374
+  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.11@sha256:97176cdc9cec68f69d391554f997ec04d84efbcf46278c01b61f54c2cd2df019
+  PRE_COMMIT_IMAGE: docker.io/library/python:3.15.1-alpine3.23@sha256:cb295b554dbbea09b2c0e6e6d9ce55f051347c902fbb611e618c071addfb30a3
+  TF_IMAGE: docker.io/hashicorp/terraform:1.17.0@sha256:4d1b496a256f2989bccdb04b9104a4ede97234b10fba90259e173e905ec4fb58
+  TF_CHECKOV_IMAGE: docker.io/bridgecrew/checkov:3.4.0@sha256:ece5efac4443084ca273072909985dce988a81e8cc94faa305aeda0df27c68f9
   TF_DOCS_IMAGE: quay.io/terraform-docs/terraform-docs:0.24.0-amd64@sha256:16990b28302390f7c4ae398b371a46762b6b3eb8534e75eeee8185caa8029b8c
-  TF_INFRACOST_IMAGE: docker.io/infracost/infracost:0.10.46@sha256:b19f83e23b43ac0189d5153eaa9ac38c1b2cebb1f38c0f2b1ac93f56be9e35cb
+  TF_INFRACOST_IMAGE: docker.io/infracost/infracost:0.10.47@sha256:76ad6948e83bffb4b6127c9cae13faea068981bcb2b081526920d9bb88a399e1
   TF_PUBLISH_IMAGE: docker.io/curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777
   TF_TFLINT_IMAGE: ghcr.io/terraform-linters/tflint:v0.65.0@sha256:2788f4d4fc663c0e953b011b01bf443fe5bfce7587ee916e588e6057b85d6359
   TF_TFSEC_IMAGE: docker.io/aquasec/tfsec-ci:v1.28.14@sha256:9c7edeef0f4ba5b96cb7456d35196cc7c36b70d0af72117d413fad39b85e5ba3
-  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.76.0@sha256:2416d1f74045b57274df1a340eee6b510cacd73c66a6ccb8da092b117eb7d222
+  TF_TRIVY_IMAGE: docker.io/aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c

@@ -10,8 +10,8 @@ variables:
 
   TRIVY_SEVERITY: MEDIUM,HIGH,CRITICAL
 
-  SEMREL_IMAGE: docker.io/library/node:26.12.1-alpine3.23@sha256:bc2b334006f15c7167bbeb2f08f28c2df883f7594a0470e04454ebe7560cfe68
-  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.168.0@sha256:1fb8fe7f417abd5802d86747d297728aa48078d763159e7dff6559fe3f8bb8e7
+  SEMREL_IMAGE: docker.io/library/node:26.13.0-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374
+  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.169.0@sha256:a146e0639230bbc73358e6563240f0a6103466f0390b80a457c775068ec802a9
   PAGES_IMAGE: docker.io/library/debian:trixie-slim@sha256:b6e2a152f22a40ff69d92cb397223c906017e1391a73c952b588e51af8883bf8
-  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.4@sha256:5d198d3d939535f4fbf1cca7ee1b0ad80577a74dd3d27377b3ec0e012652dd56
-  PRE_COMMIT_IMAGE: docker.io/library/python:3.15.0-alpine3.23@sha256:d64bc17e0dff27c5c4a31f616450d032aa73d6325855127ce3a305bf1384c8d5
+  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.11@sha256:97176cdc9cec68f69d391554f997ec04d84efbcf46278c01b61f54c2cd2df019
+  PRE_COMMIT_IMAGE: docker.io/library/python:3.15.1-alpine3.23@sha256:cb295b554dbbea09b2c0e6e6d9ce55f051347c902fbb611e618c071addfb30a3
