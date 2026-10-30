@@ -38,7 +38,7 @@ func rootCmd(wd *string) *cobra.Command {
 	generate := generateCmd(wd, generators()...)
 
 	cmd := &cobra.Command{
-		Use: "kickr",
+		Use: filepath.Base(os.Args[0]),
 		Long: `Kickr initializes or generates kickr projects. Kickr projects are only defined by a .kickr file
 and multiple files automatically generated to avoid multiple hours to setup Continuous Integration, coverage, security analyzes, helm chart, etc.
 
