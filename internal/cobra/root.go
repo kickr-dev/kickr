@@ -20,6 +20,7 @@ func Execute() {
 	var wd string
 
 	cmd := rootCmd(&wd)
+	cmd.AddCommand(gitignoreCmd(&wd))
 	cmd.AddCommand(initializeCmd(&wd))
 	cmd.AddCommand(version())
 	cmd.AddCommand(generateCmd(&wd, generators()...))
