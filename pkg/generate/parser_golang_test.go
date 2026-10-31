@@ -18,8 +18,6 @@ import (
 )
 
 func TestParserGolang(t *testing.T) {
-	ctx := t.Context()
-
 	httpmock.Activate()
 	t.Cleanup(httpmock.DeactivateAndReset)
 
@@ -35,7 +33,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("read '%s'", parser.FileGomod))
@@ -68,7 +66,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -93,7 +91,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NotErrorIs(t, err, parser.ErrNoGowork)
@@ -115,7 +113,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -156,7 +154,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -207,7 +205,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -253,7 +251,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err = generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err = generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -317,7 +315,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -367,7 +365,7 @@ func TestParserGolang(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserGolang(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserGolang(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)

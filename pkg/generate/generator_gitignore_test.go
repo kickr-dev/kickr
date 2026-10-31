@@ -25,8 +25,6 @@ import (
 )
 
 func TestGeneratorGitignore(t *testing.T) {
-	ctx := t.Context()
-
 	httpmock.Activate()
 	t.Cleanup(httpmock.DeactivateAndReset)
 	gen := generate.GeneratorGitignore(http.DefaultClient)
@@ -51,7 +49,7 @@ func TestGeneratorGitignore(t *testing.T) {
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, t.TempDir()), repo)
+		err := gen(t.Context(), testutils.Root(t, t.TempDir()), repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "download gitignore")
@@ -87,7 +85,7 @@ func TestGeneratorGitignore(t *testing.T) {
 				}
 
 				// Act
-				err := gen(ctx, testutils.Root(t, destdir), repo)
+				err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 				// Assert
 				require.NoError(t, err)
@@ -125,7 +123,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -164,7 +162,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -203,7 +201,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -243,7 +241,7 @@ some content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -310,7 +308,7 @@ hugo content`, string(bytes.ReplaceAll(content, compare.Carriage, []byte{})))
 				}
 
 				// Act
-				err := gen(ctx, testutils.Root(t, destdir), repo)
+				err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 				// Assert
 				require.NoError(t, err)

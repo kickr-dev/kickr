@@ -14,15 +14,13 @@ import (
 )
 
 func TestMaintainer(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("success_full", func(t *testing.T) {
 		// Arrange
 		reader := NewPacedReader("John Doe"+defaultSubmit+"john@example.com"+defaultSubmit+"https://john.dev"+defaultSubmit, 2*time.Millisecond)
 		expected := kickr.Kickr{Maintainers: []*kickr.Maintainer{{Name: "John Doe", Email: "john@example.com", URL: "https://john.dev"}}}
 
 		// Act
-		config, err := engine.Initialize(ctx,
+		config, err := engine.Initialize(t.Context(),
 			engine.WithFormGroups(initialize.Maintainer),
 			engine.WithTeaOptions[kickr.Kickr](tea.WithInput(reader)))
 
@@ -37,7 +35,7 @@ func TestMaintainer(t *testing.T) {
 		expected := kickr.Kickr{Maintainers: []*kickr.Maintainer{{Name: "John Doe"}}}
 
 		// Act
-		config, err := engine.Initialize(ctx,
+		config, err := engine.Initialize(t.Context(),
 			engine.WithFormGroups(initialize.Maintainer),
 			engine.WithTeaOptions[kickr.Kickr](tea.WithInput(reader)))
 

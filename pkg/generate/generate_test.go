@@ -35,8 +35,6 @@ type testcase struct {
 func TestGenerate_NoLang(t *testing.T) {
 	t.Parallel()
 
-	ctx := t.Context()
-
 	t.Run("chart", func(t *testing.T) {
 		t.Parallel()
 
@@ -109,7 +107,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 	})
@@ -151,7 +149,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, values)
+				test(t.Context(), t, repo, values)
 			})
 		}
 	})
@@ -192,7 +190,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, overrides)
+				test(t.Context(), t, repo, overrides)
 			})
 		}
 	})
@@ -224,7 +222,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 	})
@@ -264,7 +262,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 
@@ -285,7 +283,7 @@ func TestGenerate_NoLang(t *testing.T) {
 			}
 
 			// Act & Assert
-			test(ctx, t, repo, tmpl)
+			test(t.Context(), t, repo, tmpl)
 		})
 	})
 
@@ -314,7 +312,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 	})
@@ -351,7 +349,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 	})
@@ -378,7 +376,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 	})
@@ -426,7 +424,7 @@ func TestGenerate_NoLang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 	})
@@ -434,8 +432,6 @@ func TestGenerate_NoLang(t *testing.T) {
 
 func TestGenerate_Shell(t *testing.T) {
 	t.Parallel()
-
-	ctx := t.Context()
 
 	shell := func(_ context.Context, destdir string, _ *types.Repository) error {
 		return os.WriteFile(filepath.Join(destdir, "script.sh"), []byte("#!/bin/sh\n"), files.RwxRxRxRx)
@@ -453,7 +449,7 @@ func TestGenerate_Shell(t *testing.T) {
 			repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
 
 			// Act & Assert
-			test(ctx, t, repo, shell)
+			test(t.Context(), t, repo, shell)
 		})
 	}
 
@@ -472,7 +468,7 @@ func TestGenerate_Shell(t *testing.T) {
 				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludeRenovate}}, tc.Config)}
 
 				// Act & Assert
-				test(ctx, t, repo, shell)
+				test(t.Context(), t, repo, shell)
 			})
 		}
 	})
@@ -480,8 +476,6 @@ func TestGenerate_Shell(t *testing.T) {
 
 func TestGenerate_Golang(t *testing.T) {
 	t.Parallel()
-
-	ctx := t.Context()
 
 	t.Run("cli", func(t *testing.T) {
 		t.Parallel()
@@ -527,7 +521,7 @@ func TestGenerate_Golang(t *testing.T) {
 				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config)}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(tc.Name))
+				test(t.Context(), t, repo, golang(tc.Name))
 			})
 		}
 	})
@@ -560,7 +554,7 @@ func TestGenerate_Golang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(platform))
+				test(t.Context(), t, repo, golang(platform))
 			})
 		}
 	})
@@ -653,7 +647,7 @@ func TestGenerate_Golang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(tc.Name))
+				test(t.Context(), t, repo, golang(tc.Name))
 			})
 		}
 	})
@@ -695,7 +689,7 @@ func TestGenerate_Golang(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(platform))
+				test(t.Context(), t, repo, golang(platform))
 			})
 		}
 	})
@@ -703,8 +697,6 @@ func TestGenerate_Golang(t *testing.T) {
 
 func TestGenerate_Hugo(t *testing.T) {
 	t.Parallel()
-
-	ctx := t.Context()
 
 	hugo := func(hugodir string) engine.Parser[types.Repository] {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -734,7 +726,7 @@ func TestGenerate_Hugo(t *testing.T) {
 				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config)}
 
 				// Act & Assert
-				test(ctx, t, repo, hugo(""))
+				test(t.Context(), t, repo, hugo(""))
 			})
 		}
 	})
@@ -830,7 +822,7 @@ func TestGenerate_Hugo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, hugo(""))
+				test(t.Context(), t, repo, hugo(""))
 			})
 		}
 	})
@@ -852,7 +844,7 @@ func TestGenerate_Hugo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, hugo(""))
+				test(t.Context(), t, repo, hugo(""))
 			})
 		}
 	})
@@ -880,7 +872,7 @@ func TestGenerate_Hugo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, hugo("docs"), hugo("website"))
+				test(t.Context(), t, repo, hugo("docs"), hugo("website"))
 			})
 		}
 	})
@@ -888,8 +880,6 @@ func TestGenerate_Hugo(t *testing.T) {
 
 func TestGenerate_Node(t *testing.T) {
 	t.Parallel()
-
-	ctx := t.Context()
 
 	t.Run("package_managers", func(t *testing.T) {
 		t.Parallel()
@@ -916,7 +906,7 @@ func TestGenerate_Node(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, node(tc))
+				test(t.Context(), t, repo, node(tc))
 			})
 		}
 	})
@@ -942,7 +932,7 @@ func TestGenerate_Node(t *testing.T) {
 				repo := types.Repository{Config: merge(t, kickr.Kickr{Exclude: []string{kickr.ExcludePreCommit}}, tc.Config)}
 
 				// Act & Assert
-				test(ctx, t, repo, node)
+				test(t.Context(), t, repo, node)
 			})
 		}
 	})
@@ -1046,7 +1036,7 @@ func TestGenerate_Node(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, node)
+				test(t.Context(), t, repo, node)
 			})
 		}
 	})
@@ -1174,7 +1164,7 @@ func TestGenerate_Node(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, node)
+				test(t.Context(), t, repo, node)
 			})
 		}
 	})
@@ -1203,7 +1193,7 @@ func TestGenerate_Node(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, node)
+				test(t.Context(), t, repo, node)
 			})
 		}
 	})
@@ -1236,7 +1226,7 @@ func TestGenerate_Node(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, node)
+				test(t.Context(), t, repo, node)
 			})
 		}
 	})
@@ -1244,8 +1234,6 @@ func TestGenerate_Node(t *testing.T) {
 
 func TestGenerate_Terraform(t *testing.T) {
 	t.Parallel()
-
-	ctx := t.Context()
 
 	t.Run("multiple_modules", func(t *testing.T) {
 		t.Parallel()
@@ -1396,7 +1384,7 @@ func TestGenerate_Terraform(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, terraform(filepath.Join("modules", "one")), terraform(filepath.Join("modules", "two")))
+				test(t.Context(), t, repo, terraform(filepath.Join("modules", "one")), terraform(filepath.Join("modules", "two")))
 			})
 		}
 	})
@@ -1469,7 +1457,7 @@ func TestGenerate_Terraform(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, terraform)
+				test(t.Context(), t, repo, terraform)
 			})
 		}
 	})
@@ -1477,8 +1465,6 @@ func TestGenerate_Terraform(t *testing.T) {
 
 func TestGenerate_MonoRepo(t *testing.T) {
 	t.Parallel()
-
-	ctx := t.Context()
 
 	golang := func(godir, cmd, provider string) engine.Parser[types.Repository] {
 		return func(_ context.Context, destdir string, _ *types.Repository) error {
@@ -1568,7 +1554,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(types.RootModule, "api", provider), node("docs"))
+				test(t.Context(), t, repo, golang(types.RootModule, "api", provider), node("docs"))
 			})
 		}
 	})
@@ -1599,7 +1585,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(types.RootModule, "api", provider), hugo("docs"))
+				test(t.Context(), t, repo, golang(types.RootModule, "api", provider), hugo("docs"))
 			})
 		}
 	})
@@ -1630,7 +1616,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, node(types.RootModule), hugo("docs"), hugo("website"))
+				test(t.Context(), t, repo, node(types.RootModule), hugo("docs"), hugo("website"))
 			})
 		}
 	})
@@ -1661,7 +1647,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, gowork("./backend"), golang("backend", "api", tc.Name), node("frontend"))
+				test(t.Context(), t, repo, gowork("./backend"), golang("backend", "api", tc.Name), node("frontend"))
 			})
 		}
 	})
@@ -1688,7 +1674,7 @@ func TestGenerate_MonoRepo(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo, golang(types.RootModule, "api", tc.Name), terraform(".terraform"))
+				test(t.Context(), t, repo, golang(types.RootModule, "api", tc.Name), terraform(".terraform"))
 			})
 		}
 	})
@@ -1696,8 +1682,6 @@ func TestGenerate_MonoRepo(t *testing.T) {
 
 func TestGenerate_MultiPlatforms(t *testing.T) {
 	t.Parallel()
-
-	ctx := t.Context()
 
 	t.Run("multiple_ci", func(t *testing.T) {
 		t.Parallel()
@@ -1739,7 +1723,7 @@ func TestGenerate_MultiPlatforms(t *testing.T) {
 				}
 
 				// Act & Assert
-				test(ctx, t, repo)
+				test(t.Context(), t, repo)
 			})
 		}
 	})

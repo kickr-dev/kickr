@@ -18,8 +18,6 @@ import (
 )
 
 func TestParserTerraform(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("error_invalid_module", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
@@ -33,7 +31,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "module 'path' isn't a terraform module")
@@ -51,7 +49,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("load module '%s':", types.RootModule))
@@ -75,7 +73,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "load module 'module':")
@@ -88,7 +86,7 @@ func TestParserTerraform(t *testing.T) {
 		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -143,7 +141,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -208,7 +206,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -295,7 +293,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -364,7 +362,7 @@ func TestParserTerraform(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserTerraform(ctx, destdir, &repo)
+		err := generate.ParserTerraform(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)

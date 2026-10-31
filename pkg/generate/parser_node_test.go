@@ -15,8 +15,6 @@ import (
 )
 
 func TestParserNode(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("error_read_packagejson", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
@@ -28,7 +26,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "read json")
@@ -46,7 +44,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorIs(t, err, parser.ErrMissingPackageName)
@@ -72,7 +70,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorIs(t, err, generate.ErrMultipleManagers)
@@ -94,7 +92,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		assert.ErrorIs(t, err, generate.ErrModuleNoPublish)
@@ -117,7 +115,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -151,7 +149,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -187,7 +185,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -246,7 +244,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -286,7 +284,7 @@ func TestParserNode(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserNode(ctx, destdir, &repo)
+		err := generate.ParserNode(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)

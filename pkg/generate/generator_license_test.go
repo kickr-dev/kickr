@@ -24,8 +24,6 @@ import (
 const license = "LICENSE"
 
 func TestGeneratorLicense_Remove(t *testing.T) {
-	ctx := t.Context()
-
 	httpmock.Activate()
 	t.Cleanup(httpmock.DeactivateAndReset)
 	gen := generate.GeneratorLicense(http.DefaultClient)
@@ -37,7 +35,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(dest, "file.txt"), files.RwxRxRxRx))
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), types.Repository{})
+		err := gen(t.Context(), testutils.Root(t, destdir), types.Repository{})
 
 		// Assert
 		assert.ErrorContains(t, err, fmt.Sprintf("remove '%s'", license))
@@ -49,7 +47,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		dest := filepath.Join(destdir, license)
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), types.Repository{})
+		err := gen(t.Context(), testutils.Root(t, destdir), types.Repository{})
 
 		// Assert
 		require.NoError(t, err)
@@ -65,7 +63,7 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, testutils.Root(t, destdir), types.Repository{})
+		err = gen(t.Context(), testutils.Root(t, destdir), types.Repository{})
 
 		// Assert
 		require.NoError(t, err)
@@ -74,8 +72,6 @@ func TestGeneratorLicense_Remove(t *testing.T) {
 }
 
 func TestGeneratorLicense_Download(t *testing.T) {
-	ctx := t.Context()
-
 	httpmock.Activate()
 	t.Cleanup(httpmock.DeactivateAndReset)
 	gen := generate.GeneratorLicense(http.DefaultClient)
@@ -89,7 +85,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "error message"))
 
 		// Act
-		err := gen(ctx, testutils.Root(t, t.TempDir()), types.Repository{Config: kickr.Kickr{License: "mit"}})
+		err := gen(t.Context(), testutils.Root(t, t.TempDir()), types.Repository{Config: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		assert.ErrorContains(t, err, "get license template 'mit'")
@@ -108,7 +104,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		require.NoError(t, license.Close())
 
 		// Act
-		err = gen(ctx, testutils.Root(t, destdir), types.Repository{Config: kickr.Kickr{License: "mit"}})
+		err = gen(t.Context(), testutils.Root(t, destdir), types.Repository{Config: kickr.Kickr{License: "mit"}})
 
 		// Assert
 		require.NoError(t, err)
@@ -132,7 +128,7 @@ func TestGeneratorLicense_Download(t *testing.T) {
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)

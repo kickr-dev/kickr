@@ -12,8 +12,6 @@ import (
 )
 
 func TestParserModules(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("success_implicit_root", func(t *testing.T) {
 		// Arrange
 		expected := types.Repository{
@@ -31,7 +29,7 @@ func TestParserModules(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserModules(ctx, t.TempDir(), &repo)
+		err := generate.ParserModules(t.Context(), t.TempDir(), &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -56,7 +54,7 @@ func TestParserModules(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserModules(ctx, t.TempDir(), &repo)
+		err := generate.ParserModules(t.Context(), t.TempDir(), &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -75,7 +73,7 @@ func TestParserModules(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserModules(ctx, t.TempDir(), &repo)
+		err := generate.ParserModules(t.Context(), t.TempDir(), &repo)
 
 		// Assert
 		assert.ErrorIs(t, err, generate.ErrDuplicateModule)

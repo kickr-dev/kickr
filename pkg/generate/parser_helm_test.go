@@ -13,8 +13,6 @@ import (
 )
 
 func TestParserChart(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("success_description", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
@@ -48,7 +46,7 @@ func TestParserChart(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserHelm(ctx, destdir, &repo)
+		err := generate.ParserHelm(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -109,7 +107,7 @@ func TestParserChart(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserHelm(ctx, destdir, &repo)
+		err := generate.ParserHelm(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)

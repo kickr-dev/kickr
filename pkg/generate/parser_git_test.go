@@ -15,15 +15,13 @@ import (
 )
 
 func TestParserGit(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("success_no_vcs", func(t *testing.T) {
 		// Arrange
 		destdir := t.TempDir()
 		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserGit(ctx, destdir, &repo)
+		err := generate.ParserGit(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -44,7 +42,7 @@ func TestParserGit(t *testing.T) {
 		repo := types.Repository{}
 
 		// Act
-		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &repo)
+		err := generate.ParserGit(t.Context(), filepath.Join(testutils.Testdata(t), ".."), &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -74,7 +72,7 @@ func TestParserGit(t *testing.T) {
 		repo := types.Repository{Config: kickr.Kickr{Platform: parser.GitHub}}
 
 		// Act
-		err := generate.ParserGit(ctx, filepath.Join(testutils.Testdata(t), ".."), &repo)
+		err := generate.ParserGit(t.Context(), filepath.Join(testutils.Testdata(t), ".."), &repo)
 
 		// Assert
 		require.NoError(t, err)

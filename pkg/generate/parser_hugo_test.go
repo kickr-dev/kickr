@@ -17,8 +17,6 @@ import (
 )
 
 func TestParserHugo(t *testing.T) {
-	ctx := t.Context()
-
 	httpmock.Activate()
 	t.Cleanup(httpmock.DeactivateAndReset)
 
@@ -35,7 +33,7 @@ func TestParserHugo(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserHugo(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserHugo(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NotErrorIs(t, err, parser.ErrNoHugo)
@@ -57,7 +55,7 @@ func TestParserHugo(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserHugo(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserHugo(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -86,7 +84,7 @@ func TestParserHugo(t *testing.T) {
 		}
 
 		// Act
-		err = generate.ParserHugo(http.DefaultClient)(ctx, destdir, &repo)
+		err = generate.ParserHugo(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -118,7 +116,7 @@ func TestParserHugo(t *testing.T) {
 		}
 
 		// Act
-		err = generate.ParserHugo(http.DefaultClient)(ctx, destdir, &repo)
+		err = generate.ParserHugo(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -162,7 +160,7 @@ func TestParserHugo(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserHugo(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserHugo(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -206,7 +204,7 @@ func TestParserHugo(t *testing.T) {
 		}
 
 		// Act
-		err := generate.ParserHugo(http.DefaultClient)(ctx, destdir, &repo)
+		err := generate.ParserHugo(http.DefaultClient)(t.Context(), destdir, &repo)
 
 		// Assert
 		require.NoError(t, err)

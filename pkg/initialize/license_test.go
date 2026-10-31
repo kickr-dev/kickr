@@ -13,14 +13,12 @@ import (
 )
 
 func TestLicense(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("success_none", func(t *testing.T) {
 		// Arrange
 		reader := NewPacedReader(selectSubmit, 2*time.Millisecond)
 
 		// Act
-		config, err := engine.Initialize(ctx,
+		config, err := engine.Initialize(t.Context(),
 			engine.WithFormGroups(initialize.License),
 			engine.WithTeaOptions[kickr.Kickr](tea.WithInput(reader)))
 
@@ -34,7 +32,7 @@ func TestLicense(t *testing.T) {
 		reader := NewPacedReader(arrowDown+selectSubmit, 2*time.Millisecond)
 
 		// Act
-		config, err := engine.Initialize(ctx,
+		config, err := engine.Initialize(t.Context(),
 			engine.WithFormGroups(initialize.License),
 			engine.WithTeaOptions[kickr.Kickr](tea.WithInput(reader)))
 

@@ -37,8 +37,6 @@ Community Moderators take reports of violations seriously and will make every ef
 If an investigation by the Community Moderators finds that this Code of Conduct has been violated, the following enforcement ladder may be used to determine how best to repair harm, based on the incident's impact on the individuals involved and the community as a whole. Depending on the severity of a violation, lower rungs on the ladder may be skipped.`
 
 func TestGeneratorCodeOfConduct_Exclude(t *testing.T) {
-	ctx := t.Context()
-
 	httpmock.Activate()
 	t.Cleanup(httpmock.DeactivateAndReset)
 	gen := generate.GeneratorCodeOfConduct(http.DefaultClient)
@@ -52,7 +50,7 @@ func TestGeneratorCodeOfConduct_Exclude(t *testing.T) {
 		require.NoError(t, os.MkdirAll(filepath.Join(dest, "file.txt"), files.RwxRxRxRx))
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		assert.ErrorContains(t, err, "remove 'CODE_OF_CONDUCT.md'")
@@ -67,7 +65,7 @@ func TestGeneratorCodeOfConduct_Exclude(t *testing.T) {
 		require.NoError(t, f.Close())
 
 		// Act
-		err = gen(ctx, testutils.Root(t, destdir), repo)
+		err = gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -76,8 +74,6 @@ func TestGeneratorCodeOfConduct_Exclude(t *testing.T) {
 }
 
 func TestGeneratorCodeOfConduct_Download(t *testing.T) {
-	ctx := t.Context()
-
 	httpmock.Activate()
 	t.Cleanup(httpmock.DeactivateAndReset)
 	gen := generate.GeneratorCodeOfConduct(http.DefaultClient)
@@ -89,7 +85,7 @@ func TestGeneratorCodeOfConduct_Download(t *testing.T) {
 			httpmock.NewStringResponder(http.StatusInternalServerError, "error message"))
 
 		// Act
-		err := gen(ctx, testutils.Root(t, t.TempDir()), types.Repository{})
+		err := gen(t.Context(), testutils.Root(t, t.TempDir()), types.Repository{})
 
 		// Assert
 		assert.ErrorContains(t, err, "fetch code of conduct")
@@ -117,7 +113,7 @@ func TestGeneratorCodeOfConduct_Download(t *testing.T) {
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
@@ -161,7 +157,7 @@ If an investigation by the Community Moderators finds that this Code of Conduct 
 		}
 
 		// Act
-		err := gen(ctx, testutils.Root(t, destdir), repo)
+		err := gen(t.Context(), testutils.Root(t, destdir), repo)
 
 		// Assert
 		require.NoError(t, err)
