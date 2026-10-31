@@ -13,7 +13,7 @@ import (
 
 // GitHub returns the slice of templates related to GitHub configuration.
 func GitHub() []engine.Template[types.Repository] {
-	return slices.Concat(githubWorkflow(), githubConfig())
+	return slices.Concat(githubWorkflow(), githubConfig(), githubPlumber())
 }
 
 func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint:funlen

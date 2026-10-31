@@ -12,7 +12,7 @@ import (
 
 // GitLab returns the slice of templates related to GitLab configuration.
 func GitLab() []engine.Template[types.Repository] {
-	return slices.Concat(gitlabPipelines(), gitlabConfig())
+	return slices.Concat(gitlabPipelines(), gitlabConfig(), gitlabPlumber())
 }
 
 func gitlabPipelines() (templates []engine.Template[types.Repository]) {

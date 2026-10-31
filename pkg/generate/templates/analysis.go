@@ -26,6 +26,10 @@ func CodeCov() []engine.Template[types.Repository] {
 
 // Plumber returns the slice of templates related to Plumber configuration and CI/CD.
 func Plumber() []engine.Template[types.Repository] {
+	return slices.Concat(githubPlumber(), gitlabPlumber())
+}
+
+func githubPlumber() []engine.Template[types.Repository] {
 	return []engine.Template[types.Repository]{
 		{
 			Delimiters: engine.DelimitersBracket(),
@@ -43,6 +47,11 @@ func Plumber() []engine.Template[types.Repository] {
 				return repo.Config.GitHub == nil || slices.Contains(repo.Config.GitHub.Exclude, kickr.GitHubExcludePlumber)
 			}, engine.PolicyDefault),
 		},
+	}
+}
+
+func gitlabPlumber() []engine.Template[types.Repository] {
+	return []engine.Template[types.Repository]{
 		{
 			Delimiters: engine.DelimitersBracket(),
 			Globs:      []string{path.Join(".gitlab", "pipelines", "plumber.yml"+engine.TmplExtension)},
