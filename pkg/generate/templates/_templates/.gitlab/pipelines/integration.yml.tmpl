@@ -13,10 +13,9 @@
 {{- end }}
 
 {{- $precommit := and (not (has "pre-commit" .Config.Exclude)) (not (has "pre-commit" .Config.GitLab.Exclude)) }}
-{{- $plumber := not (has "plumber" .Config.GitLab.Exclude) }}
 {{- $shell := and (not (has "shell" .Config.Exclude)) (.HasGlob "shell") }}
 
-{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) $plumber (has "sonarqube" .Config.GitLab.Options) }}
+{{- $has_include := or $precommit $shell (gt (len $go_modules) 0) (gt (len $node_modules) 0) (has "sonarqube" .Config.GitLab.Options) }}
 
 ---
 include:{{ if not $has_include }} []{{ end }}
@@ -70,22 +69,6 @@ include:{{ if not $has_include }} []{{ end }}
       project-dir: {{ (first $node_buildable_modules).Dir }}
 {{- end }}
       publish-enabled: false
-{{- end }}
-
-{{- if $plumber }}
-
-  # Plumber template
-  # https://gitlab.com/getplumber/plumber
-  - remote: https://gitlab.com/getplumber/plumber/-/raw/f97e0377cdc54f51eeb75f817f458cb9af0a4db1/templates/plumber.yml # v0.7.11
-    inputs:
-      allow_failure: true
-      badge: false
-      config_file: .gitlab/plumber.yml
-      gitlab_token: $PLUMBER_GITLAB_TOKEN
-      image: $PLUMBER_IMAGE
-      mr_comment: false
-      score_point: true
-      score_push: true
 {{- end }}
 
 {{- if has "sonarqube" .Config.GitLab.Options }}
@@ -243,11 +226,4 @@ hugo-build:
     paths:
       - $HUGO_PROJECT_DIR/$BUILD_DIR
     expire_in: 1 day
-{{- end }}
-
-{{- if $plumber }}
-
-plumber:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF || $CI_COMMIT_REF_NAME =~ $PROD_REF'
 {{- end }}

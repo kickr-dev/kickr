@@ -8,20 +8,3 @@ include:
   - remote: https://gitlab.com/to-be-continuous/pre-commit/-/raw/50e22ece81358c673c8d33b79185d5563bdc1d39/templates/gitlab-ci-pre-commit.yml # 1.8.0
     inputs:
       pre-commit-file: .pre-commit-config.yaml
-
-  # Plumber template
-  # https://gitlab.com/getplumber/plumber
-  - remote: https://gitlab.com/getplumber/plumber/-/raw/f97e0377cdc54f51eeb75f817f458cb9af0a4db1/templates/plumber.yml # v0.7.11
-    inputs:
-      allow_failure: true
-      badge: false
-      config_file: .gitlab/plumber.yml
-      gitlab_token: $PLUMBER_GITLAB_TOKEN
-      image: $PLUMBER_IMAGE
-      mr_comment: false
-      score_point: true
-      score_push: true
-
-plumber:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF || $CI_COMMIT_REF_NAME =~ $PROD_REF'

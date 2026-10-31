@@ -33,6 +33,9 @@ include:
 {{- if has "kickr" .Config.GitLab.Options }}
   - local: .gitlab/pipelines/kickr.yml
 {{- end }}
+{{- if not (has "plumber" .Config.GitLab.Exclude) }}
+  - local: .gitlab/pipelines/plumber.yml
+{{- end }}
   - local: .gitlab/variables.yml
 {{- if has "overrides:integration" .Config.GitLab.Options }}
   - local: .gitlab/integration.overrides.yml

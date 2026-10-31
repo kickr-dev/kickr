@@ -74,16 +74,6 @@ func githubWorkflow() (templates []engine.Template[types.Repository]) { //nolint
 		}, engine.PolicyDefault),
 	})
 
-	plumber := path.Join(".github", "workflows", "plumber.yml")
-	templates = append(templates, engine.Template[types.Repository]{
-		Delimiters: engine.DelimitersChevron(),
-		Globs:      []string{plumber + engine.TmplExtension},
-		Out:        plumber,
-		GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
-			return repo.Config.GitHub == nil || slices.Contains(repo.Config.GitHub.Exclude, kickr.GitHubExcludePlumber)
-		}, engine.PolicyDefault),
-	})
-
 	review := path.Join(".github", "workflows", "dependency-review.yml")
 	templates = append(templates, engine.Template[types.Repository]{
 		Delimiters:     engine.DelimitersChevron(),

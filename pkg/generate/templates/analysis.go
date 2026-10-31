@@ -24,7 +24,7 @@ func CodeCov() []engine.Template[types.Repository] {
 	}
 }
 
-// Plumber returns the slice of templates related to Plumber configuration.
+// Plumber returns the slice of templates related to Plumber configuration and CI/CD.
 func Plumber() []engine.Template[types.Repository] {
 	return []engine.Template[types.Repository]{
 		{
@@ -33,6 +33,22 @@ func Plumber() []engine.Template[types.Repository] {
 			Out:        path.Join(".github", "plumber.yml"),
 			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
 				return repo.Config.GitHub == nil || slices.Contains(repo.Config.GitHub.Exclude, kickr.GitHubExcludePlumber)
+			}, engine.PolicyDefault),
+		},
+		{
+			Delimiters: engine.DelimitersChevron(),
+			Globs:      []string{path.Join(".github", "workflows", "plumber.yml"+engine.TmplExtension)},
+			Out:        path.Join(".github", "workflows", "plumber.yml"),
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+				return repo.Config.GitHub == nil || slices.Contains(repo.Config.GitHub.Exclude, kickr.GitHubExcludePlumber)
+			}, engine.PolicyDefault),
+		},
+		{
+			Delimiters: engine.DelimitersBracket(),
+			Globs:      []string{path.Join(".gitlab", "pipelines", "plumber.yml"+engine.TmplExtension)},
+			Out:        path.Join(".gitlab", "pipelines", "plumber.yml"),
+			GeneratePolicy: engine.RemoveIf(func(repo types.Repository) bool {
+				return repo.Config.GitLab == nil || slices.Contains(repo.Config.GitLab.Exclude, kickr.GitLabExcludePlumber)
 			}, engine.PolicyDefault),
 		},
 		{

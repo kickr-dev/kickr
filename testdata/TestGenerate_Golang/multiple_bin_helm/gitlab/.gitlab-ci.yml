@@ -19,6 +19,7 @@ include:
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
         when: never
       - when: always
+  - local: .gitlab/pipelines/plumber.yml
   - local: .gitlab/variables.yml
   - local: .gitlab/integration.overrides.yml
     rules:
