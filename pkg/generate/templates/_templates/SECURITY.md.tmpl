@@ -6,8 +6,9 @@
 
 {{- $tags := list }}
 {{- range .VCS.Tags }}
-{{- $tag := index (regexSplit "\\." . -1) 0 }}
-{{- $tags = append $tags $tag }}
+{{- $version := semver . }}
+{{- if $version.Prerelease }}{{ continue }}{{- end }}
+{{- $tags = append $tags (printf "v%d" $version.Major) }}
 {{- end }}
 {{- $majors := $tags | uniq | reverse }}
 
