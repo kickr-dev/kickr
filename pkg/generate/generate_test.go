@@ -1759,7 +1759,7 @@ func merge(t testing.TB, base, complement kickr.Kickr) kickr.Kickr {
 }
 
 // test verifies every generation with provided repo, parser and t.Name folder expected results.
-func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...engine.Parser[types.Repository]) {
+func test(parent context.Context, t *testing.T, repo types.Repository, parsers ...engine.Parser[types.Repository]) {
 	t.Helper()
 
 	// Arrange
@@ -1774,6 +1774,9 @@ func test(ctx context.Context, t *testing.T, repo types.Repository, parsers ...e
 
 	// lookups fail without responder, rendering kickr default images.
 	client := &http.Client{Transport: httpmock.NewMockTransport()}
+
+	// TESTDATA=1 regenerates over existing fixtures, files without generated notice included
+	ctx := engine.ContextWithOptions(parent, engine.Options{Force: true})
 
 	// Act
 	err := engine.Generate(ctx, destdir, repo,

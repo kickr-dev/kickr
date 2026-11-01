@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	gitlab "gitlab.com/gitlab-org/api/client-go/v3"
-	engine "gitlab.com/kickr-dev/engine/pkg"
 	"gitlab.com/kickr-dev/engine/pkg/files"
 	"gitlab.com/kickr-dev/engine/pkg/parser"
 
@@ -93,10 +92,6 @@ func TestGeneratorLicense_Download(t *testing.T) {
 
 	t.Run("success_already_exists", func(t *testing.T) {
 		// Arrange
-		forced := engine.Forced()
-		engine.Configure(engine.WithForce(false), engine.WithLogger(engine.GetLogger()))
-		t.Cleanup(func() { engine.Configure(engine.WithForce(forced), engine.WithLogger(engine.GetLogger())) })
-
 		destdir := t.TempDir()
 		dest := filepath.Join(destdir, license)
 		license, err := os.Create(dest)

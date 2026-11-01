@@ -43,14 +43,15 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, root *o
 			engine.GetLogger().Warnf("failed to initialize GitLab client, skipping license generation: %v", err)
 			return nil
 		}
+		opts := engine.OptionsFromContext(ctx)
 
-		if _, err := root.Lstat(dest); err == nil && !engine.Forced() {
+		if _, err := root.Lstat(dest); err == nil && !opts.Force {
 			engine.GetLogger().Infof("not generating '%s' since it already exists", "LICENSE")
 			return nil
 		}
 		engine.GetLogger().Infof("license detected, configuration has 'license' key")
 
-		opts := gitlab.GetLicenseTemplateOptions{
+		template, _, err := client.LicenseTemplates.GetLicenseTemplate(repo.Config.License, &gitlab.GetLicenseTemplateOptions{
 			Fullname: func() *string {
 				var zero string
 				if len(repo.Config.Maintainers) == 0 {
@@ -62,8 +63,7 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, root *o
 				return &repo.Config.Maintainers[0].Name
 			}(),
 			Project: &repo.VCS.ProjectName,
-		}
-		template, _, err := client.LicenseTemplates.GetLicenseTemplate(repo.Config.License, &opts)
+		})
 		if err != nil {
 			return fmt.Errorf("get license template '%s': %w", repo.Config.License, err)
 		}

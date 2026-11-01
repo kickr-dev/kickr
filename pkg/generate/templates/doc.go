@@ -14,8 +14,10 @@ Examples:
 		defer root.Close()
 
 		var c types.Repository
+
+		ctx := context.Background()
 		for _, template := range templates.Chart() {
-			err := engine.ApplyTemplate(templates.FS(), root, template, c)
+			err := engine.ApplyTemplate(ctx, templates.FS(), root, template, c)
 			// handle err
 		}
 	}
@@ -25,8 +27,10 @@ Examples:
 		defer root.Close()
 
 		var c types.Repository
+
+		ctx := context.Background()
 		for _, template := range templates.Chart() {
-			err := engine.ApplyPatches(templates.FS(), root, template, c)
+			err := engine.ApplyPatches(ctx, templates.FS(), root, template, c)
 			// handle err
 		}
 	}

@@ -96,7 +96,8 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 			config.EnsureDefaults()
 
 			// run generation
-			engine.Configure(engine.WithForce(force), engine.WithLogger(logger))
+			engine.SetLogger(logger)
+			ctx := engine.ContextWithOptions(cmd.Context(), engine.Options{Force: force})
 			client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
 			parsers := []engine.Parser[types.Repository]{
 				// must be kept first (global parsing)
@@ -113,7 +114,7 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 				generate.ParserHelm,
 			}
 
-			if err := engine.Generate(cmd.Context(), *wd, types.Repository{Config: config}, parsers, generators); err != nil {
+			if err := engine.Generate(ctx, *wd, types.Repository{Config: config}, parsers, generators); err != nil {
 				return err
 			}
 

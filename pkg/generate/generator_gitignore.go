@@ -80,7 +80,7 @@ func GeneratorGitignore(httpClient *http.Client) func(ctx context.Context, root 
 				continue
 			}
 			d := data{Module: module, Downloaded: ignores[key]}
-			if err := engine.ApplyTemplate(templates.FS(), sub, template, d); err != nil {
+			if err := engine.ApplyTemplate(ctx, templates.FS(), sub, template, d); err != nil {
 				errs = append(errs, fmt.Errorf("apply template in '%s': %w", module.Dir(), err))
 			}
 			if err := sub.Close(); err != nil {

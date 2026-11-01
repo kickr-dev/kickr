@@ -60,7 +60,7 @@ func GeneratorCodeOfConduct(httpClient *http.Client) func(ctx context.Context, r
 			Maintainers: repo.Config.Maintainers,
 			VCS:         repo.VCS,
 		}
-		if err := engine.ApplyTemplate(templates.FS(), root, template, d); err != nil {
+		if err := engine.ApplyTemplate(ctx, templates.FS(), root, template, d); err != nil {
 			return fmt.Errorf("apply template: %w", err)
 		}
 		return nil

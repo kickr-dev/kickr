@@ -20,7 +20,7 @@ func gitignoreCmd(wd *string) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			logger.Infof("generating gitignore in %s", *wd)
 
-			engine.Configure(engine.WithLogger(logger))
+			engine.SetLogger(logger)
 			client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
 
 			parsers := []engine.Parser[types.Repository]{
