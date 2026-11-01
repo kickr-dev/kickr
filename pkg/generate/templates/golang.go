@@ -2,6 +2,7 @@ package templates
 
 import (
 	"path"
+	"slices"
 
 	engine "gitlab.com/kickr-dev/engine/pkg"
 
@@ -23,8 +24,8 @@ func Golang() []engine.Template[types.Module] {
 	}
 }
 
-// RepositoryGolang returns the slice of templates related to Golang generation for the repository's root (golangci-lint, goreleaser, etc.).
-func RepositoryGolang() []engine.Template[types.Repository] {
+// GolangCI returns the slice of templates related to golangci-lint configuration for the repository's root.
+func GolangCI() []engine.Template[types.Repository] {
 	return []engine.Template[types.Repository]{
 		{
 			Delimiters: engine.DelimitersChevron(),
@@ -34,6 +35,12 @@ func RepositoryGolang() []engine.Template[types.Repository] {
 				return len(repo.ModulesWith(types.LanguageGo)) == 0
 			}, engine.PolicyDefault),
 		},
+	}
+}
+
+// RepositoryGolang returns the slice of templates related to Golang generation for the repository's root (golangci-lint, goreleaser, etc.).
+func RepositoryGolang() []engine.Template[types.Repository] {
+	return slices.Concat(GolangCI(), []engine.Template[types.Repository]{
 		{
 			Delimiters: engine.DelimitersChevron(),
 			Globs:      []string{".goreleaser.yml" + engine.TmplExtension},
@@ -47,5 +54,5 @@ func RepositoryGolang() []engine.Template[types.Repository] {
 				return true
 			}, engine.PolicyDefault),
 		},
-	}
+	})
 }

@@ -1764,6 +1764,7 @@ func test(parent context.Context, t *testing.T, repo types.Repository, parsers .
 
 	// Arrange
 	repo.Config.Maintainers = append(repo.Config.Maintainers, &kickr.Maintainer{Name: "kilianpaquier"})
+	repo.Config.Version = 1
 	assertdir := filepath.Join(testutils.Testdata(t), t.Name())
 	require.NoError(t, os.MkdirAll(assertdir, files.RwxRxRxRx))
 
@@ -1802,7 +1803,7 @@ func test(parent context.Context, t *testing.T, repo types.Repository, parsers .
 			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Taskfile()), // module taskfile
 			engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Justfile()), // module justfile
 
-			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Plumber(), templates.Sonar())),         // analysis
+			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Sonar())),                              // analysis
 			engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
 			engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
 			engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang

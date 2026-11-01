@@ -1,77 +1,23 @@
 package cobra
 
 import (
-	"fmt"
-	"net/http"
-	"os"
 	"path/filepath"
-	"slices"
-	"strconv"
 
 	"github.com/spf13/cobra"
 	engine "gitlab.com/kickr-dev/engine/pkg"
 	"gitlab.com/kickr-dev/engine/pkg/files"
 
-	schemas "github.com/kickr-dev/kickr/.schemas"
 	"github.com/kickr-dev/kickr/pkg/generate"
-	"github.com/kickr-dev/kickr/pkg/generate/templates"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 const envPrefix = "kickr-"
 
-const (
-	flagForce      = "force"
-	flagShortForce = "f"
-)
-
-func generators() []engine.Generator[types.Repository] {
-	client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
-
-	return []engine.Generator[types.Repository]{
-		generate.GeneratorCodeOfConduct(client), // code of conduct
-		generate.GeneratorGitignore(client),     // gitignore
-		generate.GeneratorLicense(client),       // license
-
-		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Docker()),   // module docker
-		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Golang()),   // module golang
-		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Makefile()), // module makefile
-		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Taskfile()), // module taskfile
-		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Justfile()), // module justfile
-
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.CodeCov(), templates.Plumber(), templates.Sonar())),         // analysis
-		engine.GeneratorTemplates(templates.FS(), slices.Concat(templates.GitHub(), templates.GitLab(), templates.SemanticRelease())), // ci
-		engine.GeneratorTemplates(templates.FS(), templates.Chart()),                                                                  // chart
-		engine.GeneratorTemplates(templates.FS(), templates.RepositoryGolang()),                                                       // golang
-		engine.GeneratorTemplates(templates.FS(), templates.RepositoryMakefile()),                                                     // makefile
-		engine.GeneratorTemplates(templates.FS(), templates.RepositoryTaskfile()),                                                     // taskfile
-		engine.GeneratorTemplates(templates.FS(), templates.RepositoryJustfile()),                                                     // justfile
-		engine.GeneratorTemplates(templates.FS(), templates.Misc()),                                                                   // misc
-		engine.GeneratorTemplates(templates.FS(), templates.Renovate()),                                                               // renovate
-		engine.GeneratorTemplates(templates.FS(), templates.Terraform()),                                                              // terraform
-	}
-}
-
 func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *cobra.Command {
-	var force bool
-
 	cmd := &cobra.Command{
 		Use:   "generate",
 		Short: "Generate project layout",
-		Args: func(cmd *cobra.Command, _ []string) error {
-			// validate force environment variable
-			if !cmd.Flags().Changed(flagForce) {
-				if env := getenv(envPrefix + flagForce); env != "" {
-					ff, err := strconv.ParseBool(env)
-					if err != nil {
-						return fmt.Errorf(`invalid argument %q for "--%s" flag: %w`, env, flagForce, err)
-					}
-					force = ff
-				}
-			}
-			return nil
-		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			dest := kickr.File(*wd)
 			if dest != "" {
@@ -80,51 +26,19 @@ func generateCmd(wd *string, generators ...engine.Generator[types.Repository]) *
 			return initializeCmd(wd).RunE(cmd, args)
 		},
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			filename := kickr.File(*wd)
 			logger.Infof("generating layout in %s", *wd)
 
-			// validate configuration
-			if err := files.Validate(files.ReadYAMLFunc(schemas.FS(), kickr.Schema), files.ReadYAMLFunc(os.DirFS(*wd), filename)); err != nil {
+			config, err := kickr.Read(*wd)
+			if err != nil {
 				return err
 			}
-
-			// read configuration
-			var config kickr.Kickr
-			if err := files.ReadYAML(os.DirFS(*wd), filename, &config); err != nil {
-				return err
-			}
-			config.EnsureDefaults()
-
-			// run generation
-			engine.SetLogger(logger)
-			ctx := engine.ContextWithOptions(cmd.Context(), engine.Options{Force: force})
-			client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
-			parsers := []engine.Parser[types.Repository]{
-				// must be kept first (global parsing)
-				generate.ParserGit,
-				generate.ParserModules,
-
-				generate.ParserGlob,
-				generate.ParserHugo(client),
-				generate.ParserGolang(client),
-				generate.ParserNode,
-				generate.ParserTerraform,
-
-				// must be kept last since it reads modules executables
-				generate.ParserHelm,
-			}
-
-			if err := engine.Generate(ctx, *wd, types.Repository{Config: config}, parsers, generators); err != nil {
+			if err := engine.Generate(cmd.Context(), *wd, types.Repository{Config: config}, generate.Parsers(httpClient()), generators); err != nil {
 				return err
 			}
 
 			// save configuration again in case it was modified during generation
-			return files.WriteYAML(filepath.Join(*wd, filename), config, kickr.EncodeOpts()...)
+			return files.WriteYAML(filepath.Join(*wd, kickr.File(*wd)), config, kickr.EncodeOpts()...)
 		},
 	}
-
-	cmd.Flags().BoolVarP(&force, flagForce, flagShortForce, false,
-		"force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed")
-
 	return cmd
 }

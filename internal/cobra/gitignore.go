@@ -3,36 +3,31 @@
 package cobra
 
 import (
-	"net/http"
-
 	"github.com/spf13/cobra"
 	engine "gitlab.com/kickr-dev/engine/pkg"
 
 	"github.com/kickr-dev/kickr/pkg/generate"
 	"github.com/kickr-dev/kickr/pkg/generate/types"
+	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
 func gitignoreCmd(wd *string) *cobra.Command {
 	return &cobra.Command{
-		Use:   "gitignore",
-		Short: "Generate .gitignore only, no .kickr file needed",
-		Args:  cobra.NoArgs,
+		Use:     "gitignore",
+		Short:   "Generate .gitignore only, kickr configuration optional",
+		GroupID: groupStandalone,
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			logger.Infof("generating gitignore in %s", *wd)
 
-			engine.SetLogger(logger)
-			client := &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
-
-			parsers := []engine.Parser[types.Repository]{
-				generate.ParserModules,
-				generate.ParserHugo(client),
-				generate.ParserGolang(client),
-				generate.ParserNode,
-				generate.ParserTerraform,
+			config, err := kickr.Read(*wd)
+			if err != nil {
+				return err
 			}
-			generators := []engine.Generator[types.Repository]{generate.GeneratorGitignore(client)}
 
-			return engine.Generate(cmd.Context(), *wd, types.Repository{}, parsers, generators)
+			client := httpClient()
+			generators := []engine.Generator[types.Repository]{generate.GeneratorGitignore(client)}
+			return engine.Generate(cmd.Context(), *wd, types.Repository{Config: config}, generate.Parsers(client), generators)
 		},
 	}
 }

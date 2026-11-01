@@ -1,9 +1,12 @@
 package kickr
 
 import (
+	"os"
 	"path/filepath"
 
 	"gitlab.com/kickr-dev/engine/pkg/files"
+
+	schemas "github.com/kickr-dev/kickr/.schemas"
 )
 
 const (
@@ -29,4 +32,25 @@ func File(dir string) string {
 		}
 	}
 	return ""
+}
+
+// Read validates and reads the kickr configuration of dir, then ensures its defaults.
+//
+// Returns an empty configuration in case no kickr configuration was found inside dir.
+func Read(dir string) (Kickr, error) {
+	var config Kickr
+	filename := File(dir)
+	if filename == "" {
+		return config, nil
+	}
+
+	if err := files.Validate(files.ReadYAMLFunc(schemas.FS(), Schema), files.ReadYAMLFunc(os.DirFS(dir), filename)); err != nil {
+		return config, err
+	}
+	if err := files.ReadYAML(os.DirFS(dir), filename, &config); err != nil {
+		return config, err
+	}
+
+	config.EnsureDefaults()
+	return config, nil
 }

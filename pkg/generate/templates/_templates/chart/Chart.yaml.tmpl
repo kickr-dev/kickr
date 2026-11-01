@@ -14,15 +14,19 @@ type: {{ .Config.IsHelmLibrary | ternary "library" "application" }}
 
 # Chart version, following Semantic Versioning (https://semver.org/).
 # Bump it on any change to the chart, its templates or its app version.
+{{- if .Config.Version }}
 #
 # When using kickr generated CI/CD, leave the placeholder as is since it's set to the release version when packaging.
+{{- end }}
 version: 0.0.0
 {{- if not .Config.IsHelmLibrary }}
 
 # Version of the deployed application, matching the version the application itself uses.
 # Bump it on any application change. Semantic Versioning isn't required, so keep it quoted.
+{{- if .Config.Version }}
 #
 # When using kickr generated CI/CD, leave the placeholder as is since it's set to the release version when packaging.
+{{- end }}
 appVersion: "0.0.0"
 
 dependencies:{{ if has "workload" .Config.Helm.Exclude }} []{{ else }}

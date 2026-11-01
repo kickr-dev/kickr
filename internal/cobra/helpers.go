@@ -2,11 +2,14 @@ package cobra
 
 import (
 	"fmt"
+	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	log "charm.land/log/v2"
 	"github.com/spf13/cobra"
+	engine "gitlab.com/kickr-dev/engine/pkg"
 )
 
 var logger = log.NewWithOptions(os.Stderr, log.Options{
@@ -38,6 +41,22 @@ func setupLogger(logFormat, logLevel string) error {
 	return nil
 }
 
+func setupForce(cmd *cobra.Command, force *bool) error {
+	if cmd.Flags().Changed(flagForce) {
+		return nil
+	}
+	env := getenv(envPrefix + flagForce)
+	if env == "" {
+		return nil
+	}
+	ff, err := strconv.ParseBool(env)
+	if err != nil {
+		return fmt.Errorf(`invalid argument %q for "--%s" flag: %w`, env, flagForce, err)
+	}
+	*force = ff
+	return nil
+}
+
 func coalesce(values ...string) string {
 	for _, value := range values {
 		if value != "" {
@@ -50,6 +69,10 @@ func coalesce(values ...string) string {
 func getenv(flag string) string {
 	key := strings.ToUpper(strings.ReplaceAll(flag, "-", "_"))
 	return os.Getenv(key)
+}
+
+func httpClient() *http.Client {
+	return &http.Client{Transport: engine.NewLoggerURL(http.DefaultTransport)}
 }
 
 func usage(parent, child *cobra.Command, err error) {
