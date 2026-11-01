@@ -7,10 +7,10 @@
 
     "allowedCommands": [
         "^git diff --exit-code -G\\^go -- go\\.mod$",
+        "^go generate \\./\\.\\.\\.$",
         "^go mod tidy$",
         "^hugo mod tidy$"
     ],
-    "allowedUnsafeExecutions": ["goGenerate"],
     "autodiscover": true,
     "autodiscoverNamespaces": ["kickr-dev"],
     "configValidationError": true,
