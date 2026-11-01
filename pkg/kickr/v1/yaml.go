@@ -11,7 +11,7 @@ func EncodeOpts() []yaml.EncodeOption {
 			"$": []*yaml.Comment{
 				yaml.HeadComment(
 					" Kickr configuration file (https://github.com/kickr-dev/kickr)",
-					" yaml-language-server: $schema=https://raw.githubusercontent.com/kickr-dev/kickr/beta/.schemas/kickr.v1.schema.json",
+					" yaml-language-server: $schema=https://raw.githubusercontent.com/kickr-dev/kickr/main/.schemas/kickr.v1.schema.json",
 				),
 			},
 		}),

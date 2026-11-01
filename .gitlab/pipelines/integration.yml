@@ -19,19 +19,6 @@ include:
       test-flags: -v -coverpkg=./... -covermode=count -timeout=30s
       test-image: $GO_IMAGE
 
-  # Plumber template
-  # https://gitlab.com/getplumber/plumber
-  - remote: https://gitlab.com/getplumber/plumber/-/raw/f97e0377cdc54f51eeb75f817f458cb9af0a4db1/templates/plumber.yml # v0.7.11
-    inputs:
-      allow_failure: true
-      badge: false
-      config_file: .gitlab/plumber.yml
-      gitlab_token: $PLUMBER_GITLAB_TOKEN
-      image: $PLUMBER_IMAGE
-      mr_comment: false
-      score_point: true
-      score_push: true
-
 go-build:
   image:
     name: $GO_GORELEASER_IMAGE
@@ -40,7 +27,10 @@ go-build:
     - semantic-release-info
   rules:
     # https://gitlab.com/to-be-continuous/golang/-/blob/master/templates/gitlab-ci-golang.yml?ref_type=heads#L670
-    - if: '$GO_TEST_IMAGE != ""'
+    - if: '$GO_TEST_IMAGE == ""'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF || $CI_COMMIT_REF_NAME =~ $PROD_REF'
+    - when: manual
   script:
     - goreleaser release --clean --config .goreleaser.yml --snapshot
   artifacts:
@@ -60,7 +50,3 @@ go-mod-outdated:
 
 go-test:
   needs: []
-
-plumber:
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ $INTEG_REF || $CI_COMMIT_REF_NAME =~ $PROD_REF'
