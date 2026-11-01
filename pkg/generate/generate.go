@@ -36,6 +36,7 @@ func Generators(httpClient *http.Client) []engine.Generator[types.Repository] {
 		GeneratorCodeOfConduct(httpClient), // code of conduct
 		GeneratorGitignore(httpClient),     // gitignore
 		GeneratorLicense(httpClient),       // license
+		GeneratorWorkload(httpClient),      // workload
 
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Docker()),   // module docker
 		engine.GeneratorModules(templates.FS(), types.RepositoryModules, templates.Golang()),   // module golang

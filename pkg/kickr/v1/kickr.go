@@ -290,6 +290,12 @@ type Helm struct {
 	//  - workload: Skips the workload chart dependency, application template and values, and stops regenerating values.schema.json.
 	Exclude []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
 
+	// Options defines the options to tune the Helm Chart generation.
+	//
+	// Enums:
+	//  - vendor:workload: Vendors the workload chart from kickr-dev/workload main branch into chart/charts/workload, instead of its OCI release.
+	Options []string `json:"options,omitempty" yaml:"options,omitempty"`
+
 	// Type defines the Helm Chart type.
 	//
 	// A library chart is never deployed, so it's not compatible with 'deploy' and 'environments'.

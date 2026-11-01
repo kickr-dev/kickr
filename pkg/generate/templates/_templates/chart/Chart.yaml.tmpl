@@ -32,8 +32,12 @@ appVersion: "0.0.0"
 dependencies:{{ if has "workload" .Config.Helm.Exclude }} []{{ else }}
   # BEGIN_KICKR_WORKLOAD
   - name: workload
+{{- if has "vendor:workload" .Config.Helm.Options }}
+    version: ">=0.0.0-0"
+{{- else }}
     version: 0.3.0
     repository: oci://registry.gitlab.com/kickr-dev
+{{- end }}
   # END_KICKR_WORKLOAD
 {{- end }}
 {{- end }}

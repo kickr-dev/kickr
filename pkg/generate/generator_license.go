@@ -15,6 +15,8 @@ import (
 	"github.com/kickr-dev/kickr/pkg/generate/types"
 )
 
+const gitlabURL = "https://gitlab.com/api/v4"
+
 // GeneratorLicense generates the license file for the project.
 func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, root *os.Root, repo types.Repository) error {
 	if httpClient == nil {
@@ -31,7 +33,7 @@ func GeneratorLicense(httpClient *http.Client) func(ctx context.Context, root *o
 		}
 
 		client, err := gitlab.NewClient(os.Getenv("GITLAB_TOKEN"),
-			gitlab.WithBaseURL("https://gitlab.com/api/v4"),
+			gitlab.WithBaseURL(gitlabURL),
 			gitlab.WithHTTPClient(httpClient),
 			gitlab.WithoutRetries(),
 			gitlab.WithRequestOptions(gitlab.WithContext(ctx)))

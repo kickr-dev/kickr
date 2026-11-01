@@ -96,6 +96,10 @@ func TestGenerate_NoLang(t *testing.T) {
 					Helm:   &kickr.Helm{Path: "path/to/kickr", Publish: kickr.HelmPublishManual, Registry: "chartmuseum.example.com"},
 				},
 			},
+			{
+				Name:   "gitlab_vendor",
+				Config: kickr.Kickr{Helm: &kickr.Helm{Options: []string{kickr.HelmOptionsVendorWorkload}}},
+			},
 		}
 		for _, tc := range cases {
 			t.Run(tc.Name, func(t *testing.T) {

@@ -420,6 +420,15 @@ $defs:
         items:
           type: string
           enum: [workload]
+      options:
+        type: array
+        description: |-
+          Options to tune the Helm Chart generation.
+
+          - 'vendor:workload': Vendors the workload chart from kickr-dev/workload main branch into chart/charts/workload, instead of its OCI release.
+        items:
+          type: string
+          enum: [vendor:workload]
       type:
         type: string
         description: |-

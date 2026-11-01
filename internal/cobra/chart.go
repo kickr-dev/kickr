@@ -4,6 +4,7 @@ package cobra
 
 import (
 	"errors"
+	"slices"
 
 	"github.com/spf13/cobra"
 	engine "gitlab.com/kickr-dev/engine/pkg"
@@ -14,8 +15,12 @@ import (
 	kickr "github.com/kickr-dev/kickr/pkg/kickr/v1"
 )
 
+const flagVendor = "vendor"
+
 func chartCmd(wd *string) *cobra.Command {
-	return &cobra.Command{
+	var vendor bool
+
+	cmd := &cobra.Command{
 		Use:     "chart",
 		Short:   "Generate Helm chart only, kickr configuration optional",
 		GroupID: groupStandalone,
@@ -33,12 +38,23 @@ func chartCmd(wd *string) *cobra.Command {
 				}
 				config.Helm = &kickr.Helm{}
 			}
+			if vendor && !slices.Contains(config.Helm.Options, kickr.HelmOptionsVendorWorkload) {
+				if config.Version != 0 {
+					logger.Warnf("'--%s' applies to this run only, kickr configuration not updated", flagVendor)
+				}
+				config.Helm.Options = append(config.Helm.Options, kickr.HelmOptionsVendorWorkload)
+			}
 
 			client := httpClient()
 			generators := []engine.Generator[types.Repository]{
 				engine.GeneratorTemplates(templates.FS(), templates.Chart()),
+				generate.GeneratorWorkload(client),
 			}
 			return engine.Generate(cmd.Context(), *wd, types.Repository{Config: config}, generate.Parsers(client), generators)
 		},
 	}
+
+	cmd.Flags().BoolVar(&vendor, flagVendor, false, "vendor the workload chart from its main branch instead of its OCI release")
+
+	return cmd
 }

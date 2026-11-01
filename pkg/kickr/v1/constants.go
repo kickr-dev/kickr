@@ -83,6 +83,10 @@ const (
 )
 
 const (
+	HelmOptionsVendorWorkload = "vendor:workload"
+)
+
+const (
 	HelmTypeApplication = "application"
 	HelmTypeLibrary     = "library"
 )
