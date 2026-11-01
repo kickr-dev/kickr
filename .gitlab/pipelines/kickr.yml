@@ -30,7 +30,7 @@ kickr:
     - mise use -g golang@1.27.3
     # renovate: datasource=gitlab-tags packageName=gitlab-org/cli depName=glab
     - mise use -g glab@1.124.0
-    - go install github.com/kickr-dev/kickr/cmd/kickr@beta
+    - go install github.com/kickr-dev/kickr/cmd/kickr@main
   script:
     - kickr generate
     - git status -s

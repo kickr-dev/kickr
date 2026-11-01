@@ -34,7 +34,7 @@ jobs:
         with:
           check-latest: true
           token: ${{ secrets.GITHUB_TOKEN }}
-      - run: go install github.com/kickr-dev/kickr/cmd/kickr@beta
+      - run: go install github.com/kickr-dev/kickr/cmd/kickr@main
       - run: |
           kickr generate
           git status -s
