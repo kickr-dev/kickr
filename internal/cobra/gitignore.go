@@ -14,7 +14,7 @@ import (
 func gitignoreCmd(wd *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "gitignore",
-		Short:   "Generate .gitignore only, kickr configuration optional",
+		Short:   "Generate .gitignore only",
 		GroupID: groupStandalone,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

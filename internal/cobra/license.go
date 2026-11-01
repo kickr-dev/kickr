@@ -20,7 +20,7 @@ func licenseCmd(wd *string) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "license [id]",
-		Short:   "Generate LICENSE only, kickr configuration optional",
+		Short:   "Generate LICENSE only",
 		GroupID: groupStandalone,
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

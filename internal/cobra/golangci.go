@@ -15,7 +15,7 @@ import (
 func golangciCmd(wd *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "golangci",
-		Short:   "Generate .golangci.yml only, kickr configuration optional",
+		Short:   "Generate .golangci.yml only",
 		GroupID: groupStandalone,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

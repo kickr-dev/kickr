@@ -20,7 +20,7 @@ import (
 func plumberCmd(wd *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "plumber",
-		Short:   "Generate Plumber configuration and CI/CD only, kickr configuration optional",
+		Short:   "Generate Plumber configuration and its CI/CD only",
 		GroupID: groupStandalone,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

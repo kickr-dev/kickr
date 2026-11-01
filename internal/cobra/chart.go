@@ -22,7 +22,7 @@ func chartCmd(wd *string) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "chart",
-		Short:   "Generate Helm chart only, kickr configuration optional",
+		Short:   "Generate Helm chart only",
 		GroupID: groupStandalone,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

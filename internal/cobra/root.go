@@ -28,7 +28,7 @@ func Execute() {
 	var wd string
 
 	cmd := rootCmd(&wd)
-	cmd.AddGroup(&cobra.Group{ID: groupStandalone, Title: "Standalone generation:"})
+	cmd.AddGroup(&cobra.Group{ID: groupStandalone, Title: "Standalone generation (kickr configuration optional):"})
 	cmd.AddCommand(chartCmd(&wd), dockerCmd(&wd), gitignoreCmd(&wd), gitlabCmd(&wd), golangciCmd(&wd), licenseCmd(&wd), plumberCmd(&wd))
 	cmd.AddCommand(initializeCmd(&wd))
 	cmd.AddCommand(version())
@@ -50,11 +50,11 @@ func rootCmd(wd *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: filepath.Base(os.Args[0]),
 		Long: `Kickr generates and maintains a repository layout (CI/CD, Helm chart, Docker, linters, community files, etc.)
-from a kickr configuration and what it detects in the repository.
+from a kickr configuration and from what it detects in the repository.
 
-Run 'kickr' or 'kickr generate' to generate the whole layout, initializing the kickr configuration when missing.
-Run a standalone generation command (e.g. 'kickr chart' or 'kickr gitlab') to generate only that part, with or without kickr configuration.
-Without kickr configuration, standalone generations add no generated notice and regenerate their files on every run.`,
+Run 'kickr' or 'kickr generate' to generate the whole layout, and initialize the kickr configuration when it's missing.
+Standalone commands (e.g. 'kickr chart' or 'kickr gitlab') generate a single part, even without a kickr configuration,
+in which case they skip the generated notice and regenerate their files on every run.`,
 		SilenceErrors: true, // don't print errors with cobra, let logger.Fatal handle them
 		SilenceUsage:  true, // don't print help on errors, let usage function handle printing depending on command error
 
@@ -79,11 +79,11 @@ Without kickr configuration, standalone generations add no generated notice and 
 	}
 
 	cmd.PersistentFlags().StringVarP(wd, flagDir, flagShortDir, coalesce(getenv(envPrefix+"working-"+flagDir), getenv(envPrefix+flagDir)),
-		"set directory where generation will be made (default is current directory)")
+		"set the directory to generate in (default is the current directory)")
 	cmd.PersistentFlags().StringVar(&logFormat, flagLogFormat, coalesce(getenv(flagLogFormat), logFormat), `set logging format (either "text" or "json")`)
 	cmd.PersistentFlags().StringVar(&logLevel, flagLogLevel, coalesce(getenv(flagLogLevel), logLevel), "set logging level")
 	cmd.PersistentFlags().BoolVarP(&force, flagForce, flagShortForce, false,
-		"force generation of all files initially created by kickr (README.md, SECURITY.md, etc.) even if the initial generated notice has been removed")
+		"force generation of the files kickr created initially (README.md, SECURITY.md, etc.), even when their generated notice was removed")
 
 	_ = setupLogger(logFormat, logLevel) // ensure logging is correctly configured with default values even when a bad input flag is given
 

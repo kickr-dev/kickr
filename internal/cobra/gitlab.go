@@ -22,7 +22,7 @@ func gitlabCmd(wd *string) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "gitlab",
-		Short:   "Generate GitLab CI/CD only, kickr configuration optional",
+		Short:   "Generate GitLab CI/CD only",
 		GroupID: groupStandalone,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

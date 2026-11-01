@@ -17,7 +17,7 @@ import (
 func dockerCmd(wd *string) *cobra.Command {
 	return &cobra.Command{
 		Use:     "docker",
-		Short:   "Generate Docker files only (Dockerfile, .dockerignore, etc.), kickr configuration optional",
+		Short:   "Generate Docker files only (Dockerfile, .dockerignore, etc.)",
 		GroupID: groupStandalone,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
