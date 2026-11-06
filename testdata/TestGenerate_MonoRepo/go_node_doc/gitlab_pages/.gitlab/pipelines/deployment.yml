@@ -5,7 +5,7 @@ include:
 
   # Docker template
   # https://gitlab.com/to-be-continuous/docker
-  - remote: https://gitlab.com/to-be-continuous/docker/-/raw/ad253fc7bf6a8d1a53111d09b7bad19f4b5c65b9/templates/gitlab-ci-docker.yml # 8.5.1
+  - remote: https://gitlab.com/to-be-continuous/docker/-/raw/a22fa5a69924543d6235fe452b2a018e0b8fc6cf/templates/gitlab-ci-docker.yml # 8.5.3
     inputs:
       build-args: |
         --build-arg GIT_REF_NAME=$CI_COMMIT_REF_NAME
