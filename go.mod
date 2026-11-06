@@ -7,7 +7,7 @@ toolchain go1.27.3
 // replace gitlab.com/kickr-dev/engine => ../engine
 
 require (
-	charm.land/bubbletea/v2 v2.1.0
+	charm.land/bubbletea/v2 v2.1.1
 	charm.land/huh/v2 v2.0.3
 	charm.land/log/v2 v2.0.1
 	dario.cat/mergo v1.0.2
@@ -18,7 +18,7 @@ require (
 	github.com/kilianpaquier/compare v1.1.3
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
-	gitlab.com/gitlab-org/api/client-go/v3 v3.27.0
+	gitlab.com/gitlab-org/api/client-go/v3 v3.40.0
 	gitlab.com/kickr-dev/engine v0.2.0
 )
 
