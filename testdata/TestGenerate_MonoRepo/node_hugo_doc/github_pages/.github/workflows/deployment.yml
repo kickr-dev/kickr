@@ -102,10 +102,10 @@ jobs:
         with:
           fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
           submodules: true # fetch Hugo themes
-      - uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           # renovate: datasource=github-tags packageName=jdx/mise depName=mise
-          version: v2026.10.25
+          version: v2026.11.4
           install: false
           cache: true
       - run: |-
@@ -114,7 +114,7 @@ jobs:
           # renovate: datasource=github-tags packageName=gohugoio/hugo depName=hugo
           - mise use -g hugo-extended@0.169.0
           # renovate: datasource=github-tags packageName=sass/dart-sass depName=dart-sass
-          - mise use -g github:sass/dart-sass@1.107.1
+          - mise use -g github:sass/dart-sass@1.108.1
       - run: hugo build --gc --destination dist --logLevel "$LOG_LEVEL"
         env:
           LOG_LEVEL: ${{ vars.HUGO_LOG_LEVEL || 'info' }}
