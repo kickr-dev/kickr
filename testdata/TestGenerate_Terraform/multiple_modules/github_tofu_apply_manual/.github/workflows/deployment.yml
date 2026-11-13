@@ -93,7 +93,7 @@ jobs:
         run: echo "list=$(paste -sd' ' .github/semrel-plugins.txt)" >> "$GITHUB_OUTPUT"
       # https://github.com/marketplace/actions/action-for-semantic-release
       - id: semrel_version
-        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
+        uses: cycjimmy/semantic-release-action@9e1f8a3ef91f1097285028e799a5fb8bb90e8899 # v8.1.0
         with:
           dry_run: true
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
@@ -216,7 +216,7 @@ jobs:
         run: echo "list=$(paste -sd' ' .github/semrel-plugins.txt)" >> "$GITHUB_OUTPUT"
       # https://github.com/marketplace/actions/action-for-semantic-release
       - id: semrel_version
-        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
+        uses: cycjimmy/semantic-release-action@9e1f8a3ef91f1097285028e799a5fb8bb90e8899 # v8.1.0
         with:
           dry_run: ${{ inputs.release != 'release' }}
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
