@@ -4,7 +4,7 @@
 include:
   # Plumber template
   # https://gitlab.com/getplumber/plumber
-  - remote: https://gitlab.com/getplumber/plumber/-/raw/deb7e89b4b3ecce019231490fa55bb3f5b3dd40c/templates/plumber.yml # v0.7.17
+  - remote: https://gitlab.com/getplumber/plumber/-/raw/9c5cf80845a125494764d1531994e3ce1fbf3534/templates/plumber.yml # v0.7.23
     inputs:
       allow_failure: true
       badge: false
@@ -16,7 +16,7 @@ include:
       score_push: true
 
 variables:
-  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.17@sha256:ad79f611877c98a8c41986341383c73237eba0590f5189b230b127125204222a
+  PLUMBER_IMAGE: docker.io/getplumber/plumber:0.7.23@sha256:3d44d5b79e918e22c006c2db6af20a366401a9bf59a3a667d7bf511ede8d7fd1
 
 plumber:
   rules:

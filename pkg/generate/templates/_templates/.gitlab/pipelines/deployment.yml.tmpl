@@ -78,7 +78,7 @@ include:{{ if not $has_include }} []{{ end }}
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - remote: https://gitlab.com/to-be-continuous/helm/-/raw/c974755ae7b97cd4164a8c5ac0d52d85ac0766b4/templates/gitlab-ci-helm.yml # 9.7.2
+  - remote: https://gitlab.com/to-be-continuous/helm/-/raw/53acd6af39a3d2d2a2209052c1d3d4e31fb30a2b/templates/gitlab-ci-helm.yml # 9.7.3
     inputs:
       chart-dir: chart
       package-args: package{{ if not .Config.IsHelmLibrary }} --app-version "$APP_VERSION"{{ end }} --dependency-update
