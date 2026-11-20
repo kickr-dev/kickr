@@ -23,20 +23,20 @@ variables:
   ####################################
 
   SEMREL_IMAGE: docker.io/library/node:26.13.1-alpine3.23@sha256:39d8c143e60e99ae98f014bebea1e72fc96d3c9bdf9504bc3a27af5c05bfa39f
-  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.169.0@sha256:a146e0639230bbc73358e6563240f0a6103466f0390b80a457c775068ec802a9
-  ORAS_IMAGE: ghcr.io/oras-project/oras:v1.3.6@sha256:9cfb578be975b762fd898b9d004243d8003aeb807a3e15b2ed212cdd1326c9eb
+  HUGO_IMAGE: ghcr.io/gohugoio/hugo:v0.170.1@sha256:4cc9f383086c0fba180efcf7132cf2f025969c462fedf5fcd2bf921915416797
+  ORAS_IMAGE: ghcr.io/oras-project/oras:v1.4.0@sha256:5fabb4e523de1781443c227fca62782a51aeacd044413c07f54dc64935d7f013
   PAGES_IMAGE: docker.io/library/debian:trixie-slim@sha256:b6e2a152f22a40ff69d92cb397223c906017e1391a73c952b588e51af8883bf8
 
-  DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.45.1@sha256:edaf52e4277122e4aa2557e716108733e00c8395caa3674002cec359040d6e8a
-  DOCKER_DIND_IMAGE: docker.io/library/docker:29.9.3-dind@sha256:08a98015fce594af7c382883bea080ea206de74402a95da9dc52b6428c8cd121
+  DOCKER_BUILDAH_IMAGE: quay.io/containers/buildah:v1.46.1@sha256:1cd264399f72515a6ab31cb07e15e3983f384c17dede54d6e6c34615dd79727a
+  DOCKER_DIND_IMAGE: docker.io/library/docker:29.10.0-dind@sha256:4bbc7223f81db790097c6dea42fb93e05b8fead4f0431fbe6ccaba6e8473201c
   DOCKER_HADOLINT_IMAGE: docker.io/hadolint/hadolint:v2.15.1-alpine@sha256:a1d49ae1a4e83c1dbad26b8c1ad7588c8bd1e04f4866b34ad3cac50335198552
-  DOCKER_IMAGE: docker.io/library/docker:29.9.3@sha256:08a98015fce594af7c382883bea080ea206de74402a95da9dc52b6428c8cd121
+  DOCKER_IMAGE: docker.io/library/docker:29.10.0@sha256:4bbc7223f81db790097c6dea42fb93e05b8fead4f0431fbe6ccaba6e8473201c
   DOCKER_KANIKO_IMAGE: registry.gitlab.com/to-be-continuous/tools/kaniko:1.25.19@sha256:a218eda674a5e9784b2f31b0ecd5b0de2f816e7b795fce93b48f48c1bb956fcf
-  DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.57.0-debug@sha256:b4bb1b42287176252af950fe601bda412ec66dd1ad56762735508eddb0e79dfa
-  DOCKER_SKOPEO_IMAGE: quay.io/containers/skopeo:v1.24.1@sha256:0c6442e8dfe2a0cdf1b9c3cfa46f0401744c09fd892acf58e85c92216cf982eb
+  DOCKER_SBOM_IMAGE: docker.io/anchore/syft:v1.57.2-debug@sha256:f0368b2eb2177250966df45efbd34aa6e9809539ebd391e99eb3bed448564ebb
+  DOCKER_SKOPEO_IMAGE: quay.io/containers/skopeo:v1.25.1@sha256:e39962a984a37d2590863b09a7ed7d7277ffe7f20edaae82db0e3784c496412b
   DOCKER_TRIVY_IMAGE: docker.io/aquasec/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb
 
   GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.15.0-alpine@sha256:2ba875b990f1d8501ad4ec19be1ea0701e316ec3a4b764f7b129f62f01318bbf
-  GO_IMAGE: docker.io/library/golang:1.27.3-trixie@sha256:af1bfc2614ebb1dbd31af514b78740fd678850e76498762b425ecee4c5c6ea80
-  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.184.0@sha256:cc1b68266f267878b39739373ea9985b9a78e5d64497dd875c8de100b22695ed
-  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.20.2@sha256:5d30bb36091b1a6d275ef450be05ee9c0d8c8b22955efe53dfe0974dd583cdc2
+  GO_IMAGE: docker.io/library/golang:1.27.4-trixie@sha256:f18c3d73a184fb0582828510722e723b63a93f7188d11dd223d9be6f6880e65d
+  GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.185.0@sha256:67518c174185a2043fdbed16c70631b79209499b3671178e7194379b48295a0d
+  GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.20.3@sha256:3019e0e61c99808e42ce60c9cf77f7882685ffd2bd09d18ef6da8f9c9810e71c

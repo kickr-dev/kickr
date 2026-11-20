@@ -34,7 +34,7 @@ include:
 
   # Helm template
   # https://gitlab.com/to-be-continuous/helm
-  - remote: https://gitlab.com/to-be-continuous/helm/-/raw/53acd6af39a3d2d2a2209052c1d3d4e31fb30a2b/templates/gitlab-ci-helm.yml # 9.7.3
+  - remote: https://gitlab.com/to-be-continuous/helm/-/raw/bd63a46fbb6fe8a45cf6ec445ee05ebbcd813678/templates/gitlab-ci-helm.yml # 9.7.4
     inputs:
       chart-dir: chart
       package-args: package --app-version "$APP_VERSION" --dependency-update

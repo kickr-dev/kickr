@@ -17,4 +17,4 @@ variables:
   ####################################
 
   SEMREL_IMAGE: docker.io/library/node:26.13.1-alpine3.23@sha256:39d8c143e60e99ae98f014bebea1e72fc96d3c9bdf9504bc3a27af5c05bfa39f
-  RENOVATE_IMAGE: docker.io/renovate/renovate:44.222.4@sha256:306316fc9e8c424dde672590699d681f9c8764cc9152141d2c5059956ce1e3b8
+  RENOVATE_IMAGE: docker.io/renovate/renovate:44.256.1@sha256:7138934c013df961d92acf6e3f1326f9dc705ed3d02e399ac0a3395d777182ff
