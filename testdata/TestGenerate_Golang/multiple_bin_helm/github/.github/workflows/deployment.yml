@@ -108,7 +108,7 @@ jobs:
         run: echo "list=$(paste -sd' ' .github/semrel-plugins.txt)" >> "$GITHUB_OUTPUT"
       # https://github.com/marketplace/actions/action-for-semantic-release
       - id: semrel_version
-        uses: cycjimmy/semantic-release-action@9e1f8a3ef91f1097285028e799a5fb8bb90e8899 # v8.1.0
+        uses: cycjimmy/semantic-release-action@ad51787758d9654d5a75150a89a6fa9b3ccef95e # v8.1.4
         with:
           dry_run: true
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
@@ -241,10 +241,10 @@ jobs:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # https://github.com/marketplace/actions/helm-tool-installer
-      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+      - uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.3.1
+          version: v4.3.2
       - run: helm package --version "$APP_VERSION" --app-version "$APP_VERSION" --dependency-update "$HELM_CHART_DIR"
         env:
           HELM_CHART_DIR: chart/
@@ -301,10 +301,10 @@ jobs:
           egress-policy: audit
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # https://github.com/marketplace/actions/helm-tool-installer
-      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+      - uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
         with:
           # renovate: datasource=github-tags packageName=helm/helm depName=helm
-          version: v4.3.1
+          version: v4.3.2
       - shell: bash
         run: |-
           args=(--install --kube-context "$ENVIRONMENT" --version "$APP_VERSION" -f "$HELM_CHART_DIR/values.default.yaml" -f "$HELM_CHART_DIR/values.$ENVIRONMENT.yaml" --set "appVersion=$APP_VERSION")
@@ -361,7 +361,7 @@ jobs:
         run: echo "list=$(paste -sd' ' .github/semrel-plugins.txt)" >> "$GITHUB_OUTPUT"
       # https://github.com/marketplace/actions/action-for-semantic-release
       - id: semrel_version
-        uses: cycjimmy/semantic-release-action@9e1f8a3ef91f1097285028e799a5fb8bb90e8899 # v8.1.0
+        uses: cycjimmy/semantic-release-action@ad51787758d9654d5a75150a89a6fa9b3ccef95e # v8.1.4
         with:
           dry_run: ${{ inputs.release != 'release' }}
           # renovate: datasource=github-tags packageName=semantic-release/semantic-release depName=semantic-release
