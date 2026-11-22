@@ -77,7 +77,7 @@ repos:
 {{- if gt (len $terraform_publish_modules) 0 }}
   - repo: https://github.com/terraform-docs/terraform-docs
     # renovate: datasource=github-tags packageName=terraform-docs/terraform-docs depName=terraform-docs
-    rev: v0.24.0
+    rev: v0.25.1
     hooks:
 {{- range $terraform_publish_modules }}
       - id: terraform-docs-go
@@ -91,7 +91,7 @@ repos:
 {{- if eq $teraform_cmd "terraform" }}
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     # renovate: datasource=github-tags packageName=antonbabenko/pre-commit-terraform depName=pre-commit-terraform
-    rev: v1.109.4
+    rev: v1.109.5
     hooks:
       - id: {{ $teraform_cmd }}_fmt
       - id: {{ $teraform_cmd }}_validate
