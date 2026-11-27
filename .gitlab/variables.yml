@@ -21,6 +21,6 @@ variables:
   PRE_COMMIT_IMAGE: docker.io/library/python:3.15.2-alpine3.23@sha256:32f06114a111c2467804d06194c5584f16804a78cfaf427fb1fcbb0b3391d0f1
 
   GO_CI_LINT_IMAGE: docker.io/golangci/golangci-lint:v2.15.0-alpine@sha256:2ba875b990f1d8501ad4ec19be1ea0701e316ec3a4b764f7b129f62f01318bbf
-  GO_IMAGE: docker.io/library/golang:1.27.4-trixie@sha256:f18c3d73a184fb0582828510722e723b63a93f7188d11dd223d9be6f6880e65d
+  GO_IMAGE: docker.io/library/golang:1.27.4-trixie@sha256:430985542100b871e108ccc00e8dcc5eef08ca14ee5825e98ebf563d8ffec4ee
   GO_SEMGREP_IMAGE: docker.io/semgrep/semgrep:1.185.0@sha256:67518c174185a2043fdbed16c70631b79209499b3671178e7194379b48295a0d
   GO_GORELEASER_IMAGE: ghcr.io/goreleaser/goreleaser:v2.20.3@sha256:3019e0e61c99808e42ce60c9cf77f7882685ffd2bd09d18ef6da8f9c9810e71c

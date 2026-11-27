@@ -2,7 +2,7 @@
 
 {{- $specifics := get .Languages "hugo" }}
 
-ARG BASE_IMAGE=nginx:1.31.8-alpine3.24@sha256:1ef7ca94d7879df82421428ce13bd1eaa412404953859cf7a5b6512c25e67a60
+ARG BASE_IMAGE=nginx:1.31.10-alpine3.24@sha256:7fc0fb4af7bf006aeb31aea88069976060f8f0a0a86b667126742cc17f4e31ae
 
 #############################
 #        STAGE BUILD        #
@@ -10,7 +10,7 @@ ARG BASE_IMAGE=nginx:1.31.8-alpine3.24@sha256:1ef7ca94d7879df82421428ce13bd1eaa4
 {{- if $specifics.ContainerImage }}
 FROM {{ $specifics.ContainerImage }} AS build
 {{- else }}
-FROM ghcr.io/gohugoio/hugo:v0.169.0@sha256:a146e0639230bbc73358e6563240f0a6103466f0390b80a457c775068ec802a9 AS build
+FROM ghcr.io/gohugoio/hugo:v0.170.1@sha256:4cc9f383086c0fba180efcf7132cf2f025969c462fedf5fcd2bf921915416797 AS build
 {{- end }}
 
 WORKDIR /app
